@@ -1,12 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# liter: Writing R Packages via Literate Programming
+# litr: Writing R Packages via Literate Programming
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of `liter` is to allow you to write a complete R package in a
+The goal of `litr` is to allow you to write a complete R package in a
 single R markdown document. This enables a workflow for writing R
 packages that is probably very different from what you are used to.
 
@@ -49,19 +49,19 @@ a proof of concept.
 
 ## Getting Started
 
-You can install `liter` and get started like so:
+You can install `litr` and get started like so:
 
 ``` r
-devtools::install_github("jacobbien/liter")
-rmarkdown::draft("my-package.Rmd", template = "make-an-r-package", package = "liter")
+devtools::install_github("jacobbien/litr")
+rmarkdown::draft("my-package.Rmd", template = "make-an-r-package", package = "litr")
 ```
 
-This installs `liter` and then creates an R markdown template file
-called `my-package.Rmd` that demonstrates the literate programming
-workflow for writing an R package. In particular, when you knit
-`my-package.Rmd`, it creates a tiny example R package called `rhello`
-with one function and one test function. To knit, you can either press
-“Knit” in RStudio or use the following command:
+This installs `litr` and then creates an R markdown template file called
+`my-package.Rmd` that demonstrates the literate programming workflow for
+writing an R package. In particular, when you knit `my-package.Rmd`, it
+creates a tiny example R package called `rhello` with one function and
+one test function. To knit, you can either press “Knit” in RStudio or
+use the following command:
 
 ``` r
 rmarkdown::render("my-package.Rmd")

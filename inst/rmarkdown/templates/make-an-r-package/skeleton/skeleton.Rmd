@@ -8,7 +8,7 @@ date: "The Date"
 # Leave this chunk as is.  It sets things up so that code from this document
 # ends up in the R package:
 setup_chunk_label <- knitr::opts_current$get("label")
-knitr::knit_hooks$set(send_to_package = liter::send_to_package)
+knitr::knit_hooks$set(send_to_package = litr::send_to_package)
 knitr::opts_chunk$set(send_to_package = TRUE)
 ```
 
