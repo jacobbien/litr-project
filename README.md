@@ -49,28 +49,20 @@ a proof of concept.
 
 ## Getting Started
 
-You can install the development version of `liter` like so:
+You can install `liter` and get started like so:
 
 ``` r
 devtools::install_github("jacobbien/liter")
+rmarkdown::draft("my-package.Rmd", template = "make-an-r-package", package = "liter")
 ```
 
-You can then get started like so:
-
-``` r
-rmarkdown::draft("my-package.Rmd", template = "template-to-make-an-r-package", package = "liter")
-```
-
-This creates an R markdown template file called `my-package.Rmd` that
-demonstrates the literate programming workflow for writing an R package.
-In particular, when you knit `my-package.Rmd`, it creates a tiny example
-R package with one function and one test function. To knit, you can
-either press “Knit” in RStudio or use the following command:
+This installs `liter` and then creates an R markdown template file
+called `my-package.Rmd` that demonstrates the literate programming
+workflow for writing an R package. In particular, when you knit
+`my-package.Rmd`, it creates a tiny example R package called `rhello`
+with one function and one test function. To knit, you can either press
+“Knit” in RStudio or use the following command:
 
 ``` r
 rmarkdown::render("my-package.Rmd")
 ```
-
-## Example
-
-For a more extensive example, see here.
