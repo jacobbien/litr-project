@@ -1,0 +1,93 @@
+---
+title: "A Document That Creates an R Package"
+author: "Your Name"
+date: "The Date"
+---
+
+```{r knitr-setup, include=FALSE}
+# Leave this chunk as is.  It sets things up so that code from this document
+# ends up in the R package:
+setup_chunk_label <- knitr::opts_current$get("label")
+knitr::knit_hooks$set(send_to_package = liter::send_to_package)
+knitr::opts_chunk$set(send_to_package = TRUE)
+```
+
+## Package setup
+
+We start by naming the package and specifying the other information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+package_name <- "rhello"
+if (file.exists(package_name)) unlink(package_name, recursive = TRUE)
+usethis::create_package(
+  path = package_name,
+  fields = list(
+    Package = package_name,
+    Version = "0.0.0.9000",
+    Title = "A Package That Says Hello",
+    Description = "This package says hello.  But it's actual purpose is to show how an R package can be completely coded in a single R markdown file.",
+    `Authors@R` = person(
+      given = "Jacob",
+      family = "Bien",
+      email = "jbien@usc.edu",
+      role = c("aut", "cre")
+      )
+  )
+)
+wd <- getwd()
+setwd(package_name)
+usethis::use_mit_license(copyright_holder = "J. Bien")
+usethis::use_testthat()
+setwd(wd)
+```
+
+## Now to the package itself
+
+### Define a function
+
+Let's define a function for our R package:
+
+```{r}
+#' Say hello to someone
+#' 
+#' @param name Name of a person
+#' @param exclamation Whether to include an exclamation mark
+#' @export 
+say_hello <- function(name, exclamation = TRUE) {
+  paste0("Hello ", name, ifelse(exclamation, "!", "."))
+}
+```
+
+Code chunks whose first line starts with `#'` are added to the package.
+
+We can try running it.
+
+```{r}
+say_hello("Jacob")
+```
+
+That code chunk does not start with `#'`, so it is not added to the package.
+
+Let's write some tests to make sure the function behaves as desired:
+
+```{r}
+testthat::test_that("say_hello works", {
+  testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
+  testthat::expect_equal(say_hello("Jacob", exclamation = FALSE), "Hello Jacob.")
+})
+```
+
+Code chunks that have `testthat::` in them are added to the package as tests.
+
+## Documenting the package and building
+
+We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+
+```{r}
+rm(list = setdiff(ls(), "package_name"))
+devtools::document(package_name)
+devtools::build(package_name)
+devtools::install(package_name)
+# devtools::check(package_name)
+```
+
