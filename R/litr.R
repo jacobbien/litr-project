@@ -44,3 +44,25 @@ send_to_package <- function(before, options, envir) {
   }
   return()
 }
+
+#' Use roxygen to document a package
+#' 
+#' This is a wrapper for the `devtools::document()` function, which in turn is a
+#' wrapper for the `roxygen2::roxygenize()` function.  The purpose for `litr` 
+#' having this wrapper is to make one modification.  In particular, the line
+#' in the outputted `Rd` files should not say "Please edit documentation in 
+#' R/file.R" but instead should refer to the Rmd file that generates everything. 
+#' 
+#' @param ... Arguments to be passed to `devtools::document()`
+#' @export
+document <- function(...) {
+  devtools::document(...)
+  # remove the line of the following form in each man/*.Rd file:
+  pattern <- "% Please edit documentation in .*$"
+  msg <- stringr::str_glue("% Please edit documentation in {knitr::current_input()}.")
+  for (fname in fs::dir_ls("man")) {
+    #txt <- stringr::str_subset(readLines(fname), pattern, negate = TRUE)
+    txt <- stringr::str_replace(readLines(fname), pattern, msg)
+    cat(paste(txt, collapse = "\n"), file = fname)
+  }
+}
