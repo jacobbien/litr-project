@@ -1,26 +1,34 @@
 ---
-title: "A Document That Creates an R Package"
+title: "A Document That Creates the `r params$package_name` R Package"
 author: "Your Name"
 date: "The Date"
+params:
+  package_name: rhello # <-- change this to your package name
 ---
+
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `rmarkdown::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+-->
 
 ```{r knitr-setup, include=FALSE}
 # Leave this chunk as is.  It sets things up so that code from this document
 # ends up in the R package:
+package_name <- params$package_name
+if (file.exists(package_name)) unlink(package_name, recursive = TRUE)
+fs::dir_create(package_name)
+knitr::opts_knit$set(root.dir = package_name) # sets wd of future chunks
 setup_chunk_label <- knitr::opts_current$get("label")
 knitr::knit_hooks$set(send_to_package = litr::send_to_package)
 knitr::opts_chunk$set(send_to_package = TRUE)
 ```
 
+
 ## Package setup
 
-We start by naming the package and specifying the other information needed in the DESCRIPTION file of the R package.
+We start by specifying the information needed in the DESCRIPTION file of the R package.
 
 ```{r package-setup, message=FALSE, results='hide'}
-package_name <- "rhello"
-if (file.exists(package_name)) unlink(package_name, recursive = TRUE)
 usethis::create_package(
-  path = package_name,
+  path = ".",
   fields = list(
     Package = package_name,
     Version = "0.0.0.9000",
@@ -34,11 +42,8 @@ usethis::create_package(
       )
   )
 )
-wd <- getwd()
-setwd(package_name)
 usethis::use_mit_license(copyright_holder = "J. Bien")
 usethis::use_testthat()
-setwd(wd)
 ```
 
 ## Now to the package itself
@@ -84,10 +89,10 @@ Code chunks that have `testthat::` in them are added to the package as tests.
 We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
 
 ```{r}
-rm(list = setdiff(ls(), "package_name"))
-devtools::document(package_name)
-devtools::build(package_name)
-devtools::install(package_name)
-# devtools::check(package_name)
+rm(list = ls())
+devtools::document()
+devtools::build()
+devtools::install()
+# devtools::check()
 ```
 

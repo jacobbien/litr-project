@@ -26,14 +26,14 @@ send_to_package <- function(before, options, envir) {
       fname <- stringr::str_match(non_comment[1], "^(.*)\\s*<-\\s*function")[, 2]
       fname <- stringr::str_trim(fname)
       file <- file.path(
-        envir$wd, envir$package_name, "R", stringr::str_glue("{fname}.R")
+        envir$package_name, "R", stringr::str_glue("{fname}.R")
         )
       cat(paste(c(msg, "", options$code), collapse = "\n"), file = file)
     }
   }
   else if (any(stringr::str_detect(options$code, "testthat::"))) {
     # This chunk is inferred to be a test
-    test_file <- file.path(envir$wd, envir$package_name, "tests", "testthat", "tests.R")
+    test_file <- file.path(envir$package_name, "tests", "testthat", "tests.R")
     if (!file.exists(test_file))
       cat(c(msg, ""), collapse = "\n", file = test_file)
     cat(
