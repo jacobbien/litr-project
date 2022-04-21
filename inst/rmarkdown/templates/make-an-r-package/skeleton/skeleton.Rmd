@@ -35,14 +35,14 @@ usethis::create_package(
     Title = "A Package That Says Hello",
     Description = "This package says hello.  But it's actual purpose is to show how an R package can be completely coded in a single R markdown file.",
     `Authors@R` = person(
-      given = "Jacob",
-      family = "Bien",
-      email = "jbien@usc.edu",
+      given = "First",
+      family = "Last",
+      email = "you@gmail.com",
       role = c("aut", "cre")
       )
   )
 )
-usethis::use_mit_license(copyright_holder = "J. Bien")
+usethis::use_mit_license(copyright_holder = "F. Last")
 usethis::use_testthat()
 ```
 
