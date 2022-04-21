@@ -90,7 +90,7 @@ We finish by running commands that will document, build, and install the package
 
 ```{r}
 rm(list = ls())
-devtools::document()
+litr::document() # <-- use instead of devtools::document()
 devtools::build()
 devtools::install()
 # devtools::check()
