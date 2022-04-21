@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 The goal of `litr` is to allow you to write a complete R package in a single R markdown document. This enables a workflow for writing R packages that is probably very different from what you are used to.
 
-## Why would one want to do this?
+## Why would one want to write R packages in this way?
 
 When you look at the code in an R package, the logic of how the functions relate to each other is not obvious.  While including function documentation, vignettes, and unit tests are all best practices, they do not convey the chain of logic in the mind of the programmer that went into writing the different functions.  It can be difficult to know how to look through all the functions within even a well-documented R package.  The fact that the functions appear in different files and that functions within files can be defined in arbitrary order makes it unclear how to approach reading the code.  Furthermore, tests are stored in a different place from the functions themselves, making the tests harder to read.  This would all be resolved if we could have a single document that goes through all code and tests in the linear fashion that they were written.  Rather than try to construct such a document as an after thought, the idea is to *make this document the source code for the package*.  **The R package is created through the act of knitting this document.**  If we want to modify anything in the package, then we do so by modifying this document and re-knitting.
 

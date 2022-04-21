@@ -10,7 +10,7 @@ The goal of `litr` is to allow you to write a complete R package in a
 single R markdown document. This enables a workflow for writing R
 packages that is probably very different from what you are used to.
 
-## Why would one want to do this?
+## Why would one want to write R packages in this way?
 
 When you look at the code in an R package, the logic of how the
 functions relate to each other is not obvious. While including function
