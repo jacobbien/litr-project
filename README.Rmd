@@ -40,7 +40,7 @@ rmarkdown::draft("my-package.Rmd", template = "make-an-r-package", package = "li
 This installs `litr` and then creates an R markdown template file called `my-package.Rmd` that demonstrates the literate programming workflow for writing an R package.  In particular, when you knit `my-package.Rmd`, it creates a tiny example R package called `rhello` with one function and one test function.  To knit, you can either press "Knit" in RStudio or use the following command:
 
 ```{r}
-rmarkdown::render("my-package.Rmd")
+litr::render("my-package.Rmd")
 ```
 
 

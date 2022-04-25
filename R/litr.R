@@ -66,3 +66,64 @@ document <- function(...) {
     cat(paste(txt, collapse = "\n"), file = fname)
   }
 }
+
+#' Add hyperlinks to function definitions
+#' 
+#' Finds functions that are defined in the html file by looking for text of the 
+#' form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` 
+#' and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it be
+#' a hyperlink to `foo`'s definition.
+#' 
+#' @param html_file File name of html file that was created from Rmd file
+#' @param output_file File name to output to. Default: `html_file`
+#' @export
+add_function_hyperlinks <- function(html_file, output_file = html_file) {
+  txt <- readLines(html_file)
+  start_line <- which(txt == "<body>")
+  pattern <- "([a-zA-Z0-9_.]+)(\\s*&lt;-\\s*function)"
+  # find functions that are defined in this file:
+  function_names <- character(0)
+  for (i in seq(start_line + 1, length(txt))) {
+    fn_name <- stringr::str_match(txt[i], pattern)[, 2]
+    if(is.na(fn_name)) next
+    # a function was defined in this line, so put a span around it
+    txt[i] <- stringr::str_replace(
+      txt[i],
+      pattern,
+      stringr::str_glue("<span id='{fn_name}'>\\1</span>\\2")
+      )
+    # and keep track of it for later:
+    function_names <- c(function_names, fn_name)
+  }
+  
+  # whenever one of these named functions is named, link to its definition
+  txt <- stringr::str_replace_all(
+    txt,
+    paste0(function_names, "\\(", collapse = "|"),
+    function(x) {
+      fn_name <- stringr::str_remove(x, "\\(")
+      stringr::str_glue("<a href='#{fn_name}'>{fn_name}</a>(")
+    }
+  )
+  writeLines(txt, con = output_file)
+}
+
+#' Render R markdown file
+#' 
+#' Wrapper to `rmarkdown::render` that does some post-processing on the html 
+#' file when that is the output.  In particular, when an html file is among the 
+#' outputs, it adds hyperlinks to functions defined within the file to make it 
+#' easier for someone reading the code to see where different functions are
+#' defined.
+#' 
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param ... Additional parameters to pass to `rmarkdown::render`
+#' @export
+render <- function(input, ...) {
+  args <- list(...)
+  out <- rmarkdown::render(input, ...)
+  if (any(stringr::str_detect(out, "html$"))) {
+    html_file <- stringr::str_subset(out, "html$")
+    add_function_hyperlinks(html_file)
+  }
+}

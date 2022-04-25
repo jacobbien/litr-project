@@ -2,6 +2,7 @@
 title: "A Document That Creates the `r params$package_name` R Package"
 author: "Your Name"
 date: "The Date"
+knit: litr::render
 params:
   package_name: rhello # <-- change this to your package name
 ---

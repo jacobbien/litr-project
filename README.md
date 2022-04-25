@@ -65,5 +65,5 @@ one test function. To knit, you can either press “Knit” in RStudio or
 use the following command:
 
 ``` r
-rmarkdown::render("my-package.Rmd")
+litr::render("my-package.Rmd")
 ```
