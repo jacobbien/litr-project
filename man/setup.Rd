@@ -11,8 +11,8 @@ setup(package_dir)
 }
 \description{
 Creates directory where package will be. (Deletes what is currently there as
-long as it appears to have been created by the Rmd file from which this
-function is being called.)  Sets the root directory to this directory and
+long as it appears to have been created by litr and does not have any
+subsequent manual edits.)  Sets the root directory to this directory and
 sets up the main chunk hook \code{litr::send_to_package} that sends code to the R
 package directory.
 }

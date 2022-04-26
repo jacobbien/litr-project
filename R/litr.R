@@ -146,18 +146,14 @@ render <- function(input, ...) {
     add_function_hyperlinks(html_file)
   }
   
-  # # get package directory used (if not passed as an argument to render
-  # # then defaults to input's YAML)
-  # params <- get_params_used(input, args$params)
-  # 
-  # package_dir <- ifelse(
-  #   params$package_parent_dir == ".",
-  #   file.path(dirname(input), params$package_name),
-  #   file.path(dirname(input), params$package_parent_dir, params$package_name)
-  # )
-  # 
   # add litr hash so we can tell later if package files were manually edited:
-  # write_hash_to_description(package_dir)
+  params <- get_params_used(input, args$params)
+  package_dir <- ifelse(
+    params$package_parent_dir == ".",
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
+  )
+  write_hash_to_description(package_dir)
 }
 
 #' Get parameter values used in rendering
@@ -166,32 +162,37 @@ render <- function(input, ...) {
 #' overrides the default that appears in `input`.
 #' @param input The input file to be rendered (see `rmarkdown::render`)
 #' @param passed_params The list of parameters that were passed to `render`.
-# get_params_used <- function(input, passed_params) {
-#   params <- rmarkdown::yaml_front_matter(input)$params
-#   for (param in names(passed_params)) {
-#     params[[param]] <- passed_params[[param]]
-#   }
-#   params
-# }
+get_params_used <- function(input, passed_params) {
+  params <- rmarkdown::yaml_front_matter(input)$params
+  for (param in names(passed_params)) {
+    params[[param]] <- passed_params[[param]]
+  }
+  params
+}
 
 #' Code for setup chunk
 #' 
 #' Creates directory where package will be. (Deletes what is currently there as 
-#' long as it appears to have been created by the Rmd file from which this 
-#' function is being called.)  Sets the root directory to this directory and 
+#' long as it appears to have been created by litr and does not have any 
+#' subsequent manual edits.)  Sets the root directory to this directory and 
 #' sets up the main chunk hook `litr::send_to_package` that sends code to the R 
 #' package directory.
 #' @param package_dir Directory where R package will be created
 #' @export
 setup <- function(package_dir) {
-  current_rmd_file <- knitr::current_input()
   if (file.exists(package_dir)) {
-#    if (was_created_by(package_dir, current_rmd_file))
-      unlink(package_dir, recursive = TRUE)
-#    else 
-      # stop(stringr::str_glue("A directory named {package_dir} already exists"),
-      #      " that may not have been created by this Rmd file. Please rename that",
-      #      " directory (or delete it) and then try again.")
+    unedited <- tryCatch(check_unedited(package_dir),
+                         error = function(e) {
+                           # contents of package_dir does not resemble
+                           # a litr package
+                           return(FALSE)
+                           })
+    if (unedited) unlink(package_dir, recursive = TRUE)
+    else 
+      stop(stringr::str_glue("The directory {normalizePath(package_dir)} already"),
+           " exists and either was not created by litr or may have manual",
+           " edits. In either case, please rename that",
+           " directory (or delete it) and then try again.")
   }
   fs::dir_create(package_dir)
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
