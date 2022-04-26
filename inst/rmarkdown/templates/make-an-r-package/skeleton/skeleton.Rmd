@@ -11,15 +11,11 @@ params:
 -->
 
 ```{r knitr-setup, include=FALSE}
-# Leave this chunk as is.  It sets things up so that code from this document
-# ends up in the R package:
+# Leave this chunk as is.  It creates a directory for the R package and then 
+# sets things up so that code from this document ends up in the R package:
 package_name <- params$package_name
-if (file.exists(package_name)) unlink(package_name, recursive = TRUE)
-fs::dir_create(package_name)
-knitr::opts_knit$set(root.dir = package_name) # sets wd of future chunks
 setup_chunk_label <- knitr::opts_current$get("label")
-knitr::knit_hooks$set(send_to_package = litr::send_to_package)
-knitr::opts_chunk$set(send_to_package = TRUE)
+litr::setup(package_name)
 ```
 
 

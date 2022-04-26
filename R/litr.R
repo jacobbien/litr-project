@@ -127,3 +127,28 @@ render <- function(input, ...) {
     add_function_hyperlinks(html_file)
   }
 }
+
+#' Code for setup chunk
+#' 
+#' Creates directory where package will be. (Deletes what is currently there as 
+#' long as it appears to have been created by the Rmd file from which this 
+#' function is being called.)  Sets the root directory to this directory and 
+#' sets up the main chunk hook `litr::send_to_package` that sends code to the R 
+#' package directory.
+#' @param package_name Name of R package to create
+#' @export
+setup <- function(package_name) {
+  current_rmd_file <- knitr::current_input()
+  if (file.exists(package_name)) {
+#    if (was_created_by(package_name, current_rmd_file))
+      unlink(package_name, recursive = TRUE)
+#    else 
+      # stop(stringr::str_glue("A directory named {package_name} already exists"),
+      #      " that may not have been created by this Rmd file. Please rename that",
+      #      " directory (or delete it) and then try again.")
+  }
+  fs::dir_create(package_name)
+  knitr::opts_knit$set(root.dir = package_name) # sets wd of future chunks
+  knitr::knit_hooks$set(send_to_package = litr::send_to_package)
+  knitr::opts_chunk$set(send_to_package = TRUE)
+}
