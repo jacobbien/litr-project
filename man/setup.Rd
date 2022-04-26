@@ -4,10 +4,10 @@
 \alias{setup}
 \title{Code for setup chunk}
 \usage{
-setup(package_name)
+setup(package_dir)
 }
 \arguments{
-\item{package_name}{Name of R package to create}
+\item{package_dir}{Directory where R package will be created}
 }
 \description{
 Creates directory where package will be. (Deletes what is currently there as

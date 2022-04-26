@@ -25,14 +25,14 @@ send_to_package <- function(before, options, envir) {
       fname <- stringr::str_match(non_comment[1], "^(.*)\\s*<-\\s*function")[, 2]
       fname <- stringr::str_trim(fname)
       file <- file.path(
-        envir$package_name, "R", stringr::str_glue("{fname}.R")
+        envir$package_dir, "R", stringr::str_glue("{fname}.R")
         )
       cat(paste(c(msg, "", options$code), collapse = "\n"), file = file)
     }
   }
   else if (any(stringr::str_detect(options$code, "testthat::"))) {
     # This chunk is inferred to be a test
-    test_file <- file.path(envir$package_name, "tests", "testthat", "tests.R")
+    test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
     if (!file.exists(test_file))
       cat(c(msg, ""), collapse = "\n", file = test_file)
     cat(
@@ -131,13 +131,48 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
 render <- function(input, ...) {
+  # call rmarkdown::render in a new environment so it behaves the same as 
+  # pressing the knit button in RStudio:
+  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
   args <- list(...)
-  out <- rmarkdown::render(input, ...)
+  out <- xfun::Rscript_call(
+    rmarkdown::render,
+    c(input = input, args)
+  )
+  
+  # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
     html_file <- stringr::str_subset(out, "html$")
     add_function_hyperlinks(html_file)
   }
+  
+  # # get package directory used (if not passed as an argument to render
+  # # then defaults to input's YAML)
+  # params <- get_params_used(input, args$params)
+  # 
+  # package_dir <- ifelse(
+  #   params$package_parent_dir == ".",
+  #   file.path(dirname(input), params$package_name),
+  #   file.path(dirname(input), params$package_parent_dir, params$package_name)
+  # )
+  # 
+  # add litr hash so we can tell later if package files were manually edited:
+  # write_hash_to_description(package_dir)
 }
+
+#' Get parameter values used in rendering
+#' 
+#' When the `params` argument of `rmarkdown::render()` is explicitly used, this
+#' overrides the default that appears in `input`.
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param passed_params The list of parameters that were passed to `render`.
+# get_params_used <- function(input, passed_params) {
+#   params <- rmarkdown::yaml_front_matter(input)$params
+#   for (param in names(passed_params)) {
+#     params[[param]] <- passed_params[[param]]
+#   }
+#   params
+# }
 
 #' Code for setup chunk
 #' 
@@ -146,20 +181,20 @@ render <- function(input, ...) {
 #' function is being called.)  Sets the root directory to this directory and 
 #' sets up the main chunk hook `litr::send_to_package` that sends code to the R 
 #' package directory.
-#' @param package_name Name of R package to create
+#' @param package_dir Directory where R package will be created
 #' @export
-setup <- function(package_name) {
+setup <- function(package_dir) {
   current_rmd_file <- knitr::current_input()
-  if (file.exists(package_name)) {
-#    if (was_created_by(package_name, current_rmd_file))
-      unlink(package_name, recursive = TRUE)
+  if (file.exists(package_dir)) {
+#    if (was_created_by(package_dir, current_rmd_file))
+      unlink(package_dir, recursive = TRUE)
 #    else 
-      # stop(stringr::str_glue("A directory named {package_name} already exists"),
+      # stop(stringr::str_glue("A directory named {package_dir} already exists"),
       #      " that may not have been created by this Rmd file. Please rename that",
       #      " directory (or delete it) and then try again.")
   }
-  fs::dir_create(package_name)
-  knitr::opts_knit$set(root.dir = package_name) # sets wd of future chunks
+  fs::dir_create(package_dir)
+  knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = litr::send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
 }

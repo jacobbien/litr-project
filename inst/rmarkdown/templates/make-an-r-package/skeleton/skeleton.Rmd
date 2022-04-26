@@ -4,18 +4,21 @@ author: "Your Name"
 date: "The Date"
 knit: litr::render
 params:
-  package_name: rhello # <-- change this to your package name
+  package_name: "rhello" # <-- change this to your package name
+  package_parent_dir: "." # <-- relative to this file's location
 ---
 
 <!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `rmarkdown::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
 -->
 
 ```{r knitr-setup, include=FALSE}
-# Leave this chunk as is.  It creates a directory for the R package and then 
-# sets things up so that code from this document ends up in the R package:
+# Leave this chunk as is.  It creates a directory for the R package, which will 
+# be the base directory for the rest of this file, and then sets things up so
+# that code from this document ends up in the R package:
 package_name <- params$package_name
+package_dir <- file.path(params$package_parent_dir, package_name)
 setup_chunk_label <- knitr::opts_current$get("label")
-litr::setup(package_name)
+litr::setup(package_dir)
 ```
 
 
