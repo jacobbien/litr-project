@@ -11,8 +11,7 @@
 #' @param envir Environment
 #' @export
 send_to_package <- function(before, options, envir) {
-  msg <- stringr::str_glue("# Generated from {knitr::current_input()}: do not ",
-                           "edit by hand")
+  msg <- do_not_edit_message(knitr::current_input(), type = "R")
   if (before == FALSE || options$label == envir$setup_chunk_label) {
     # Don't do anything after the code chunk has been executed.
     # Also, don't do anything when processing this code chunk.
@@ -45,6 +44,19 @@ send_to_package <- function(before, options, envir) {
   return()
 }
 
+#' Generate do-not-edit message to put at top of file
+#' 
+#' @param rmd_file Name of the Rmd file to mention
+#' @param type Whether this is a R/ file or a man/ file
+do_not_edit_message <- function(rmd_file, type = c("R", "man")) {
+  if (type[1] == "R")
+    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
+  else if (type[1] == "man")
+    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else
+    stop("type must be either 'R' or 'man'.")
+}
+
 #' Use roxygen to document a package
 #' 
 #' This is a wrapper for the `devtools::document()` function, which in turn is a
@@ -59,9 +71,8 @@ document <- function(...) {
   devtools::document(...)
   # remove the line of the following form in each man/*.Rd file:
   pattern <- "% Please edit documentation in .*$"
-  msg <- stringr::str_glue("% Please edit documentation in {knitr::current_input()}.")
+  msg <- do_not_edit_message(knitr::current_input(), type = "man")
   for (fname in fs::dir_ls("man")) {
-    #txt <- stringr::str_subset(readLines(fname), pattern, negate = TRUE)
     txt <- stringr::str_replace(readLines(fname), pattern, msg)
     cat(paste(txt, collapse = "\n"), file = fname)
   }
@@ -152,3 +163,4 @@ setup <- function(package_name) {
   knitr::knit_hooks$set(send_to_package = litr::send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
 }
+
