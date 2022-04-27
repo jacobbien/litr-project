@@ -9,7 +9,9 @@
 hash_package_directory <- function(package_dir) {
   pkg_files <- fs::dir_ls(package_dir, recurse = TRUE, all = TRUE, type = "file")
   pkg_files <- stringr::str_subset(pkg_files, ".DS_Store$", negate = TRUE)
-  i_descr <- which(pkg_files == file.path(package_dir, "DESCRIPTION"))
+  pkg_files <- normalizePath(pkg_files)
+  descr_file <- normalizePath(file.path(package_dir, "DESCRIPTION"))
+  i_descr <- which(pkg_files == descr_file)
   if (length(i_descr) == 0) stop("Cannot find DESCRIPTION file.")
   txt_descr <- readLines(pkg_files[i_descr])
   txt_descr_mod <- stringr::str_subset(

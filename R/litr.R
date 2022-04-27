@@ -27,7 +27,7 @@ send_to_package <- function(before, options, envir) {
       file <- file.path(
         envir$package_dir, "R", stringr::str_glue("{fname}.R")
         )
-      cat(paste(c(msg, "", options$code), collapse = "\n"), file = file)
+      cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
   else if (any(stringr::str_detect(options$code, "testthat::"))) {
