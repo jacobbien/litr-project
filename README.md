@@ -43,7 +43,7 @@ especially [`knitr`](https://yihui.org/knitr/),
 [`testthat`](https://testthat.r-lib.org/). I should also note that
 [Yihui Xie](https://yihui.org/en/) has [a post](https://yihui.org/rlp/)
 where he demonstrates a similar idea, although his approach appears to
-more of a proof of concept.
+be more of a proof of concept.
 
 ## Getting Started
 
