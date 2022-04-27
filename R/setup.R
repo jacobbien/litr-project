@@ -18,15 +18,32 @@ setup <- function(package_dir) {
                          })
     if (unedited) unlink(package_dir, recursive = TRUE)
     else 
-      stop(stringr::str_glue("The directory {normalizePath(package_dir)} already"),
-           " exists and either was not created by litr or may have manual",
-           " edits. In either case, please rename that",
-           " directory (or delete it) and then try again.")
+      stop(make_noticeable(paste(
+        stringr::str_glue("The directory {normalizePath(package_dir)}"),
+        "already exists and either was not created by litr or may have manual",
+        "edits. In either case, please rename that directory (or delete it)", 
+        "and then try again.", 
+        sep = "\n")))
   }
   fs::dir_create(package_dir)
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = litr::send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+}
+
+#' Make error messages noticeable
+#' 
+#' Since litr error messages are amid a lot of output from knitting, we'd like 
+#' the litr ones to be eye-catching.
+#' 
+#' @param msg Error message
+make_noticeable <- function(msg) {
+  paste("",
+        "======",
+        "Please read your friendly litr error message here:",
+        paste("> ", msg),
+        "======",
+        sep = "\n")
 }
 
 #' A knitr chunk hook for writing R code and tests
