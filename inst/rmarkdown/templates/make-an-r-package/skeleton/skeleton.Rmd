@@ -1,5 +1,5 @@
 ---
-title: "A Document That Creates the `r params$package_name` R Package"
+title: "Creating the `r params$package_name` R package"
 author: "Your Name"
 date: "The Date"
 knit: litr::render
