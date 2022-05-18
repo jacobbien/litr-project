@@ -62,7 +62,7 @@ send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
   if (before == FALSE || options$label == envir$setup_chunk_label) {
     # Don't do anything after the code chunk has been executed.
-    # Also, don't do anything when processing this code chunk.
+    # Also, don't do anything when processing the setup code chunk.
     return()
   }
   else if (stringr::str_detect(options$code[1], "^#' ")) {
