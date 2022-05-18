@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# litr: Writing R Packages via Literate Programming
+# litr: Writing R packages via literate programming
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -33,7 +33,9 @@ re-knitting.
 
 The above motivation is that of [literate
 programming](https://en.wikipedia.org/wiki/Literate_programming),
-introduced by Donald Knuth, and the direct inspiration is
+introduced by [Donald
+Knuth](https://www-cs-faculty.stanford.edu/~knuth/), and the direct
+inspiration is [fast.ai](https://www.fast.ai/about/)’s
 [`nbdev`](https://nbdev.fast.ai/), which is available in Python. The
 `litr` package relies heavily on a number of great tools in R,
 especially [`knitr`](https://yihui.org/knitr/),
@@ -45,7 +47,7 @@ especially [`knitr`](https://yihui.org/knitr/),
 where he demonstrates a similar idea, although his approach appears to
 be more of a proof of concept.
 
-## Getting Started
+## Getting started
 
 You can install `litr` and get started like so:
 
