@@ -1,4 +1,4 @@
-name: Template to Make an R Package
+name: Template To Make an R Package
 description: >
    Template for an Rmd file for writing an R package using literate programming.
 create_dir: FALSE

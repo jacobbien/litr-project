@@ -1,0 +1,99 @@
+---
+title: "Creating the ``r params$package_name`` R package"
+author: "Your Name"
+date: "The Date"
+knit: litr::render
+params:
+  package_name: "rhasdata" # <-- change this to your package name
+  package_parent_dir: "." # <-- relative to this file's location
+---
+
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `rmarkdown::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+-->
+
+```{r knitr-setup, include=FALSE}
+# Leave this chunk as is.  It creates a directory for the R package, which will 
+# be the base directory for the rest of this file, and then sets things up so
+# that code from this document ends up in the R package:
+package_name <- params$package_name
+package_dir <- file.path(params$package_parent_dir, package_name)
+setup_chunk_label <- knitr::opts_current$get("label")
+litr::setup(package_dir)
+```
+
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = package_name,
+    Version = "0.0.0.9000",
+    Title = "A Package That Has Data",
+    Description = "This package has a dataset.  It could also have some functions, but for now all it has is some data.",
+    `Authors@R` = person(
+      given = "First",
+      family = "Last",
+      email = "you@gmail.com",
+      role = c("aut", "cre")
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = "F. Last")
+usethis::use_testthat()
+```
+
+## Now to the package itself
+
+### Create a dataset
+
+In this case, we'll create the data from scratch.  However, we can also download data from a different source here.
+
+```{r}
+set.seed(123)
+n <- 100
+x <- rnorm(n)
+y <- 2 * x + 0.3 * rnorm(n)
+mydata <- data.frame(x = x, y = y)
+```
+
+Let's have a look:
+
+```{r}
+plot(y ~ x, data = mydata)
+```
+
+Now, let's send this off to the package:
+
+```{r}
+usethis::use_data(mydata)
+```
+
+And we'll need to document the dataset as well:
+
+```{r}
+#' A regression data set
+#' 
+#' @format A data frame with 100 rows and 2 variables:
+#' \describe{
+#' \item{x}{a predictor variable}
+#' \item{y}{a response variable}
+#' @source This data was simulated.  But usually we might cite a source here.
+"mydata"
+```
+
+## Documenting the package and building
+
+We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+
+```{r}
+rm(list = ls())
+litr::document() # <-- use instead of devtools::document()
+devtools::build()
+devtools::install()
+# devtools::check()
+```
+

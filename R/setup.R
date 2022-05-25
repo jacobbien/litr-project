@@ -48,10 +48,11 @@ make_noticeable <- function(msg) {
 
 #' A knitr chunk hook for writing R code and tests
 #' 
-#' This chunk hook detects whether a chunk is defining a function to be included
-#' in the R package (looks for the Roxygen2 comment format `#' `).  If so, then it 
-#' is written to the `R/` directory.  It also looks for chunks with `testthat::`
-#' in them, which are written to the `tests` directory of the R package.
+#' This chunk hook detects whether a chunk is defining a function or dataset
+#' to be included in the R package (looks for the Roxygen2 comment format `#' `).
+#' If so, then it is written to the `R/` directory.  It also looks for chunks 
+#' with `testthat::` in them, which are written to the `tests` directory of the 
+#' R package.
 #' 
 #' @param before Indicates whether this is being called before or after the 
 #' chunk code is executed
@@ -67,14 +68,22 @@ send_to_package <- function(before, options, envir) {
   }
   else if (stringr::str_detect(options$code[1], "^#' ")) {
     # starts with roxygen2, so let's assume this chunk is defining an R function
-    # that belongs in the package
+    # or dataset that belongs in the package
     non_comment <- stringr::str_subset(options$code, "^#", negate = TRUE)
-    if (length(non_comment) > 0 & stringr::str_detect(non_comment[1], "<-")) {
-      fname <- stringr::str_match(non_comment[1], "^(.*)\\s*<-\\s*function")[, 2]
-      fname <- stringr::str_trim(fname)
-      file <- file.path(
-        envir$package_dir, "R", stringr::str_glue("{fname}.R")
-        )
+    if (length(non_comment) > 0) {
+      if (stringr::str_detect(non_comment[1], "<-")) {
+        # a function is being defined
+        objname <- stringr::str_match(non_comment[1], "^(.*)\\s*<-\\s*function")[, 2]
+        objname <- stringr::str_trim(objname)
+      } else if (stringr::str_detect(non_comment[1], '^".+"$')) {
+        # a dataset is being documented
+        objname <- stringr::str_sub(non_comment[1], start = 2, end = -2)
+      } else {
+        # Roxygen2 comment wasn't followed by anything recognized, so do not 
+        # send this to package
+        return()
+      }
+      file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
