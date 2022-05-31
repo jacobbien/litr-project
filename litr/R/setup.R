@@ -29,6 +29,10 @@ setup <- function(package_dir) {
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = litr::send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+  # change usethis:::challenge_nested_project so that it will not complain
+  # about created a nested project (e.g. if this is called within a git 
+  # subdirectory)
+  utils::assignInNamespace("challenge_nested_project", function(...) NULL, ns = "usethis")
 }
 
 #' Make error messages noticeable
