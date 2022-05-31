@@ -1,0 +1,724 @@
+---
+title: "Create the ``r params$package_name`` R package"
+author: "Jacob Bien"
+date: "May 27, 2022"
+knit: litr::render
+params:
+  package_name: "litr"
+  package_parent_dir: "." # <-- relative to this file's location
+---
+
+```{r knitr-setup, include=FALSE}
+package_name <- params$package_name
+package_dir <- file.path(params$package_parent_dir, package_name)
+setup_chunk_label <- knitr::opts_current$get("label")
+litr::setup(package_dir)
+```
+
+The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
+
+1. [Functionality for generating the R package when the .Rmd file is knitted.](#generating-package)  In particular, we define a `knitr` [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which we call `send_to_package` that identifies code chunks in the .Rmd file that should be included in the package.  To make it so that this chunk hook will be active, we also have a function called `setup` that is called in the first code chunk of the document template.  This function makes it so that when the .Rmd file is knitted, the chunk hook `send_to_package` will be invoked on each code chunk.
+
+2. [Functionality for making sure the R package outputted will not overwrite a manually edited R package.](#hash)  Our approach here is to use a hash that will make it clear whether something has been modified.
+
+3. [Wrappers to `devtools::document()` and `rmarkdown::render()`.](#wrappers)  The reason we write wrappers is because we want a few extra things to happen.  For example, `devtools::document()` reminds the reader to edit the roxygen in the `R/` files, whereas in our case, we want to make sure they edit the original .Rmd file, not the `R/` files.  Likewise, `litr::render()` adds hyperlinks to the .html file that make it easy to navigate to function definitions.
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = package_name,
+    Version = "0.0.2",
+    Title = "A Package for Literate Programming of R Packages",
+    Description = "This package defines a document template that can create R
+    packages.  This allows for a literate programming approach to R
+    package development.",
+    `Authors@R` = person(
+      given = "Jacob",
+      family = "Bien",
+      email = "jbien@usc.edu",
+      role = c("aut", "cre")
+      )
+   )
+ )
+
+ usethis::use_mit_license(copyright_holder = "J. Bien")
+ usethis::use_testthat()
+```
+
+## Now to the package itself
+
+### Generating the R package {#generating-package}
+
+#### Sending code chunks to the package
+
+We start by defining a [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which is a function that runs both before and after each code chunk is run in the knitting process.  In this case, the function (called `send_to_package`) is responsible for determining whether the code chunk looks like something that should be exported to the R package.  We don't want all code sent off to our R package.  For example, sometimes we'll want to demonstrate in the Rmd file how a certain function we've just created is used by running it on an example or making a plot.  That bit of example code would not be included in the package.
+
+We start by making sure that code is only sent to the R package once (arbitrarily we have code outputted to the package *before* and not after the chunk is run).  We also make sure that nothing happens for the setup code chunk itself.  **Note: I think it should be possible to exclude the setup code chunk in a simpler way than is done currently.  In particular, it'd be great if we don't need to create the `setup_chunk_label` object.  The fewer lines of code needed in `skeleton.Rmd`'s `knitr-setup` code chunk, the better.  One option might be to have the option send_to_package=FALSE in the knitr-setup chunk.**
+
+The function next checks whether this is a piece of code to be sent to the `R/` directory.  In particular, it checks to see if the code chunk begins with the characteristic [roxygen2](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html) characters `#'`.  If it does, then we the name of the object being documented is identified (could be a function, a dataset, an S4 object, etc) and then we write the code chunk to the file `R/<objectname>.R`. **Note: When NULL is being documented we should write to `package-<package_name>.R`.  See https://r-pkgs.org/man.html#man-packages.**
+
+If the code chunk does not start with `#'`, then we check if it has `testthat::` *anywhere* in the code chunk (not just on the first line).  If so, then this whole code chunk is appended to `tests/testthat/tests.R`.  (And this file is created the first time a test chunk is sent to the package).
+
+```{r}
+#' A knitr chunk hook for writing R code and tests
+#' 
+#' This chunk hook detects whether a chunk is defining a function or dataset
+#' to be included in the R package (looks for the Roxygen2 comment format `#' `).
+#' If so, then it is written to the `R/` directory.  It also looks for chunks 
+#' with `testthat::` in them, which are written to the `tests` directory of the 
+#' R package.
+#' 
+#' @param before Indicates whether this is being called before or after the 
+#' chunk code is executed
+#' @param options Has information from the chunk
+#' @param envir Environment
+#' @export
+send_to_package <- function(before, options, envir) {
+  msg <- do_not_edit_message(knitr::current_input(), type = "R")
+  if (before == FALSE || options$label == envir$setup_chunk_label) {
+    # Don't do anything after the code chunk has been executed.
+    # Also, don't do anything when processing the setup code chunk.
+    return()
+  }
+  else if (stringr::str_detect(options$code[1], "^#' ")) {
+    # starts with roxygen2, so let's assume this chunk is defining an R function
+    # or dataset that belongs in the package
+    non_comment <- stringr::str_subset(options$code, "^#", negate = TRUE)
+    if (length(non_comment) > 0) {
+      if (stringr::str_detect(non_comment[1], "<-")) {
+        # a function is being defined
+        objname <- stringr::str_match(non_comment[1], "^(.*)\\s*<-\\s*function")[, 2]
+        objname <- stringr::str_trim(objname)
+      } else if (stringr::str_detect(non_comment[1], '^".+"$')) {
+        # a dataset is being documented
+        objname <- stringr::str_sub(non_comment[1], start = 2, end = -2)
+      } else {
+        # Roxygen2 comment wasn't followed by anything recognized, so do not 
+        # send this to package
+        return()
+      }
+      file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
+      cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+    }
+  }
+  else if (any(stringr::str_detect(options$code, "testthat::"))) {
+    # This chunk is inferred to be a test
+    test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
+    if (!file.exists(test_file))
+      cat(c(msg, ""), collapse = "\n", file = test_file)
+    cat(
+      paste(c(options$code, "", ""), collapse = "\n"),
+      file = test_file,
+      append = TRUE
+    )
+  }
+  return()
+}
+```
+
+The above code makes use of a number of functions from the `stringr` package, so we'll need to add that package to the `Imports` section of the `DESCRIPTION` file:
+
+```{r}
+usethis::use_package("stringr")
+```
+
+The code also calls the function `do_not_edit_message()`, which adds a line at the top of the files sent to the R package reminding the user that these are not source files to be edited but rather output of the generating .Rmd file.  There are two variations on this message.
+
+```{r}
+#' Generate do-not-edit message to put at top of file
+#' 
+#' @param rmd_file Name of the Rmd file to mention
+#' @param type Whether this is a R/ file or a man/ file
+do_not_edit_message <- function(rmd_file, type = c("R", "man")) {
+  if (type[1] == "R")
+    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
+  else if (type[1] == "man")
+    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else
+    stop("type must be either 'R' or 'man'.")
+}
+```
+
+This function will also be used with `type = "man"` by `litr::document()`.
+
+#### Setting up the R package creation
+
+The first code chunk of the generating .Rmd file will call the following function, called `setup()`, which does several things:
+
+1. Creates a new empty directory at the specified location while first making sure that it won't overwrite something it shouldn't.  In particular, we guard against the case that the package was generated by `litr::render()` but then someone went in manually and made some changes.  Even though users should never manually edit the package that was generated by `litr::render()`, we don't want to have them inadvertantly lose their work by doing so.  Thus, we only overwrite an R package if we can tell that it is the unedited output of a call to `litr::render()`.  The function `check_unedited()` is responsible for checking this, and is a pretty interesting function which we will describe in [the next section](#hash).  This part of the code also makes use of a function `litr::make_noticeable()`, which is simply a way of making error messages produced by `litr` more easy to see amid a lot of `knitr` output.
+
+2. Adjusts the root directory from the generating .Rmd file's location to the R package's location. **Note: This behavior might not actually be desirable now that additional files will be loaded in.  It might be awkward for a user writing the generating .Rmd file to have to make everything relative to the package.  It might be convenient to provide a `litr::add_file(from, to)` function, where `from` is the path relative to the .Rmd file and `to` is the path relative to the package's location.**
+
+3. Makes it so that the `send_to_package()` chunk hook is active for each code chunk.  This involves registering a new chunk hook using the function `knitr::knit_hooks$set()` and then setting an option with the same name to `TRUE` within each chunk.
+
+4. Deactivates an internal function of the `usethis` package, `usethis:::challenge_nested_project()`.  This was actually a difficult issue to address that involves the intersection of `usethis`, `here`, and our particular use case.  The problem is that `usethis` was not designed for our setting in which an R package is being created programmatically.  When using `litr`, the project directory will have the generating .Rmd file and when this is knit it will create an R package within this project.  However, this leads `usethis` to prompt the user with a message of the form
+
+> "New project '[...]' is nested inside an existing project '[...]'.  This is rarely a good idea. Do you wish to create anyway?"
+
+But since this is encountered through knitting rather than interactively, this results in an error.  [This](https://github.com/r-lib/usethis/issues/553) `usethis` issue describes this exact problem.  The solution suggested there by jennybc involving `testthat::with_mock()` is along the lines of what we want; however, that would lead to some ugly looking code in the generating .Rmd file.  The best solution I could find was to use `utils::assignInNamespace()` as described [here](https://stat.ethz.ch/pipermail/r-help/2008-August/171215.html).  This function allows us to change the internal function `usethis:::challenge_nested_project()` so that it no longer prompts the user with concerns about nested projects.
+
+```{r}
+#' Code for setup chunk
+#' 
+#' Creates directory where package will be. (Deletes what is currently there as 
+#' long as it appears to have been created by litr and does not have any 
+#' subsequent manual edits.)  Sets the root directory to this directory and 
+#' sets up the main chunk hook `litr::send_to_package` that sends code to the R 
+#' package directory.
+#' 
+#' @param package_dir Directory where R package will be created
+#' @export
+setup <- function(package_dir) {
+  if (file.exists(package_dir)) {
+    unedited <- tryCatch(check_unedited(package_dir),
+                         error = function(e) {
+                           # contents of package_dir does not resemble
+                           # a litr package
+                           return(FALSE)
+                         })
+    if (!unedited) {
+      stop(make_noticeable(paste(
+        stringr::str_glue("The directory {normalizePath(package_dir)}"),
+        "already exists and either was not created by litr or may have manual",
+        "edits. In either case, please rename that directory (or delete it)", 
+        "and then try again.", 
+        sep = "\n")))
+    }
+    unlink(package_dir, recursive = TRUE)
+  }
+  fs::dir_create(package_dir)
+  knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
+  knitr::knit_hooks$set(send_to_package = litr::send_to_package)
+  knitr::opts_chunk$set(send_to_package = TRUE)
+  # change usethis:::challenge_nested_project so that it will not complain
+  # about creating a nested project (e.g. if this is called within a git 
+  # subdirectory)
+  utils::assignInNamespace("challenge_nested_project", function(...) NULL, ns = "usethis")
+}
+```
+
+The previous function made use of a small function, `make_noticeable()`, which we define here:
+
+```{r}
+#' Make error messages noticeable
+#' 
+#' Since litr error messages are amid a lot of output from knitting, we'd like 
+#' the litr ones to be eye-catching.
+#' 
+#' @param msg Error message
+make_noticeable <- function(msg) {
+  paste("",
+        "======",
+        "Please read your friendly litr error message here:",
+        paste("> ", msg),
+        "======",
+        sep = "\n")
+}
+```
+
+The code in this section used the `fs` and `knitr` packages, so we import those:
+
+```{r}
+usethis::use_package("fs")
+usethis::use_package("knitr")
+```
+
+
+### Not overwriting a manually edited R package {#hash}
+
+As described in the previous section, the function `setup()` will only overwrite a directory if it is the unedited output of a call to `litr::render()`.  The basic idea is that the function `litr::render()` when creating a new package finishes by adding a hash to the DESCRIPTION file.  This hash is a function of everything in the package, so if anything about the package changes (any file is modified, added, or removed) then the function `check_unedited()` will be able to detect that by recomputing the hash and seeing that it doesn't match the hash in the DESCRIPTION file.
+
+Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash*.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
+
+```{r}
+#' Hash package directory
+#' 
+#' Gets an identifier that can be used to uniquely (whp) identify the current 
+#' state of the package. This is formed by ignoring the `LitrId` field of the
+#' DESCRIPTION file, which is the location where the output of this function is 
+#' stored when `litr::render` generates the package.
+#' 
+#' @param package_dir Path to package
+hash_package_directory <- function(package_dir) {
+  pkg_files <- fs::dir_ls(package_dir, recurse = TRUE, all = TRUE, type = "file")
+  pkg_files <- stringr::str_subset(pkg_files, ".DS_Store$", negate = TRUE)
+  pkg_files <- normalizePath(pkg_files)
+  descr_file <- normalizePath(file.path(package_dir, "DESCRIPTION"))
+  i_descr <- which(pkg_files == descr_file)
+  if (length(i_descr) == 0) stop("Cannot find DESCRIPTION file.")
+  txt_descr <- readLines(pkg_files[i_descr])
+  txt_descr_mod <- stringr::str_subset(
+    txt_descr, 
+    stringr::str_glue("{description_litr_field_name()}: .+$"),
+    negate = TRUE)
+  hashes <- as.character(tools::md5sum(pkg_files[-i_descr]))
+  digest::digest(c(hashes, list(txt_descr_mod)))
+}
+```
+
+We used `digest`, so let's import it:
+
+```{r}
+usethis::use_package("digest")
+```
+
+We will store this hash in a special field within the DESCRIPTION file.  Let's call this field `LitrId`.  However, in case we ever decide to change the name of this field, it's better that we only define it in one place.  So we do this with the following function:
+
+```{r}
+#' Generate litr field name for DESCRIPTION file
+description_litr_field_name <- function() return("LitrId")
+```
+
+Ok, now let's write the function that `litr::render()` will call that will take the generated R package and add a line that puts the hash in the DESCRIPTION file under that special `litr` field:
+
+```{r}
+#' Write the hash of the package to the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+write_hash_to_description <- function(package_dir) {
+  hash <- hash_package_directory(package_dir)
+  descr <- file.path(package_dir, "DESCRIPTION")
+  if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
+  newline <- stringr::str_glue("{description_litr_field_name()}: {hash}")
+  writeLines(c(readLines(descr), newline), descr)
+}
+```
+
+And of course we'll need a way a function that can read the value of that field as well:
+
+```{r}
+#' Get the hash of the package from the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+read_hash_from_description <- function(package_dir) {
+  descr <- file.path(package_dir, "DESCRIPTION")
+  if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
+  txt <- stringr::str_subset(
+    readLines(descr), 
+    stringr::str_glue("{description_litr_field_name()}: .+$"))
+  if (length(txt) > 1) stop("More than one hash found in DESCRIPTION.")
+  if (length(txt) == 0) stop("No hash found in DESCRIPTION.")
+  stringr::str_extract(txt, "\\S+$")
+}
+```
+
+With all this hash functionality in place, the function `check_unedited()` is actually quite simple to define:
+
+```{r}
+#' Check if package directory is the unedited output of litr::render
+#' 
+#' Uses hash stored in a special `litr` field of DESCRIPTION file to check that 
+#' the current state of the R package directory is identical to its state at the
+#' time that it was created by `litr::render()`.
+#' 
+#' @param package_dir Path to package
+#' @export
+check_unedited <- function(package_dir) {
+  hash <- hash_package_directory(package_dir)
+  hash == read_hash_from_description(package_dir)
+}
+```
+
+It simply computes the hash of the current package and checks whether that hash is the same as what was originally written to the DESCRIPTION file by `litr::render()`.
+
+
+### Wrappers to `devtools::document()` and `rmarkdown::render()` {#wrappers}
+
+#### Defining `litr::document()`
+
+This function is nearly identical to `devtools::document()` except that it changes the roxygen2 message that says "Please edit documentation in R/[...].R" to instead mention the generating .Rmd file.
+
+```{r}
+#' Use roxygen to document a package
+#' 
+#' This is a wrapper for the `devtools::document()` function, which in turn is a
+#' wrapper for the `roxygen2::roxygenize()` function.  The purpose for `litr` 
+#' having this wrapper is to make one modification.  In particular, the line
+#' in the outputted `Rd` files should not say "Please edit documentation in 
+#' R/file.R" but instead should refer to the Rmd file that generates everything. 
+#' 
+#' @param ... Arguments to be passed to `devtools::document()`
+#' @export
+document <- function(...) {
+  devtools::document(...)
+  # remove the line of the following form in each man/*.Rd file:
+  pattern <- "% Please edit documentation in .*$"
+  msg <- do_not_edit_message(knitr::current_input(), type = "man")
+  for (fname in fs::dir_ls("man")) {
+    txt <- stringr::str_replace(readLines(fname), pattern, msg)
+    cat(paste(txt, collapse = "\n"), file = fname)
+  }
+}
+```
+
+We used `devtools`, so let's import it:
+
+```{r}
+usethis::use_package("devtools")
+```
+
+#### Defining `litr::render()`
+
+This function does three things:
+
+1. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.
+
+2. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
+
+3. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
+
+```{r}
+#' Render R markdown file
+#' 
+#' Wrapper to `rmarkdown::render` that does some post-processing on the html 
+#' file when that is the output.  In particular, when an html file is among the 
+#' outputs, it adds hyperlinks to functions defined within the file to make it 
+#' easier for someone reading the code to see where different functions are
+#' defined.
+#' 
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param ... Additional parameters to pass to `rmarkdown::render`
+#' @export
+render <- function(input, ...) {
+  # call rmarkdown::render in a new environment so it behaves the same as 
+  # pressing the knit button in RStudio:
+  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+  args <- list(...)
+  out <- xfun::Rscript_call(
+    rmarkdown::render,
+    c(input = input, args)
+  )
+  
+  # add hyperlinks within html output to make it easier to navigate:
+  if (any(stringr::str_detect(out, "html$"))) {
+    html_file <- stringr::str_subset(out, "html$")
+    add_function_hyperlinks(html_file)
+  }
+  
+  # add litr hash so we can tell later if package files were manually edited:
+  params <- get_params_used(input, args$params)
+  package_dir <- ifelse(
+    params$package_parent_dir == ".",
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
+  )
+  write_hash_to_description(package_dir)
+}
+```
+
+**Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
+
+We used the package `xfun`, so let's import it:
+
+```{r}
+usethis::use_package("xfun")
+```
+
+The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
+
+```{r}
+#' Add hyperlinks to function definitions
+#' 
+#' Finds functions that are defined in the html file by looking for text of the 
+#' form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` 
+#' and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it be
+#' a hyperlink to `foo`'s definition.
+#' 
+#' @param html_file File name of html file that was created from Rmd file
+#' @param output_file File name to output to. Default: `html_file`
+#' @export
+add_function_hyperlinks <- function(html_file, output_file = html_file) {
+  txt <- readLines(html_file)
+  start_line <- which(txt == "<body>")
+  pattern <- "([a-zA-Z0-9_.]+)(\\s*&lt;-\\s*function)"
+  # find functions that are defined in this file:
+  function_names <- character(0)
+  for (i in seq(start_line + 1, length(txt))) {
+    fn_name <- stringr::str_match(txt[i], pattern)[, 2]
+    if(is.na(fn_name)) next
+    # a function was defined in this line, so put a span around it
+    txt[i] <- stringr::str_replace(
+      txt[i],
+      pattern,
+      stringr::str_glue("<span id='{fn_name}'>\\1</span>\\2")
+    )
+    # and keep track of it for later:
+    function_names <- c(function_names, fn_name)
+  }
+  
+  # whenever one of these named functions is named, link to its definition
+  txt <- stringr::str_replace_all(
+    txt,
+    paste0(function_names, "\\(", collapse = "|"),
+    function(x) {
+      fn_name <- stringr::str_remove(x, "\\(")
+      stringr::str_glue("<a href='#{fn_name}'>{fn_name}</a>(")
+    }
+  )
+  writeLines(txt, con = output_file)
+}
+```
+
+As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
+
+```{r}
+#' Get parameter values used in rendering
+#' 
+#' When the `params` argument of `rmarkdown::render()` is explicitly used, this
+#' overrides the default that appears in `input`.
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param passed_params The list of parameters that were passed to `render`.
+get_params_used <- function(input, passed_params) {
+  params <- rmarkdown::yaml_front_matter(input)$params
+  for (param in names(passed_params)) {
+    params[[param]] <- passed_params[[param]]
+  }
+  params
+}
+```
+
+We used the package `rmarkdown`, so let's import it:
+
+```{r}
+usethis::use_package("rmarkdown")
+```
+
+### Combining .R files
+
+**This section should eventually be removed but for now I'm doing this to convince myself that the package generated by this .Rmd file really matches the initial version created without the package.**
+
+```{r}
+library(magrittr)
+library(purrr)
+rfiles <- fs::dir_ls("R")
+code <- rfiles %>% 
+  map(readLines) %>% 
+  set_names(
+    rfiles %>% stringr::str_remove("^.*/") %>% stringr::str_remove(".R$")
+    )
+hash_functions <- c("hash_package_directory",
+                    "description_litr_field_name",
+                    "write_hash_to_description",
+                    "read_hash_from_description",
+                    "check_unedited")
+render_functions <- c("render",
+                      "add_function_hyperlinks",
+                      "get_params_used",
+                      "do_not_edit_message",
+                      "document")
+setup_functions <- c("setup",
+                     "make_noticeable",
+                     "send_to_package")
+remove_initial_lines <- function(code_list) {
+  # drop first line of each list element except for the first list element
+  c(code_list[1], map(code_list[-1], ~ .x[-1]))
+}
+fs::file_delete(rfiles)
+writeLines(unlist(remove_initial_lines(code[hash_functions])), "R/hash.R")
+writeLines(unlist(remove_initial_lines(code[render_functions])), "R/render.R")
+writeLines(unlist(remove_initial_lines(code[setup_functions])), "R/setup.R")
+```
+
+
+## Including templates
+
+We now add the .Rmd templates to the package.  We have the `skeleton.Rmd` defined in `litr-source-files`.  Note that paths are relative to the outputted package's location.
+
+The first template is the simplest imaginable package with a single function:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package",
+  template_dir = "make-an-r-package",
+  template_description = "Template for an Rmd file for writing an R package using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "litr-source-files", "make-an-r-package", "skeleton.Rmd"
+    ), 
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package", "skeleton"
+    ), 
+  overwrite = TRUE
+)
+```
+
+The second template shows how to create a package with a dataset:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With a Dataset",
+  template_dir = "make-an-r-package-with-data",
+  template_description = "Template for an Rmd file for writing an R package with a dataset using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "litr-source-files", "make-an-r-package-with-data", "skeleton.Rmd"
+    ), 
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-data", "skeleton"
+    ), 
+  overwrite = TRUE
+)
+```
+
+
+
+## Including README
+
+We include a `README.Rmd` and then generate the `README.md` based on it:
+
+```{r}
+usethis::use_readme_rmd(open = FALSE)
+fs::file_copy(
+  path = file.path("..", "litr-source-files", "README.Rmd"), 
+  new_path = "README.Rmd", 
+  overwrite = TRUE
+)
+xfun::Rscript_call(rmarkdown::render, args = list(input = "README.Rmd"))
+```
+
+
+## Defining some tests
+
+### Testing `check_unedited()`
+
+For our tests, we create a temporary directory (which we delete at the end).  In this directory, we create a generating .Rmd file from one of the templates.  We make repeated modifications to the package and each time verify that `check_unedited()` is `FALSE` with the modification and returns to `TRUE` when we put things back how they were.  The modifications we try are the following:
+
+- Adding a file
+
+- Removing a file
+
+- Making a change to a file (in particular, adding a comment to an R file)
+
+- Changing something in the DESCRIPTION file (but not on the special `litr` line)
+
+- Changing the `litr` hash line itself
+
+```{r}
+testthat::test_that("check_unedited works", {
+  # Including this next line seems to be necessary for R CMD check on the cmd line:
+  #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
+
+  dir <- tempfile()
+  fs::dir_create(dir)
+  rmd_path <- file.path(dir, "my-package.Rmd")
+  rmarkdown::draft(rmd_path,
+                   template = "make-an-r-package",
+                   package = "litr",
+                   edit = FALSE)
+  # create R package (named "rhello") from the Rmd template:
+  litr::render(rmd_path)
+  package_path <- file.path(dir, "rhello")
+  testthat::expect_true(litr::check_unedited(package_path))
+
+  # what if a file has been added?
+  added_file <- file.path(package_path, "R", "say_hello2.R")
+  writeLines("# Added something here.", added_file)
+  testthat::expect_false(litr::check_unedited(package_path))
+
+  # what if we now remove it?
+  fs::file_delete(added_file)
+  testthat::expect_true(litr::check_unedited(package_path))
+
+  # what if a file is removed from package?
+  rfile <- file.path(package_path, "R", "say_hello.R")
+  fs::file_move(rfile, dir)
+  testthat::expect_false(litr::check_unedited(package_path))
+  # now put it back
+  fs::file_move(file.path(dir, "say_hello.R"), file.path(package_path, "R"))
+  testthat::expect_true(litr::check_unedited(package_path))
+
+  # what if something is changed in a file?
+  txt <- readLines(rfile)
+  txt_mod <- txt
+  txt_mod[3] <- paste0(txt[3], " # added a comment!!")
+  writeLines(txt_mod, rfile)
+  testthat::expect_false(litr::check_unedited(package_path))
+  # now put it back
+  writeLines(txt, rfile)
+  testthat::expect_true(litr::check_unedited(package_path))
+
+  # what if something is changed in the DESCRIPTION file?
+  descfile <- file.path(package_path, "DESCRIPTION")
+  txt <- readLines(descfile)
+  txt_mod <- txt
+  txt_mod[1] <- "Package: newname"
+  writeLines(txt_mod, descfile)
+  testthat::expect_false(litr::check_unedited(package_path))
+  # now put it back
+  writeLines(txt, descfile)
+  testthat::expect_true(litr::check_unedited(package_path))
+
+  # what if the special litr hash field is changed in the DESCRIPTION file?
+  txt <- readLines(descfile)
+  i_litr <- stringr::str_which(txt, litr:::description_litr_field_name())
+  txt_mod <- txt
+  txt_mod[i_litr] <- paste0(txt_mod[i_litr], "a")
+  writeLines(txt_mod, descfile)
+  testthat::expect_false(litr::check_unedited(package_path))
+  # now put it back
+  writeLines(txt, descfile)
+  testthat::expect_true(litr::check_unedited(package_path))
+
+  fs::dir_delete(dir)
+})
+```
+
+### Testing `get_params_used()`
+
+Let's now test the `get_params_used()` function, making sure it behaves how we expect it to:
+
+```{r}
+testthat::test_that("get_params_used works", {
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, "my-package.Rmd")
+  rmarkdown::draft(rmd_file, template = "make-an-r-package", package = "litr",
+                   edit = FALSE)
+  default_params <- get_params_used(rmd_file, passed_params = list())
+  testthat::expect_equal(
+    default_params,
+    rmarkdown::yaml_front_matter(rmd_file)$params
+    )
+  params1 <- default_params
+  params1$package_parent_dir <- "dir"
+  testthat::expect_equal(
+    get_params_used(rmd_file, passed_params = list(package_parent_dir = "dir")),
+    params1
+  )
+  params2 <- default_params
+  params2$package_name <- "pkg"
+  params2$package_parent_dir <- "dir"
+  testthat::expect_equal(
+    get_params_used(rmd_file, 
+                    passed_params = list(package_parent_dir = "dir",
+                                         package_name = "pkg")),
+    params2
+  )
+  fs::dir_delete(dir)
+})
+```
+
+
+## Documenting the package and building
+
+We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+
+```{r}
+rm(list = ls())
+litr::document()
+# devtools::build()
+# devtools::install()
+# devtools::check()
+```
+
+

@@ -1,6 +1,6 @@
 Package: litr
 Title: A Package for Literate Programming of R Packages
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre"))
 Description: This package defines a document template that can create R
@@ -9,7 +9,10 @@ Description: This package defines a document template that can create R
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Imports: 
     devtools,
     digest,
@@ -18,6 +21,4 @@ Imports:
     rmarkdown,
     stringr,
     xfun
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
+LitrId: 88a569b533358d80650c448c5e77896d

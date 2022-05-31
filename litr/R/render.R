@@ -1,3 +1,5 @@
+# Generated from create-litr.Rmd: do not edit by hand
+
 #' Render R markdown file
 #' 
 #' Wrapper to `rmarkdown::render` that does some post-processing on the html 

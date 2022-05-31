@@ -1,3 +1,5 @@
+# Generated from create-litr.Rmd: do not edit by hand
+
 #' Code for setup chunk
 #' 
 #' Creates directory where package will be. (Deletes what is currently there as 
@@ -16,21 +18,22 @@ setup <- function(package_dir) {
                            # a litr package
                            return(FALSE)
                          })
-    if (unedited) unlink(package_dir, recursive = TRUE)
-    else 
+    if (!unedited) {
       stop(make_noticeable(paste(
         stringr::str_glue("The directory {normalizePath(package_dir)}"),
         "already exists and either was not created by litr or may have manual",
         "edits. In either case, please rename that directory (or delete it)", 
         "and then try again.", 
         sep = "\n")))
+    }
+    unlink(package_dir, recursive = TRUE)
   }
   fs::dir_create(package_dir)
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = litr::send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
   # change usethis:::challenge_nested_project so that it will not complain
-  # about created a nested project (e.g. if this is called within a git 
+  # about creating a nested project (e.g. if this is called within a git 
   # subdirectory)
   utils::assignInNamespace("challenge_nested_project", function(...) NULL, ns = "usethis")
 }

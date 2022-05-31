@@ -1,3 +1,5 @@
+# Generated from create-litr.Rmd: do not edit by hand
+
 #' Hash package directory
 #' 
 #' Gets an identifier that can be used to uniquely (whp) identify the current 
@@ -62,4 +64,3 @@ check_unedited <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
   hash == read_hash_from_description(package_dir)
 }
-
