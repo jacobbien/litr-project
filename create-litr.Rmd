@@ -106,7 +106,7 @@ send_to_package <- function(before, options, envir) {
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
-  else if (any(stringr::str_detect(options$code, "testthat::"))) {
+  else if (any(stringr::str_detect(options$code, "(testthat::)?test_that"))) {
     # This chunk is inferred to be a test
     test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
     if (!file.exists(test_file))
