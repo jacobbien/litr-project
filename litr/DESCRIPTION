@@ -1,6 +1,6 @@
 Package: litr
 Title: A Package for Literate Programming of R Packages
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre"))
 Description: This package defines a document template that can create R
@@ -18,7 +18,8 @@ Imports:
     digest,
     fs,
     knitr,
+    parsermd,
     rmarkdown,
     stringr,
     xfun
-LitrId: 88a569b533358d80650c448c5e77896d
+LitrId: b1c64386d8c0c8f07135e653df36d482

@@ -89,7 +89,7 @@ testthat::test_that("get_params_used works", {
   params2$package_name <- "pkg"
   params2$package_parent_dir <- "dir"
   testthat::expect_equal(
-    get_params_used(rmd_file, 
+    get_params_used(rmd_file,
                     passed_params = list(package_parent_dir = "dir",
                                          package_name = "pkg")),
     params2

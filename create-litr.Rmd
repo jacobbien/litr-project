@@ -32,7 +32,7 @@ usethis::create_package(
   path = ".",
   fields = list(
     Package = package_name,
-    Version = "0.0.2",
+    Version = "0.0.3",
     Title = "A Package for Literate Programming of R Packages",
     Description = "This package defines a document template that can create R
     packages.  This allows for a literate programming approach to R
@@ -80,6 +80,8 @@ If the code chunk does not start with `#'`, then we check if it has `testthat::`
 #' @export
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
+  # remove _TMP from the file name in the message
+  msg <- stringr::str_replace(msg, "_TMP.Rmd", ".Rmd")
   if (before == FALSE || options$label == envir$setup_chunk_label) {
     # Don't do anything after the code chunk has been executed.
     # Also, don't do anything when processing the setup code chunk.
@@ -349,6 +351,8 @@ document <- function(...) {
   # remove the line of the following form in each man/*.Rd file:
   pattern <- "% Please edit documentation in .*$"
   msg <- do_not_edit_message(knitr::current_input(), type = "man")
+  # remove _TMP from the file name in the message
+  msg <- stringr::str_replace(msg, "_TMP.Rmd", ".Rmd")
   for (fname in fs::dir_ls("man")) {
     txt <- stringr::str_replace(readLines(fname), pattern, msg)
     cat(paste(txt, collapse = "\n"), file = fname)
@@ -362,15 +366,168 @@ We used `devtools`, so let's import it:
 usethis::use_package("devtools")
 ```
 
+#### Displaying chunks embedded within a chunk
+
+`knitr` allows code chunks to be nested within each other, as explained [here](https://bookdown.org/yihui/rmarkdown-cookbook/reuse-chunks.html). However, when the file is knitted, the output one sees does not show the label of the code chunk but instead replaces it with the actual code. Compare this to how literate programming output is displayed in [Knuth's literate programming paper](http://www.literateprogramming.com/knuthweb.pdf). In the context of `litr`, it seems we'd like to see the label of the inner code chunk rather than the code of the inner code chunk. If a Rmd file has nested code chunks, we'd like the following behavior:
+
+1. The actual code that is run should still behave exactly as it does normally in knitr.
+2. If a code chunk has something of the form `<<inner-chunk>>` within it, we should see `<<inner-chunk>>` with a hyperlink. The hyperlink would take you to the code chunk with label `"inner-chunk"`. It would also be nice for that code chunk to have its label visible (perhaps in small letters and in parentheses in a way that it is not mistaken for the code itself).
+
+##### Pre-knit processing {#pre-knit}
+
+To implement this feature we need to create a "pre-knit" function that takes the Rmd file finds the chunks with embedded chunks, makes a copy of that chunk with a modified label delimiter to avoid `knitr` replacing the chunk labels with the referenced code, and finally adds an option to the original chunk so that it will be run but not included in the knitted document. The steps of the pre-knit function are the following:
+
+1. Convert the Rmd file to an abstract syntax tree (AST) using `parsermd`
+2. Find the chunks that contain chunk labels
+3. For each of the chunks with chunk labels, insert a copy of that chunk into the AST
+4. Change the embedded chunk delimiter to prevent `knitr` from replacing the chunk labels
+5. Change the options of the duplicated chunk to prevent it from being run by `knitr`
+6. Change the options of the original chunk so that it is run but not displayed in the document
+7. Make a vector of the unique labels chunks referenced and add a comment to those chunks with their chunk label
+7. Convert the AST to an Rmd document this modified Rmd file to a temporary file in the same directory as the original Rmd file
+8. Call `litr::render()` on the modified Rmd file
+
+Now we can walk through the code
+
+The `preprocess_chunk_labels` function implements the core functionality. It takes an Rmd file and converts it to an AST, finds the chunks with chunk labels, makes a copy of that chunk with a modified label delimiter, and changes the option of the original copy of the chunk to be run, but not included in the knitted document.
+
+```{r}
+#' Find an Rmd chunk label in a code chunk
+#' 
+#' @param rmd An `rmd_ast` object
+#' @export 
+preprocess_chunk_labels <- function(rmd){
+    chunk_info <- rmd |>  parsermd::rmd_node_code() |> {\(x) lapply(x, find_labels)}()
+    chunk_with_embedded_label <- chunk_info |> {\(x) purrr::map_lgl(x,~.x$chunk_idx)}()
+    offset = 0
+    for(i in which(chunk_with_embedded_label)){
+        idx <- i + offset
+        # we need to add eval=F to the original chunk and change the ref brackets so that knitr doesn't fill in the labels
+        orig_chunk <- rmd[idx]
+        orig_chunk[[1]]$options$eval=FALSE
+        orig_chunk[[1]]$code = replace_label_delimiter(orig_chunk[[1]]$code)
+        
+        # we need to hide this chunk but still have it evaluated (include=FALSE)
+        # knitr should still fill in the labels
+        dup_chunk <- rmd[idx]
+        dup_chunk[[1]]$options$include=FALSE
+        dup_chunk[[1]]$name = paste0(dup_chunk[[1]]$name, "-dup")
+        
+        rmd[idx] <- orig_chunk
+        rmd <- append(rmd, dup_chunk, after = idx)
+        offset = offset + 1
+    }
+    
+    class(rmd) <- append(class(rmd), "rmd_ast")
+    
+    unique_referenced_chunks <- chunk_info |> {\(x) purrr::map(x,function(y){
+        if(length(y$chunk_ids) > 0){
+            return(y$chunk_ids)
+        }
+    })}()
+    unique_referenced_chunks <- unique_referenced_chunks[!sapply(unique_referenced_chunks,is.null)] |> unlist() |> unique()
+    
+    chunk_labels <- rmd |> parsermd::rmd_node_label()
+    # loop through the chunks, if the chunk label is in our vector of referenced chunks, we are going to add a comment with the chunk name at the top
+    for(j in seq(length(chunk_labels))){
+        if(!is.na(chunk_labels[j]) & chunk_labels[j] %in% unique_referenced_chunks){
+            chunk_comment = stringr::str_glue('###"{chunk_labels[j]}"###')
+            rmd[j][[1]]$code <- c(chunk_comment, rmd[j][[1]]$code)
+        }
+    }
+    
+    class(rmd) <- append(class(rmd), "rmd_ast")
+    
+    rmd
+}
+```
+
+The first helper function we need is the `find_labels` function which determines whether a code chunk contains a chunk label.
+
+```{r}
+#' Find an Rmd chunk label in a code chunk
+#' 
+#' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
+#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form <<label>> was found and chunk_ids is a character vector of chunk label was found in that chunk.
+find_labels <- function(chunk_code){
+    rc <- knitr:::all_patterns$md$ref.chunk
+    chunk_idx <- any(idx = grepl(rc, chunk_code))
+    chunk_ids <- stringr::str_trim(sub(rc, "\\1", chunk_code[grepl(rc, chunk_code)]))
+    return(list(chunk_idx = chunk_idx, chunk_ids = chunk_ids))
+}
+```
+
+
+Next we need a function for replacing chunk label delimiters to avoid `knitr` filling the function in. Note that the default replacement label delimiter is `@@` but we can replace this with `<< >>` during the post-knit processing.
+
+```{r}
+#' Replace the delimiter of Rmd chunk label in a code chunk
+#' 
+#' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
+#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is "@@"
+#' @return Character vector with replaced chunk label delimiter.
+replace_label_delimiter <- function(chunk_code, label_delim="@@"){
+    # modified version of knitr:::all_patterns$md$ref.chunk
+    rc <- "^(\\s*)(<<(.+)>>)(\\s*)$"
+    idx <- grepl(rc, chunk_code)
+    # we want to keep the original indentation so we insert the indentation to the left and right of the label
+    sub(rc, "\\1@@\\3@@\\4", chunk_code)
+}
+```
+
+###### Example of `preprocess_chunk_labels`
+
+Now we will demonstrate the `preprocess_chunk_labels` function on a minimal example. We store the minimal example Rmd file as a string in this format to avoid file formatting issues in RStudio. We read in the vector using `parse_rmd` which returns an `rmd_ast` object. Under the hood this is a list of lists with a fancy print function.
+
+```{r}
+rmd <- parsermd::parse_rmd("---\ntitle: Minimal Example\nauthor: Patrick Vossler\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n")
+```
+
+
+```{r}
+print(rmd)
+```
+
+We're interested in the `c2f` and `f2c` functions since they contain chunk labels for `check-arg` and `convert-*`. We can print out the code chunks for all of the Rmd chunks using the `has_type` function.
+
+```{r}
+rmd |> parsermd::rmd_select(parsermd::has_type("rmd_chunk")) |>  parsermd::rmd_node_code() 
+```
+
+We see that we want to keep these labels but also have `knitr` fill in the labels and execute the code. To do this we are going to create two copies of the chunks that contain chunk labels. The first copy contains modified chunk labels for display in the knitted document while the second copy contains the original code chunk but now with the option `include=FALSE` so that the code is run but not displayed in the document. To prevent an issue of duplicate chunk labels we append `-dup` to the label of the second copy of the code chunk.
+
+```{r}
+preprocessed_rmd <- preprocess_chunk_labels(rmd)
+print(preprocessed_rmd)
+```
+
+From the printed structure we see that after running `preprocess_chunk_labels` we have two copies of the chunks that contain chunk labels. Let's take a look at the changes for these chunks. First we will look at the changes to the code. We will filter to focus only on our chunks of interest.
+
+```{r}
+preprocessed_rmd |> parsermd::rmd_select(parsermd::has_type("rmd_chunk")) |>  parsermd::rmd_node_code() |> {\(x) x[2:6]}()
+```
+
+We see that the delimiters in the first copy have been changed to avoid them being replaced by `knitr`. Next let's look at the changes to the chunk options. Again we are filtering to focus on the options for our chunks of interest.
+
+```{r}
+preprocessed_rmd |> parsermd::rmd_select(parsermd::has_type("rmd_chunk")) |>  parsermd::rmd_node_options() |> {\(x) x[2:6]}()
+```
+
+
+This pre-processing method allows us to satisfy our first requirement for the embedded chunks, however we still need to do some "post-knit" processing to satisfy our second requirement.
+
+
 #### Defining `litr::render()`
 
-This function does three things:
+This function does four things:
 
-1. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.
+1. Creates a modified version of the Rmd file and performs the "pre-knit" processing steps described [here](#pre-knit).
 
-2. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
+2. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.
 
-3. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
+3. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
+
+4. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
 
 ```{r}
 #' Render R markdown file
@@ -385,38 +542,62 @@ This function does three things:
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
 render <- function(input, ...) {
-  # call rmarkdown::render in a new environment so it behaves the same as 
-  # pressing the knit button in RStudio:
-  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
-  args <- list(...)
-  out <- xfun::Rscript_call(
-    rmarkdown::render,
-    c(input = input, args)
-  )
-  
-  # add hyperlinks within html output to make it easier to navigate:
-  if (any(stringr::str_detect(out, "html$"))) {
-    html_file <- stringr::str_subset(out, "html$")
-    add_function_hyperlinks(html_file)
-  }
-  
-  # add litr hash so we can tell later if package files were manually edited:
-  params <- get_params_used(input, args$params)
-  package_dir <- ifelse(
-    params$package_parent_dir == ".",
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
-  write_hash_to_description(package_dir)
+    # Pre-knit steps start
+    # need to specify output file and directory to be the directory of the input
+    output_file <- paste0(fs::path_ext_remove(input), ".html")
+    input_dir <- fs::path_dir(input)
+    
+    rmd <- parsermd::parse_rmd(input)
+    processed_ast <- preprocess_chunk_labels(rmd)
+    preprocessed_rmd <- parsermd::as_document(processed_ast)
+    # write this to a temp file in the same directory as the input file
+    temp_file <- paste0(fs::path_ext_remove(input),"_TMP.", fs::path_ext(input))
+    modified_input <- file.path(input_dir, fs::path_file(temp_file))
+    writeLines(preprocessed_rmd, modified_input)
+    # Pre-knit steps end
+    
+    # call rmarkdown::render in a new environment so it behaves the same as
+    # pressing the knit button in RStudio:
+    # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+    args <- list(...)
+    # only change the output file name if output_file is not passed by the user
+    args[["output_file"]] <- ifelse(is.null(args[["output_file"]]), output_file ,args[["output_file"]])
+    out <- xfun::Rscript_call(rmarkdown::render,
+                              c(input = modified_input, args))
+    
+    # add hyperlinks within html output to make it easier to navigate:
+    if (any(stringr::str_detect(out, "html$"))) {
+        html_file <- stringr::str_subset(out, "html$")
+        add_function_hyperlinks(html_file)
+        add_chunk_label_hyperlinks(html_file)
+    }
+    
+    # add litr hash so we can tell later if package files were manually edited:
+    # get the params from the modified Rmd file since we modify the params
+    # if `package_parent_dir` is ".". This way we hash the correct directory
+    params <- get_params_used(modified_input, args$params)
+    package_dir <- ifelse(
+        params$package_parent_dir == ".",
+        file.path(dirname(input), params$package_name),
+        file.path(
+            dirname(input),
+            params$package_parent_dir,
+            params$package_name
+        )
+    )
+    # now that we've finished using the temporary file, delete it before hashing the directory
+    fs::file_delete(modified_input)
+    write_hash_to_description(package_dir)
 }
 ```
 
 **Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
 
-We used the package `xfun`, so let's import it:
+We used the `xfun` and `parsermd` functions, so let's import them:
 
 ```{r}
 usethis::use_package("xfun")
+usethis::use_package("parsermd")
 ```
 
 The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
@@ -464,6 +645,50 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 }
 ```
 
+```{r}
+#' Add hyperlinks to embedded chunks
+#' 
+#' Finds chunks that are referenced in the html file by looking for comments
+#' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
+#' and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it be
+#' a hyperlink to `foo`'s definition.
+#' 
+#' @param html_file File name of html file that was created from Rmd file
+#' @param output_file File name to output to. Default: `html_file`
+#' @export
+add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
+    txt <- readLines(html_file)
+    start_line <- which(txt == "<body>")
+    pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
+    # find chunks that are defined in this file:
+    chunk_names <- character(0)
+    for (i in seq(start_line + 1, length(txt))) {
+    chunk_name <- stringr::str_match(txt[i], pattern)[, 2]
+    if(is.na(chunk_name)) next
+    # a function was defined in this line, so put a span around it
+    txt[i] <- stringr::str_replace(
+      txt[i],
+      pattern,
+      stringr::str_glue("<span id='{chunk_name}'>###&quot;\\1&quot;###</span>")
+    )
+    # and keep track of it for later:
+    chunk_names <- c(chunk_names, chunk_name)
+    }
+    
+    # whenever one of these named chunks is referenced, link to its definition
+    txt <- stringr::str_replace_all(
+    txt,
+    paste0("@@", chunk_names, "@@", collapse = "|"),
+    function(chunk_name) {
+      chunk_name <- stringr::str_remove_all(chunk_name, "@@")
+      stringr::str_glue("<a href='#{chunk_name}'>&lt&lt{chunk_name}&gt&gt</a>")
+    }
+    )
+    writeLines(txt, con = output_file)
+}
+```
+
+
 As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
 
 ```{r}
@@ -496,8 +721,8 @@ usethis::use_package("rmarkdown")
 library(magrittr)
 library(purrr)
 rfiles <- fs::dir_ls("R")
-code <- rfiles %>% 
-  map(readLines) %>% 
+code <- rfiles %>%
+  map(readLines) %>%
   set_names(
     rfiles %>% stringr::str_remove("^.*/") %>% stringr::str_remove(".R$")
     )
@@ -508,6 +733,9 @@ hash_functions <- c("hash_package_directory",
                     "check_unedited")
 render_functions <- c("render",
                       "add_function_hyperlinks",
+                      "add_chunk_label_hyperlinks",
+                      "find_labels",
+                      "replace_label_delimiter",
                       "get_params_used",
                       "do_not_edit_message",
                       "document")
@@ -699,7 +927,7 @@ testthat::test_that("get_params_used works", {
   params2$package_name <- "pkg"
   params2$package_parent_dir <- "dir"
   testthat::expect_equal(
-    get_params_used(rmd_file, 
+    get_params_used(rmd_file,
                     passed_params = list(package_parent_dir = "dir",
                                          package_name = "pkg")),
     params2
