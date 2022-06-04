@@ -64,7 +64,7 @@ The function next checks whether this is a piece of code to be sent to the `R/` 
 
 If the code chunk does not start with `#'`, then we check if it has `testthat::` *anywhere* in the code chunk (not just on the first line).  If so, then this whole code chunk is appended to `tests/testthat/tests.R`.  (And this file is created the first time a test chunk is sent to the package).
 
-```{r}
+```{r, location="R/setup.R"}
 #' A knitr chunk hook for writing R code and tests
 #' 
 #' This chunk hook detects whether a chunk is defining a function or dataset
@@ -102,8 +102,36 @@ send_to_package <- function(before, options, envir) {
         # send this to package
         return()
       }
-      file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
-      cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+      # check whether a specific location for the object has been set by the user
+      obj_filename <- options$location
+      if(is.null(obj_filename)){
+        # send the object to {objname}.R
+        file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
+        cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+      } else{
+        # the user specified a location to send the object
+        file <- file.path(envir$package_dir, options$location)
+        print(file)
+        # check that the directory of the relative path given exists
+        if(!fs::dir_exists(fs::path_dir(file))){
+            stop(stringr::str_glue("directory {fs::path_dir(file)} does not exist"))
+        }
+        # give warning if the file name does not have .R extension
+        if(length(fs::path_ext(file)) == 0){
+            file <- fs::path_ext_set(file, "R")
+            warning(stringr::str_glue("No file extension found in supplied file name, sending {objname} to {file}"))
+        }
+        # check whether a file with this name has already been created
+        if(fs::file_exists(file)){
+            # only append the code, don't add the message
+            cat(paste(c("", options$code, ""), collapse = "\n"), file = file, append=TRUE)
+        } else{
+            # send the object to the user-supplied location with the message
+            cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+        }
+        
+      }
+      
     }
   }
   else if (any(stringr::str_detect(options$code, "testthat::"))) {
@@ -129,7 +157,7 @@ usethis::use_package("stringr")
 
 The code also calls the function `do_not_edit_message()`, which adds a line at the top of the files sent to the R package reminding the user that these are not source files to be edited but rather output of the generating .Rmd file.  There are two variations on this message.
 
-```{r}
+```{r, location="R/render.R"}
 #' Generate do-not-edit message to put at top of file
 #' 
 #' @param rmd_file Name of the Rmd file to mention
@@ -162,7 +190,7 @@ The first code chunk of the generating .Rmd file will call the following functio
 
 But since this is encountered through knitting rather than interactively, this results in an error.  [This](https://github.com/r-lib/usethis/issues/553) `usethis` issue describes this exact problem.  The solution suggested there by jennybc involving `testthat::with_mock()` is along the lines of what we want; however, that would lead to some ugly looking code in the generating .Rmd file.  The best solution I could find was to use `utils::assignInNamespace()` as described [here](https://stat.ethz.ch/pipermail/r-help/2008-August/171215.html).  This function allows us to change the internal function `usethis:::challenge_nested_project()` so that it no longer prompts the user with concerns about nested projects.
 
-```{r}
+```{r, location="R/setup.R"}
 #' Code for setup chunk
 #' 
 #' Creates directory where package will be. (Deletes what is currently there as 
@@ -204,7 +232,7 @@ setup <- function(package_dir) {
 
 The previous function made use of a small function, `make_noticeable()`, which we define here:
 
-```{r}
+```{r, location="R/setup.R"}
 #' Make error messages noticeable
 #' 
 #' Since litr error messages are amid a lot of output from knitting, we'd like 
@@ -235,7 +263,7 @@ As described in the previous section, the function `setup()` will only overwrite
 
 Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash*.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
 
-```{r}
+```{r, location="R/hash.R"}
 #' Hash package directory
 #' 
 #' Gets an identifier that can be used to uniquely (whp) identify the current 
@@ -269,14 +297,14 @@ usethis::use_package("digest")
 
 We will store this hash in a special field within the DESCRIPTION file.  Let's call this field `LitrId`.  However, in case we ever decide to change the name of this field, it's better that we only define it in one place.  So we do this with the following function:
 
-```{r}
+```{r, location="R/hash.R"}
 #' Generate litr field name for DESCRIPTION file
 description_litr_field_name <- function() return("LitrId")
 ```
 
 Ok, now let's write the function that `litr::render()` will call that will take the generated R package and add a line that puts the hash in the DESCRIPTION file under that special `litr` field:
 
-```{r}
+```{r, location="R/hash.R"}
 #' Write the hash of the package to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -291,7 +319,7 @@ write_hash_to_description <- function(package_dir) {
 
 And of course we'll need a way a function that can read the value of that field as well:
 
-```{r}
+```{r, location="R/hash.R"}
 #' Get the hash of the package from the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -309,7 +337,7 @@ read_hash_from_description <- function(package_dir) {
 
 With all this hash functionality in place, the function `check_unedited()` is actually quite simple to define:
 
-```{r}
+```{r, location="R/hash.R"}
 #' Check if package directory is the unedited output of litr::render
 #' 
 #' Uses hash stored in a special `litr` field of DESCRIPTION file to check that 
@@ -333,7 +361,7 @@ It simply computes the hash of the current package and checks whether that hash 
 
 This function is nearly identical to `devtools::document()` except that it changes the roxygen2 message that says "Please edit documentation in R/[...].R" to instead mention the generating .Rmd file.
 
-```{r}
+```{r, location="R/render.R"}
 #' Use roxygen to document a package
 #' 
 #' This is a wrapper for the `devtools::document()` function, which in turn is a
@@ -372,7 +400,7 @@ This function does three things:
 
 3. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
 
-```{r}
+```{r, location="R/render.R"}
 #' Render R markdown file
 #' 
 #' Wrapper to `rmarkdown::render` that does some post-processing on the html 
@@ -421,7 +449,7 @@ usethis::use_package("xfun")
 
 The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 
-```{r}
+```{r, location="R/render.R"}
 #' Add hyperlinks to function definitions
 #' 
 #' Finds functions that are defined in the html file by looking for text of the 
@@ -466,7 +494,7 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 
 As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
 
-```{r}
+```{r, location="R/render.R"}
 #' Get parameter values used in rendering
 #' 
 #' When the `params` argument of `rmarkdown::render()` is explicitly used, this
@@ -488,41 +516,9 @@ We used the package `rmarkdown`, so let's import it:
 usethis::use_package("rmarkdown")
 ```
 
-### Combining .R files
+### Combining grouping functions in .R files
 
-**This section should eventually be removed but for now I'm doing this to convince myself that the package generated by this .Rmd file really matches the initial version created without the package.**
-
-```{r}
-library(magrittr)
-library(purrr)
-rfiles <- fs::dir_ls("R")
-code <- rfiles %>% 
-  map(readLines) %>% 
-  set_names(
-    rfiles %>% stringr::str_remove("^.*/") %>% stringr::str_remove(".R$")
-    )
-hash_functions <- c("hash_package_directory",
-                    "description_litr_field_name",
-                    "write_hash_to_description",
-                    "read_hash_from_description",
-                    "check_unedited")
-render_functions <- c("render",
-                      "add_function_hyperlinks",
-                      "get_params_used",
-                      "do_not_edit_message",
-                      "document")
-setup_functions <- c("setup",
-                     "make_noticeable",
-                     "send_to_package")
-remove_initial_lines <- function(code_list) {
-  # drop first line of each list element except for the first list element
-  c(code_list[1], map(code_list[-1], ~ .x[-1]))
-}
-fs::file_delete(rfiles)
-writeLines(unlist(remove_initial_lines(code[hash_functions])), "R/hash.R")
-writeLines(unlist(remove_initial_lines(code[render_functions])), "R/render.R")
-writeLines(unlist(remove_initial_lines(code[setup_functions])), "R/setup.R")
-```
+By default, a separate .R file is created for each documented function. For example, if a function `foo` is defined in a code chunk, it will be written to the file `R/foo.R`. The is the default behavior the typical workflow for `litr`-based packages is centered around the Rmd file and users who want to read the R package code are recommended to read the generating Rmd file. However, users can control which .R file to write a function to by adding a `location` argument to the code chunk containing the function with the path to the preferred file name relative to `package_parent_dir` defined in the `knit-setup` chunk. For example, if we wanted to send the`foo` function to the file `R/bar.R`, we would add the code chunk argument `location="R/bar.R"` to the `foo` function code chunk. Then the next time the Rmd file is knitted, the `foo` function will be sent to `bar.R` file in the `R` folder of the package.
 
 
 ## Including templates

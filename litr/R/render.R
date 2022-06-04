@@ -1,5 +1,39 @@
 # Generated from create-litr.Rmd: do not edit by hand
 
+#' Generate do-not-edit message to put at top of file
+#' 
+#' @param rmd_file Name of the Rmd file to mention
+#' @param type Whether this is a R/ file or a man/ file
+do_not_edit_message <- function(rmd_file, type = c("R", "man")) {
+  if (type[1] == "R")
+    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
+  else if (type[1] == "man")
+    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else
+    stop("type must be either 'R' or 'man'.")
+}
+
+#' Use roxygen to document a package
+#' 
+#' This is a wrapper for the `devtools::document()` function, which in turn is a
+#' wrapper for the `roxygen2::roxygenize()` function.  The purpose for `litr` 
+#' having this wrapper is to make one modification.  In particular, the line
+#' in the outputted `Rd` files should not say "Please edit documentation in 
+#' R/file.R" but instead should refer to the Rmd file that generates everything. 
+#' 
+#' @param ... Arguments to be passed to `devtools::document()`
+#' @export
+document <- function(...) {
+  devtools::document(...)
+  # remove the line of the following form in each man/*.Rd file:
+  pattern <- "% Please edit documentation in .*$"
+  msg <- do_not_edit_message(knitr::current_input(), type = "man")
+  for (fname in fs::dir_ls("man")) {
+    txt <- stringr::str_replace(readLines(fname), pattern, msg)
+    cat(paste(txt, collapse = "\n"), file = fname)
+  }
+}
+
 #' Render R markdown file
 #' 
 #' Wrapper to `rmarkdown::render` that does some post-processing on the html 
@@ -90,38 +124,4 @@ get_params_used <- function(input, passed_params) {
     params[[param]] <- passed_params[[param]]
   }
   params
-}
-
-#' Generate do-not-edit message to put at top of file
-#' 
-#' @param rmd_file Name of the Rmd file to mention
-#' @param type Whether this is a R/ file or a man/ file
-do_not_edit_message <- function(rmd_file, type = c("R", "man")) {
-  if (type[1] == "R")
-    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
-  else if (type[1] == "man")
-    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
-  else
-    stop("type must be either 'R' or 'man'.")
-}
-
-#' Use roxygen to document a package
-#' 
-#' This is a wrapper for the `devtools::document()` function, which in turn is a
-#' wrapper for the `roxygen2::roxygenize()` function.  The purpose for `litr` 
-#' having this wrapper is to make one modification.  In particular, the line
-#' in the outputted `Rd` files should not say "Please edit documentation in 
-#' R/file.R" but instead should refer to the Rmd file that generates everything. 
-#' 
-#' @param ... Arguments to be passed to `devtools::document()`
-#' @export
-document <- function(...) {
-  devtools::document(...)
-  # remove the line of the following form in each man/*.Rd file:
-  pattern <- "% Please edit documentation in .*$"
-  msg <- do_not_edit_message(knitr::current_input(), type = "man")
-  for (fname in fs::dir_ls("man")) {
-    txt <- stringr::str_replace(readLines(fname), pattern, msg)
-    cat(paste(txt, collapse = "\n"), file = fname)
-  }
 }
