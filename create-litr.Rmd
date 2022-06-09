@@ -377,68 +377,102 @@ usethis::use_package("devtools")
 
 To implement this feature we need to create a "pre-knit" function that takes the Rmd file finds the chunks with embedded chunks, makes a copy of that chunk with a modified label delimiter to avoid `knitr` replacing the chunk labels with the referenced code, and finally adds an option to the original chunk so that it will be run but not included in the knitted document. The steps of the pre-knit function are the following:
 
-1. Convert the Rmd file to an abstract syntax tree (AST) using `parsermd`
-2. Find the chunks that contain chunk labels
-3. For each of the chunks with chunk labels, insert a copy of that chunk into the AST
-4. Change the embedded chunk delimiter to prevent `knitr` from replacing the chunk labels
-5. Change the options of the duplicated chunk to prevent it from being run by `knitr`
-6. Change the options of the original chunk so that it is run but not displayed in the document
-7. Make a vector of the unique labels chunks referenced and add a comment to those chunks with their chunk label
-7. Convert the AST to an Rmd document this modified Rmd file to a temporary file in the same directory as the original Rmd file
+1. Find the chunks that contain chunk labels
+2. For each of the chunks with chunk labels, insert a copy of that chunk into the document
+3. Change the embedded chunk delimiter to prevent `knitr` from replacing the chunk labels
+4. Change the options of the duplicated chunk to prevent it from being run by `knitr`
+5. Change the options of the original chunk so that it is run but not displayed in the document
+6. Make a vector of the unique labels chunks referenced and add a comment to those chunks with their chunk label
+7. Write this modified Rmd file to a temporary file in the same directory as the original Rmd file
 8. Call `litr::render()` on the modified Rmd file
 
 Now we can walk through the code
 
-The `preprocess_chunk_labels` function implements the core functionality. It takes an Rmd file and converts it to an AST, finds the chunks with chunk labels, makes a copy of that chunk with a modified label delimiter, and changes the option of the original copy of the chunk to be run, but not included in the knitted document.
+The `preprocess_chunk_labels` function implements the core functionality. It takes an Rmd file finds the chunks with chunk labels, makes a copy of that chunk with a modified label delimiter, and changes the option of the original copy of the chunk to be run, but not included in the knitted document.
+
+```{r}
+extract_rmd_code_chunks <- function(rmd_vector){
+  chunk_start <- which(grepl(rmd_vector, pattern = knitr::all_patterns$md$chunk.begin))
+  chunk_end <- sapply(chunk_start, function(x){
+    # starting from the chunk start, find the first triple backticks location
+    num_after_start <- which(grepl(rmd_vector[-(1:x)], pattern = knitr::all_patterns$md$chunk.end, perl = T))[1]
+    return(x + num_after_start)
+  })
+  code_extract <- function(rmd_vector, start, end){
+    return(rmd_vector[(start+1):(end-1)])
+  }
+  # create a list of code chunks by looping over the chunk_start and chunk_end vectors
+  code_chunk_list <- lapply(1:length(chunk_start), function(i){
+    start <- chunk_start[i]
+    end <- chunk_end[i]
+    code <- code_extract(rmd_vector, start,end)
+    # add an element of the list with information on whether another code chunk is referenced in this code chunk
+    contains_labels <- find_labels(code)
+    list(code = code, contains_labels = contains_labels, start_idx = start, end_idx = end)
+  })
+  code_chunk_list
+}
+```
 
 ```{r}
 #' Find an Rmd chunk label in a code chunk
 #' 
-#' @param rmd An `rmd_ast` object
+#' @param rmd_file A character vector of an Rmd file lines
 #' @export 
-preprocess_chunk_labels <- function(rmd){
-    chunk_info <- rmd |>  parsermd::rmd_node_code() |> {\(x) lapply(x, find_labels)}()
-    chunk_with_embedded_label <- chunk_info |> {\(x) purrr::map_lgl(x,~.x$chunk_idx)}()
+preprocess_chunk_labels <- function(rmd_file){
+    code_chunks <- extract_rmd_code_chunks(rmd_file)
+    # loop over the code_chunk list 
     offset = 0
-    for(i in which(chunk_with_embedded_label)){
-        idx <- i + offset
+    for(i in 1:length(code_chunks)){
+      # check if we found a referenced label for this element
+      code_chunk <- code_chunks[[i]]
+      if(code_chunk$contains_labels$chunk_idx){
+        chunk_start <- code_chunk$start_idx+offset
+        chunk_end <- code_chunk$end_idx+offset
+        orig_chunk <- rmd_file[chunk_start:chunk_end]
+        dup_chunk <- rmd_file[chunk_start:chunk_end]
         # we need to add eval=F to the original chunk and change the ref brackets so that knitr doesn't fill in the labels
-        orig_chunk <- rmd[idx]
-        orig_chunk[[1]]$options$eval=FALSE
-        orig_chunk[[1]]$code = replace_label_delimiter(orig_chunk[[1]]$code)
+        # add eval=F at the end of the chunk options which we assume to be the first line of the chunk
+        # TO-DO: check if it is possible to have multi-line chunk options?
+        orig_chunk[1] <- stringr::str_replace(orig_chunk[1], "\\}", stringr::str_glue(", eval=FALSE\\}"))
+        orig_chunk <- sapply(orig_chunk,replace_label_delimiter,USE.NAMES = F)
         
         # we need to hide this chunk but still have it evaluated (include=FALSE)
         # knitr should still fill in the labels
-        dup_chunk <- rmd[idx]
-        dup_chunk[[1]]$options$include=FALSE
-        dup_chunk[[1]]$name = paste0(dup_chunk[[1]]$name, "-dup")
+        dup_chunk[1] <- stringr::str_replace(dup_chunk[1], "\\}", stringr::str_glue(", include=FALSE\\}"))
+        dup_chunk[1] <- modify_chunk_label(dup_chunk[1])
         
-        rmd[idx] <- orig_chunk
-        rmd <- append(rmd, dup_chunk, after = idx)
-        offset = offset + 1
+        # now replace the original chunk and fill in the duplicate chunk
+        # and increase the offset by the size of the duplicate chunk
+        rmd_file[chunk_start:chunk_end] <- orig_chunk
+        rmd_file <- append(rmd_file, dup_chunk, after=chunk_end)
+        offset <- offset + length(dup_chunk)
+      }
     }
     
-    class(rmd) <- append(class(rmd), "rmd_ast")
-    
-    unique_referenced_chunks <- chunk_info |> {\(x) purrr::map(x,function(y){
-        if(length(y$chunk_ids) > 0){
-            return(y$chunk_ids)
+    unique_referenced_chunks <- code_chunks |> {\(x) purrr::map(x,function(y){
+        if(length(y$contains_labels$chunk_ids) > 0){
+            return(y$contains_labels$chunk_ids)
         }
     })}()
     unique_referenced_chunks <- unique_referenced_chunks[!sapply(unique_referenced_chunks,is.null)] |> unlist() |> unique()
     
-    chunk_labels <- rmd |> parsermd::rmd_node_label()
-    # loop through the chunks, if the chunk label is in our vector of referenced chunks, we are going to add a comment with the chunk name at the top
-    for(j in seq(length(chunk_labels))){
-        if(!is.na(chunk_labels[j]) & chunk_labels[j] %in% unique_referenced_chunks){
-            chunk_comment = stringr::str_glue('###"{chunk_labels[j]}"###')
-            rmd[j][[1]]$code <- c(chunk_comment, rmd[j][[1]]$code)
-        }
+    changed_code_chunks <- extract_rmd_code_chunks(rmd_file)
+    offset = 0
+    for(i in 1:length(changed_code_chunks)){
+      code_chunk <- changed_code_chunks[[i]]
+      chunk_start <- code_chunk$start_idx + offset
+      chunk_end <- code_chunk$end_idx + offset
+      orig_chunk <- rmd_file[chunk_start:chunk_end]
+      chunk_label <- extract_label(orig_chunk[1])
+      if(!is.na(chunk_label) & chunk_label %in% unique_referenced_chunks){
+        chunk_comment = stringr::str_glue('###"{chunk_label}"###')
+        rmd_file <- append(rmd_file, chunk_comment, after=chunk_start)
+        offset <- offset + 1
+      }
     }
     
-    class(rmd) <- append(class(rmd), "rmd_ast")
-    
-    rmd
+    rmd_file
 }
 ```
 
@@ -475,12 +509,33 @@ replace_label_delimiter <- function(chunk_code, label_delim="@@"){
 }
 ```
 
+We also need a small helper function for modifying chunk names when we create a duplicate chunk. If we are unable to find a chunk name, we just return the original line and let knitr autoname unnamed chunks later. The regex in this function is a slightly modified version of  `knitr::all_patterns$md$chunk.begin` with additional capture groups.
+```{r}
+modify_chunk_label <- function(chunk_option){
+  stringr::str_replace(chunk_option, "^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$", "\\1\\2\\3-dup\\4" )
+}
+```
+
+Finally we add a helper function that is similar to `modify_chunk_label` except here we extract the label instead of modifying it in-place.
+```{r}
+extract_label <- function(chunk_option){
+  label <- stringr::str_trim(gsub("^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$", '\\3', chunk_option))
+  if(length(label) > 0){
+    return(label)
+  } else{
+    return(NA)
+  }
+}
+```
+
+
+
 ###### Example of `preprocess_chunk_labels`
 
-Now we will demonstrate the `preprocess_chunk_labels` function on a minimal example. We store the minimal example Rmd file as a string in this format to avoid file formatting issues in RStudio. We read in the vector using `parse_rmd` which returns an `rmd_ast` object. Under the hood this is a list of lists with a fancy print function.
+Now we will demonstrate the `preprocess_chunk_labels` function on a minimal example. We store the minimal example Rmd file as a string in this format to avoid file formatting issues in RStudio. We will transform this into a vector as if we read in the file using the `readLines` function.
 
 ```{r}
-rmd <- parsermd::parse_rmd("---\ntitle: Minimal Example\nauthor: Patrick Vossler\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n")
+rmd <- unlist(strsplit("---\ntitle: Minimal Example\nauthor: Patrick Vossler\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
 ```
 
 
@@ -488,31 +543,14 @@ rmd <- parsermd::parse_rmd("---\ntitle: Minimal Example\nauthor: Patrick Vossler
 print(rmd)
 ```
 
-We're interested in the `c2f` and `f2c` functions since they contain chunk labels for `check-arg` and `convert-*`. We can print out the code chunks for all of the Rmd chunks using the `has_type` function.
-
-```{r}
-rmd |> parsermd::rmd_select(parsermd::has_type("rmd_chunk")) |>  parsermd::rmd_node_code() 
-```
-
-We see that we want to keep these labels but also have `knitr` fill in the labels and execute the code. To do this we are going to create two copies of the chunks that contain chunk labels. The first copy contains modified chunk labels for display in the knitted document while the second copy contains the original code chunk but now with the option `include=FALSE` so that the code is run but not displayed in the document. To prevent an issue of duplicate chunk labels we append `-dup` to the label of the second copy of the code chunk.
+We're interested in the `c2f` and `f2c` functions since they contain chunk labels for `check-arg` and `convert-*`.  We want to keep these labels but also have `knitr` fill in the labels and execute the code. To do this we are going to create two copies of the chunks that contain chunk labels. The first copy contains modified chunk labels for display in the knitted document while the second copy contains the original code chunk but now with the option `include=FALSE` so that the code is run but not displayed in the document. To prevent an issue of duplicate chunk labels we append `-dup` to the label of the second copy of the code chunk.
 
 ```{r}
 preprocessed_rmd <- preprocess_chunk_labels(rmd)
 print(preprocessed_rmd)
 ```
 
-From the printed structure we see that after running `preprocess_chunk_labels` we have two copies of the chunks that contain chunk labels. Let's take a look at the changes for these chunks. First we will look at the changes to the code. We will filter to focus only on our chunks of interest.
-
-```{r}
-preprocessed_rmd |> parsermd::rmd_select(parsermd::has_type("rmd_chunk")) |>  parsermd::rmd_node_code() |> {\(x) x[2:6]}()
-```
-
-We see that the delimiters in the first copy have been changed to avoid them being replaced by `knitr`. Next let's look at the changes to the chunk options. Again we are filtering to focus on the options for our chunks of interest.
-
-```{r}
-preprocessed_rmd |> parsermd::rmd_select(parsermd::has_type("rmd_chunk")) |>  parsermd::rmd_node_options() |> {\(x) x[2:6]}()
-```
-
+From the printed structure we see that after running `preprocess_chunk_labels` we have two copies of the chunks that contain chunk labels.  We see that the delimiters in the first copy have been changed to avoid them being replaced by `knitr` and we've changed the chunk options such that the original chunk is not evaluated while the duplicate chunk is evaluated by not shown in the knitted document.
 
 This pre-processing method allows us to satisfy our first requirement for the embedded chunks, however we still need to do some "post-knit" processing to satisfy our second requirement.
 
@@ -547,9 +585,8 @@ render <- function(input, ...) {
     output_file <- paste0(fs::path_ext_remove(input), ".html")
     input_dir <- fs::path_dir(input)
     
-    rmd <- parsermd::parse_rmd(input)
-    processed_ast <- preprocess_chunk_labels(rmd)
-    preprocessed_rmd <- parsermd::as_document(processed_ast)
+    rmd_file <- readLines(input)
+    preprocessed_rmd <- preprocess_chunk_labels(rmd_file)
     # write this to a temp file in the same directory as the input file
     temp_file <- paste0(fs::path_ext_remove(input),"_TMP.", fs::path_ext(input))
     modified_input <- file.path(input_dir, fs::path_file(temp_file))
@@ -593,11 +630,10 @@ render <- function(input, ...) {
 
 **Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
 
-We used the `xfun` and `parsermd` functions, so let's import them:
+We used the `xfun` so let's import it:
 
 ```{r}
 usethis::use_package("xfun")
-usethis::use_package("parsermd")
 ```
 
 The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
