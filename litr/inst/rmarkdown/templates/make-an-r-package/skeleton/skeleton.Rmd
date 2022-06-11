@@ -43,7 +43,6 @@ usethis::create_package(
   )
 )
 usethis::use_mit_license(copyright_holder = "F. Last")
-usethis::use_testthat()
 ```
 
 ## Now to the package itself
@@ -82,7 +81,7 @@ testthat::test_that("say_hello works", {
 })
 ```
 
-Code chunks that have `test_that(` in them are added to the package as tests.
+Code chunks that have one or more lines starting with `test_that(` (or `testthat::test_that(`) are added to the package as tests.
 
 ## Documenting the package and building
 

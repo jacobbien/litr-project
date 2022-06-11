@@ -98,9 +98,13 @@ send_to_package <- function(before, options, envir) {
   else if (any(stringr::str_detect(options$code,
                                    "^\\s*(testthat::)?test_that\\("))) {
     # This chunk is inferred to be a test
-    test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
-    if (!file.exists(test_file))
+    test_dir <- file.path(envir$package_dir, "tests", "testthat")
+    test_file <- file.path(test_dir, "tests.R")
+    if (!file.exists(test_file)) {
+      # It's the first chunk with tests
+      if (!dir.exists(test_dir)) usethis::use_testthat()
       cat(c(msg, ""), collapse = "\n", file = test_file)
+    }
     cat(
       paste(c(options$code, "", ""), collapse = "\n"),
       file = test_file,

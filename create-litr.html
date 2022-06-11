@@ -512,9 +512,13 @@ which <code>test_that(</code> appears within a quote or </strong></p>
   else if (any(stringr::str_detect(options$code,
                                    &quot;^\\s*(testthat::)?test_that\\(&quot;))) {
     # This chunk is inferred to be a test
-    test_file &lt;- file.path(envir$package_dir, &quot;tests&quot;, &quot;testthat&quot;, &quot;tests.R&quot;)
-    if (!file.exists(test_file))
+    test_dir &lt;- file.path(envir$package_dir, &quot;tests&quot;, &quot;testthat&quot;)
+    test_file &lt;- file.path(test_dir, &quot;tests.R&quot;)
+    if (!file.exists(test_file)) {
+      # It&#39;s the first chunk with tests
+      if (!dir.exists(test_dir)) usethis::use_testthat()
       cat(c(msg, &quot;&quot;), collapse = &quot;\n&quot;, file = test_file)
+    }
     cat(
       paste(c(options$code, &quot;&quot;, &quot;&quot;), collapse = &quot;\n&quot;),
       file = test_file,
@@ -1046,7 +1050,7 @@ function:</p>
   overwrite = TRUE
 )
 xfun::Rscript_call(rmarkdown::render, args = list(input = &quot;README.Rmd&quot;))</code></pre>
-<pre><code>## [1] &quot;/Users/jacobbien/Dropbox/literate/Rpackage/patrick/test_that/litr-project/litr/README.md&quot;</code></pre>
+<pre><code>## [1] &quot;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/litr/README.md&quot;</code></pre>
 </div>
 <div id="defining-some-tests" class="section level2">
 <h2>Defining some tests</h2>
@@ -1135,7 +1139,7 @@ special <code>litr</code> line)</p></li>
 
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🎉</code></pre>
+<pre><code>## Test passed 🥇</code></pre>
 </div>
 <div id="testing-get_params_used" class="section level3">
 <h3>Testing <code><a href='#get_params_used'>get_params_used</a>()</code></h3>
@@ -1170,7 +1174,7 @@ sure it behaves how we expect it to:</p>
   )
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🥇</code></pre>
+<pre><code>## Test passed 😸</code></pre>
 </div>
 </div>
 <div id="documenting-the-package-and-building" class="section level2">
