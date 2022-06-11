@@ -32,7 +32,9 @@ previous stable version of the operating system.
 
 ## How to generate `litr` version 0.0.2 using version 0.0.1
 
-To create `litr` version 0.0.2, we first install `litr` version 0.0.1
+To create `litr` version 0.0.2, we first install `litr` version 0.0.1,
+then download [`create-litr.Rmd` as it was at release
+v0.0.2](https://github.com/jacobbien/litr-project/blob/66cc7c9286e43cb3f1438f4aa70c504a99782f2d/create-litr.Rmd)
 and then run the following command in R:
 
 ``` r
