@@ -32,7 +32,7 @@ usethis::create_package(
   path = ".",
   fields = list(
     Package = package_name,
-    Version = "0.0.2",
+    Version = "0.0.3",
     Title = "A Package for Literate Programming of R Packages",
     Description = "This package defines a document template that can create R
     packages.  This allows for a literate programming approach to R
@@ -62,7 +62,7 @@ We start by making sure that code is only sent to the R package once (arbitraril
 
 The function next checks whether this is a piece of code to be sent to the `R/` directory.  In particular, it checks to see if the code chunk begins with the characteristic [roxygen2](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html) characters `#'`.  If it does, then we the name of the object being documented is identified (could be a function, a dataset, an S4 object, etc) and then we write the code chunk to the file `R/<objectname>.R`. **Note: When NULL is being documented we should write to `package-<package_name>.R`.  See https://r-pkgs.org/man.html#man-packages.**
 
-If the code chunk does not start with `#'`, then we check if it has `testthat::` *anywhere* in the code chunk (not just on the first line).  If so, then this whole code chunk is appended to `tests/testthat/tests.R`.  (And this file is created the first time a test chunk is sent to the package).
+If the code chunk does not start with `#'`, then we check if it has `test_that(` *anywhere* in the code chunk (not just on the first line).  If so, then this whole code chunk is appended to `tests/testthat/tests.R` (and this file is created the first time a test chunk is sent to the package).  **Note: Currently we don't worry about the tricky situation in which `test_that(` appears within a quote or **
 
 ```{r}
 #' A knitr chunk hook for writing R code and tests
@@ -70,8 +70,9 @@ If the code chunk does not start with `#'`, then we check if it has `testthat::`
 #' This chunk hook detects whether a chunk is defining a function or dataset
 #' to be included in the R package (looks for the Roxygen2 comment format `#' `).
 #' If so, then it is written to the `R/` directory.  It also looks for chunks 
-#' with `testthat::` in them, which are written to the `tests` directory of the 
-#' R package.
+#' that have one or more lines that start with `test_that(` or 
+#' `testthat::test_that(` (potentially with some leading whitespace).  These 
+#' chunks are then written to the `tests` directory of the R package.
 #' 
 #' @param before Indicates whether this is being called before or after the 
 #' chunk code is executed
@@ -106,7 +107,8 @@ send_to_package <- function(before, options, envir) {
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
-  else if (any(stringr::str_detect(options$code, "testthat::"))) {
+  else if (any(stringr::str_detect(options$code,
+                                   "^\\s*(testthat::)?test_that\\("))) {
     # This chunk is inferred to be a test
     test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
     if (!file.exists(test_file))

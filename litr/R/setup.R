@@ -58,8 +58,9 @@ make_noticeable <- function(msg) {
 #' This chunk hook detects whether a chunk is defining a function or dataset
 #' to be included in the R package (looks for the Roxygen2 comment format `#' `).
 #' If so, then it is written to the `R/` directory.  It also looks for chunks 
-#' with `testthat::` in them, which are written to the `tests` directory of the 
-#' R package.
+#' that have one or more lines that start with `test_that(` or 
+#' `testthat::test_that(` (potentially with some leading whitespace).  These 
+#' chunks are then written to the `tests` directory of the R package.
 #' 
 #' @param before Indicates whether this is being called before or after the 
 #' chunk code is executed
@@ -94,7 +95,8 @@ send_to_package <- function(before, options, envir) {
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
-  else if (any(stringr::str_detect(options$code, "testthat::"))) {
+  else if (any(stringr::str_detect(options$code,
+                                   "^\\s*(testthat::)?test_that\\("))) {
     # This chunk is inferred to be a test
     test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
     if (!file.exists(test_file))
