@@ -52,7 +52,7 @@ be more of a proof of concept.
 You can install `litr` and get started like so:
 
 ``` r
-devtools::install_github("jacobbien/litr")
+remotes::install_github("jacobbien/litr-project", subdir = "litr")
 rmarkdown::draft("my-package.Rmd", template = "make-an-r-package", package = "litr")
 ```
 
