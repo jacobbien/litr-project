@@ -82,7 +82,7 @@ testthat::test_that("say_hello works", {
 })
 ```
 
-Code chunks that have `testthat::` in them are added to the package as tests.
+Code chunks that have one or more lines starting with `test_that(` (or `testthat::test_that(`) are added to the package as tests.
 
 ## Documenting the package and building
 
