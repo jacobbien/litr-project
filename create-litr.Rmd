@@ -33,10 +33,10 @@ usethis::create_package(
   fields = list(
     Package = package_name,
     Version = "0.0.3",
-    Title = "A Package for Literate Programming of R Packages",
-    Description = "This package defines a document template that can create R
-    packages.  This allows for a literate programming approach to R
-    package development.",
+    Title = "Literate Programming for Writing R Packages",
+    Description = "Allows one to fully create an R package in a single .Rmd 
+    file.  Includes functionality and .Rmd templates for a literate programming
+    approach to R package development.",
     `Authors@R` = person(
       given = "Jacob",
       family = "Bien",
