@@ -43,7 +43,6 @@ usethis::create_package(
   )
 )
 usethis::use_mit_license(copyright_holder = "F. Last")
-usethis::use_testthat()
 ```
 
 ## Now to the package itself
