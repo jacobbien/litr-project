@@ -30,8 +30,10 @@ The `litr` R package allows one to write R packages using literate programming. 
 To create `litr` version 0.0.2, we first install `litr` version 0.0.1, then download [`create-litr.Rmd` as it was at release v0.0.2](https://github.com/jacobbien/litr-project/blob/66cc7c9286e43cb3f1438f4aa70c504a99782f2d/create-litr.Rmd) and then run the following command in R:
 
 ```{r}
-remotes::install_github("jacobbien/litr-project@v0.0.1", subdir = "litr")
+remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 litr::render("create-litr.Rmd")
 ```
+
+In the above code, `@*release` stands for the latest release, which at the time of creating version `0.0.2` was `v0.0.1`.
 
 This will generate the new version of `litr`.  From there, you can build/install as you would for any other package.

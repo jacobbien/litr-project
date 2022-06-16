@@ -370,6 +370,8 @@ pre code {
 </div>
 
 
+<p><em>[This file was litr-knitted using <code>litr</code> version
+0.0.2]</em></p>
 <p>The <code>litr</code> package allows one to define an R package by
 writing an R markdown file. The package consists of (a) document
 templates that users can use as the basis for creating an R package, (b)
@@ -1054,6 +1056,59 @@ xfun::Rscript_call(rmarkdown::render, args = list(input = &quot;README.Rmd&quot;
 </div>
 <div id="defining-some-tests" class="section level2">
 <h2>Defining some tests</h2>
+<p>When using <code>litr</code> to create packages that are not
+<code>litr</code>, one should be able to run tests along the way.
+However, creating <code>litr</code> is a special case so we need to do
+something different for the tests that involve creating a .Rmd from
+template and then calling <code>litr::<a href='#render'>render</a>()</code> on them (such as
+the tests in this section). In particular, we use
+<code>eval=FALSE</code> for these code blocks and then at the end of
+this document we will install the newly created version of
+<code>litr</code> and then call <code>devtools::test()</code>. Doing it
+this way is important for ensuring that the version of <code>litr</code>
+we are testing is the newest version, i.e. the version defined in this
+document.</p>
+<p>To understand the reason we are doing it this way, imagine what would
+happen if instead we left <code>eval=TRUE</code> in the test in the <a href="#test-check-unedited">next section</a>. When we use
+<code>rmarkdown::draft()</code> to create a .Rmd file from template, the
+file it will give us will be an old version (namely the installed
+version of <code>litr</code>’s template) rather than the latest
+version.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>
+Furthermore, consider what happens when we call <code><a href='#render'>render</a>()</code> in
+the test below. This will start the knitting process on
+<code>my-package.Rmd</code>. However, inside
+<code>my-package.Rmd</code>, we have <code>litr::<a href='#setup'>setup</a>()</code> and
+<code>litr::<a href='#document'>document</a>()</code>. When these are called in the knitting
+process, it will be the versions of the functions from the currently
+installed <code>litr</code> rather than the versions defined in this
+document.</p>
+<p>Once we are done testing the new version of the package, we’d like to
+restore the state of <code>litr</code> to what it was previously. If we
+don’t do this, then this can lead to inadvertent circularity in which
+the next time we call <code>litr::<a href='#render'>render</a>(&quot;create-litr.Rmd&quot;)</code>, we
+are using the version currently under development, which is bad because
+ultimately we need this version to be rendered by the previous version
+of <code>litr</code>. The following function implements this approach to
+testing <code>litr</code>:</p>
+<pre class="r"><code>#&#39; Run tests for `litr` itself
+#&#39; 
+#&#39; Special function for testing `litr`.  The trick is to temporarily install
+#&#39; the new version of `litr`, run the test, and then put things back how it was
+#&#39; before.
+#&#39; 
+#&#39; Typical values for `install_old` could be
+#&#39; - `function() devtools::install(&quot;[location of old version]&quot;)`
+#&#39; - `function() remotes::install_github(&quot;jacobbien/litr-project@v0.0.2&quot;, subdir = &quot;litr&quot;)`.
+#&#39; 
+#&#39; @param install_old A function that when run will install the old version
+#&#39; @param location_of_new Path to the new package directory
+#&#39; @export
+<span id='test_litr'>test_litr</span> &lt;- function(install_old, location_of_new) {
+  devtools::install(location_of_new)
+  out &lt;- devtools::test(location_of_new)
+  <a href='#install_old'>install_old</a>()
+  return(out)
+}</code></pre>
 <div id="testing-check_unedited" class="section level3">
 <h3>Testing <code><a href='#check_unedited'>check_unedited</a>()</code></h3>
 <p>For our tests, we create a temporary directory (which we delete at
@@ -1075,45 +1130,42 @@ special <code>litr</code> line)</p></li>
 <pre class="r"><code>testthat::test_that(&quot;check_unedited works&quot;, {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = &quot;/Applications/RStudio.app/Contents/MacOS/pandoc&quot;)
-
   dir &lt;- tempfile()
   fs::dir_create(dir)
-  rmd_path &lt;- file.path(dir, &quot;my-package.Rmd&quot;)
-  rmarkdown::draft(rmd_path,
-                   template = &quot;make-an-r-package&quot;,
-                   package = &quot;litr&quot;,
+  rmd_file &lt;- file.path(dir, &quot;my-package.Rmd&quot;)
+  rmarkdown::draft(rmd_file, template = &quot;make-an-r-package&quot;, package = &quot;litr&quot;,
                    edit = FALSE)
   # create R package (named &quot;rhello&quot;) from the Rmd template:
-  litr::<a href='#render'>render</a>(rmd_path)
+  <a href='#render'>render</a>(rmd_file)
   package_path &lt;- file.path(dir, &quot;rhello&quot;)
-  testthat::expect_true(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_true(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   # what if a file has been added?
   added_file &lt;- file.path(package_path, &quot;R&quot;, &quot;say_hello2.R&quot;)
   writeLines(&quot;# Added something here.&quot;, added_file)
-  testthat::expect_false(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_false(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   # what if we now remove it?
   fs::file_delete(added_file)
-  testthat::expect_true(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_true(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   # what if a file is removed from package?
   rfile &lt;- file.path(package_path, &quot;R&quot;, &quot;say_hello.R&quot;)
   fs::file_move(rfile, dir)
-  testthat::expect_false(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_false(<a href='#check_unedited'>check_unedited</a>(package_path))
   # now put it back
   fs::file_move(file.path(dir, &quot;say_hello.R&quot;), file.path(package_path, &quot;R&quot;))
-  testthat::expect_true(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_true(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   # what if something is changed in a file?
   txt &lt;- readLines(rfile)
   txt_mod &lt;- txt
   txt_mod[3] &lt;- paste0(txt[3], &quot; # added a comment!!&quot;)
   writeLines(txt_mod, rfile)
-  testthat::expect_false(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_false(<a href='#check_unedited'>check_unedited</a>(package_path))
   # now put it back
   writeLines(txt, rfile)
-  testthat::expect_true(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_true(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   # what if something is changed in the DESCRIPTION file?
   descfile &lt;- file.path(package_path, &quot;DESCRIPTION&quot;)
@@ -1121,25 +1173,24 @@ special <code>litr</code> line)</p></li>
   txt_mod &lt;- txt
   txt_mod[1] &lt;- &quot;Package: newname&quot;
   writeLines(txt_mod, descfile)
-  testthat::expect_false(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_false(<a href='#check_unedited'>check_unedited</a>(package_path))
   # now put it back
   writeLines(txt, descfile)
-  testthat::expect_true(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_true(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   # what if the special litr hash field is changed in the DESCRIPTION file?
   txt &lt;- readLines(descfile)
-  i_litr &lt;- stringr::str_which(txt, litr:::<a href='#description_litr_field_name'>description_litr_field_name</a>())
+  i_litr &lt;- stringr::str_which(txt, <a href='#description_litr_field_name'>description_litr_field_name</a>())
   txt_mod &lt;- txt
   txt_mod[i_litr] &lt;- paste0(txt_mod[i_litr], &quot;a&quot;)
   writeLines(txt_mod, descfile)
-  testthat::expect_false(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_false(<a href='#check_unedited'>check_unedited</a>(package_path))
   # now put it back
   writeLines(txt, descfile)
-  testthat::expect_true(litr::<a href='#check_unedited'>check_unedited</a>(package_path))
+  testthat::expect_true(<a href='#check_unedited'>check_unedited</a>(package_path))
 
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🥇</code></pre>
 </div>
 <div id="testing-get_params_used" class="section level3">
 <h3>Testing <code><a href='#get_params_used'>get_params_used</a>()</code></h3>
@@ -1174,14 +1225,20 @@ sure it behaves how we expect it to:</p>
   )
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 😸</code></pre>
 </div>
 </div>
-<div id="documenting-the-package-and-building" class="section level2">
-<h2>Documenting the package and building</h2>
-<p>We finish by running commands that will document, build, and install
-the package. It may also be a good idea to check the package from within
-this file.</p>
+<div id="documenting-the-package-and-testing" class="section level2">
+<h2>Documenting the package and testing</h2>
+<p>We finish by running commands that will document and test
+<code>litr</code>.</p>
+<p><strong>The formatting of the test output does not print out very
+neatly.</strong></p>
+<p><strong>Also, ideally we would not be hardcoding the path to an old
+version or even a particular version number. Once we make the repo
+public, we will be able to use the following:</strong></p>
+<pre class="r"><code>remotes::install_github(&quot;jacobbien/litr-project@*release&quot;, subdir = &quot;litr&quot;)</code></pre>
+<p><strong>According to <a href="https://github.com/r-lib/remotes">this
+page</a>, this downloads the latest release.</strong></p>
 <pre class="r"><code>rm(list = ls())
 litr::<a href='#document'>document</a>()</code></pre>
 <pre><code>## ℹ Updating litr documentation</code></pre>
@@ -1199,10 +1256,29 @@ litr::<a href='#document'>document</a>()</code></pre>
 ## Writing &#39;document.Rd&#39;
 ## Writing &#39;setup.Rd&#39;
 ## Writing &#39;make_noticeable.Rd&#39;
-## Writing &#39;send_to_package.Rd&#39;</code></pre>
-<pre class="r"><code># devtools::build()
-# devtools::install()
-# devtools::check()</code></pre>
+## Writing &#39;send_to_package.Rd&#39;
+## Writing &#39;test_litr.Rd&#39;</code></pre>
+<pre class="r"><code><span id='install_old'>install_old</span> &lt;- function() devtools::install(&quot;~/Downloads/litr-project-0.0.2/litr/&quot;)
+xfun::Rscript_call(test_litr,
+                   list(install_old = install_old, location_of_new = &quot;.&quot;))</code></pre>
+<pre><code>##      file context                  test nb failed skipped error warning  user
+## 1 tests.R   tests  check_unedited works 11      0   FALSE FALSE       0 0.184
+## 2 tests.R   tests get_params_used works  3      0   FALSE FALSE       0 0.021
+##   system  real passed
+## 1  0.065 7.862     11
+## 2  0.004 0.025      3
+##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              result
+## 1 <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 13, 3, 13, 53, 3, 53, 13, 13, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 18, 3, 18, 54, 3, 54, 18, 18, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 22, 3, 22, 53, 3, 53, 22, 22, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 27, 3, 27, 54, 3, 54, 27, 27, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 30, 3, 30, 53, 3, 53, 30, 30, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 37, 3, 37, 54, 3, 54, 37, 37, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 40, 3, 40, 53, 3, 53, 40, 40, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 48, 3, 48, 54, 3, 54, 48, 48, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 51, 3, 51, 53, 3, 53, 51, 51, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 59, 3, 59, 54, 3, 54, 59, 59, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 62, 3, 62, 53, 3, 53, 62, 62, 45, 47, check_unedited works
+## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              `default_params` (`actual`) not equal to rmarkdown::yaml_front_matter(rmd_file)$params (`expected`).\n\n, 75, 3, 78, 5, 3, 5, 75, 78, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(rmd_file, passed_params = list(package_parent_dir = &quot;dir&quot;)) (`actual`) not equal to `params1` (`expected`).\n\n, 81, 3, 84, 3, 3, 3, 81, 84, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(...) (`actual`) not equal to `params2` (`expected`).\n\n, 88, 3, 93, 3, 3, 3, 88, 93, 45, 47, get_params_used works</code></pre>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>If this were the only problem, we could get around this
+by using <code>pkgload::package_file()</code> to get the proper file;
+however, the next problem discussed was something that seemed quite hard
+to resolve.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
 
 

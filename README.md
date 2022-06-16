@@ -38,9 +38,12 @@ v0.0.2](https://github.com/jacobbien/litr-project/blob/66cc7c9286e43cb3f1438f4aa
 and then run the following command in R:
 
 ``` r
-remotes::install_github("jacobbien/litr-project@v0.0.1", subdir = "litr")
+remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 litr::render("create-litr.Rmd")
 ```
+
+In the above code, `@*release` stands for the latest release, which at
+the time of creating version `0.0.2` was `v0.0.1`.
 
 This will generate the new version of `litr`. From there, you can
 build/install as you would for any other package.

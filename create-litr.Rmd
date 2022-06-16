@@ -15,6 +15,8 @@ setup_chunk_label <- knitr::opts_current$get("label")
 litr::setup(package_dir)
 ```
 
+*[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
+
 The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
 
 1. [Functionality for generating the R package when the .Rmd file is knitted.](#generating-package)  In particular, we define a `knitr` [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which we call `send_to_package` that identifies code chunks in the .Rmd file that should be included in the package.  To make it so that this chunk hook will be active, we also have a function called `setup` that is called in the first code chunk of the document template.  This function makes it so that when the .Rmd file is knitted, the chunk hook `send_to_package` will be invoked on each code chunk.
@@ -594,6 +596,34 @@ xfun::Rscript_call(rmarkdown::render, args = list(input = "README.Rmd"))
 
 ## Defining some tests
 
+When using `litr` to create packages that are not `litr`, one should be able to run tests along the way.  However, creating `litr` is a special case so we need to do something different for the tests that involve creating a .Rmd from template and then calling `litr::render()` on them (such as the tests in this section).  In particular, we use `eval=FALSE` for these code blocks and then at the end of this document we will install the newly created version of `litr` and then call `devtools::test()`.  Doing it this way is important for ensuring that the version of `litr` we are testing is the newest version, i.e. the version defined in this document.
+
+To understand the reason we are doing it this way, imagine what would happen if instead we left `eval=TRUE` in the test in the [next section](#test-check-unedited).  When we use `rmarkdown::draft()` to create a .Rmd file from template, the file it will give us will be an old version (namely the installed version of `litr`'s template) rather than the latest version.^[If this were the only problem, we could get around this by using `pkgload::package_file()` to get the proper file; however, the next problem discussed was something that seemed quite hard to resolve.] Furthermore, consider what happens when we call `render()` in the test below.  This will start the knitting process on `my-package.Rmd`.  However, inside `my-package.Rmd`, we have `litr::setup()` and `litr::document()`.  When these are called in the knitting process, it will be the versions of the functions from the currently installed `litr` rather than the versions defined in this document.
+
+Once we are done testing the new version of the package, we'd like to restore the state of `litr` to what it was previously.  If we don't do this, then this can lead to inadvertent circularity in which the next time we call `litr::render("create-litr.Rmd")`, we are using the version currently under development, which is bad because ultimately we need this version to be rendered by the previous version of `litr`.  The following function implements this approach to testing `litr`: 
+
+```{r}
+#' Run tests for `litr` itself
+#' 
+#' Special function for testing `litr`.  The trick is to temporarily install
+#' the new version of `litr`, run the test, and then put things back how it was
+#' before.
+#' 
+#' Typical values for `install_old` could be
+#' - `function() devtools::install("[location of old version]")`
+#' - `function() remotes::install_github("jacobbien/litr-project@v0.0.2", subdir = "litr")`.
+#' 
+#' @param install_old A function that when run will install the old version
+#' @param location_of_new Path to the new package directory
+#' @export
+test_litr <- function(install_old, location_of_new) {
+  devtools::install(location_of_new)
+  out <- devtools::test(location_of_new)
+  install_old()
+  return(out)
+}
+```
+
 ### Testing `check_unedited()`
 
 For our tests, we create a temporary directory (which we delete at the end).  In this directory, we create a generating .Rmd file from one of the templates.  We make repeated modifications to the package and each time verify that `check_unedited()` is `FALSE` with the modification and returns to `TRUE` when we put things back how they were.  The modifications we try are the following:
@@ -608,49 +638,46 @@ For our tests, we create a temporary directory (which we delete at the end).  In
 
 - Changing the `litr` hash line itself
 
-```{r}
+```{r, eval=FALSE}
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
-
   dir <- tempfile()
   fs::dir_create(dir)
-  rmd_path <- file.path(dir, "my-package.Rmd")
-  rmarkdown::draft(rmd_path,
-                   template = "make-an-r-package",
-                   package = "litr",
+  rmd_file <- file.path(dir, "my-package.Rmd")
+  rmarkdown::draft(rmd_file, template = "make-an-r-package", package = "litr",
                    edit = FALSE)
   # create R package (named "rhello") from the Rmd template:
-  litr::render(rmd_path)
+  render(rmd_file)
   package_path <- file.path(dir, "rhello")
-  testthat::expect_true(litr::check_unedited(package_path))
+  testthat::expect_true(check_unedited(package_path))
 
   # what if a file has been added?
   added_file <- file.path(package_path, "R", "say_hello2.R")
   writeLines("# Added something here.", added_file)
-  testthat::expect_false(litr::check_unedited(package_path))
+  testthat::expect_false(check_unedited(package_path))
 
   # what if we now remove it?
   fs::file_delete(added_file)
-  testthat::expect_true(litr::check_unedited(package_path))
+  testthat::expect_true(check_unedited(package_path))
 
   # what if a file is removed from package?
   rfile <- file.path(package_path, "R", "say_hello.R")
   fs::file_move(rfile, dir)
-  testthat::expect_false(litr::check_unedited(package_path))
+  testthat::expect_false(check_unedited(package_path))
   # now put it back
   fs::file_move(file.path(dir, "say_hello.R"), file.path(package_path, "R"))
-  testthat::expect_true(litr::check_unedited(package_path))
+  testthat::expect_true(check_unedited(package_path))
 
   # what if something is changed in a file?
   txt <- readLines(rfile)
   txt_mod <- txt
   txt_mod[3] <- paste0(txt[3], " # added a comment!!")
   writeLines(txt_mod, rfile)
-  testthat::expect_false(litr::check_unedited(package_path))
+  testthat::expect_false(check_unedited(package_path))
   # now put it back
   writeLines(txt, rfile)
-  testthat::expect_true(litr::check_unedited(package_path))
+  testthat::expect_true(check_unedited(package_path))
 
   # what if something is changed in the DESCRIPTION file?
   descfile <- file.path(package_path, "DESCRIPTION")
@@ -658,21 +685,21 @@ testthat::test_that("check_unedited works", {
   txt_mod <- txt
   txt_mod[1] <- "Package: newname"
   writeLines(txt_mod, descfile)
-  testthat::expect_false(litr::check_unedited(package_path))
+  testthat::expect_false(check_unedited(package_path))
   # now put it back
   writeLines(txt, descfile)
-  testthat::expect_true(litr::check_unedited(package_path))
+  testthat::expect_true(check_unedited(package_path))
 
   # what if the special litr hash field is changed in the DESCRIPTION file?
   txt <- readLines(descfile)
-  i_litr <- stringr::str_which(txt, litr:::description_litr_field_name())
+  i_litr <- stringr::str_which(txt, description_litr_field_name())
   txt_mod <- txt
   txt_mod[i_litr] <- paste0(txt_mod[i_litr], "a")
   writeLines(txt_mod, descfile)
-  testthat::expect_false(litr::check_unedited(package_path))
+  testthat::expect_false(check_unedited(package_path))
   # now put it back
   writeLines(txt, descfile)
-  testthat::expect_true(litr::check_unedited(package_path))
+  testthat::expect_true(check_unedited(package_path))
 
   fs::dir_delete(dir)
 })
@@ -682,7 +709,7 @@ testthat::test_that("check_unedited works", {
 
 Let's now test the `get_params_used()` function, making sure it behaves how we expect it to:
 
-```{r}
+```{r, eval=FALSE}
 testthat::test_that("get_params_used works", {
   dir <- tempfile()
   if (fs::file_exists(dir)) fs::file_delete(dir)
@@ -715,16 +742,25 @@ testthat::test_that("get_params_used works", {
 ```
 
 
-## Documenting the package and building
+## Documenting the package and testing
 
-We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+We finish by running commands that will document and test `litr`.
+
+**The formatting of the test output does not print out very neatly.**
+
+**Also, ideally we would not be hardcoding the path to an old version or even a particular version number.  Once we make the repo public, we will be able to use the following:**
+
+```{r, eval=FALSE}
+remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
+```
+
+**According to [this page](https://github.com/r-lib/remotes), this downloads the latest release.**
+
 
 ```{r}
 rm(list = ls())
 litr::document()
-# devtools::build()
-# devtools::install()
-# devtools::check()
+install_old <- function() devtools::install("~/Downloads/litr-project-0.0.2/litr/")
+xfun::Rscript_call(test_litr,
+                   list(install_old = install_old, location_of_new = "."))
 ```
-
-
