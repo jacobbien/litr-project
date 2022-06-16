@@ -197,7 +197,7 @@ do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
 
 This function will also be used with `type = "man"` by `litr::document()`.
 
-The above also makes use of a simple helper function that inserts text into a specified location of a file (or creates that file if it doesn't exist).
+The above also makes use of a simple helper function that inserts text into a specified location of a file (or creates that file if it doesn't exist). **Actually currently it doesn't, but we can replace `cat()` in the above with calls to `add_text_to_file()`.**
 
 ```{r}
 #' Add Some Text to a File
