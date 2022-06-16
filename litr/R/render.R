@@ -16,10 +16,7 @@ render <- function(input, ...) {
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
   args <- list(...)
-  out <- xfun::Rscript_call(
-    rmarkdown::render,
-    c(input = input, args)
-  )
+  out <- xfun::Rscript_call(rmarkdown::render, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -95,14 +92,16 @@ get_params_used <- function(input, passed_params) {
 #' Generate do-not-edit message to put at top of file
 #' 
 #' @param rmd_file Name of the Rmd file to mention
-#' @param type Whether this is a R/ file or a man/ file
-do_not_edit_message <- function(rmd_file, type = c("R", "man")) {
+#' @param type Whether this is a R/ file, man/ file, or a c file
+do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
   if (type[1] == "R")
     return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
   else if (type[1] == "man")
     return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else if (type[1] == "c")
+    return(stringr::str_glue("// Generated from {rmd_file}: do not edit by hand"))
   else
-    stop("type must be either 'R' or 'man'.")
+    stop("type must be either 'R', 'man', or 'c'.")
 }
 
 #' Use roxygen to document a package

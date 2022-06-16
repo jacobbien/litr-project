@@ -382,13 +382,15 @@ following components:</p>
 <li><p><a href="#generating-package">Functionality for generating the R
 package when the .Rmd file is knitted.</a> In particular, we define a
 <code>knitr</code> <a href="https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html">chunk
-hook</a>, which we call <code>send_to_package</code> that identifies
+hook</a>, which we call <code><a href='#send_to_package'>send_to_package</a>()</code> that identifies
 code chunks in the .Rmd file that should be included in the package. To
 make it so that this chunk hook will be active, we also have a function
-called <code>setup</code> that is called in the first code chunk of the
-document template. This function makes it so that when the .Rmd file is
-knitted, the chunk hook <code>send_to_package</code> will be invoked on
-each code chunk.</p></li>
+called <code><a href='#setup'>setup</a>()</code> that is called in the first code chunk of
+the document template. This function makes it so that when the .Rmd file
+is knitted, the chunk hook <code><a href='#send_to_package'>send_to_package</a>()</code> will be
+invoked on each code chunk. It is also responsible for other
+preliminaries, such as defining a new <code>knitr</code> language engine
+that can interpret package-level documentation.</p></li>
 <li><p><a href="#hash">Functionality for making sure the R package
 outputted will not overwrite a manually edited R package.</a> Our
 approach here is to use a hash that will make it clear whether something
@@ -426,6 +428,8 @@ of the R package.</p>
 
  usethis::use_mit_license(copyright_holder = &quot;J. Bien&quot;)
  usethis::use_testthat() # &lt;- This line can be removed *after* release of v0.0.3</code></pre>
+<p><strong>After the release of v0.0.3, let’s add a package_doc block
+here.</strong></p>
 </div>
 <div id="now-to-the-package-itself" class="section level2">
 <h2>Now to the package itself</h2>
@@ -453,22 +457,34 @@ In particular, it’d be great if we don’t need to create the
 <code>skeleton.Rmd</code>’s <code>knitr-setup</code> code chunk, the
 better. One option might be to have the option send_to_package=FALSE in
 the knitr-setup chunk.</strong></p>
-<p>The function next checks whether this is a piece of code to be sent
-to the <code>R/</code> directory. In particular, it checks to see if the
-code chunk begins with the characteristic <a href="https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html">roxygen2</a>
-characters <code>#&#39;</code>. If it does, then we the name of the object
+<p>The function then checks if this code chunk is code that should be
+put into the package. There are three specific cases it considers:</p>
+<ol style="list-style-type: decimal">
+<li><p>Is it a piece of code to be sent to the <code>R/</code>
+directory? In particular, it checks to see if the code chunk begins with
+the characteristic <a href="https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html">roxygen2</a>
+characters <code>#&#39;</code>. If it does, then the name of the object
 being documented is identified (could be a function, a dataset, an S4
-object, etc) and then we write the code chunk to the file
-<code>R/&lt;objectname&gt;.R</code>. <strong>Note: When NULL is being
-documented we should write to
-<code>package-&lt;package_name&gt;.R</code>. See <a href="https://r-pkgs.org/man.html#man-packages" class="uri">https://r-pkgs.org/man.html#man-packages</a>.</strong></p>
-<p>If the code chunk does not start with <code>#&#39;</code>, then we check
-if it has <code>test_that(</code> <em>anywhere</em> in the code chunk
-(not just on the first line). If so, then this whole code chunk is
+object, etc.) and then we write the code chunk to the file
+<code>R/&lt;objectname&gt;.R</code>.</p></li>
+<li><p>If the code chunk does not start with <code>#&#39;</code>, then we
+check if it has any line starting with <code>test_that(</code> or
+<code>testthat::test_that(</code>. If so, then this whole code chunk is
 appended to <code>tests/testthat/tests.R</code> (and this file is
-created the first time a test chunk is sent to the package).
-<strong>Note: Currently we don’t worry about the tricky situation in
-which <code>test_that(</code> appears within a quote or </strong></p>
+created the first time a test chunk is sent to the package).</p></li>
+<li><p>Next, it checks if the language engine is <code>Rcpp</code>. This
+occurs when the code chunk starts with <code>{Rcpp</code>, rather than
+the usual <code>{r</code> (or alternatively when the
+<code>engine=&quot;Rcpp&quot;</code> option is used). We then invoke
+<code>usesthis::use_rcpp()</code> to set things up appropriately for the
+use of <code>Rcpp</code> within the package. Finally, we write the code
+chunk to <code>src/code.cpp</code>. There is a common header
+used,</p></li>
+</ol>
+<pre class="rcpp"><code>#include &lt;Rcpp.h&gt;
+using namespace Rcpp;</code></pre>
+<p>and we only want this to appear once in <code>code.cpp</code>, so we
+do a bit of work to remove that if it appears in the code chunk.</p>
 <pre class="r"><code>#&#39; A knitr chunk hook for writing R code and tests
 #&#39; 
 #&#39; This chunk hook detects whether a chunk is defining a function or dataset
@@ -490,7 +506,7 @@ which <code>test_that(</code> appears within a quote or </strong></p>
     # Also, don&#39;t do anything when processing the setup code chunk.
     return()
   }
-  else if (stringr::str_detect(options$code[1], &quot;^#&#39; &quot;)) {
+  if (stringr::str_detect(options$code[1], &quot;^#&#39; &quot;)) {
     # starts with roxygen2, so let&#39;s assume this chunk is defining an R function
     # or dataset that belongs in the package
     non_comment &lt;- stringr::str_subset(options$code, &quot;^#&quot;, negate = TRUE)
@@ -526,6 +542,33 @@ which <code>test_that(</code> appears within a quote or </strong></p>
       file = test_file,
       append = TRUE
     )
+  } else if (options$engine == &quot;Rcpp&quot;) {
+    # To add Rcpp code, we need the package documentation file to exist 
+    if (!file.exists(file.path(
+      envir$package_dir,
+      &quot;R&quot;,
+      paste0(envir$package_name, &quot;-package.R&quot;))
+      )) {
+      usethis::use_package_doc(open = FALSE)
+    }
+    cpp_file &lt;- file.path(envir$package_dir, &quot;src&quot;, &quot;code.cpp&quot;)
+    if (!file.exists(cpp_file)) {
+      # set up package for Rcpp
+      usethis::use_rcpp(name = &quot;code&quot;)
+      msg &lt;- <a href='#do_not_edit_message'>do_not_edit_message</a>(knitr::current_input(), type = &quot;c&quot;)
+      cat(msg, file = cpp_file, append = TRUE)
+    }
+    # append code to code.cpp, but remove lines that are `#include &lt;Rcpp.h&gt;`
+    # or `using namespace Rcpp;` since this already appears at top of file
+    cat(paste(c(
+      &quot;&quot;,
+      stringr::str_subset(
+        options$code,
+        r&quot;(^#include &lt;Rcpp.h&gt;$|^using namespace Rcpp;$)&quot;,
+        negate = TRUE),
+      &quot;&quot;), collapse = &quot;\n&quot;), 
+        file = cpp_file,
+        append = TRUE)
   }
   return()
 }</code></pre>
@@ -543,17 +586,95 @@ this message.</p>
 <pre class="r"><code>#&#39; Generate do-not-edit message to put at top of file
 #&#39; 
 #&#39; @param rmd_file Name of the Rmd file to mention
-#&#39; @param type Whether this is a R/ file or a man/ file
-<span id='do_not_edit_message'>do_not_edit_message</span> &lt;- function(rmd_file, type = c(&quot;R&quot;, &quot;man&quot;)) {
+#&#39; @param type Whether this is a R/ file, man/ file, or a c file
+<span id='do_not_edit_message'>do_not_edit_message</span> &lt;- function(rmd_file, type = c(&quot;R&quot;, &quot;man&quot;, &quot;c&quot;)) {
   if (type[1] == &quot;R&quot;)
     return(stringr::str_glue(&quot;# Generated from {rmd_file}: do not edit by hand&quot;))
   else if (type[1] == &quot;man&quot;)
     return(stringr::str_glue(&quot;% Please edit documentation in {rmd_file}.&quot;))
+  else if (type[1] == &quot;c&quot;)
+    return(stringr::str_glue(&quot;// Generated from {rmd_file}: do not edit by hand&quot;))
   else
-    stop(&quot;type must be either &#39;R&#39; or &#39;man&#39;.&quot;)
+    stop(&quot;type must be either &#39;R&#39;, &#39;man&#39;, or &#39;c&#39;.&quot;)
 }</code></pre>
 <p>This function will also be used with <code>type = &quot;man&quot;</code> by
 <code>litr::<a href='#document'>document</a>()</code>.</p>
+<p>The above also makes use of a simple helper function that inserts
+text into a specified location of a file (or creates that file if it
+doesn’t exist).</p>
+<pre class="r"><code>#&#39; Add Some Text to a File
+#&#39; 
+#&#39; The text will be added to the file at a particular line specified by
+#&#39; `location`.  The first line of `txt` will be on line `location` of the
+#&#39; modified file.  If `location` is NULL, then text is added to end of file.
+#&#39; If file does not exist, it is created and `location` is ignored.
+#&#39; 
+#&#39; @param txt Character vector to add to file
+#&#39; @param filename Name of file
+#&#39; @param location Specifies where text should be added. See description for more.
+#&#39; @export
+<span id='add_text_to_file'>add_text_to_file</span> &lt;- function(txt, filename, location = NULL) {
+  if (!file.exists(filename)) {
+    writeLines(txt, con = filename)
+    return()
+  }
+  filetxt &lt;- readLines(filename)
+  if (is.null(location) || location == length(filetxt) + 1) {
+    filetxt &lt;- c(filetxt, txt)
+  }
+  else if (location &gt; length(filetxt) + 1 | location &lt; 1) 
+    stop(&quot;Invalid location&quot;)
+  else if (location == 1) {
+    filetxt &lt;- c(txt, filetxt)
+  } else {
+    # location is somewhere in middle
+    filetxt &lt;- c(filetxt[1:(location - 1)],
+                 txt,
+                 filetxt[location:length(filetxt)])
+  }
+  writeLines(filetxt, con = filename)
+}</code></pre>
+<pre class="r"><code>testthat::test_that(&quot;<a href='#add_text_to_file'>add_text_to_file</a>() works&quot;, {
+  dir &lt;- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  
+  # should create a new file where one does not exist:
+  myfile &lt;- file.path(dir, &quot;file.txt&quot;)
+  sometxt &lt;- c(&quot;hello&quot;, &quot;there&quot;)
+  <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile)
+  testthat::expect_true(fs::file_exists(myfile))
+  testthat::expect_equal(sometxt, readLines(myfile))
+  
+  # should append to end of file by default
+  moretxt &lt;- &quot;world&quot;
+  <a href='#add_text_to_file'>add_text_to_file</a>(moretxt, myfile)
+  testthat::expect_equal(c(sometxt, moretxt), readLines(myfile))
+   
+  # should throw error for invalid locations:
+  testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0))
+  testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1))
+  testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5))
+
+  # should add to specified line:
+  moretxt2 &lt;- &quot;hi&quot;
+  <a href='#add_text_to_file'>add_text_to_file</a>(moretxt2, myfile, 1)
+  testthat::expect_equal(c(moretxt2, sometxt, moretxt), readLines(myfile))
+
+  # should add to specified line:
+  moretxt3 &lt;- &quot;hi2&quot;
+  <a href='#add_text_to_file'>add_text_to_file</a>(moretxt3, myfile, 2)
+  testthat::expect_equal(c(moretxt2, moretxt3, sometxt, moretxt),
+                         readLines(myfile))
+
+  # should add to specified line:
+  moretxt4 &lt;- &quot;hi3&quot;
+  <a href='#add_text_to_file'>add_text_to_file</a>(moretxt4, myfile, 6)
+  testthat::expect_equal(c(moretxt2, moretxt3, sometxt, moretxt, moretxt4),
+                         readLines(myfile))
+  fs::dir_delete(dir)
+})</code></pre>
+<pre><code>## Test passed 🌈</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level4">
 <h4>Setting up the R package creation</h4>
@@ -617,11 +738,15 @@ This function allows us to change the internal function
 prompts the user with concerns about nested projects.</p>
 <pre class="r"><code>#&#39; Code for setup chunk
 #&#39; 
-#&#39; Creates directory where package will be. (Deletes what is currently there as 
+#&#39; * Creates directory where package will be. (Deletes what is currently there as 
 #&#39; long as it appears to have been created by litr and does not have any 
-#&#39; subsequent manual edits.)  Sets the root directory to this directory and 
-#&#39; sets up the main chunk hook `litr::send_to_package` that sends code to the R 
-#&#39; package directory.
+#&#39; subsequent manual edits.)
+#&#39; * Sets the root directory to this directory
+#&#39; * Sets up the main chunk hook `litr::<a href='#send_to_package'>send_to_package</a>()` that sends code to the 
+#&#39; R package directory.
+#&#39; * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
+#&#39; `package_doc` that creates a package documentation file and then inserts
+#&#39; whatever the user puts in the chunk.
 #&#39; 
 #&#39; @param package_dir Directory where R package will be created
 #&#39; @export
@@ -645,12 +770,34 @@ prompts the user with concerns about nested projects.</p>
   }
   fs::dir_create(package_dir)
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
-  knitr::knit_hooks$set(send_to_package = litr::send_to_package)
+  knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+  
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
   # subdirectory)
   utils::assignInNamespace(&quot;challenge_nested_project&quot;, function(...) NULL, ns = &quot;usethis&quot;)
+  # change usethis:::use_src_example_script so that it will not cause an error
+  utils::assignInNamespace(&quot;use_src_example_script&quot;, 
+                           function(...) {
+                             usethis::use_template(&quot;code.cpp&quot;,
+                                                   fs::path(&quot;src&quot;, &quot;code.cpp&quot;))
+                           }, ns = &quot;usethis&quot;)
+  
+  # setup package_doc engine
+  knitr::knit_engines$set(package_doc = function(options) {
+    # create package_doc
+    usethis::use_package_doc(open = FALSE)
+    
+    # insert the contents of the code chunk into the package_doc
+    pkgdoc &lt;- file.path(&quot;R&quot;, paste0(fs::path_file(package_dir), &quot;-package.R&quot;))
+    <a href='#add_text_to_file'>add_text_to_file</a>(options$code, filename = pkgdoc, location = 1)
+    
+    # now treat this as if it were standard R code with eval=FALSE
+    r_engine &lt;- knitr::knit_engines$get(&quot;R&quot;)
+    options[[&quot;eval&quot;]] &lt;- FALSE
+    return(r_engine(options))
+  })
 }</code></pre>
 <p>The previous function made use of a small function,
 <code><a href='#make_noticeable'>make_noticeable</a>()</code>, which we define here:</p>
@@ -849,10 +996,7 @@ the location of the outputted package can be found.</p></li>
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
   args &lt;- list(...)
-  out &lt;- xfun::Rscript_call(
-    rmarkdown::render,
-    c(input = input, args)
-  )
+  out &lt;- xfun::Rscript_call(rmarkdown::render, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, &quot;html$&quot;))) {
@@ -981,7 +1125,8 @@ render_functions &lt;- c(&quot;render&quot;,
                       &quot;document&quot;)
 setup_functions &lt;- c(&quot;setup&quot;,
                      &quot;make_noticeable&quot;,
-                     &quot;send_to_package&quot;)
+                     &quot;send_to_package&quot;,
+                     &quot;add_text_to_file&quot;)
 <span id='remove_initial_lines'>remove_initial_lines</span> &lt;- function(code_list) {
   # drop first line of each list element except for the first list element
   c(code_list[1], map(code_list[-1], ~ .x[-1]))
@@ -1036,6 +1181,26 @@ function:</p>
     ), 
   overwrite = TRUE
 )</code></pre>
+<p>The third template shows how to create a package that uses
+<code>Rcpp</code>:</p>
+<pre class="r"><code>usethis::use_rmarkdown_template(
+  template_name = &quot;Template To Make an R Package With Rcpp&quot;,
+  template_dir = &quot;make-an-r-package-with-rcpp&quot;,
+  template_description = &quot;Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.&quot;,
+  template_create_dir = FALSE
+)</code></pre>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/skeleton/skeleton.Rmd&#39;</code></pre>
+<pre class="r"><code>fs::file_copy(
+  path = file.path(
+    &quot;..&quot;, &quot;litr-source-files&quot;, &quot;make-an-r-package-with-rcpp&quot;, &quot;skeleton.Rmd&quot;
+    ),
+  new_path = file.path(
+    &quot;inst&quot;, &quot;rmarkdown&quot;, &quot;templates&quot;, &quot;make-an-r-package-with-rcpp&quot;, &quot;skeleton&quot;
+    ),
+  overwrite = TRUE
+)</code></pre>
 </div>
 <div id="including-readme" class="section level2">
 <h2>Including README</h2>
@@ -1057,7 +1222,8 @@ xfun::Rscript_call(rmarkdown::render, args = list(input = &quot;README.Rmd&quot;
 <div id="defining-some-tests" class="section level2">
 <h2>Defining some tests</h2>
 <p>When using <code>litr</code> to create packages that are not
-<code>litr</code>, one should be able to run tests along the way.
+<code>litr</code>, one should be able to run tests along the way as we
+did above in testing the function <code><a href='#add_text_to_file'>add_text_to_file</a>()</code>.
 However, creating <code>litr</code> is a special case so we need to do
 something different for the tests that involve creating a .Rmd from
 template and then calling <code>litr::<a href='#render'>render</a>()</code> on them (such as
@@ -1109,7 +1275,7 @@ testing <code>litr</code>:</p>
   <a href='#install_old'>install_old</a>()
   return(out)
 }</code></pre>
-<div id="testing-check_unedited" class="section level3">
+<div id="test-check-unedited" class="section level3">
 <h3>Testing <code><a href='#check_unedited'>check_unedited</a>()</code></h3>
 <p>For our tests, we create a temporary directory (which we delete at
 the end). In this directory, we create a generating .Rmd file from one
@@ -1133,7 +1299,9 @@ special <code>litr</code> line)</p></li>
   dir &lt;- tempfile()
   fs::dir_create(dir)
   rmd_file &lt;- file.path(dir, &quot;my-package.Rmd&quot;)
-  rmarkdown::draft(rmd_file, template = &quot;make-an-r-package&quot;, package = &quot;litr&quot;,
+  rmarkdown::draft(rmd_file,
+                   template = &quot;make-an-r-package&quot;,
+                   package = &quot;litr&quot;,
                    edit = FALSE)
   # create R package (named &quot;rhello&quot;) from the Rmd template:
   <a href='#render'>render</a>(rmd_file)
@@ -1207,7 +1375,7 @@ sure it behaves how we expect it to:</p>
   testthat::expect_equal(
     default_params,
     rmarkdown::yaml_front_matter(rmd_file)$params
-    )
+  )
   params1 &lt;- default_params
   params1$package_parent_dir &lt;- &quot;dir&quot;
   testthat::expect_equal(
@@ -1218,13 +1386,42 @@ sure it behaves how we expect it to:</p>
   params2$package_name &lt;- &quot;pkg&quot;
   params2$package_parent_dir &lt;- &quot;dir&quot;
   testthat::expect_equal(
-    <a href='#get_params_used'>get_params_used</a>(rmd_file, 
+    <a href='#get_params_used'>get_params_used</a>(rmd_file,
                     passed_params = list(package_parent_dir = &quot;dir&quot;,
                                          package_name = &quot;pkg&quot;)),
     params2
   )
   fs::dir_delete(dir)
 })</code></pre>
+</div>
+<div id="testing-other-templates" class="section level3">
+<h3>Testing other templates</h3>
+<p>Let’s now make sure that each template can be knit without error.</p>
+<pre class="r"><code>testthat::test_that(&quot;templates can be knit&quot;, {
+  dir &lt;- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  
+  rmd_file &lt;- file.path(dir, &quot;my-package-with-data.Rmd&quot;)
+  rmarkdown::draft(rmd_file,
+                   template = &quot;make-an-r-package-with-data&quot;,
+                   package = &quot;litr&quot;,
+                   edit = FALSE)
+  <a href='#render'>render</a>(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, &quot;my-package-with-data.html&quot;)))
+  testthat::expect_true(fs::file_exists(file.path(dir, &quot;rhasdata&quot;)))
+
+  rmd_file &lt;- file.path(dir, &quot;my-package-with-rcpp.Rmd&quot;)
+  rmarkdown::draft(rmd_file,
+                   template = &quot;make-an-r-package-with-rcpp&quot;,
+                   package = &quot;litr&quot;,
+                   edit = FALSE)
+  <a href='#render'>render</a>(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, &quot;my-package-with-rcpp.html&quot;)))
+  testthat::expect_true(fs::file_exists(file.path(dir, &quot;withrcpp&quot;)))
+  
+  fs::dir_delete(dir)
+ })</code></pre>
 </div>
 </div>
 <div id="documenting-the-package-and-testing" class="section level2">
@@ -1257,19 +1454,26 @@ litr::<a href='#document'>document</a>()</code></pre>
 ## Writing &#39;setup.Rd&#39;
 ## Writing &#39;make_noticeable.Rd&#39;
 ## Writing &#39;send_to_package.Rd&#39;
+## Writing &#39;add_text_to_file.Rd&#39;
 ## Writing &#39;test_litr.Rd&#39;</code></pre>
 <pre class="r"><code><span id='install_old'>install_old</span> &lt;- function() devtools::install(&quot;~/Downloads/litr-project-0.0.2/litr/&quot;)
 xfun::Rscript_call(test_litr,
                    list(install_old = install_old, location_of_new = &quot;.&quot;))</code></pre>
-<pre><code>##      file context                  test nb failed skipped error warning  user
-## 1 tests.R   tests  check_unedited works 11      0   FALSE FALSE       0 0.184
-## 2 tests.R   tests get_params_used works  3      0   FALSE FALSE       0 0.021
-##   system  real passed
-## 1  0.065 7.862     11
-## 2  0.004 0.025      3
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              result
-## 1 <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 13, 3, 13, 53, 3, 53, 13, 13, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 18, 3, 18, 54, 3, 54, 18, 18, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 22, 3, 22, 53, 3, 53, 22, 22, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 27, 3, 27, 54, 3, 54, 27, 27, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 30, 3, 30, 53, 3, 53, 30, 30, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 37, 3, 37, 54, 3, 54, 37, 37, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 40, 3, 40, 53, 3, 53, 40, 40, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 48, 3, 48, 54, 3, 54, 48, 48, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 51, 3, 51, 53, 3, 53, 51, 51, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 59, 3, 59, 54, 3, 54, 59, 59, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 62, 3, 62, 53, 3, 53, 62, 62, 45, 47, check_unedited works
-## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              `default_params` (`actual`) not equal to rmarkdown::yaml_front_matter(rmd_file)$params (`expected`).\n\n, 75, 3, 78, 5, 3, 5, 75, 78, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(rmd_file, passed_params = list(package_parent_dir = &quot;dir&quot;)) (`actual`) not equal to `params1` (`expected`).\n\n, 81, 3, 84, 3, 3, 3, 81, 84, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(...) (`actual`) not equal to `params2` (`expected`).\n\n, 88, 3, 93, 3, 3, 3, 88, 93, 45, 47, get_params_used works</code></pre>
+<pre><code>##      file context                     test nb failed skipped error warning
+## 1 tests.R   tests <a href='#add_text_to_file'>add_text_to_file</a>() works  9      0   FALSE FALSE       0
+## 2 tests.R   tests     check_unedited works 11      0   FALSE FALSE       0
+## 3 tests.R   tests    get_params_used works  3      0   FALSE FALSE       0
+## 4 tests.R   tests    templates can be knit  4      0   FALSE FALSE       0
+##    user system   real passed
+## 1 0.092  0.015  0.114      9
+## 2 0.128  0.071  6.706     11
+## 3 0.021  0.004  0.026      3
+## 4 8.862  0.673 46.511      4
+##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            result
+## 1 fs::file_exists(myfile) is not TRUE\n\n, 11, 3, 11, 48, 3, 48, 11, 11, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, `sometxt` (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 12, 3, 12, 52, 3, 52, 12, 12, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 17, 3, 17, 64, 3, 64, 17, 17, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 20, 3, 20, 62, 3, 62, 20, 20, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, ::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 21, 3, 21, 63, 3, 63, 21, 21, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, ::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 22, 3, 22, 62, 3, 62, 22, 22, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, ::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 27, 3, 27, 74, 3, 74, 27, 27, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 32, 3, 33, 43, 3, 43, 32, 33, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt, moretxt4) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 38, 3, 39, 43, 3, 43, 38, 39, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works
+## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 56, 3, 56, 53, 3, 53, 56, 56, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 61, 3, 61, 54, 3, 54, 61, 61, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 65, 3, 65, 53, 3, 53, 65, 65, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 70, 3, 70, 54, 3, 54, 70, 70, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 73, 3, 73, 53, 3, 53, 73, 73, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 80, 3, 80, 54, 3, 54, 80, 80, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 83, 3, 83, 53, 3, 53, 83, 83, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 91, 3, 91, 54, 3, 54, 91, 91, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 94, 3, 94, 53, 3, 53, 94, 94, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 102, 3, 102, 54, 3, 54, 102, 102, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 105, 3, 105, 53, 3, 53, 105, 105, 45, 47, check_unedited works
+## 3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `default_params` (`actual`) not equal to rmarkdown::yaml_front_matter(rmd_file)$params (`expected`).\n\n, 118, 3, 121, 3, 3, 3, 118, 121, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(rmd_file, passed_params = list(package_parent_dir = &quot;dir&quot;)) (`actual`) not equal to `params1` (`expected`).\n\n, 124, 3, 127, 3, 3, 3, 124, 127, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(...) (`actual`) not equal to `params2` (`expected`).\n\n, 131, 3, 136, 3, 3, 3, 131, 136, 45, 47, get_params_used works
+## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        fs::file_exists(file.path(dir, &quot;my-package-with-data.html&quot;)) is not TRUE\n\n, 151, 3, 151, 85, 3, 85, 151, 151, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;rhasdata&quot;)) is not TRUE\n\n, 152, 3, 152, 68, 3, 68, 152, 152, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;my-package-with-rcpp.html&quot;)) is not TRUE\n\n, 160, 3, 160, 85, 3, 85, 160, 160, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;withrcpp&quot;)) is not TRUE\n\n, 161, 3, 161, 68, 3, 68, 161, 161, 45, 47, templates can be knit</code></pre>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />

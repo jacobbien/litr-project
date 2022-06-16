@@ -4,12 +4,12 @@
 \alias{do_not_edit_message}
 \title{Generate do-not-edit message to put at top of file}
 \usage{
-do_not_edit_message(rmd_file, type = c("R", "man"))
+do_not_edit_message(rmd_file, type = c("R", "man", "c"))
 }
 \arguments{
 \item{rmd_file}{Name of the Rmd file to mention}
 
-\item{type}{Whether this is a R/ file or a man/ file}
+\item{type}{Whether this is a R/ file, man/ file, or a c file}
 }
 \description{
 Generate do-not-edit message to put at top of file

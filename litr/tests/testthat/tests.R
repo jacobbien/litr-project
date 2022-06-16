@@ -1,11 +1,54 @@
 # Generated from create-litr.Rmd: do not edit by hand  
+testthat::test_that("add_text_to_file() works", {
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  
+  # should create a new file where one does not exist:
+  myfile <- file.path(dir, "file.txt")
+  sometxt <- c("hello", "there")
+  add_text_to_file(sometxt, myfile)
+  testthat::expect_true(fs::file_exists(myfile))
+  testthat::expect_equal(sometxt, readLines(myfile))
+  
+  # should append to end of file by default
+  moretxt <- "world"
+  add_text_to_file(moretxt, myfile)
+  testthat::expect_equal(c(sometxt, moretxt), readLines(myfile))
+   
+  # should throw error for invalid locations:
+  testthat::expect_error(add_text_to_file(sometxt, myfile, 0))
+  testthat::expect_error(add_text_to_file(sometxt, myfile, -1))
+  testthat::expect_error(add_text_to_file(sometxt, myfile, 5))
+
+  # should add to specified line:
+  moretxt2 <- "hi"
+  add_text_to_file(moretxt2, myfile, 1)
+  testthat::expect_equal(c(moretxt2, sometxt, moretxt), readLines(myfile))
+
+  # should add to specified line:
+  moretxt3 <- "hi2"
+  add_text_to_file(moretxt3, myfile, 2)
+  testthat::expect_equal(c(moretxt2, moretxt3, sometxt, moretxt),
+                         readLines(myfile))
+
+  # should add to specified line:
+  moretxt4 <- "hi3"
+  add_text_to_file(moretxt4, myfile, 6)
+  testthat::expect_equal(c(moretxt2, moretxt3, sometxt, moretxt, moretxt4),
+                         readLines(myfile))
+  fs::dir_delete(dir)
+})
+
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
   dir <- tempfile()
   fs::dir_create(dir)
   rmd_file <- file.path(dir, "my-package.Rmd")
-  rmarkdown::draft(rmd_file, template = "make-an-r-package", package = "litr",
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package",
+                   package = "litr",
                    edit = FALSE)
   # create R package (named "rhello") from the Rmd template:
   render(rmd_file)
@@ -75,7 +118,7 @@ testthat::test_that("get_params_used works", {
   testthat::expect_equal(
     default_params,
     rmarkdown::yaml_front_matter(rmd_file)$params
-    )
+  )
   params1 <- default_params
   params1$package_parent_dir <- "dir"
   testthat::expect_equal(
@@ -86,11 +129,37 @@ testthat::test_that("get_params_used works", {
   params2$package_name <- "pkg"
   params2$package_parent_dir <- "dir"
   testthat::expect_equal(
-    get_params_used(rmd_file, 
+    get_params_used(rmd_file,
                     passed_params = list(package_parent_dir = "dir",
                                          package_name = "pkg")),
     params2
   )
   fs::dir_delete(dir)
 })
+
+testthat::test_that("templates can be knit", {
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  
+  rmd_file <- file.path(dir, "my-package-with-data.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-with-data",
+                   package = "litr",
+                   edit = FALSE)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, "my-package-with-data.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "rhasdata")))
+
+  rmd_file <- file.path(dir, "my-package-with-rcpp.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-with-rcpp",
+                   package = "litr",
+                   edit = FALSE)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, "my-package-with-rcpp.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
+  
+  fs::dir_delete(dir)
+ })
 
