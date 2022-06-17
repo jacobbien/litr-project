@@ -11,17 +11,6 @@ params:
 <!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `rmarkdown::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
 -->
 
-```{r knitr-setup, include=FALSE}
-# Leave this chunk as is.  It creates a directory for the R package, which will 
-# be the base directory for the rest of this file, and then sets things up so
-# that code from this document ends up in the R package:
-package_name <- params$package_name
-package_dir <- file.path(params$package_parent_dir, package_name)
-setup_chunk_label <- knitr::opts_current$get("label")
-litr::setup(package_dir)
-```
-
-
 ## Package setup
 
 We start by specifying the information needed in the DESCRIPTION file of the R package.
@@ -30,7 +19,7 @@ We start by specifying the information needed in the DESCRIPTION file of the R p
 usethis::create_package(
   path = ".",
   fields = list(
-    Package = package_name,
+    Package = params$package_name,
     Version = "0.0.0.9000",
     Title = "A Package That Says Hello",
     Description = "This package says hello.  But it's actual purpose is to show how an R package can be completely coded in a single R markdown file.",

@@ -15,8 +15,22 @@ render <- function(input, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+
   args <- list(...)
-  out <- xfun::Rscript_call(rmarkdown::render, c(input = input, args))
+  params <- get_params_used(input, args$params)
+  package_dir <- ifelse(
+    params$package_parent_dir == ".",
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
+  )
+  args$package_dir <- package_dir
+
+  render_ <- function(input, package_dir, ...) {
+    litr::setup(package_dir)
+    rmarkdown::render(input, ...)
+  }
+
+  out <- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -25,12 +39,6 @@ render <- function(input, ...) {
   }
   
   # add litr hash so we can tell later if package files were manually edited:
-  params <- get_params_used(input, args$params)
-  package_dir <- ifelse(
-    params$package_parent_dir == ".",
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
   write_hash_to_description(package_dir)
 }
 

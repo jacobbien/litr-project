@@ -371,7 +371,7 @@ pre code {
 
 
 <p><em>[This file was litr-knitted using <code>litr</code> version
-0.0.2]</em></p>
+0.0.3]</em></p>
 <p>The <code>litr</code> package allows one to define an R package by
 writing an R markdown file. The package consists of (a) document
 templates that users can use as the basis for creating an R package, (b)
@@ -385,12 +385,14 @@ package when the .Rmd file is knitted.</a> In particular, we define a
 hook</a>, which we call <code><a href='#send_to_package'>send_to_package</a>()</code> that identifies
 code chunks in the .Rmd file that should be included in the package. To
 make it so that this chunk hook will be active, we also have a function
-called <code><a href='#setup'>setup</a>()</code> that is called in the first code chunk of
-the document template. This function makes it so that when the .Rmd file
-is knitted, the chunk hook <code><a href='#send_to_package'>send_to_package</a>()</code> will be
-invoked on each code chunk. It is also responsible for other
-preliminaries, such as defining a new <code>knitr</code> language engine
-that can interpret package-level documentation.</p></li>
+called <code><a href='#setup'>setup</a>()</code> that is called at the start of
+<code>litr::<a href='#render'>render</a>()</code> right before
+<code>rmarkdown::<a href='#render'>render</a>()</code> is called. The <code><a href='#setup'>setup</a>()</code>
+function makes it so that when the .Rmd file is knitted, the chunk hook
+<code><a href='#send_to_package'>send_to_package</a>()</code> will be invoked on each code chunk. It is
+also responsible for other preliminaries, such as defining a new
+<code>knitr</code> language engine that can interpret package-level
+documentation.</p></li>
 <li><p><a href="#hash">Functionality for making sure the R package
 outputted will not overwrite a manually edited R package.</a> Our
 approach here is to use a hash that will make it clear whether something
@@ -401,8 +403,10 @@ is because we want a few extra things to happen. For example,
 <code>devtools::<a href='#document'>document</a>()</code> reminds the reader to edit the roxygen
 in the <code>R/</code> files, whereas in our case, we want to make sure
 they edit the original .Rmd file, not the <code>R/</code> files.
-Likewise, <code>litr::<a href='#render'>render</a>()</code> adds hyperlinks to the .html file
-that make it easy to navigate to function definitions.</p></li>
+Likewise, <code>litr::<a href='#render'>render</a>()</code> sets up all the special
+functionality of sending code chunks to the R package before calling
+<code>rmarkdown::<a href='#render'>render</a>()</code> and also adds hyperlinks to the .html
+file that make it easy to navigate to function definitions.</p></li>
 </ol>
 <div id="package-setup" class="section level2">
 <h2>Package setup</h2>
@@ -449,14 +453,7 @@ making a plot. That bit of example code would not be included in the
 package.</p>
 <p>We start by making sure that code is only sent to the R package once
 (arbitrarily we have code outputted to the package <em>before</em> and
-not after the chunk is run). We also make sure that nothing happens for
-the setup code chunk itself. <strong>Note: I think it should be possible
-to exclude the setup code chunk in a simpler way than is done currently.
-In particular, it’d be great if we don’t need to create the
-<code>setup_chunk_label</code> object. The fewer lines of code needed in
-<code>skeleton.Rmd</code>’s <code>knitr-setup</code> code chunk, the
-better. One option might be to have the option send_to_package=FALSE in
-the knitr-setup chunk.</strong></p>
+not after the chunk is run).</p>
 <p>The function then checks if this code chunk is code that should be
 put into the package. There are three specific cases it considers:</p>
 <ol style="list-style-type: decimal">
@@ -501,9 +498,8 @@ do a bit of work to remove that if it appears in the code chunk.</p>
 #&#39; @export
 <span id='send_to_package'>send_to_package</span> &lt;- function(before, options, envir) {
   msg &lt;- <a href='#do_not_edit_message'>do_not_edit_message</a>(knitr::current_input(), type = &quot;R&quot;)
-  if (before == FALSE || options$label == envir$setup_chunk_label) {
+  if (before == FALSE) {
     # Don&#39;t do anything after the code chunk has been executed.
-    # Also, don&#39;t do anything when processing the setup code chunk.
     return()
   }
   if (stringr::str_detect(options$code[1], &quot;^#&#39; &quot;)) {
@@ -601,7 +597,9 @@ this message.</p>
 <code>litr::<a href='#document'>document</a>()</code>.</p>
 <p>The above also makes use of a simple helper function that inserts
 text into a specified location of a file (or creates that file if it
-doesn’t exist).</p>
+doesn’t exist). <strong>Actually currently it doesn’t, but we can
+replace <code>cat()</code> in the above with calls to
+<code><a href='#add_text_to_file'>add_text_to_file</a>()</code>.</strong></p>
 <pre class="r"><code>#&#39; Add Some Text to a File
 #&#39; 
 #&#39; The text will be added to the file at a particular line specified by
@@ -674,13 +672,14 @@ doesn’t exist).</p>
                          readLines(myfile))
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🌈</code></pre>
+<pre><code>## Test passed 😸</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level4">
 <h4>Setting up the R package creation</h4>
-<p>The first code chunk of the generating .Rmd file will call the
-following function, called <code><a href='#setup'>setup</a>()</code>, which does several
-things:</p>
+<p>When the user calls <code>litr::<a href='#render'>render</a>()</code> (either in the
+console or by pressing “Knit” in RStudio), one of the firs things that
+function does is to call the function <code>litr::<a href='#setup'>setup</a>()</code>, which
+does several things:</p>
 <ol style="list-style-type: decimal">
 <li><p>Creates a new empty directory at the specified location while
 first making sure that it won’t overwrite something it shouldn’t. In
@@ -959,12 +958,18 @@ mention the generating .Rmd file.</p>
 </div>
 <div id="defining-litrrender" class="section level4">
 <h4>Defining <code>litr::<a href='#render'>render</a>()</code></h4>
-<p>This function does three things:</p>
+<p>This function does four things:</p>
 <ol style="list-style-type: decimal">
+<li><p>Calls <code><a href='#setup'>setup</a>()</code>, which creates the R package directory
+and makes it so that when we knit the file using
+<code>rmarkdown::<a href='#render'>render</a>()</code>, a lot of special things will happen,
+such as code being sent to the R package directory.</p></li>
 <li><p>Calls <code>rmarkdown::<a href='#render'>render</a>()</code>. This is done in a very
 particular way <a href="https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html">as
 described in the Rmarkdown Cookbook</a> that ensures the identical
-behavior to when one clicks the “Knit” in RStudio.</p></li>
+behavior to when one clicks the “Knit” in RStudio. In particular, we
+have a fresh R session opened in which first <code><a href='#setup'>setup</a>()</code> and
+then <code>rmarkdown::<a href='#render'>render</a>()</code> are called.</p></li>
 <li><p>If a .html file was created by the previous call, we call a
 function <code><a href='#add_function_hyperlinks'>add_function_hyperlinks</a>()</code> that processes this
 .html file, making it so that one can easily navigate to function
@@ -995,8 +1000,22 @@ the location of the outputted package can be found.</p></li>
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+
   args &lt;- list(...)
-  out &lt;- xfun::Rscript_call(rmarkdown::render, c(input = input, args))
+  params &lt;- <a href='#get_params_used'>get_params_used</a>(input, args$params)
+  package_dir &lt;- ifelse(
+    params$package_parent_dir == &quot;.&quot;,
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
+  )
+  args$package_dir &lt;- package_dir
+
+  <span id='render_'>render_</span> &lt;- function(input, package_dir, ...) {
+    litr::<a href='#setup'>setup</a>(package_dir)
+    rmarkdown::<a href='#render'>render</a>(input, ...)
+  }
+
+  out &lt;- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, &quot;html$&quot;))) {
@@ -1005,12 +1024,6 @@ the location of the outputted package can be found.</p></li>
   }
   
   # add litr hash so we can tell later if package files were manually edited:
-  params &lt;- <a href='#get_params_used'>get_params_used</a>(input, args$params)
-  package_dir &lt;- ifelse(
-    params$package_parent_dir == &quot;.&quot;,
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
   <a href='#write_hash_to_description'>write_hash_to_description</a>(package_dir)
 }</code></pre>
 <p><strong>Note: When <code>litr::<a href='#render'>render</a>()</code> encounters an error,
@@ -1465,10 +1478,10 @@ xfun::Rscript_call(test_litr,
 ## 3 tests.R   tests    get_params_used works  3      0   FALSE FALSE       0
 ## 4 tests.R   tests    templates can be knit  4      0   FALSE FALSE       0
 ##    user system   real passed
-## 1 0.092  0.015  0.114      9
-## 2 0.128  0.071  6.706     11
-## 3 0.021  0.004  0.026      3
-## 4 8.862  0.673 46.511      4
+## 1 0.094  0.009  0.107      9
+## 2 0.114  0.037  6.917     11
+## 3 0.018  0.003  0.021      3
+## 4 8.504  0.625 39.692      4
 ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            result
 ## 1 fs::file_exists(myfile) is not TRUE\n\n, 11, 3, 11, 48, 3, 48, 11, 11, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, `sometxt` (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 12, 3, 12, 52, 3, 52, 12, 12, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 17, 3, 17, 64, 3, 64, 17, 17, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 20, 3, 20, 62, 3, 62, 20, 20, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, ::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 21, 3, 21, 63, 3, 63, 21, 21, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, ::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 22, 3, 22, 62, 3, 62, 22, 22, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, ::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 27, 3, 27, 74, 3, 74, 27, 27, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 32, 3, 33, 43, 3, 43, 32, 33, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt, moretxt4) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 38, 3, 39, 43, 3, 43, 38, 39, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works
 ## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 56, 3, 56, 53, 3, 53, 56, 56, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 61, 3, 61, 54, 3, 54, 61, 61, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 65, 3, 65, 53, 3, 53, 65, 65, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 70, 3, 70, 54, 3, 54, 70, 70, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 73, 3, 73, 53, 3, 53, 73, 73, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 80, 3, 80, 54, 3, 54, 80, 80, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 83, 3, 83, 53, 3, 53, 83, 83, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 91, 3, 91, 54, 3, 54, 91, 91, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 94, 3, 94, 53, 3, 53, 94, 94, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 102, 3, 102, 54, 3, 54, 102, 102, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 105, 3, 105, 53, 3, 53, 105, 105, 45, 47, check_unedited works

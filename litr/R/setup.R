@@ -95,9 +95,8 @@ make_noticeable <- function(msg) {
 #' @export
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
-  if (before == FALSE || options$label == envir$setup_chunk_label) {
+  if (before == FALSE) {
     # Don't do anything after the code chunk has been executed.
-    # Also, don't do anything when processing the setup code chunk.
     return()
   }
   if (stringr::str_detect(options$code[1], "^#' ")) {

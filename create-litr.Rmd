@@ -9,6 +9,7 @@ params:
 ---
 
 ```{r knitr-setup, include=FALSE}
+# **This entire setup chunk should be removed after the release of v0.0.3**
 package_name <- params$package_name
 package_dir <- file.path(params$package_parent_dir, package_name)
 setup_chunk_label <- knitr::opts_current$get("label")
@@ -19,11 +20,11 @@ litr::setup(package_dir)
 
 The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
 
-1. [Functionality for generating the R package when the .Rmd file is knitted.](#generating-package)  In particular, we define a `knitr` [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which we call `send_to_package()` that identifies code chunks in the .Rmd file that should be included in the package.  To make it so that this chunk hook will be active, we also have a function called `setup()` that is called in the first code chunk of the document template.  This function makes it so that when the .Rmd file is knitted, the chunk hook `send_to_package()` will be invoked on each code chunk.  It is also responsible for other preliminaries, such as defining a new `knitr` language engine that can interpret package-level documentation.
+1. [Functionality for generating the R package when the .Rmd file is knitted.](#generating-package)  In particular, we define a `knitr` [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which we call `send_to_package()` that identifies code chunks in the .Rmd file that should be included in the package.  To make it so that this chunk hook will be active, we also have a function called `setup()` that is called at the start of `litr::render()` right before `rmarkdown::render()` is called.  The `setup()` function makes it so that when the .Rmd file is knitted, the chunk hook `send_to_package()` will be invoked on each code chunk.  It is also responsible for other preliminaries, such as defining a new `knitr` language engine that can interpret package-level documentation.
 
 2. [Functionality for making sure the R package outputted will not overwrite a manually edited R package.](#hash)  Our approach here is to use a hash that will make it clear whether something has been modified.
 
-3. [Wrappers to `devtools::document()` and `rmarkdown::render()`.](#wrappers)  The reason we write wrappers is because we want a few extra things to happen.  For example, `devtools::document()` reminds the reader to edit the roxygen in the `R/` files, whereas in our case, we want to make sure they edit the original .Rmd file, not the `R/` files.  Likewise, `litr::render()` adds hyperlinks to the .html file that make it easy to navigate to function definitions.
+3. [Wrappers to `devtools::document()` and `rmarkdown::render()`.](#wrappers)  The reason we write wrappers is because we want a few extra things to happen.  For example, `devtools::document()` reminds the reader to edit the roxygen in the `R/` files, whereas in our case, we want to make sure they edit the original .Rmd file, not the `R/` files.  Likewise, `litr::render()` sets up all the special functionality of sending code chunks to the R package before calling `rmarkdown::render()` and also adds hyperlinks to the .html file that make it easy to navigate to function definitions.
 
 ## Package setup
 
@@ -62,7 +63,7 @@ usethis::create_package(
 
 We start by defining a [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which is a function that runs both before and after each code chunk is run in the knitting process.  In this case, the function (called `send_to_package`) is responsible for determining whether the code chunk looks like something that should be exported to the R package.  We don't want all code sent off to our R package.  For example, sometimes we'll want to demonstrate in the Rmd file how a certain function we've just created is used by running it on an example or making a plot.  That bit of example code would not be included in the package.
 
-We start by making sure that code is only sent to the R package once (arbitrarily we have code outputted to the package *before* and not after the chunk is run).  We also make sure that nothing happens for the setup code chunk itself.  **Note: I think it should be possible to exclude the setup code chunk in a simpler way than is done currently.  In particular, it'd be great if we don't need to create the `setup_chunk_label` object.  The fewer lines of code needed in `skeleton.Rmd`'s `knitr-setup` code chunk, the better.  One option might be to have the option send_to_package=FALSE in the knitr-setup chunk.**
+We start by making sure that code is only sent to the R package once (arbitrarily we have code outputted to the package *before* and not after the chunk is run).
 
 The function then checks if this code chunk is code that should be put into the package.  There are three specific cases it considers:
 
@@ -97,9 +98,8 @@ and we only want this to appear once in `code.cpp`, so we do a bit of work to re
 #' @export
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
-  if (before == FALSE || options$label == envir$setup_chunk_label) {
+  if (before == FALSE) {
     # Don't do anything after the code chunk has been executed.
-    # Also, don't do anything when processing the setup code chunk.
     return()
   }
   if (stringr::str_detect(options$code[1], "^#' ")) {
@@ -280,7 +280,7 @@ testthat::test_that("add_text_to_file() works", {
 
 #### Setting up the R package creation
 
-The first code chunk of the generating .Rmd file will call the following function, called `setup()`, which does several things:
+When the user calls `litr::render()` (either in the console or by pressing "Knit" in RStudio), one of the firs things that function does is to call the function `litr::setup()`, which does several things:
 
 1. Creates a new empty directory at the specified location while first making sure that it won't overwrite something it shouldn't.  In particular, we guard against the case that the package was generated by `litr::render()` but then someone went in manually and made some changes.  Even though users should never manually edit the package that was generated by `litr::render()`, we don't want to have them inadvertantly lose their work by doing so.  Thus, we only overwrite an R package if we can tell that it is the unedited output of a call to `litr::render()`.  The function `check_unedited()` is responsible for checking this, and is a pretty interesting function which we will describe in [the next section](#hash).  This part of the code also makes use of a function `litr::make_noticeable()`, which is simply a way of making error messages produced by `litr` more easy to see amid a lot of `knitr` output.
 
@@ -522,13 +522,15 @@ usethis::use_package("devtools")
 
 #### Defining `litr::render()`
 
-This function does three things:
+This function does four things:
 
-1. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.
+1. Calls `setup()`, which creates the R package directory and makes it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory.
 
-2. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
+2. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.  In particular, we have a fresh R session opened in which first `setup()` and then `rmarkdown::render()` are called.
 
-3. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
+3. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
+
+4. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
 
 ```{r}
 #' Render R markdown file
@@ -546,8 +548,22 @@ render <- function(input, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+
   args <- list(...)
-  out <- xfun::Rscript_call(rmarkdown::render, c(input = input, args))
+  params <- get_params_used(input, args$params)
+  package_dir <- ifelse(
+    params$package_parent_dir == ".",
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
+  )
+  args$package_dir <- package_dir
+
+  render_ <- function(input, package_dir, ...) {
+    litr::setup(package_dir)
+    rmarkdown::render(input, ...)
+  }
+
+  out <- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -556,12 +572,6 @@ render <- function(input, ...) {
   }
   
   # add litr hash so we can tell later if package files were manually edited:
-  params <- get_params_used(input, args$params)
-  package_dir <- ifelse(
-    params$package_parent_dir == ".",
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
   write_hash_to_description(package_dir)
 }
 ```
