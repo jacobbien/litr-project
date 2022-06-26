@@ -30,20 +30,24 @@ complicated, but one can think of this as how developers of an operating
 system probably write their code on a computer that is running the
 previous stable version of the operating system.
 
-## How to generate `litr` version 0.0.2 using version 0.0.1
+## How to generate a new version of `litr` using the previous release
 
-To create `litr` version 0.0.2, we first install `litr` version 0.0.1,
-then download [`create-litr.Rmd` as it was at release
-v0.0.2](https://github.com/jacobbien/litr-project/blob/66cc7c9286e43cb3f1438f4aa70c504a99782f2d/create-litr.Rmd)
-and then run the following command in R:
+To create a new version of `litr`, we first install the latest
+release`, then download [`create-litr.Rmd`as it was at release and then use that installed version's`litr::render()\`
+to create the new version:
 
 ``` r
 remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 litr::render("create-litr.Rmd")
 ```
 
-In the above code, `@*release` stands for the latest release, which at
-the time of creating version `0.0.2` was `v0.0.1`.
+*(Note: Until we make this repo public, one will need to add to the
+`install_github()` call
+`auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password)`)*
+
+In the above code, `@*release` stands for the latest release. For
+example, at the time of creating version `0.0.2`, this would be
+`v0.0.1`.
 
 This will generate the new version of `litr`. From there, you can
 build/install as you would for any other package.
