@@ -957,19 +957,19 @@ We finish by running commands that will document and test `litr`.
 
 **The formatting of the test output does not print out very neatly.**
 
-**Also, ideally we would not be hardcoding the path to an old version or even a particular version number.  Once we make the repo public, we will be able to use the following:**
+**Also, once we make the repo public, we will not need the `auth_token`.**
 
-```{r, eval=FALSE}
-remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
-```
-
-**According to [this page](https://github.com/r-lib/remotes), this downloads the latest release.**
-
+We download the latest release:
 
 ```{r}
 rm(list = ls())
 litr::document()
-install_old <- function() devtools::install("~/Downloads/litr-project-0.0.2/litr/")
+install_old <- function() {
+  remotes::install_github("jacobbien/litr-project@*release", subdir = "litr",
+                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password)
+#  devtools::install("~/Downloads/litr-project-0.0.2/litr/")
+}
 xfun::Rscript_call(test_litr,
                    list(install_old = install_old, location_of_new = "."))
 ```
+
