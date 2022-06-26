@@ -38,6 +38,9 @@ render <- function(input, ...) {
     add_function_hyperlinks(html_file)
   }
   
+  # add to DESCRIPTION file the version of litr used to create package:
+  write_version_to_description(package_dir)
+  
   # add litr hash so we can tell later if package files were manually edited:
   write_hash_to_description(package_dir)
 }
@@ -110,6 +113,21 @@ do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
     return(stringr::str_glue("// Generated from {rmd_file}: do not edit by hand"))
   else
     stop("type must be either 'R', 'man', or 'c'.")
+}
+
+#' Generate litr version field name for DESCRIPTION file
+description_litr_version_field_name <- function() return("LitrVersionUsed")
+
+#' Write the version of litr used to the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+write_version_to_description <- function(package_dir) {
+  ver <- as.character(utils::packageVersion("litr"))
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_version_field_name()}: {ver}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
 }
 
 #' Use roxygen to document a package

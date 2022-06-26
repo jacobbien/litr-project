@@ -4,6 +4,11 @@ testthat::test_that("add_text_to_file() works", {
   if (fs::file_exists(dir)) fs::file_delete(dir)
   fs::dir_create(dir)
   
+  # should throw error when file does not exist and req_exist is TRUE:
+  myfile <- file.path(dir, "file.txt")
+  sometxt <- c("hello", "there")
+  testthat::expect_error(add_text_to_file(sometxt, myfile, req_exist = TRUE))
+
   # should create a new file where one does not exist:
   myfile <- file.path(dir, "file.txt")
   sometxt <- c("hello", "there")
@@ -95,7 +100,7 @@ testthat::test_that("check_unedited works", {
 
   # what if the special litr hash field is changed in the DESCRIPTION file?
   txt <- readLines(descfile)
-  i_litr <- stringr::str_which(txt, description_litr_field_name())
+  i_litr <- stringr::str_which(txt, description_litr_hash_field_name())
   txt_mod <- txt
   txt_mod[i_litr] <- paste0(txt_mod[i_litr], "a")
   writeLines(txt_mod, descfile)

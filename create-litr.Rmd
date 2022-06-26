@@ -55,6 +55,35 @@ usethis::create_package(
 
 **After the release of v0.0.3, let's add a package_doc block here.**
 
+## A note on circularity
+
+Keeping track of the version of `litr` used is particularly important when using `litr` to develop `litr`.  There is a tendency to want to use the new functionality that we are creating in `create-litr.Rmd` itself as soon as we have defined it.  However, this is circular and thus must be avoided.  To see why we need to be careful, let's consider an actual example that arose when working on `litr` version `0.0.3`.  After release `v0.0.2`, one of the new features we added is a new language engine called `package_doc` that allows us to have a special kind of code block defining the package documentation.  In trying out this feature and making sure it works on `skeleton.Rmd`, we would most likely install version `0.0.3`.  Now that version `0.0.3` is installed, there will be a tendency to want to add a `package_doc` block to `create-litr.Rmd`, and it will appear to work.  However, this is circular, because we have used version `0.0.3` to create version `0.0.3`!  In particular, if we remove `litr` and re-install it from github, we will get version `0.0.2` so that when we attempt to create the package using `litr::render("create-litr.Rmd")`, we will get an error telling us that it doesn't have a language engine named `package_doc`.
+
+The code chunk in this section is for preventing this from happening.
+
+For more on circularity, see the section on [testing litr](#tests).
+
+```{r}
+install_version_of_litr <- utils::packageVersion("litr")
+remote <- remotes::github_remote(
+  repo = "jacobbien/litr-project@*release",
+  subdir = "litr",
+  auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+  )
+version_of_latest_release <- stringr::str_remove(remote$ref, "v")
+if (install_version_of_litr != version_of_latest_release)
+  stop(stringr::str_glue(
+    "You should be using the version of litr from the latest release (version",
+    " {version_of_latest_release}),\n but you are using version",
+    " {install_version_of_litr}."
+  ))
+# version <- desc::desc_get_version(package_dir)
+# if (install_version_of_litr == version)
+#   stop(stringr::str_glue(
+#     "You are attempting to create litr version {version} using itself."
+#     ))
+```
+
 ## Now to the package itself
 
 ### Generating the R package {#generating-package}
@@ -205,14 +234,17 @@ The above also makes use of a simple helper function that inserts text into a sp
 #' The text will be added to the file at a particular line specified by
 #' `location`.  The first line of `txt` will be on line `location` of the
 #' modified file.  If `location` is NULL, then text is added to end of file.
-#' If file does not exist, it is created and `location` is ignored.
+#' If file does not exist, it is created and `location` is ignored (unless 
+#' `req_exist` is `TRUE`, in which case an error is thrown).
 #' 
 #' @param txt Character vector to add to file
 #' @param filename Name of file
 #' @param location Specifies where text should be added. See description for more.
+#' @param req_exist If TRUE, then 
 #' @export
-add_text_to_file <- function(txt, filename, location = NULL) {
+add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) {
   if (!file.exists(filename)) {
+    if (req_exist) stop(stringr::str_glue("Cannot find file {filename}."))
     writeLines(txt, con = filename)
     return()
   }
@@ -240,6 +272,11 @@ testthat::test_that("add_text_to_file() works", {
   if (fs::file_exists(dir)) fs::file_delete(dir)
   fs::dir_create(dir)
   
+  # should throw error when file does not exist and req_exist is TRUE:
+  myfile <- file.path(dir, "file.txt")
+  sometxt <- c("hello", "there")
+  testthat::expect_error(add_text_to_file(sometxt, myfile, req_exist = TRUE))
+
   # should create a new file where one does not exist:
   myfile <- file.path(dir, "file.txt")
   sometxt <- c("hello", "there")
@@ -412,7 +449,7 @@ hash_package_directory <- function(package_dir) {
   txt_descr <- readLines(pkg_files[i_descr])
   txt_descr_mod <- stringr::str_subset(
     txt_descr, 
-    stringr::str_glue("{description_litr_field_name()}: .+$"),
+    stringr::str_glue("{description_litr_hash_field_name()}: .+$"),
     negate = TRUE)
   hashes <- as.character(tools::md5sum(pkg_files[-i_descr]))
   digest::digest(c(hashes, list(txt_descr_mod)))
@@ -428,8 +465,8 @@ usethis::use_package("digest")
 We will store this hash in a special field within the DESCRIPTION file.  Let's call this field `LitrId`.  However, in case we ever decide to change the name of this field, it's better that we only define it in one place.  So we do this with the following function:
 
 ```{r}
-#' Generate litr field name for DESCRIPTION file
-description_litr_field_name <- function() return("LitrId")
+#' Generate litr hash field name for DESCRIPTION file
+description_litr_hash_field_name <- function() return("LitrId")
 ```
 
 Ok, now let's write the function that `litr::render()` will call that will take the generated R package and add a line that puts the hash in the DESCRIPTION file under that special `litr` field:
@@ -440,10 +477,11 @@ Ok, now let's write the function that `litr::render()` will call that will take 
 #' @param package_dir Path to package
 write_hash_to_description <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
-  descr <- file.path(package_dir, "DESCRIPTION")
-  if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
-  newline <- stringr::str_glue("{description_litr_field_name()}: {hash}")
-  writeLines(c(readLines(descr), newline), descr)
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_hash_field_name()}: {hash}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
 }
 ```
 
@@ -458,7 +496,7 @@ read_hash_from_description <- function(package_dir) {
   if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
   txt <- stringr::str_subset(
     readLines(descr), 
-    stringr::str_glue("{description_litr_field_name()}: .+$"))
+    stringr::str_glue("{description_litr_hash_field_name()}: .+$"))
   if (length(txt) > 1) stop("More than one hash found in DESCRIPTION.")
   if (length(txt) == 0) stop("No hash found in DESCRIPTION.")
   stringr::str_extract(txt, "\\S+$")
@@ -483,6 +521,29 @@ check_unedited <- function(package_dir) {
 ```
 
 It simply computes the hash of the current package and checks whether that hash is the same as what was originally written to the DESCRIPTION file by `litr::render()`.
+
+### Keeping track of what version of `litr` was used to create package
+
+For the sake of reproducibility, it will be useful to record the version of `litr` used to create a package.  We will do this by adding a field to the DESCRIPTION file.
+
+```{r}
+#' Generate litr version field name for DESCRIPTION file
+description_litr_version_field_name <- function() return("LitrVersionUsed")
+```
+
+```{r}
+#' Write the version of litr used to the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+write_version_to_description <- function(package_dir) {
+  ver <- as.character(utils::packageVersion("litr"))
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_version_field_name()}: {ver}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
+}
+```
 
 
 ### Wrappers to `devtools::document()` and `rmarkdown::render()` {#wrappers}
@@ -522,7 +583,7 @@ usethis::use_package("devtools")
 
 #### Defining `litr::render()`
 
-This function does four things:
+This function does a number of things:
 
 1. Calls `setup()`, which creates the R package directory and makes it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory.
 
@@ -530,7 +591,9 @@ This function does four things:
 
 3. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
 
-4. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
+4. Adds a field to the DESCRIPTION file giving the version of `litr` used to generate this package.  This will be useful for reproducibility.
+
+5. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
 
 ```{r}
 #' Render R markdown file
@@ -570,6 +633,9 @@ render <- function(input, ...) {
     html_file <- stringr::str_subset(out, "html$")
     add_function_hyperlinks(html_file)
   }
+  
+  # add to DESCRIPTION file the version of litr used to create package:
+  write_version_to_description(package_dir)
   
   # add litr hash so we can tell later if package files were manually edited:
   write_hash_to_description(package_dir)
@@ -667,7 +733,7 @@ code <- rfiles %>%
     rfiles %>% stringr::str_remove("^.*/") %>% stringr::str_remove(".R$")
     )
 hash_functions <- c("hash_package_directory",
-                    "description_litr_field_name",
+                    "description_litr_hash_field_name",
                     "write_hash_to_description",
                     "read_hash_from_description",
                     "check_unedited")
@@ -675,6 +741,8 @@ render_functions <- c("render",
                       "add_function_hyperlinks",
                       "get_params_used",
                       "do_not_edit_message",
+                      "description_litr_version_field_name",
+                      "write_version_to_description",
                       "document")
 setup_functions <- c("setup",
                      "make_noticeable",
@@ -770,7 +838,7 @@ xfun::Rscript_call(rmarkdown::render, args = list(input = "README.Rmd"))
 ```
 
 
-## Defining some tests
+## Defining some tests {#tests}
 
 When using `litr` to create packages that are not `litr`, one should be able to run tests along the way as we did above in testing the function `add_text_to_file()`.  However, creating `litr` is a special case so we need to do something different for the tests that involve creating a .Rmd from template and then calling `litr::render()` on them (such as the tests in this section).  In particular, we use `eval=FALSE` for these code blocks and then at the end of this document we will install the newly created version of `litr` and then call `devtools::test()`.  Doing it this way is important for ensuring that the version of `litr` we are testing is the newest version, i.e. the version defined in this document.
 
@@ -870,7 +938,7 @@ testthat::test_that("check_unedited works", {
 
   # what if the special litr hash field is changed in the DESCRIPTION file?
   txt <- readLines(descfile)
-  i_litr <- stringr::str_which(txt, description_litr_field_name())
+  i_litr <- stringr::str_which(txt, description_litr_hash_field_name())
   txt_mod <- txt
   txt_mod[i_litr] <- paste0(txt_mod[i_litr], "a")
   writeLines(txt_mod, descfile)

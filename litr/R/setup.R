@@ -171,14 +171,17 @@ send_to_package <- function(before, options, envir) {
 #' The text will be added to the file at a particular line specified by
 #' `location`.  The first line of `txt` will be on line `location` of the
 #' modified file.  If `location` is NULL, then text is added to end of file.
-#' If file does not exist, it is created and `location` is ignored.
+#' If file does not exist, it is created and `location` is ignored (unless 
+#' `req_exist` is `TRUE`, in which case an error is thrown).
 #' 
 #' @param txt Character vector to add to file
 #' @param filename Name of file
 #' @param location Specifies where text should be added. See description for more.
+#' @param req_exist If TRUE, then 
 #' @export
-add_text_to_file <- function(txt, filename, location = NULL) {
+add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) {
   if (!file.exists(filename)) {
+    if (req_exist) stop(stringr::str_glue("Cannot find file {filename}."))
     writeLines(txt, con = filename)
     return()
   }
