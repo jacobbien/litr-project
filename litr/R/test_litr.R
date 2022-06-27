@@ -8,7 +8,7 @@
 #' 
 #' Typical values for `install_old` could be
 #' - `function() devtools::install("[location of old version]")`
-#' - `function() remotes::install_github("jacobbien/litr-project@v0.0.2", subdir = "litr")`.
+#' - `function() remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")`.
 #' 
 #' @param install_old A function that when run will install the old version
 #' @param location_of_new Path to the new package directory

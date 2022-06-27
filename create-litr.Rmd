@@ -8,14 +8,6 @@ params:
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
-```{r knitr-setup, include=FALSE}
-# **This entire setup chunk should be removed after the release of v0.0.3**
-package_name <- params$package_name
-package_dir <- file.path(params$package_parent_dir, package_name)
-setup_chunk_label <- knitr::opts_current$get("label")
-litr::setup(package_dir)
-```
-
 *[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
 
 The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
@@ -34,8 +26,8 @@ We start by specifying the information needed in the DESCRIPTION file of the R p
 usethis::create_package(
   path = ".",
   fields = list(
-    Package = package_name,
-    Version = "0.0.3",
+    Package = params$package_name,
+    Version = "0.0.4",
     Title = "Literate Programming for Writing R Packages",
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
@@ -49,11 +41,30 @@ usethis::create_package(
    )
  )
 
- usethis::use_mit_license(copyright_holder = "J. Bien")
- usethis::use_testthat() # <- This line can be removed *after* release of v0.0.3
+usethis::use_mit_license(copyright_holder = "J. Bien")
 ```
 
-**After the release of v0.0.3, let's add a package_doc block here.**
+Let's add some package-level documentation.  This is what will show up when someone types `package?litr` in the console.
+
+```{package_doc}
+#' Literate Programming for Writing R Packages
+#'
+#' Allows one to fully create an R package in a single .Rmd file.  Includes
+#' functionality and .Rmd templates for a literate programming approach to R
+#' package development.
+#' 
+#' @examples
+#' # Make a file create-rhello.Rmd based on a template
+#' rmarkdown::draft("create-rhello.Rmd", 
+#'                  template = "make-an-r-package",
+#'                  package = "litr",
+#'                  edit = FALSE)
+#' # Now call litr::render (or press Knit if in RStudio) to generate not just
+#' # create-rhello.html, but also an R package called `rhello`.
+#' litr::render("create-rhello.Rmd")
+#' @docType package
+#' @seealso \code{\link{render}}
+```
 
 ## A note on circularity
 
@@ -752,7 +763,7 @@ remove_initial_lines <- function(code_list) {
   # drop first line of each list element except for the first list element
   c(code_list[1], map(code_list[-1], ~ .x[-1]))
 }
-fs::file_delete(rfiles)
+fs::file_delete(setdiff(rfiles, "R/litr-package.R"))
 writeLines(unlist(remove_initial_lines(code[hash_functions])), "R/hash.R")
 writeLines(unlist(remove_initial_lines(code[render_functions])), "R/render.R")
 writeLines(unlist(remove_initial_lines(code[setup_functions])), "R/setup.R")
@@ -855,7 +866,7 @@ Once we are done testing the new version of the package, we'd like to restore th
 #' 
 #' Typical values for `install_old` could be
 #' - `function() devtools::install("[location of old version]")`
-#' - `function() remotes::install_github("jacobbien/litr-project@v0.0.2", subdir = "litr")`.
+#' - `function() remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")`.
 #' 
 #' @param install_old A function that when run will install the old version
 #' @param location_of_new Path to the new package directory

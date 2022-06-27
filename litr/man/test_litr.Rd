@@ -20,6 +20,6 @@ before.
 Typical values for \code{install_old} could be
 \itemize{
 \item \code{function() devtools::install("[location of old version]")}
-\item \code{function() remotes::install_github("jacobbien/litr-project@v0.0.2", subdir = "litr")}.
+\item \code{function() remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")}.
 }
 }
