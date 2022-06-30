@@ -622,9 +622,9 @@ render <- function(input, ...) {
             params$package_name
         )
     )
-    # now that we've finished using the temporary file, delete it before hashing the directory
-    fs::file_delete(modified_input)
     write_hash_to_description(package_dir)
+    # now that we've finished using the temporary file, let's clean up after our selves
+    fs::file_delete(modified_input)
 }
 ```
 
