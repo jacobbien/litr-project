@@ -532,22 +532,37 @@ extract_label <- function(chunk_option){
 
 ###### Example of `preprocess_chunk_labels`
 
-Now we will demonstrate the `preprocess_chunk_labels` function on a minimal example. We store the minimal example Rmd file as a string in this format to avoid file formatting issues in RStudio. We will transform this into a vector as if we read in the file using the `readLines` function.
+Now we will demonstrate the `preprocess_chunk_labels` function on the following minimal example:
 
-```{r}
-rmd <- unlist(strsplit("---\ntitle: Minimal Example\nauthor: Patrick Vossler\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
+```{r, include=FALSE}
+rmd <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
 ```
 
-
-```{r}
-print(rmd)
+```{r, include=FALSE}
+# This is a helper function which pretty prints example Rmd code within an Rmd file. To be displayed properly, the chunk containing the `print_rmd` function call must have the chunk argument results='asis'.
+print_rmd <- function(rmd_vector){
+  rmd <- rmd_vector
+  # add the ````markdown at the beginning and ```` at the end
+  rmd <- c("````markdown", rmd, "````")
+  # return the formatted string
+  cat(stringr::str_flatten(rmd, collapse = "\n"))
+}
 ```
+
+```{r echo=FALSE, results='asis'}
+print_rmd(rmd)
+```
+
 
 We're interested in the `c2f` and `f2c` functions since they contain chunk labels for `check-arg` and `convert-*`.  We want to keep these labels but also have `knitr` fill in the labels and execute the code. To do this we are going to create two copies of the chunks that contain chunk labels. The first copy contains modified chunk labels for display in the knitted document while the second copy contains the original code chunk but now with the option `include=FALSE` so that the code is run but not displayed in the document. To prevent an issue of duplicate chunk labels we append `-dup` to the label of the second copy of the code chunk.
 
 ```{r}
 preprocessed_rmd <- preprocess_chunk_labels(rmd)
-print(preprocessed_rmd)
+```
+
+
+```{r, results='asis'}
+print_rmd(preprocessed_rmd)
 ```
 
 From the printed structure we see that after running `preprocess_chunk_labels` we have two copies of the chunks that contain chunk labels.  We see that the delimiters in the first copy have been changed to avoid them being replaced by `knitr`, and we've changed the chunk options so that the original chunk is not evaluated while the duplicate chunk is evaluated but not shown in the knitted document.
