@@ -375,7 +375,7 @@ This function does four things:
 
 2. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.
 
-3. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)
+3. If a .html file was created by the previous call, we call the functions `add_function_hyperlinks()` and `add_chunk_label_hyperlinks()` that process this .html file, making it so that one can easily navigate to function definitions and code chunk references within the .html file.  (These functions are described in the [post-knit processing section](#post-knit).)
 
 4. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
 
@@ -448,6 +448,31 @@ We used the `xfun` so let's import it:
 usethis::use_package("xfun")
 ```
 
+As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
+
+```{r}
+#' Get parameter values used in rendering
+#' 
+#' When the `params` argument of `rmarkdown::render()` is explicitly used, this
+#' overrides the default that appears in `input`.
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param passed_params The list of parameters that were passed to `render`.
+get_params_used <- function(input, passed_params) {
+  params <- rmarkdown::yaml_front_matter(input)$params
+  for (param in names(passed_params)) {
+    params[[param]] <- passed_params[[param]]
+  }
+  params
+}
+```
+
+We used the package `rmarkdown`, so let's import it:
+
+```{r}
+usethis::use_package("rmarkdown")
+```
+
+
 ##### Displaying chunks embedded within a chunk
 
 `knitr` allows code chunks to be nested within each other, as explained [here](https://bookdown.org/yihui/rmarkdown-cookbook/reuse-chunks.html). However, when the file is knitted, the output one sees does not show the label of the code chunk but instead replaces it with the actual code. Compare this to how literate programming output is displayed in [Knuth's literate programming paper](http://www.literateprogramming.com/knuthweb.pdf). In the context of `litr`, it seems we'd like to see the label of the inner code chunk rather than the code of the inner code chunk. If a .Rmd file has nested code chunks, we'd like the following behavior:
@@ -455,7 +480,7 @@ usethis::use_package("xfun")
 1. The actual code that is run should still behave exactly as it does normally in knitr.
 2. If a code chunk has something of the form `<<inner-chunk>>` within it, we should see `<<inner-chunk>>` with a hyperlink. The hyperlink would take you to the code chunk with label `"inner-chunk"`. The code chunk that is linked to should have its label visible in a way that it is not mistaken for the code itself).
 
-##### Pre-knit processing {#pre-knit}
+###### Pre-knit processing {#pre-knit}
 
 To implement this feature we need to create a "pre-knit" function that takes the .Rmd file, finds the chunks with embedded chunks, makes a copy of that chunk with a modified label delimiter to avoid `knitr` replacing the chunk labels with the referenced code, and finally adds an option to the original chunk so that it will be run but not included in the knitted document. The steps of the pre-knit function are the following:
 
@@ -650,6 +675,9 @@ From the printed structure we see that after running `preprocess_chunk_labels` w
 
 This pre-processing method allows us to satisfy our first requirement for the embedded chunks, however we still need to do some "post-knit" processing to satisfy our second requirement.
 
+###### Post-knit processing {#post-knit}
+
+Once the document has been knitted, we would like to add links to allow users to easily refer back to function definitions and referenced chunks. We next introduce two functions for adding this functionality to the knitted .html file, `add_function_hyperlinks()` and `add_chunk_label_hyperlinks()`.
 
 The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 
@@ -696,6 +724,8 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 }
 ```
 
+
+The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hyperlinks()` function except that it looks for comments within code chunks of the form `###"foo"###` and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it be a hyperlink to `foo`'s definition.
 ```{r}
 #' Add hyperlinks to embedded chunks
 #' 
@@ -740,30 +770,6 @@ add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
 ```
 
 
-
-As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
-
-```{r}
-#' Get parameter values used in rendering
-#' 
-#' When the `params` argument of `rmarkdown::render()` is explicitly used, this
-#' overrides the default that appears in `input`.
-#' @param input The input file to be rendered (see `rmarkdown::render`)
-#' @param passed_params The list of parameters that were passed to `render`.
-get_params_used <- function(input, passed_params) {
-  params <- rmarkdown::yaml_front_matter(input)$params
-  for (param in names(passed_params)) {
-    params[[param]] <- passed_params[[param]]
-  }
-  params
-}
-```
-
-We used the package `rmarkdown`, so let's import it:
-
-```{r}
-usethis::use_package("rmarkdown")
-```
 
 
 ### Combining .R files
