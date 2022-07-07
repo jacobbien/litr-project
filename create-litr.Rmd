@@ -1052,3 +1052,38 @@ xfun::Rscript_call(test_litr,
                    list(install_old = install_old, location_of_new = "."))
 ```
 
+## Add examples folder with the output of knitting each example
+
+In this section, we will litr-knit each template and put the outputs in an examples directory that lives outside of the `litr` R package.  These examples are linked to in `README.Rmd`.
+
+```{r}
+build_all_templates <- function(install_old, location_of_new) {
+  devtools::install(location_of_new)
+
+  example_dir <- file.path("..", "examples")
+  if (fs::dir_exists(example_dir)) fs::dir_delete(example_dir)
+  fs::dir_create(example_dir)
+  
+  templates <- fs::path_file(fs::dir_ls("inst/rmarkdown/templates"))
+  for (template in templates) {
+    tmp_file <- file.path(example_dir, "temp.Rmd")
+    rmarkdown::draft(tmp_file, template, package = "litr", edit = FALSE)
+    pkg_name <- rmarkdown::yaml_front_matter(tmp_file)$params$package_name
+    rmd_file <- file.path(example_dir, paste0("create-", pkg_name, ".Rmd"))
+    fs::file_move(tmp_file, rmd_file)
+    render(rmd_file)
+    # move to a template-specific directory:
+    template_dir <- file.path(example_dir, template)
+    fs::dir_create(template_dir)
+    fs::file_move(fs::dir_ls(example_dir, regexp = pkg_name), template_dir)
+  }
+
+  install_old()
+}
+```
+
+```{r}
+xfun::Rscript_call(build_all_templates,
+                   list(install_old = install_old, location_of_new = "."))
+```
+

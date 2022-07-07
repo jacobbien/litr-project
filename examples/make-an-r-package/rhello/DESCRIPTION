@@ -1,0 +1,16 @@
+Package: rhello
+Title: A Package That Says Hello
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "you@gmail.com", role = c("aut", "cre"))
+Description: This package says hello.  But it's actual purpose is to show
+    how an R package can be completely coded in a single R markdown file.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.0
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LitrVersionUsed: 0.0.4
+LitrId: 4bf2e1758629ff06caf1a764a8c711b9
