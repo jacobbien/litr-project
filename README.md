@@ -32,9 +32,9 @@ previous stable version of the operating system.
 
 ## How to generate a new version of `litr` using the previous release
 
-To create a new version of `litr`, we first install the latest
-release`, then download [`create-litr.Rmd`as it was at release and then use that installed version's`litr::render()\`
-to create the new version:
+To create a new version of `litr`, we first install the latest release,
+then download `create-litr.Rmd` as it was at release and then use that
+installed version’s `litr::render()` to create the new version:
 
 ``` r
 remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
