@@ -49,11 +49,22 @@ render <- function(input, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+
   args <- list(...)
-  out <- xfun::Rscript_call(
-    rmarkdown::render,
-    c(input = input, args)
+  params <- get_params_used(input, args$params)
+  package_dir <- ifelse(
+    params$package_parent_dir == ".",
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
   )
+  args$package_dir <- package_dir
+
+  render_ <- function(input, package_dir, ...) {
+    litr::setup(package_dir)
+    rmarkdown::render(input, ...)
+  }
+
+  out <- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -61,13 +72,10 @@ render <- function(input, ...) {
     add_function_hyperlinks(html_file)
   }
   
+  # add to DESCRIPTION file the version of litr used to create package:
+  write_version_to_description(package_dir)
+  
   # add litr hash so we can tell later if package files were manually edited:
-  params <- get_params_used(input, args$params)
-  package_dir <- ifelse(
-    params$package_parent_dir == ".",
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
   write_hash_to_description(package_dir)
 }
 
@@ -124,4 +132,55 @@ get_params_used <- function(input, passed_params) {
     params[[param]] <- passed_params[[param]]
   }
   params
+}
+
+#' Generate do-not-edit message to put at top of file
+#' 
+#' @param rmd_file Name of the Rmd file to mention
+#' @param type Whether this is a R/ file, man/ file, or a c file
+do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
+  if (type[1] == "R")
+    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
+  else if (type[1] == "man")
+    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else if (type[1] == "c")
+    return(stringr::str_glue("// Generated from {rmd_file}: do not edit by hand"))
+  else
+    stop("type must be either 'R', 'man', or 'c'.")
+}
+
+#' Generate litr version field name for DESCRIPTION file
+description_litr_version_field_name <- function() return("LitrVersionUsed")
+
+#' Write the version of litr used to the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+write_version_to_description <- function(package_dir) {
+  ver <- as.character(utils::packageVersion("litr"))
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_version_field_name()}: {ver}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
+}
+
+#' Use roxygen to document a package
+#' 
+#' This is a wrapper for the `devtools::document()` function, which in turn is a
+#' wrapper for the `roxygen2::roxygenize()` function.  The purpose for `litr` 
+#' having this wrapper is to make one modification.  In particular, the line
+#' in the outputted `Rd` files should not say "Please edit documentation in 
+#' R/file.R" but instead should refer to the Rmd file that generates everything. 
+#' 
+#' @param ... Arguments to be passed to `devtools::document()`
+#' @export
+document <- function(...) {
+  devtools::document(...)
+  # remove the line of the following form in each man/*.Rd file:
+  pattern <- "% Please edit documentation in .*$"
+  msg <- do_not_edit_message(knitr::current_input(), type = "man")
+  for (fname in fs::dir_ls("man")) {
+    txt <- stringr::str_replace(readLines(fname), pattern, msg)
+    cat(paste(txt, collapse = "\n"), file = fname)
+  }
 }

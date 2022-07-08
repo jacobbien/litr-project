@@ -1,18 +1,15 @@
 Package: litr
-Title: A Package for Literate Programming of R Packages
-Version: 0.0.2
+Title: Literate Programming for Writing R Packages
+Version: 0.0.4
 Authors@R: 
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre"))
-Description: This package defines a document template that can create R
-    packages.  This allows for a literate programming approach to R
-    package development.
+Description: Allows one to fully create an R package in a single .Rmd
+    file.  Includes functionality and .Rmd templates for a literate
+    programming approach to R package development.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
 Imports: 
     devtools,
     digest,
@@ -21,4 +18,8 @@ Imports:
     rmarkdown,
     stringr,
     xfun
-LitrId: 8df0a5fed92f9d60107b0afb709fdb9e
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LitrVersionUsed: 0.0.3
+LitrId: c205a414bb5963f306375e773d7a2b08
