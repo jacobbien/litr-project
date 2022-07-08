@@ -12,52 +12,56 @@
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
 render <- function(input, ...) {
-    # Pre-knit steps start
-    # need to specify output file and directory to be the directory of the input
-    output_file <- paste0(fs::path_ext_remove(input), ".html")
-    input_dir <- fs::path_dir(input)
+  # Pre-knit steps start
+  # need to specify output file and directory to be the directory of the input
+  output_file <- paste0(fs::path_ext_remove(input), ".html")
+  input_dir <- fs::path_dir(input)
     
-    rmd <- parsermd::parse_rmd(input)
-    processed_ast <- preprocess_chunk_labels(rmd)
-    preprocessed_rmd <- parsermd::as_document(processed_ast)
-    # write this to a temp file in the same directory as the input file
-    temp_file <- paste0(fs::path_ext_remove(input),"_TMP.", fs::path_ext(input))
-    modified_input <- file.path(input_dir, fs::path_file(temp_file))
-    writeLines(preprocessed_rmd, modified_input)
-    # Pre-knit steps end
-    
-    # call rmarkdown::render in a new environment so it behaves the same as
-    # pressing the knit button in RStudio:
-    # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
-    args <- list(...)
-    # only change the output file name if output_file is not passed by the user
-    args[["output_file"]] <- ifelse(is.null(args[["output_file"]]), output_file ,args[["output_file"]])
-    out <- xfun::Rscript_call(rmarkdown::render,
-                              c(input = modified_input, args))
-    
-    # add hyperlinks within html output to make it easier to navigate:
-    if (any(stringr::str_detect(out, "html$"))) {
-        html_file <- stringr::str_subset(out, "html$")
-        add_function_hyperlinks(html_file)
-        add_chunk_label_hyperlinks(html_file)
-    }
-    
-    # add litr hash so we can tell later if package files were manually edited:
-    # get the params from the modified Rmd file since we modify the params
-    # if `package_parent_dir` is ".". This way we hash the correct directory
-    params <- get_params_used(modified_input, args$params)
-    package_dir <- ifelse(
-        params$package_parent_dir == ".",
-        file.path(dirname(input), params$package_name),
-        file.path(
-            dirname(input),
-            params$package_parent_dir,
-            params$package_name
-        )
-    )
-    # now that we've finished using the temporary file, delete it before hashing the directory
-    fs::file_delete(modified_input)
-    write_hash_to_description(package_dir)
+  rmd_file <- readLines(input)
+  preprocessed_rmd <- preprocess_chunk_labels(rmd_file)
+  # write this to a temp file in the same directory as the input file
+  temp_file <- paste0(fs::path_ext_remove(input),"_TMP.", fs::path_ext(input))
+  modified_input <- file.path(input_dir, fs::path_file(temp_file))
+  writeLines(preprocessed_rmd, modified_input)
+  # Pre-knit steps end
+  
+  # call rmarkdown::render in a new environment so it behaves the same as 
+  # pressing the knit button in RStudio:
+  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+
+  args <- list(...)
+  # only change the output file name if output_file is not passed by the user
+  args[["output_file"]] <- ifelse(is.null(args[["output_file"]]), output_file, args[["output_file"]])
+  params <- get_params_used(modified_input, args$params)
+  package_dir <- ifelse(
+    params$package_parent_dir == ".",
+    file.path(dirname(input), params$package_name),
+    file.path(dirname(input), params$package_parent_dir, params$package_name)
+  )
+  args$package_dir <- package_dir
+
+  render_ <- function(input, package_dir, ...) {
+    litr::setup(package_dir)
+    rmarkdown::render(input, ...)
+  }
+
+  out <- xfun::Rscript_call(render_, c(input = modified_input, args))
+  
+  # add hyperlinks within html output to make it easier to navigate:
+  if (any(stringr::str_detect(out, "html$"))) {
+    html_file <- stringr::str_subset(out, "html$")
+    add_function_hyperlinks(html_file)
+    add_chunk_label_hyperlinks(html_file)
+  }
+  
+  # add to DESCRIPTION file the version of litr used to create package:
+  write_version_to_description(package_dir)
+  
+  # add litr hash so we can tell later if package files were manually edited:
+  write_hash_to_description(package_dir)
+  
+  # now that we've finished using the temporary file, let's clean up after our selves
+  fs::file_delete(modified_input)
 }
 
 #' Add hyperlinks to function definitions
@@ -183,14 +187,31 @@ get_params_used <- function(input, passed_params) {
 #' Generate do-not-edit message to put at top of file
 #' 
 #' @param rmd_file Name of the Rmd file to mention
-#' @param type Whether this is a R/ file or a man/ file
-do_not_edit_message <- function(rmd_file, type = c("R", "man")) {
+#' @param type Whether this is a R/ file, man/ file, or a c file
+do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
   if (type[1] == "R")
     return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
   else if (type[1] == "man")
     return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else if (type[1] == "c")
+    return(stringr::str_glue("// Generated from {rmd_file}: do not edit by hand"))
   else
-    stop("type must be either 'R' or 'man'.")
+    stop("type must be either 'R', 'man', or 'c'.")
+}
+
+#' Generate litr version field name for DESCRIPTION file
+description_litr_version_field_name <- function() return("LitrVersionUsed")
+
+#' Write the version of litr used to the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+write_version_to_description <- function(package_dir) {
+  ver <- as.character(utils::packageVersion("litr"))
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_version_field_name()}: {ver}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
 }
 
 #' Use roxygen to document a package

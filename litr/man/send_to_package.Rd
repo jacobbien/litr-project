@@ -18,6 +18,7 @@ chunk code is executed}
 This chunk hook detects whether a chunk is defining a function or dataset
 to be included in the R package (looks for the Roxygen2 comment format \verb{#' }).
 If so, then it is written to the \verb{R/} directory.  It also looks for chunks
-with \verb{testthat::} in them, which are written to the \code{tests} directory of the
-R package.
+that have one or more lines that start with \verb{test_that(} or
+\verb{testthat::test_that(} (potentially with some leading whitespace).  These
+chunks are then written to the \code{tests} directory of the R package.
 }

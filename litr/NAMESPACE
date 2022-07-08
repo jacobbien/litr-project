@@ -2,8 +2,10 @@
 
 export(add_chunk_label_hyperlinks)
 export(add_function_hyperlinks)
+export(add_text_to_file)
 export(check_unedited)
 export(document)
 export(render)
 export(send_to_package)
 export(setup)
+export(test_litr)

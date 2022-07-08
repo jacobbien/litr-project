@@ -18,24 +18,25 @@ hash_package_directory <- function(package_dir) {
   txt_descr <- readLines(pkg_files[i_descr])
   txt_descr_mod <- stringr::str_subset(
     txt_descr, 
-    stringr::str_glue("{description_litr_field_name()}: .+$"),
+    stringr::str_glue("{description_litr_hash_field_name()}: .+$"),
     negate = TRUE)
   hashes <- as.character(tools::md5sum(pkg_files[-i_descr]))
   digest::digest(c(hashes, list(txt_descr_mod)))
 }
 
-#' Generate litr field name for DESCRIPTION file
-description_litr_field_name <- function() return("LitrId")
+#' Generate litr hash field name for DESCRIPTION file
+description_litr_hash_field_name <- function() return("LitrId")
 
 #' Write the hash of the package to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
 write_hash_to_description <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
-  descr <- file.path(package_dir, "DESCRIPTION")
-  if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
-  newline <- stringr::str_glue("{description_litr_field_name()}: {hash}")
-  writeLines(c(readLines(descr), newline), descr)
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_hash_field_name()}: {hash}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
 }
 
 #' Get the hash of the package from the DESCRIPTION file
@@ -46,7 +47,7 @@ read_hash_from_description <- function(package_dir) {
   if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
   txt <- stringr::str_subset(
     readLines(descr), 
-    stringr::str_glue("{description_litr_field_name()}: .+$"))
+    stringr::str_glue("{description_litr_hash_field_name()}: .+$"))
   if (length(txt) > 1) stop("More than one hash found in DESCRIPTION.")
   if (length(txt) == 0) stop("No hash found in DESCRIPTION.")
   stringr::str_extract(txt, "\\S+$")
