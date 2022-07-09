@@ -210,10 +210,11 @@ send_to_package <- function(before, options, envir) {
 }
 ```
 
-The above code makes use of a number of functions from the `stringr` package, so we'll need to add that package to the `Imports` section of the `DESCRIPTION` file:
+The above code makes use of a number of functions from the `stringr` and `usethis` packages, so we'll need to add those packages to the `Imports` section of the `DESCRIPTION` file:
 
 ```{r}
 usethis::use_package("stringr")
+usethis::use_package("usethis")
 ```
 
 The code also calls the function `do_not_edit_message()`, which adds a line at the top of the files sent to the R package reminding the user that these are not source files to be edited but rather output of the generating .Rmd file.  There are two variations on this message.
