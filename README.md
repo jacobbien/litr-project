@@ -50,4 +50,13 @@ example, at the time of creating version `0.0.2`, this would be
 `v0.0.1`.
 
 This will generate the new version of `litr`. From there, you can
-build/install as you would for any other package.
+build/install as you would for any other package. For checking the
+package, use
+
+``` r
+devtools::check("litr", document = FALSE)
+```
+
+The `document = FALSE` prevents `devtools` from running its version of
+`document()` internally, which would overwrite the modifications that
+`litr::document()` has made.

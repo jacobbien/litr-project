@@ -419,7 +419,7 @@ desired:</p>
   testthat::expect_equal(<a href='#say_hello'>say_hello</a>(&quot;Jacob&quot;), &quot;Hello Jacob!&quot;)
   testthat::expect_equal(<a href='#say_hello'>say_hello</a>(&quot;Jacob&quot;, exclamation = FALSE), &quot;Hello Jacob.&quot;)
 })</code></pre>
-<pre><code>## Test passed 🥇</code></pre>
+<pre><code>## Test passed 😀</code></pre>
 <p>Code chunks that have one or more lines starting with
 <code>test_that(</code> (or <code>testthat::test_that(</code>) are added
 to the package as tests.</p>
@@ -436,39 +436,9 @@ litr::document() # &lt;-- use instead of devtools::document()</code></pre>
 <pre><code>## ℹ Loading rhello
 ## Writing &#39;NAMESPACE&#39;
 ## Writing &#39;say_hello.Rd&#39;</code></pre>
-<pre class="r"><code>devtools::build()</code></pre>
-<pre><code>## * checking for file ‘/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/rhello/DESCRIPTION’ ... OK
-## * preparing ‘rhello’:
-## * checking DESCRIPTION meta-information ... OK
-## * checking for LF line-endings in source and make files and shell scripts
-## * checking for empty or unneeded directories
-## * building ‘rhello_0.0.0.9000.tar.gz’</code></pre>
-<pre><code>## [1] &quot;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/rhello_0.0.0.9000.tar.gz&quot;</code></pre>
-<pre class="r"><code>devtools::install()</code></pre>
-<pre><code>## * checking for file ‘/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/rhello/DESCRIPTION’ ... OK
-## * preparing ‘rhello’:
-## * checking DESCRIPTION meta-information ... OK
-## * checking for LF line-endings in source and make files and shell scripts
-## * checking for empty or unneeded directories
-## * building ‘rhello_0.0.0.9000.tar.gz’
-## 
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD INSTALL \
-##   /var/folders/wk/ysb32prj0gqdt1q08l3cwxlm0000gp/T//RtmpNAue8D/rhello_0.0.0.9000.tar.gz \
-##   --install-tests 
-## * installing to library ‘/Users/jacobbien/Library/R/x86_64/4.1/library’
-## * installing *source* package ‘rhello’ ...
-## ** using staged installation
-## ** R
-## ** tests
-## ** byte-compile and prepare package for lazy loading
-## ** help
-## *** installing help indices
-## ** building package indices
-## ** testing if installed package can be loaded from temporary location
-## ** testing if installed package can be loaded from final location
-## ** testing if installed package keeps a record of temporary installation path
-## * DONE (rhello)</code></pre>
-<pre class="r"><code># devtools::check()</code></pre>
+<pre class="r"><code># devtools::build()
+# devtools::install()
+# devtools::check(document = FALSE)</code></pre>
 </div>
 
 
