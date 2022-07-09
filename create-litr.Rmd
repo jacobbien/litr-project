@@ -696,18 +696,52 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
     function_names <- c(function_names, fn_name)
   }
   
-  # whenever one of these named functions is named, link to its definition
+  # whenever one of these named functions is referencing a function within this
+  # package, link to its definition
   txt <- stringr::str_replace_all(
     txt,
-    paste0(function_names, "\\(", collapse = "|"),
+    paste0(params$package_name,"::",function_names, "\\(", collapse = "|"),
     function(x) {
-      fn_name <- stringr::str_remove(x, "\\(")
-      stringr::str_glue("<a href='#{fn_name}'>{fn_name}</a>(")
+      pkg_name <- stringr::str_extract(x,stringr::str_glue("{params$package_name}::"))
+      fn_name <- stringr::str_remove_all(x, stringr::str_glue("{params$package_name}::|\\("))
+      stringr::str_glue("{pkg_name}<a href='#{fn_name}'>{fn_name}</a>(")
     }
   )
   writeLines(txt, con = output_file)
 }
 ```
+##### Testing `add_function_hyperlinks()`
+
+The function `add_function_hyperlinks()` should not add hyperlinks for functions that have `<pkg>::` before them, unless `<pkg>` is the name of the package currently being defined.
+```{r}
+
+testthat::test_that("add_function_hyperlinks doesn't add links to functions from other packages",{
+  # write the test html file to a temp file for `add_function_hyperlinks()` to read in
+  test_html <- '<html>\n<body>\n<h3>Wrappers to <code>devtools::document()</code> and <code>rmarkdown::render()</code></h3>\n<h4>Defining <code>litr::document()</code></h4>\n<p>Perhaps we reference <code>litr::render()</code> in a paragraph too</p>\n<pre class="r"><code class="hljs">\n document &lt;- function(...) {\n devtools::document(...)\n}</code></pre>\n<pre class="r"><code class="hljs">\nrender &lt;- function(input, ...) {\n rmarkdown::render(input, ...)\n}\n</code></pre>\n</body>\n</html>'
+  tmp_html_file <- tempfile(fileext = ".html")
+  writeLines(test_html, tmp_html_file)
+  
+  output_tmp_file <- tempfile(fileext = ".html")
+  
+  # call `add_function_hyperlinks()` on this temp file but output it to a different temp file so we can compare the two files
+  add_function_hyperlinks(tmp_html_file, output_tmp_file)
+  modified_tmp_html <- readLines(output_tmp_file)
+  # find all lines with double colon function calls and make sure that we add links only for the current package
+  linked_fn_pattern <- "(\\w*)::\\<a href='\\#\\w*'\\>\\w*\\<\\/a\\>\\(\\)"
+  match_idx <- which(stringr::str_detect(modified_tmp_html, linked_fn_pattern))
+  linked_pkg_name <- stringr::str_match(modified_tmp_html[match_idx], linked_fn_pattern)[,2]
+  testthat::expect_equal(linked_pkg_name, rep(params$package_name,2))
+  
+  # check that when we mention functions from other packages with names that match functions within our package (e.g., devtools::document, rmarkdown::render) we do not link to the definition of our function.
+  non_linked_fn_pattern <- "(\\w*)::\\w*\\(.*\\)"
+  match_idx <- which(stringr::str_detect(modified_tmp_html, non_linked_fn_pattern))
+  non_linked_pkg_name <- stringr::str_match(modified_tmp_html[match_idx], non_linked_fn_pattern)[,2]
+  testthat::expect_equal(non_linked_pkg_name != params$package_name, rep(T,length(non_linked_pkg_name)))
+})
+
+```
+
+
 
 As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
 
@@ -1070,7 +1104,8 @@ rm(list = ls())
 litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr",
-                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password)
+                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+                          )
 #  devtools::install("~/Downloads/litr-project-0.0.2/litr/")
 }
 xfun::Rscript_call(test_litr,

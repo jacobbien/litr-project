@@ -74,13 +74,15 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
     function_names <- c(function_names, fn_name)
   }
   
-  # whenever one of these named functions is named, link to its definition
+  # whenever one of these named functions is referencing a function within this
+  # package, link to its definition
   txt <- stringr::str_replace_all(
     txt,
-    paste0(function_names, "\\(", collapse = "|"),
+    paste0(params$package_name,"::",function_names, "\\(", collapse = "|"),
     function(x) {
-      fn_name <- stringr::str_remove(x, "\\(")
-      stringr::str_glue("<a href='#{fn_name}'>{fn_name}</a>(")
+      pkg_name <- stringr::str_extract(x,stringr::str_glue("{params$package_name}::"))
+      fn_name <- stringr::str_remove_all(x, stringr::str_glue("{params$package_name}::|\\("))
+      stringr::str_glue("{pkg_name}<a href='#{fn_name}'>{fn_name}</a>(")
     }
   )
   writeLines(txt, con = output_file)
