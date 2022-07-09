@@ -121,7 +121,7 @@ using namespace Rcpp;
 and we only want this to appear once in `code.cpp`, so we do a bit of work to remove that if it appears in the code chunk.
 
 
-```{r, location="R/setup.R"}
+```{r}
 #' A knitr chunk hook for writing R code and tests
 #' 
 #' This chunk hook detects whether a chunk is defining a function or dataset
@@ -246,7 +246,7 @@ usethis::use_package("stringr")
 
 The code also calls the function `do_not_edit_message()`, which adds a line at the top of the files sent to the R package reminding the user that these are not source files to be edited but rather output of the generating .Rmd file.  There are two variations on this message.
 
-```{r, location="R/render.R"}
+```{r}
 #' Generate do-not-edit message to put at top of file
 #' 
 #' @param rmd_file Name of the Rmd file to mention
@@ -370,7 +370,7 @@ When the user calls `litr::render()` (either in the console or by pressing "Knit
 
 But since this is encountered through knitting rather than interactively, this results in an error.  [This](https://github.com/r-lib/usethis/issues/553) `usethis` issue describes this exact problem.  The solution suggested there by jennybc involving `testthat::with_mock()` is along the lines of what we want; however, that would lead to some ugly looking code in the generating .Rmd file.  The best solution I could find was to use `utils::assignInNamespace()` as described [here](https://stat.ethz.ch/pipermail/r-help/2008-August/171215.html).  This function allows us to change the internal function `usethis:::challenge_nested_project()` so that it no longer prompts the user with concerns about nested projects.
 
-```{r, location="R/setup.R"}
+```{r}
 #' Code for setup chunk
 #' 
 #' * Creates directory where package will be. (Deletes what is currently there as 
@@ -438,7 +438,7 @@ setup <- function(package_dir) {
 
 The previous function made use of a small function, `make_noticeable()`, which we define here:
 
-```{r, location="R/setup.R"}
+```{r}
 #' Make error messages noticeable
 #' 
 #' Since litr error messages are amid a lot of output from knitting, we'd like 
@@ -469,7 +469,7 @@ As described in the previous section, the function `setup()` will only overwrite
 
 Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash*.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
 
-```{r, location="R/hash.R"}
+```{r}
 #' Hash package directory
 #' 
 #' Gets an identifier that can be used to uniquely (whp) identify the current 
@@ -510,7 +510,7 @@ description_litr_hash_field_name <- function() return("LitrId")
 
 Ok, now let's write the function that `litr::render()` will call that will take the generated R package and add a line that puts the hash in the DESCRIPTION file under that special `litr` field:
 
-```{r, location="R/hash.R"}
+```{r}
 #' Write the hash of the package to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -526,7 +526,7 @@ write_hash_to_description <- function(package_dir) {
 
 And of course we'll need a way a function that can read the value of that field as well:
 
-```{r, location="R/hash.R"}
+```{r}
 #' Get the hash of the package from the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -544,7 +544,7 @@ read_hash_from_description <- function(package_dir) {
 
 With all this hash functionality in place, the function `check_unedited()` is actually quite simple to define:
 
-```{r, location="R/hash.R"}
+```{r}
 #' Check if package directory is the unedited output of litr::render
 #' 
 #' Uses hash stored in a special `litr` field of DESCRIPTION file to check that 
@@ -591,7 +591,7 @@ write_version_to_description <- function(package_dir) {
 
 This function is nearly identical to `devtools::document()` except that it changes the roxygen2 message that says "Please edit documentation in R/[...].R" to instead mention the generating .Rmd file.
 
-```{r, location="R/render.R"}
+```{r}
 #' Use roxygen to document a package
 #' 
 #' This is a wrapper for the `devtools::document()` function, which in turn is a
@@ -634,7 +634,7 @@ This function does a number of things:
 
 5. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
 
-```{r, location="R/render.R"}
+```{r}
 #' Render R markdown file
 #' 
 #' Wrapper to `rmarkdown::render` that does some post-processing on the html 
@@ -691,7 +691,7 @@ usethis::use_package("xfun")
 
 The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 
-```{r, location="R/render.R"}
+```{r}
 #' Add hyperlinks to function definitions
 #' 
 #' Finds functions that are defined in the html file by looking for text of the 
@@ -736,7 +736,7 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 
 As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
 
-```{r, location="R/render.R"}
+```{r}
 #' Get parameter values used in rendering
 #' 
 #' When the `params` argument of `rmarkdown::render()` is explicitly used, this
