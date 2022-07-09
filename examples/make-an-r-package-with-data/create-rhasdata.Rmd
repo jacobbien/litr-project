@@ -83,6 +83,6 @@ rm(list = ls())
 litr::document() # <-- use instead of devtools::document()
 # devtools::build()
 # devtools::install()
-# devtools::check()
+# devtools::check(document = FALSE)
 ```
 

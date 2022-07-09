@@ -20,7 +20,8 @@ Imports:
     usethis,
     xfun
 Suggests: 
+    Rcpp,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.3
-LitrId: 89177e2a0ce5465b45e10c8c35bc193d
+LitrId: 258c7995f61b3865dba3516e737ee0a6
