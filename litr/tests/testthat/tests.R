@@ -45,6 +45,32 @@ testthat::test_that("add_text_to_file() works", {
   fs::dir_delete(dir)
 })
 
+
+testthat::test_that("add_function_hyperlinks doesn't add links to functions from other packages",{
+  # write the test html file to a temp file for `add_function_hyperlinks()` to read in
+  test_html <- '<html>\n<body>\n<h3>Wrappers to <code>devtools::document()</code> and <code>rmarkdown::render()</code></h3>\n<h4>Defining <code>litr::document()</code></h4>\n<p>Perhaps we reference <code>litr::render()</code> in a paragraph too</p>\n<pre class="r"><code class="hljs">\n document &lt;- function(...) {\n devtools::document(...)\n}</code></pre>\n<pre class="r"><code class="hljs">\nrender &lt;- function(input, ...) {\n rmarkdown::render(input, ...)\n}\n</code></pre>\n</body>\n</html>'
+  tmp_html_file <- tempfile(fileext = ".html")
+  writeLines(test_html, tmp_html_file)
+  
+  output_tmp_file <- tempfile(fileext = ".html")
+  
+  # call `add_function_hyperlinks()` on this temp file but output it to a different temp file so we can compare the two files
+  add_function_hyperlinks(tmp_html_file, output_tmp_file)
+  modified_tmp_html <- readLines(output_tmp_file)
+  # find all lines with double colon function calls and make sure that we add links only for the current package
+  linked_fn_pattern <- "(\\w*)::\\<a href='\\#\\w*'\\>\\w*\\<\\/a\\>\\(\\)"
+  match_idx <- which(stringr::str_detect(modified_tmp_html, linked_fn_pattern))
+  linked_pkg_name <- stringr::str_match(modified_tmp_html[match_idx], linked_fn_pattern)[,2]
+  testthat::expect_equal(linked_pkg_name, rep(params$package_name,2))
+  
+  # check that when we mention functions from other packages with names that match functions within our package (e.g., devtools::document, rmarkdown::render) we do not link to the definition of our function.
+  non_linked_fn_pattern <- "(\\w*)::\\w*\\(.*\\)"
+  match_idx <- which(stringr::str_detect(modified_tmp_html, non_linked_fn_pattern))
+  non_linked_pkg_name <- stringr::str_match(modified_tmp_html[match_idx], non_linked_fn_pattern)[,2]
+  testthat::expect_equal(non_linked_pkg_name != params$package_name, rep(T,length(non_linked_pkg_name)))
+})
+
+
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
