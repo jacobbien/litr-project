@@ -1,0 +1,4 @@
+name: Template To Make an R Package With Rcpp
+description: >
+   Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.
+create_dir: FALSE

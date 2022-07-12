@@ -52,17 +52,37 @@ be more of a proof of concept.
 You can install `litr` and get started like so:
 
 ``` r
-devtools::install_github("jacobbien/litr")
-rmarkdown::draft("my-package.Rmd", template = "make-an-r-package", package = "litr")
+remotes::install_github("jacobbien/litr-project", subdir = "litr")
+rmarkdown::draft("create-rhello.Rmd", template = "make-an-r-package", package = "litr")
 ```
 
 This installs `litr` and then creates an R markdown template file called
-`my-package.Rmd` that demonstrates the literate programming workflow for
-writing an R package. In particular, when you knit `my-package.Rmd`, it
-creates a tiny example R package called `rhello` with one function and
-one test function. To knit, you can either press “Knit” in RStudio or
-use the following command:
+`create-rhello.Rmd` that demonstrates the literate programming workflow
+for writing an R package. In particular, when you knit
+`create-rhello.Rmd`, it creates a tiny example R package called `rhello`
+with one function and one test function. To knit, you can either press
+“Knit” in RStudio or use the following command:
 
 ``` r
-litr::render("my-package.Rmd")
+litr::render("create-rhello.Rmd")
+```
+
+## Examples: Package templates
+
+Predefined `litr` templates make it easy to get started writing R
+packages of various kinds. The following table shows the package
+templates available. Click on the “Generated html” and “Generated R
+package” cells to see what each template produces.
+
+| Template name               | Description                                   | Rmd source file                                                                                                                     | Generated html                                                                                                                                                       | Generated R package                                                                                            |
+|:----------------------------|:----------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------|
+| make-an-r-package           | the most basic package: a function and a test | [create-rhello.Rmd](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/create-rhello.Rmd)               | [create-rhello.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/create-rhello.html)               | [rhello/](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello)               |
+| make-an-r-package-with-data | a package with a data set in it               | [create-rhasdata.Rmd](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-data/create-rhasdata.Rmd) | [create-rhasdata.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-data/create-rhasdata.html) | [rhasdata/](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-data/rhasdata) |
+| make-an-r-package-with-rcpp | a package using `Rcpp`                        | [create-withrcpp.Rmd](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-rcpp/create-withrcpp.Rmd) | [create-withrcpp.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-rcpp/create-withrcpp.html) | [withrcpp/](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-rcpp/withrcpp) |
+
+Once you’ve chosen a template, you can get started as follows:
+
+``` r
+rmarkdown::draft("create-[name-of-your-package].Rmd", template = "[name-of-template]", package = "litr")
+litr::render("create-[name-of-your-package].Rmd")
 ```

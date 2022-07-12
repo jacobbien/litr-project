@@ -10,9 +10,15 @@ setup(package_dir)
 \item{package_dir}{Directory where R package will be created}
 }
 \description{
-Creates directory where package will be. (Deletes what is currently there as
+\itemize{
+\item Creates directory where package will be. (Deletes what is currently there as
 long as it appears to have been created by litr and does not have any
-subsequent manual edits.)  Sets the root directory to this directory and
-sets up the main chunk hook \code{litr::send_to_package} that sends code to the R
-package directory.
+subsequent manual edits.)
+\item Sets the root directory to this directory
+\item Sets up the main chunk hook \code{litr::send_to_package()} that sends code to the
+R package directory.
+\item Sets up a \href{https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html}{custom language engine} called
+\code{package_doc} that creates a package documentation file and then inserts
+whatever the user puts in the chunk.
+}
 }

@@ -2,11 +2,15 @@
 
 #' Code for setup chunk
 #' 
-#' Creates directory where package will be. (Deletes what is currently there as 
+#' * Creates directory where package will be. (Deletes what is currently there as 
 #' long as it appears to have been created by litr and does not have any 
-#' subsequent manual edits.)  Sets the root directory to this directory and 
-#' sets up the main chunk hook `litr::send_to_package` that sends code to the R 
-#' package directory.
+#' subsequent manual edits.)
+#' * Sets the root directory to this directory
+#' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
+#' R package directory.
+#' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
+#' `package_doc` that creates a package documentation file and then inserts
+#' whatever the user puts in the chunk.
 #' 
 #' @param package_dir Directory where R package will be created
 #' @export
@@ -30,12 +34,34 @@ setup <- function(package_dir) {
   }
   fs::dir_create(package_dir)
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
-  knitr::knit_hooks$set(send_to_package = litr::send_to_package)
+  knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+  
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
   # subdirectory)
   utils::assignInNamespace("challenge_nested_project", function(...) NULL, ns = "usethis")
+  # change usethis:::use_src_example_script so that it will not cause an error
+  utils::assignInNamespace("use_src_example_script", 
+                           function(...) {
+                             usethis::use_template("code.cpp",
+                                                   fs::path("src", "code.cpp"))
+                           }, ns = "usethis")
+  
+  # setup package_doc engine
+  knitr::knit_engines$set(package_doc = function(options) {
+    # create package_doc
+    usethis::use_package_doc(open = FALSE)
+    
+    # insert the contents of the code chunk into the package_doc
+    pkgdoc <- file.path("R", paste0(fs::path_file(package_dir), "-package.R"))
+    add_text_to_file(options$code, filename = pkgdoc, location = 1)
+    
+    # now treat this as if it were standard R code with eval=FALSE
+    r_engine <- knitr::knit_engines$get("R")
+    options[["eval"]] <- FALSE
+    return(r_engine(options))
+  })
 }
 
 #' Make error messages noticeable
@@ -58,8 +84,9 @@ make_noticeable <- function(msg) {
 #' This chunk hook detects whether a chunk is defining a function or dataset
 #' to be included in the R package (looks for the Roxygen2 comment format `#' `).
 #' If so, then it is written to the `R/` directory.  It also looks for chunks 
-#' with `testthat::` in them, which are written to the `tests` directory of the 
-#' R package.
+#' that have one or more lines that start with `test_that(` or 
+#' `testthat::test_that(` (potentially with some leading whitespace).  These 
+#' chunks are then written to the `tests` directory of the R package.
 #' 
 #' @param before Indicates whether this is being called before or after the 
 #' chunk code is executed
@@ -68,14 +95,11 @@ make_noticeable <- function(msg) {
 #' @export
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
-  # remove _TMP from the file name in the message
-  msg <- stringr::str_replace(msg, "_TMP.Rmd", ".Rmd")
-  if (before == FALSE || options$label == envir$setup_chunk_label) {
+  if (before == FALSE) {
     # Don't do anything after the code chunk has been executed.
-    # Also, don't do anything when processing the setup code chunk.
     return()
   }
-  else if (stringr::str_detect(options$code[1], "^#' ")) {
+  if (stringr::str_detect(options$code[1], "^#' ")) {
     # starts with roxygen2, so let's assume this chunk is defining an R function
     # or dataset that belongs in the package
     non_comment <- stringr::str_subset(options$code, "^#", negate = TRUE)
@@ -96,16 +120,84 @@ send_to_package <- function(before, options, envir) {
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
-  else if (any(stringr::str_detect(options$code, "testthat::"))) {
+  else if (any(stringr::str_detect(options$code,
+                                   "^\\s*(testthat::)?test_that\\("))) {
     # This chunk is inferred to be a test
-    test_file <- file.path(envir$package_dir, "tests", "testthat", "tests.R")
-    if (!file.exists(test_file))
+    test_dir <- file.path(envir$package_dir, "tests", "testthat")
+    test_file <- file.path(test_dir, "tests.R")
+    if (!file.exists(test_file)) {
+      # It's the first chunk with tests
+      if (!dir.exists(test_dir)) usethis::use_testthat()
       cat(c(msg, ""), collapse = "\n", file = test_file)
+    }
     cat(
       paste(c(options$code, "", ""), collapse = "\n"),
       file = test_file,
       append = TRUE
     )
+  } else if (options$engine == "Rcpp") {
+    # To add Rcpp code, we need the package documentation file to exist 
+    if (!file.exists(file.path(
+      envir$package_dir,
+      "R",
+      paste0(envir$package_name, "-package.R"))
+      )) {
+      usethis::use_package_doc(open = FALSE)
+    }
+    cpp_file <- file.path(envir$package_dir, "src", "code.cpp")
+    if (!file.exists(cpp_file)) {
+      # set up package for Rcpp
+      usethis::use_rcpp(name = "code")
+      msg <- do_not_edit_message(knitr::current_input(), type = "c")
+      cat(msg, file = cpp_file, append = TRUE)
+    }
+    # append code to code.cpp, but remove lines that are `#include <Rcpp.h>`
+    # or `using namespace Rcpp;` since this already appears at top of file
+    cat(paste(c(
+      "",
+      stringr::str_subset(
+        options$code,
+        r"(^#include <Rcpp.h>$|^using namespace Rcpp;$)",
+        negate = TRUE),
+      ""), collapse = "\n"), 
+        file = cpp_file,
+        append = TRUE)
   }
   return()
+}
+
+#' Add Some Text to a File
+#' 
+#' The text will be added to the file at a particular line specified by
+#' `location`.  The first line of `txt` will be on line `location` of the
+#' modified file.  If `location` is NULL, then text is added to end of file.
+#' If file does not exist, it is created and `location` is ignored (unless 
+#' `req_exist` is `TRUE`, in which case an error is thrown).
+#' 
+#' @param txt Character vector to add to file
+#' @param filename Name of file
+#' @param location Specifies where text should be added. See description for more.
+#' @param req_exist If TRUE, then 
+#' @export
+add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) {
+  if (!file.exists(filename)) {
+    if (req_exist) stop(stringr::str_glue("Cannot find file {filename}."))
+    writeLines(txt, con = filename)
+    return()
+  }
+  filetxt <- readLines(filename)
+  if (is.null(location) || location == length(filetxt) + 1) {
+    filetxt <- c(filetxt, txt)
+  }
+  else if (location > length(filetxt) + 1 | location < 1) 
+    stop("Invalid location")
+  else if (location == 1) {
+    filetxt <- c(txt, filetxt)
+  } else {
+    # location is somewhere in middle
+    filetxt <- c(filetxt[1:(location - 1)],
+                 txt,
+                 filetxt[location:length(filetxt)])
+  }
+  writeLines(filetxt, con = filename)
 }
