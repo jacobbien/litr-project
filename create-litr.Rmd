@@ -733,7 +733,7 @@ To implement this feature we need to create a "pre-knit" function that takes the
 With these steps outlined, we will show this process in action on the following minimal Rmarkdown file:
 
 ```{r, include=FALSE}
-rmd <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
+rmd <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\noutput: html_document\n---\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
 ```
 
 ```{r, include=FALSE}
