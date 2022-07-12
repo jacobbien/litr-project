@@ -275,6 +275,24 @@ extract_rmd_code_chunks <- function(rmd_vector){
   code_chunk_list
 }
 
+#' Extract chunk label from the first line of an Rmd chunk.
+#' 
+#' @param chunk_option Character vector of the first line of a chunk, i.e. ```{r chunk-name, ...}
+#' @return Character vector of the chunk label if it exists, empty string "" otherwise
+extract_label <- function(chunk_option){
+  label <- stringr::str_trim(gsub("^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$", '\\3', chunk_option))
+  # this regular expression returns an empty string if the chunk does not have a label so just return the label
+  return(label)
+}
+
+#' Modify a chunk name and add "-dup" as a suffix.
+#' This function assumes that we are passed a chunk option line that contains a chunk label since this function is called in the context of creating a duplicate version of a referenced chunk.
+#' @param chunk_option Character vector of the first line of a chunk, i.e. ```{r chunk-name, ...}
+#' @return Character vector of the chunk option with "-dup" appended to the chunk label. i.e., ```{r chunk-name-dup, ...}
+modify_chunk_label <- function(chunk_option){
+  stringr::str_replace(chunk_option, "^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$", "\\1\\2\\3-dup\\4" )
+}
+
 #' Get parameter values used in rendering
 #' 
 #' When the `params` argument of `rmarkdown::render()` is explicitly used, this
