@@ -95,8 +95,6 @@ make_noticeable <- function(msg) {
 #' @export
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
-  # remove _TMP from the file name in the message
-  msg <- stringr::str_replace(msg, "_TMP.Rmd", ".Rmd")
   if (before == FALSE) {
     # Don't do anything after the code chunk has been executed.
     return()

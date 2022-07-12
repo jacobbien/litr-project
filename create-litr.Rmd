@@ -797,7 +797,7 @@ preprocess_chunk_labels <- function(rmd_file){
       })}()
       unique_referenced_chunks <- unique_referenced_chunks[!sapply(unique_referenced_chunks,is.null)] |> unlist() |> unique()
       
-      all_chunk_names <- code_chunks |> {\(x) purrr::map_chr(x, function(y){y$chunk_label})}()
+      all_chunk_names <- purrr::map_chr(code_chunks, "chunk_label")
       # check that the referenced chunk names exist in the file, otherwise throw error
       refs_not_in_file <- setdiff(unique_referenced_chunks,all_chunk_names)
       if(length(refs_not_in_file) > 0){
@@ -1423,7 +1423,8 @@ rm(list = ls())
 litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr",
-                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password)
+                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+                          )
 #  devtools::install("~/Downloads/litr-project-0.0.2/litr/")
 }
 xfun::Rscript_call(test_litr,

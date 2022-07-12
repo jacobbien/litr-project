@@ -170,6 +170,111 @@ replace_label_delimiter <- function(chunk_code, label_delim="@@"){
     sub(rc, "\\1@@\\3@@\\4", chunk_code)
 }
 
+#' Find an Rmd chunk label in a code chunk and modify the chunk reference delimiter before knitting
+#' 
+#' @param rmd_file A character vector of an Rmd file lines
+#' @export 
+preprocess_chunk_labels <- function(rmd_file){
+    code_chunks <- extract_rmd_code_chunks(rmd_file)
+    # handle edge case of no code chunks
+    if(length(code_chunks) > 0){
+      # loop over the code_chunk list 
+      offset = 0
+      for(i in 1:length(code_chunks)){
+        # check if we found a referenced label for this element
+        code_chunk <- code_chunks[[i]]
+        if(code_chunk$contains_labels$chunk_idx){
+          chunk_start <- code_chunk$start_idx+offset
+          chunk_end <- code_chunk$end_idx+offset
+          orig_chunk <- rmd_file[chunk_start:chunk_end]
+          dup_chunk <- orig_chunk
+          # we need to add eval=F to the original chunk and change the ref brackets so that knitr doesn't fill in the labels
+          # add eval=F at the end of the chunk options which we assume to be the first line of the chunk
+          # TO-DO: check if it is possible to have multi-line chunk options?
+          orig_chunk[1] <- stringr::str_replace(orig_chunk[1], "\\}", stringr::str_glue(", eval=FALSE\\}"))
+          orig_chunk <- sapply(orig_chunk, replace_label_delimiter, USE.NAMES = FALSE)
+          
+          # we need to hide this chunk but still have it evaluated (include=FALSE)
+          # knitr should still fill in the labels
+          dup_chunk[1] <- stringr::str_replace(dup_chunk[1], "\\}", stringr::str_glue(", include=FALSE\\}"))
+          dup_chunk[1] <- modify_chunk_label(dup_chunk[1])
+          
+          # now replace the original chunk and fill in the duplicate chunk
+          # and increase the offset by the size of the duplicate chunk
+          rmd_file[chunk_start:chunk_end] <- orig_chunk
+          rmd_file <- append(rmd_file, dup_chunk, after=chunk_end)
+          offset <- offset + length(dup_chunk)
+        }
+      }
+      
+      unique_referenced_chunks <- code_chunks |> {\(x) purrr::map(x,function(y){
+          if(length(y$contains_labels$chunk_ids) > 0){
+              return(y$contains_labels$chunk_ids)
+          }
+      })}()
+      unique_referenced_chunks <- unique_referenced_chunks[!sapply(unique_referenced_chunks,is.null)] |> unlist() |> unique()
+      
+      all_chunk_names <- purrr::map_chr(code_chunks, "chunk_label")
+      # check that the referenced chunk names exist in the file, otherwise throw error
+      refs_not_in_file <- setdiff(unique_referenced_chunks,all_chunk_names)
+      if(length(refs_not_in_file) > 0){
+        stop(stringr::str_glue("Unable to find the following chunk reference(s) in this Rmarkdown file: {toString(refs_not_in_file)}."))
+      }
+      
+      changed_code_chunks <- extract_rmd_code_chunks(rmd_file)
+      offset = 0
+      for(i in 1:length(changed_code_chunks)){
+        code_chunk <- changed_code_chunks[[i]]
+        chunk_start <- code_chunk$start_idx + offset
+        chunk_end <- code_chunk$end_idx + offset
+        orig_chunk <- rmd_file[chunk_start:chunk_end]
+        chunk_label <- code_chunk$chunk_label
+        if( (chunk_label != "") & chunk_label %in% unique_referenced_chunks){
+          chunk_comment = stringr::str_glue('###"{chunk_label}"###')
+          rmd_file <- append(rmd_file, chunk_comment, after = chunk_start)
+          offset <- offset + 1
+        }
+      }
+    }
+    
+    
+    rmd_file
+}
+
+#' Get a list of code chunks from an Rmd file in vector form
+#' 
+#' @param rmd_vector A character vector of an Rmd file that has been split by new lines
+#' @return A list containing information about each code chunk including the code, whether it contains references to other code chunks, and the start and end line numbers of the code chunk in the Rmd file.
+extract_rmd_code_chunks <- function(rmd_vector){
+  chunk_start <- which(grepl(rmd_vector, pattern = knitr::all_patterns$md$chunk.begin))
+  # handle the case where no code chunks found
+  if(length(chunk_start) > 0){
+    chunk_end <- sapply(chunk_start, function(x){
+    # starting from the chunk start, find the first triple backticks location
+    num_after_start <- which(grepl(rmd_vector[-(1:x)], pattern = knitr::all_patterns$md$chunk.end, perl = T))[1]
+    return(x + num_after_start)
+  })
+  code_extract <- function(rmd_vector, start, end){
+    return(rmd_vector[(start+1):(end-1)])
+  }
+  # create a list of code chunks by looping over the chunk_start and chunk_end vectors
+  code_chunk_list <- lapply(1:length(chunk_start), function(i){
+    start <- chunk_start[i]
+    end <- chunk_end[i]
+    code <- code_extract(rmd_vector, start, end)
+    # include the name of the current chunk here
+    chunk_label <- extract_label(rmd_vector[start])
+    # add an element of the list with information on whether another code chunk is referenced in this code chunk
+    contains_labels <- find_labels(code)
+    list(code = code, chunk_label = chunk_label, contains_labels = contains_labels, start_idx = start, end_idx = end)
+  })
+  } else{
+    code_chunk_list <- list()
+  }
+  
+  code_chunk_list
+}
+
 #' Get parameter values used in rendering
 #' 
 #' When the `params` argument of `rmarkdown::render()` is explicitly used, this
@@ -189,6 +294,8 @@ get_params_used <- function(input, passed_params) {
 #' @param rmd_file Name of the Rmd file to mention
 #' @param type Whether this is a R/ file, man/ file, or a c file
 do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
+  # remove _TMP from the file name in the message
+  rmd_file <- stringr::str_replace(rmd_file, "_TMP.Rmd", ".Rmd")
   if (type[1] == "R")
     return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
   else if (type[1] == "man")
@@ -229,8 +336,6 @@ document <- function(...) {
   # remove the line of the following form in each man/*.Rd file:
   pattern <- "% Please edit documentation in .*$"
   msg <- do_not_edit_message(knitr::current_input(), type = "man")
-  # remove _TMP from the file name in the message
-  msg <- stringr::str_replace(msg, "_TMP.Rmd", ".Rmd")
   for (fname in fs::dir_ls("man")) {
     txt <- stringr::str_replace(readLines(fname), pattern, msg)
     cat(paste(txt, collapse = "\n"), file = fname)

@@ -15,7 +15,7 @@ Imports:
     digest,
     fs,
     knitr,
-    parsermd,
+    purrr,
     rmarkdown,
     stringr,
     xfun
@@ -23,4 +23,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.3
-LitrId: c205a414bb5963f306375e773d7a2b08
+LitrId: c39fcabec49018288ac1f026a506133e
