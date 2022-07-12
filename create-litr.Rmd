@@ -772,7 +772,7 @@ preprocess_chunk_labels <- function(rmd_file){
           chunk_start <- code_chunk$start_idx+offset
           chunk_end <- code_chunk$end_idx+offset
           orig_chunk <- rmd_file[chunk_start:chunk_end]
-          dup_chunk <- rmd_file[chunk_start:chunk_end]
+          dup_chunk <- orig_chunk
           # we need to add eval=F to the original chunk and change the ref brackets so that knitr doesn't fill in the labels
           # add eval=F at the end of the chunk options which we assume to be the first line of the chunk
           # TO-DO: check if it is possible to have multi-line chunk options?
