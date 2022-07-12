@@ -825,6 +825,13 @@ preprocess_chunk_labels <- function(rmd_file){
 }
 ```
 
+We used `purrr`, so let's import it:
+
+```{r}
+usethis::use_package("purrr")
+```
+
+
 ```{r}
 #' Get a list of code chunks from an Rmd file in vector form
 #' 
