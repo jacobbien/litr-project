@@ -679,7 +679,7 @@ render <- function(input, ...) {
 
 **Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
 
-We used the `xfun` so let's import it:
+We used `xfun`, so let's import it:
 
 ```{r}
 usethis::use_package("xfun")
@@ -721,16 +721,16 @@ usethis::use_package("rmarkdown")
 
 To implement this feature we need to create a "pre-knit" function that takes the .Rmd file, finds the chunks with embedded chunks, makes a copy of that chunk with a modified label delimiter to avoid `knitr` replacing the chunk labels with the referenced code, and finally adds an option to the original chunk so that it will be run but not included in the knitted document. The steps of the pre-knit function are the following:
 
-1. Find the chunks that contain chunk labels
-2. For each of the chunks with chunk labels, insert a copy of that chunk into the document
-3. Change the embedded chunk delimiter to prevent `knitr` from replacing the chunk labels
-4. Change the options of the duplicated chunk to prevent it from being run by `knitr`
-5. Change the options of the original chunk so that it is run but not displayed in the document
-6. Make a vector of the unique labels of chunks that are referenced and add a comment to those chunks with their chunk label
-7. Write this modified .Rmd file to a temporary file in the same directory as the original .Rmd file
-8. Call `litr::render()` on the modified .Rmd file
+1. Find the chunks that contain chunk labels.
+2. For each of the chunks with chunk labels, insert a copy of that chunk into the document.
+3. Change the embedded chunk delimiter to prevent `knitr` from replacing the chunk labels.
+4. Change the options of the duplicated chunk to prevent it from being run by `knitr`.
+5. Change the options of the original chunk so that it is run but not displayed in the document.
+6. Make a vector of the unique labels of chunks that are referenced and add a comment to those chunks with their chunk label.
+7. Write this modified .Rmd file to a temporary file in the same directory as the original .Rmd file.
+8. Call `rmarkdown::render()` on the modified .Rmd file.
 
-With these steps outlined, we will show how this process in action on the following minimal Rmarkdown file:
+With these steps outlined, we will show this process in action on the following minimal Rmarkdown file:
 
 ```{r, include=FALSE}
 rmd <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
@@ -752,7 +752,7 @@ print_rmd(rmd)
 ```
 
 
-In the example above, we'd like to create reference links in the `C2F` and `F2C` functions since they reference the chunk labels for `check-arg` and `convert-*`.  We want to keep these labels but also have `knitr` fill in the labels and execute the code. This is where the `preprocess_chunk_labels()` and `extract_rmd_code_chunks()` functions come in. The `extract_rmd_code_chunks()` function takes a .Rmd file as input and finds the chunks with chunk labels. Then `preprocess_chunk_labels()` loops through each of these chunks, making a copy of the chunk with a modified label delimiter, and changing the option of the original copy of the chunk to be run, but not included in the knitted document.
+In the example above, we'd like to create reference links in the `C2F` and `F2C` functions since they reference the chunk labels for `check-arg` and `convert-*`.  We want to keep these labels but also have `knitr` fill in the labels and execute the code. This is where the `preprocess_chunk_labels()` and `extract_rmd_code_chunks()` functions come in. The `extract_rmd_code_chunks()` function takes a .Rmd file as input and finds the chunks with chunk labels. Then `preprocess_chunk_labels()` loops through each of these chunks, making a copy of the chunk with a modified label delimiter (changing `<<label>>` to `@@label@@`), and changing the option of the original copy of the chunk to be run, but not included in the knitted document.
 
 ```{r}
 #' Find an Rmd chunk label in a code chunk and modify the chunk reference delimiter before knitting
@@ -777,7 +777,7 @@ preprocess_chunk_labels <- function(rmd_file){
           # add eval=F at the end of the chunk options which we assume to be the first line of the chunk
           # TO-DO: check if it is possible to have multi-line chunk options?
           orig_chunk[1] <- stringr::str_replace(orig_chunk[1], "\\}", stringr::str_glue(", eval=FALSE\\}"))
-          orig_chunk <- sapply(orig_chunk,replace_label_delimiter,USE.NAMES = F)
+          orig_chunk <- sapply(orig_chunk, replace_label_delimiter, USE.NAMES = FALSE)
           
           # we need to hide this chunk but still have it evaluated (include=FALSE)
           # knitr should still fill in the labels
@@ -816,7 +816,7 @@ preprocess_chunk_labels <- function(rmd_file){
         chunk_label <- code_chunk$chunk_label
         if( (chunk_label != "") & chunk_label %in% unique_referenced_chunks){
           chunk_comment = stringr::str_glue('###"{chunk_label}"###')
-          rmd_file <- append(rmd_file, chunk_comment, after=chunk_start)
+          rmd_file <- append(rmd_file, chunk_comment, after = chunk_start)
           offset <- offset + 1
         }
       }
@@ -848,12 +848,12 @@ extract_rmd_code_chunks <- function(rmd_vector){
   code_chunk_list <- lapply(1:length(chunk_start), function(i){
     start <- chunk_start[i]
     end <- chunk_end[i]
-    code <- code_extract(rmd_vector, start,end)
+    code <- code_extract(rmd_vector, start, end)
     # include the name of the current chunk here
     chunk_label <- extract_label(rmd_vector[start])
     # add an element of the list with information on whether another code chunk is referenced in this code chunk
     contains_labels <- find_labels(code)
-    list(code = code, chunk_label=chunk_label, contains_labels = contains_labels, start_idx = start, end_idx = end)
+    list(code = code, chunk_label = chunk_label, contains_labels = contains_labels, start_idx = start, end_idx = end)
   })
   } else{
     code_chunk_list <- list()
@@ -897,7 +897,7 @@ replace_label_delimiter <- function(chunk_code, label_delim="@@"){
 }
 ```
 
-We also need a small helper function for modifying chunk names when we create a duplicate chunk. If we are unable to find a chunk name, we just return the original line and let knitr name unnamed chunks for us later on. The regular expression in this function is a slightly modified version of  `knitr::all_patterns$md$chunk.begin` with additional capture groups.
+We also need a small helper function for modifying chunk names when we create a duplicate chunk. If we are unable to find a chunk name, we just return the original line and let `knitr` name unnamed chunks for us later on. The regular expression in this function is a slightly modified version of  `knitr::all_patterns$md$chunk.begin` with additional capture groups.
 ```{r}
 #' Modify a chunk name and add "-dup" as a suffix.
 #' This function assumes that we are passed a chunk option line that contains a chunk label since this function is called in the context of creating a duplicate version of a referenced chunk.
@@ -908,7 +908,7 @@ modify_chunk_label <- function(chunk_option){
 }
 ```
 
-Finally we add a helper function that is similar to `modify_chunk_label` except here we extract the label instead of modifying it in-place.
+Finally we add a helper function that is similar to `modify_chunk_label()` except here we extract the label instead of modifying it in-place.
 ```{r}
 #' Extract chunk label from the first line of an Rmd chunk.
 #' 
@@ -986,7 +986,7 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 ```
 
 
-The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hyperlinks()` function except that it looks for comments within code chunks of the form `###"foo"###` and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it be a hyperlink to `foo`'s definition.
+The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hyperlinks()` function except that it looks for comments within code chunks of the form `###"foo"###` and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 ```{r}
 #' Add hyperlinks to embedded chunks
 #' 
@@ -1340,7 +1340,7 @@ testthat::test_that("templates can be knit", {
 
 ### Testing `preprocess_chunk_labels()`
 
-The purpose of these tests it to make sure that the `preprocess_chunk_labels()` function handles the following types of Rmd files properly:
+The purpose of these tests is to make sure that the `preprocess_chunk_labels()` function handles the following types of Rmd files properly:
 
 * Rmd files with no code chunks
 * Rmd files with no code chunk references
@@ -1349,15 +1349,15 @@ The purpose of these tests it to make sure that the `preprocess_chunk_labels()` 
 * Rmd files with chunks that are not labeled
 
 ```{r}
-no_chunks <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n", "\n"), recursive = F)
+no_chunks <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n", "\n"), recursive = FALSE)
 
-no_reference <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = F)
+no_reference <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
 
-one_reference <- unlist(strsplit("```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = F)
+one_reference <- unlist(strsplit("```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
 
 missing_ref_chunk <- unlist(strsplit("```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = F)
 
-chunk_with_no_label <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n```{r}\n    1+2\n```\n", "\n"), recursive = F)
+chunk_with_no_label <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n```{r}\n    1+2\n```\n", "\n"), recursive = FALSE)
 
 testthat::test_that("preprocess_chunk_labels works as expected", {
   # handle the case where we are given a document with no codes chunks and when we do not have any chunk references
@@ -1366,10 +1366,10 @@ testthat::test_that("preprocess_chunk_labels works as expected", {
   testthat::expect_equal(preprocess_chunk_labels(no_reference), no_reference)
   
   # check that when there is a chunk reference, we correctly change the delimiter, create a duplicate chunk and add a comment to referenced chunk
-  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@check-arg@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = F))
+  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@check-arg@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = FALSE))
   
   # throw error if we can't find a referenced chunk in the file
-  testthat::expect_error(preprocess_chunk_labels(missing_ref_chunk), "Unable to find the following chunk reference(s) in this Rmarkdown file: convert-c2f.", fixed=T)
+  testthat::expect_error(preprocess_chunk_labels(missing_ref_chunk), "Unable to find the following chunk reference(s) in this Rmarkdown file: convert-c2f.", fixed=TRUE)
 })
 ```
 ### Testing `extract_rmd_code_chunks()`
@@ -1377,7 +1377,7 @@ testthat::test_that("preprocess_chunk_labels works as expected", {
 Here we test `extract_rmd_code_chunks()` using some of the examples from the previous section as well as a combined mini example file.
 
 ```{r}
-rmd_mini_example <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = F)
+rmd_mini_example <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
 
 testthat::test_that("extract_rmd_code_chunks works as expected", {
   # handle the case where we are given a document with no codes chunks
