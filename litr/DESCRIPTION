@@ -18,8 +18,10 @@ Imports:
     purrr,
     rmarkdown,
     stringr,
+    usethis,
     xfun
 Suggests: 
+    Rcpp,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.3

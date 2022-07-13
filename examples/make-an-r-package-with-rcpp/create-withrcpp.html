@@ -240,8 +240,10 @@ NumericVector alternate_signs<a href='#'></a>(NumericVector v) {
   testthat::expect_equal<a href='#'></a>(alternate_signs<a href='#'></a>(1:3), c<a href='#'></a>(1, -2, 3))
   testthat::expect_equal<a href='#'></a>(alternate_signs<a href='#'></a>(c<a href='#'></a>(-4, 2)), c<a href='#'></a>(-4, -2))
 })</code></pre>
-<pre><code>## Test passed 😸</code></pre>
-<p>Recall that code chunks that have one or more lines starting with <code>test_that<a href='#'></a>(</code> <a href='#'></a>(or <code>testthat::test_that<a href='#'></a>(</code>) are added to the package as tests.</p>
+<pre><code>## Test passed 🌈</code></pre>
+<p>Recall that code chunks that have one or more lines starting with
+<code>test_that<a href='#'></a>(</code> <a href='#'></a>(or <code>testthat::test_that<a href='#'></a>(</code>) are added
+to the package as tests.</p>
 </div>
 </div>
 <div id="documenting-the-package-and-building" class="section level2">
@@ -260,58 +262,19 @@ litr::document<a href='#'></a>() # &lt;-- use instead of devtools::document<a hr
 <pre><code>## * installing *source* package ‘withrcpp’ ...
 ## ** using staged installation
 ## ** libs
-## clang++ -arch arm64 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include&#39; -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c RcppExports.cpp -o RcppExports.o
-## clang++ -arch arm64 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include&#39; -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c code.cpp -o code.o
-## clang++ -arch arm64 -std=gnu++14 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
-## installing to /private/var/folders/v8/zsgx8rwn2ts6f4y2cqzvh44m0000gs/T/RtmpF8VTYV/devtools_install_b87e1dca4898/00LOCK-withrcpp/00new/withrcpp/libs
+## clang++ -mmacosx-version-min=10.13 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/jacobbien/Library/R/x86_64/4.2/library/Rcpp/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c RcppExports.cpp -o RcppExports.o
+## clang++ -mmacosx-version-min=10.13 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/jacobbien/Library/R/x86_64/4.2/library/Rcpp/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c code.cpp -o code.o
+## clang++ -mmacosx-version-min=10.13 -std=gnu++14 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/usr/local/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+## installing to /private/var/folders/wk/ysb32prj0gqdt1q08l3cwxlm0000gp/T/RtmpI2OWKY/devtools_install_23be129d8085/00LOCK-withrcpp/00new/withrcpp/libs
 ## ** checking absolute paths in shared objects and dynamic libraries
 ## * DONE <a href='#'></a>(withrcpp)</code></pre>
 <pre><code>## Writing &#39;NAMESPACE&#39;
 ## Writing &#39;NAMESPACE&#39;
 ## Writing &#39;alternate_signs.Rd&#39;
 ## Writing &#39;withrcpp-package.Rd&#39;</code></pre>
-<pre class="r"><code>devtools::build<a href='#'></a>()</code></pre>
-<pre><code>## * checking for file ‘/Users/patrick/litr-project/examples/withrcpp/DESCRIPTION’ ... OK
-## * preparing ‘withrcpp’:
-## * checking DESCRIPTION meta-information ... OK
-## * cleaning src
-## * checking for LF line-endings in source and make files and shell scripts
-## * checking for empty or unneeded directories
-## * building ‘withrcpp_0.0.0.9000.tar.gz’</code></pre>
-<pre><code>## [1] &quot;/Users/patrick/litr-project/examples/withrcpp_0.0.0.9000.tar.gz&quot;</code></pre>
-<pre class="r"><code>devtools::install<a href='#'></a>()</code></pre>
-<pre><code>## 
-## * checking for file ‘/Users/patrick/litr-project/examples/withrcpp/DESCRIPTION’ ... OK
-## * preparing ‘withrcpp’:
-## * checking DESCRIPTION meta-information ... OK
-## * cleaning src
-## * checking for LF line-endings in source and make files and shell scripts
-## * checking for empty or unneeded directories
-## * building ‘withrcpp_0.0.0.9000.tar.gz’
-## 
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD INSTALL \
-##   /var/folders/v8/zsgx8rwn2ts6f4y2cqzvh44m0000gs/T//RtmpF8VTYV/withrcpp_0.0.0.9000.tar.gz \
-##   --install-tests 
-## * installing to library ‘/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library’
-## * installing *source* package ‘withrcpp’ ...
-## ** using staged installation
-## ** libs
-## clang++ -arch arm64 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include&#39; -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c RcppExports.cpp -o RcppExports.o
-## clang++ -arch arm64 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include&#39; -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c code.cpp -o code.o
-## clang++ -arch arm64 -std=gnu++14 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
-## installing to /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/00LOCK-withrcpp/00new/withrcpp/libs
-## ** R
-## ** tests
-## ** byte-compile and prepare package for lazy loading
-## ** help
-## *** installing help indices
-## ** building package indices
-## ** testing if installed package can be loaded from temporary location
-## ** checking absolute paths in shared objects and dynamic libraries
-## ** testing if installed package can be loaded from final location
-## ** testing if installed package keeps a record of temporary installation path
-## * DONE <a href='#'></a>(withrcpp)</code></pre>
-<pre class="r"><code># devtools::check<a href='#'></a>()</code></pre>
+<pre class="r"><code># devtools::build<a href='#'></a>()
+# devtools::install<a href='#'></a>()
+# devtools::check<a href='#'></a>(document = FALSE)</code></pre>
 </div>
 
 

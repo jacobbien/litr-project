@@ -195,22 +195,31 @@ testthat::test_that("templates can be knit", {
   if (fs::file_exists(dir)) fs::file_delete(dir)
   fs::dir_create(dir)
   
-  rmd_file <- file.path(dir, "my-package-with-data.Rmd")
+  rmd_file <- file.path(dir, "create-rhello.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package",
+                   package = "litr",
+                   edit = FALSE)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, "create-rhello.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "rhello")))
+
+  rmd_file <- file.path(dir, "create-rhasdata.Rmd")
   rmarkdown::draft(rmd_file,
                    template = "make-an-r-package-with-data",
                    package = "litr",
                    edit = FALSE)
   render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "my-package-with-data.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "create-rhasdata.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "rhasdata")))
 
-  rmd_file <- file.path(dir, "my-package-with-rcpp.Rmd")
+  rmd_file <- file.path(dir, "create-withrcpp.Rmd")
   rmarkdown::draft(rmd_file,
                    template = "make-an-r-package-with-rcpp",
                    package = "litr",
                    edit = FALSE)
   render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "my-package-with-rcpp.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
   
   fs::dir_delete(dir)
