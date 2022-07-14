@@ -734,7 +734,7 @@ To implement this feature we need to create a "pre-knit" function that takes the
 With these steps outlined, we will show this process in action on the following minimal Rmarkdown file:
 
 ```{r, include=FALSE}
-rmd <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\noutput: html_document\n---\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r f2c}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n", "\n"), recursive = F)
+rmd <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\noutput: html_document\n---\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r}\nF2C <- function(x){\n    <<check-arg>>\n    <<convert-f2c>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n\n```{r convert-f2c, eval=F}\n    (x-32) * 5/9\n```\n\n```{r convert-c2f, eval=F}\n    (x * 9/5) + 32\n```\n\n ```{r}\nF2C(90)\n```\n", "\n"), recursive = F)
 ```
 
 ```{r, include=FALSE}
@@ -912,7 +912,13 @@ We also need a small helper function for modifying chunk names when we create a 
 #' @param chunk_option Character vector of the first line of a chunk, i.e. ```{r chunk-name, ...}
 #' @return Character vector of the chunk option with "-dup" appended to the chunk label. i.e., ```{r chunk-name-dup, ...}
 modify_chunk_label <- function(chunk_option){
-  stringr::str_replace(chunk_option, "^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$", "\\1\\2\\3-dup\\4" )
+  # look for a name in the chunk option, if there isn't a name then the fourth element will be NA
+  regex_matches <- stringr::str_match(chunk_option,"^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$")
+  if(!is.na(regex_matches[,4])){
+    return(stringr::str_glue("{regex_matches[,2]}{regex_matches[,3]} {stringr::str_trim(regex_matches[,4])}-dup{regex_matches[,5]}"))
+  } else{
+    return(stringr::str_glue("{regex_matches[,2]}{regex_matches[,3]}{regex_matches[,5]}"))
+  }
 }
 ```
 
