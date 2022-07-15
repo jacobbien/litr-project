@@ -1223,6 +1223,26 @@ fs::file_copy(
 )
 ```
 
+The fourth template shows how to create a package that uses chunk references to help explain a function works:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With Chunk References",
+  template_dir = "make-an-r-package-with-chunk-references",
+  template_description = "Template for an Rmd file for writing an R package that makes use of chunk references for explaining a function in the style of literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "litr-source-files", "make-an-r-package-with-chunk-references", "skeleton.Rmd"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-chunk-references", "skeleton"
+    ),
+  overwrite = TRUE
+)
+```
+
 ## Including README
 
 We include a `README.Rmd` and then generate the `README.md` based on it:

@@ -1,0 +1,113 @@
+---
+title: "Creating the ``r params$package_name`` R package"
+author: "Your Name"
+date: "The Date"
+knit: litr::render
+params:
+  package_name: "rF2C" # <-- change this to your package name
+  package_parent_dir: "." # <-- relative to this file's location
+---
+
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `rmarkdown::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+-->
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = params$package_name,
+    Version = "0.0.0.9000",
+    Title = "A Package That Does Temperature Conversions",
+    Description = "This package that converts temperature measurements from Fahrenheit to Celsius. But it's actual purpose is to show how an R package can be completely coded in a single R markdown file and how to use chunk references within this R markdown file.",
+    `Authors@R` = person(
+      given = "First",
+      family = "Last",
+      email = "you@gmail.com",
+      role = c("aut", "cre")
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = "F. Last")
+```
+
+Add some package-level documentation if you want to (or delete the chunk entirely).  This is what will show up when someone types `package?rF2C` in the console.
+
+```{package_doc}
+#' My great package
+#'
+#' Here's an overview of the package.
+#' 
+#' @docType package
+#' @seealso \code{\link{F2C}}
+```
+
+## Now to the package itself
+
+### Celsius and Fahrenheit Temperature Scale
+
+In 1724, the physicist Daniel Gabriel Fahrenheit proposed the Fahrenheit temperature scale which uses the degree Fahrenheit (symbol: °F) as the unit. In his original paper he based his scale on two reference points of temperature. The zero point , 0°F, was marked as the freezing point of a solution of brine made from a mixture of water, ice, and ammonium chloride. The second point, 96°F, was the marked as the body temperature of a healthy person. A third point, 32°F, was marked as being the temperature of an ice water solution.
+
+In 1742, Swedish astronomer Andres Celsius created a temperature scale that was the opposite of the Celsius (symbol: °C) temperature scale we all know today: 0°C represented the boiling point of water, while 100°C represented the freezing point of water. In 1743, Jean-Pierre Christin proprosed reversing the scale, resulting in the temperature scale we are familiar with today: 0°C represents freezing point of water, while 100°C represents the boiling point of water.
+
+The Fahrenheit scale was the primary temperature standard in English-speaking countries until the 1960s when the Celsius scale replaced Fahrenheit in almost all of those countries —with the notable exception of the United States and in certain cases, the United Kingdom. Since the majority of the world uses the Celsius scale, it is useful to know how to convert temperature measurements from Fahrenheit to Celsius.
+
+### °F to °C function
+
+A simple function for converting temperature measurements from Fahrenheit to Celsius contains two parts: code for checking that the supplied value is numeric and then the conversion equation.
+
+```{r}
+#' Convert a Fahrenheit temperature to Celsius
+#' @param temp A temperature measurement on the Fahrenheit temperature scale
+#' @export 
+F2C <- function(temp){
+    <<check-arg>>
+    <<convert-f2c>>
+}
+```
+
+The check here is quite simple, we simply throw an error if the input `temp` is not numeric. Note that for a reference chunk, we set `eval=F` since we do not want this chunk to be evaluated on its own.
+
+```{r check-arg, eval=F}
+    if(!is.numeric(temp)) stop('Please provide a numeric argument')
+```
+
+Now that we've confirmed that we have been supplied a numeric input, we are ready to apply the formula for converting from Fahrenheit to Celsius. Again we set `eval=F` for the same reason as the previous chunk.
+
+```{r convert-f2c, eval=F}
+    (temp-32) * 5/9
+```
+
+Finally, we can call our function to convert 90°F to Celsius
+```{r}
+F2C(90)
+```
+
+
+
+Let's write some tests to make sure the function behaves as desired:
+
+```{r}
+testthat::test_that("F2C works", {
+  testthat::expect_equal(F2C(90), 32.222222)
+  testthat::expect_error(F2C("90°F"))
+})
+```
+
+Code chunks that have one or more lines starting with `test_that(` (or `testthat::test_that(`) are added to the package as tests.
+
+## Documenting the package and building
+
+We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+
+```{r}
+rm(list = ls())
+litr::document() # <-- use instead of devtools::document()
+# devtools::build()
+# devtools::install()
+# devtools::check(document = FALSE)
+```
+
