@@ -62,7 +62,7 @@ testthat::test_that("preprocess_chunk_labels works as expected", {
   testthat::expect_equal(preprocess_chunk_labels(no_reference), no_reference)
   
   # check that when there is a chunk reference, we correctly change the delimiter, create a duplicate chunk and add a comment to referenced chunk
-  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@check-arg@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = FALSE))
+  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@@check-arg@@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = FALSE))
   
   # throw error if we can't find a referenced chunk in the file
   testthat::expect_error(preprocess_chunk_labels(missing_ref_chunk), "Unable to find the following chunk reference(s) in this Rmarkdown file: convert-c2f.", fixed=TRUE)
