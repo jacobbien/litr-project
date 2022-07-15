@@ -753,7 +753,7 @@ print_rmd(rmd)
 ```
 
 
-In the example above, we'd like to create reference links in the `C2F` and `F2C` functions since they reference the chunk labels for `check-arg` and `convert-*`.  We want to keep these labels but also have `knitr` fill in the labels and execute the code. This is where the `preprocess_chunk_labels()` and `extract_rmd_code_chunks()` functions come in. The `extract_rmd_code_chunks()` function takes a .Rmd file as input and finds the chunks with chunk labels. Then `preprocess_chunk_labels()` loops through each of these chunks, making a copy of the chunk with a modified label delimiter (changing `<<label>>` to `@@label@@`), and changing the option of the original copy of the chunk to be run, but not included in the knitted document.
+In the example above, we'd like to create reference links in the `C2F` and `F2C` functions since they reference the chunk labels for `check-arg` and `convert-*`.  We want to keep these labels but also have `knitr` fill in the labels and execute the code. This is where the `preprocess_chunk_labels()` and `extract_rmd_code_chunks()` functions come in. The `extract_rmd_code_chunks()` function takes a .Rmd file as input and finds the chunks with chunk labels. Then `preprocess_chunk_labels()` loops through each of these chunks, making a copy of the chunk with a modified label delimiter (changing `<<label>>` to `@@@label@@@`), and changing the option of the original copy of the chunk to be run, but not included in the knitted document.
 
 ```{r}
 #' Find an Rmd chunk label in a code chunk and modify the chunk reference delimiter before knitting
@@ -888,20 +888,20 @@ find_labels <- function(chunk_code){
 ```
 
 
-As mentioned earlier in step 3, we need a function for replacing chunk label delimiters to avoid `knitr` filling the function in when knitting the document. The `replace_label_delimiter()` function does this for us by using a temporary label delimiter (`@@`) that will be replaced with `<< >>` during the post-knit processing.
+As mentioned earlier in step 3, we need a function for replacing chunk label delimiters to avoid `knitr` filling the function in when knitting the document. The `replace_label_delimiter()` function does this for us by using a temporary label delimiter (`@@@`) that will be replaced with `<< >>` during the post-knit processing.
 
 ```{r}
 #' Replace the delimiter of Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
-#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is "@@"
+#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is "@@@"
 #' @return Character vector with replaced chunk label delimiter.
-replace_label_delimiter <- function(chunk_code, label_delim="@@"){
+replace_label_delimiter <- function(chunk_code, label_delim="@@@"){
     # modified version of knitr:::all_patterns$md$ref.chunk
     rc <- "^(\\s*)(<<(.+)>>)(\\s*)$"
     idx <- grepl(rc, chunk_code)
     # we want to keep the original indentation so we insert the indentation to the left and right of the label
-    sub(rc, "\\1@@\\3@@\\4", chunk_code)
+    sub(rc, "\\1@@@\\3@@@\\4", chunk_code)
 }
 ```
 
@@ -962,7 +962,7 @@ testthat::test_that("preprocess_chunk_labels works as expected", {
   testthat::expect_equal(preprocess_chunk_labels(no_reference), no_reference)
   
   # check that when there is a chunk reference, we correctly change the delimiter, create a duplicate chunk and add a comment to referenced chunk
-  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@check-arg@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = FALSE))
+  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@@check-arg@@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = FALSE))
   
   # throw error if we can't find a referenced chunk in the file
   testthat::expect_error(preprocess_chunk_labels(missing_ref_chunk), "Unable to find the following chunk reference(s) in this Rmarkdown file: convert-c2f.", fixed=TRUE)
@@ -1065,19 +1065,19 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 ```
 
 
-The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hyperlinks()` function except that it looks for comments within code chunks of the form `###"foo"###` and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
+The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hyperlinks()` function except that it looks for comments within code chunks of the form `###"foo"###` and then whenever the chunk label `@@@foo@@@` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 ```{r}
 #' Add hyperlinks to embedded chunks
 #' 
 #' Finds chunks that are referenced in the html file by looking for comments
 #' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
-#' and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it be
+#' and then whenever the chunk label `@@@foo@@@` is found it wraps a `a href="#foo"` tag so that it be
 #' a hyperlink to `foo`'s definition.
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
 #' @export
-add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
+add_chunk_label_hyperlinks <- function(html_file, output_file=html_file, reference_delim="@@@"){
     txt <- readLines(html_file)
     start_line <- which(txt == "<body>")
     pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
@@ -1099,9 +1099,9 @@ add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
     # whenever one of these named chunks is referenced, link to its definition
     txt <- stringr::str_replace_all(
     txt,
-    paste0("@@", chunk_names, "@@", collapse = "|"),
+    paste0(reference_delim, chunk_names, reference_delim, collapse = "|"),
     function(chunk_name) {
-      chunk_name <- stringr::str_remove_all(chunk_name, "@@")
+      chunk_name <- stringr::str_remove_all(chunk_name, reference_delim)
       stringr::str_glue("<a href='#{chunk_name}'>&lt&lt{chunk_name}&gt&gt</a>")
     }
     )
