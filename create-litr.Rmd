@@ -282,6 +282,10 @@ add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) 
 }
 ```
 
+<br><details>
+<summary> Tests for `add_text_to_file()`. </summary>
+
+
 ```{r}
 testthat::test_that("add_text_to_file() works", {
   dir <- tempfile()
@@ -330,6 +334,7 @@ testthat::test_that("add_text_to_file() works", {
 })
 ```
 
+</details><br>
 
 #### Setting up the R package creation
 
@@ -878,7 +883,7 @@ The `find_labels()` function is a small helper function within `extract_rmd_code
 #' Find an Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
-#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form <<label>> was found and chunk_ids is a character vector of chunk label was found in that chunk.
+#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form \<\<label\>\> was found and chunk_ids is a character vector of chunk label was found in that chunk.
 find_labels <- function(chunk_code){
     rc <- knitr::all_patterns$md$ref.chunk
     chunk_idx <- any(idx = grepl(rc, chunk_code))
@@ -934,7 +939,12 @@ extract_label <- function(chunk_option){
   return(label)
 }
 ```
-###### Testing `preprocess_chunk_labels()` `extract_rmd_code_chunks()`
+
+
+<br><details>
+
+<summary> Tests for `preprocess_chunk_labels()` `extract_rmd_code_chunks()` </summary>
+
 
 The purpose of these tests is to make sure that the `preprocess_chunk_labels()` function handles the following types of Rmd files properly:
 
@@ -998,6 +1008,8 @@ testthat::test_that("extract_rmd_code_chunks works as expected", {
   testthat::expect_equal(mini_example_chunk_labels, c("setup", "c2f", "check-arg"))
 })
 ```
+
+</details><br>
 
 
 Now that we've introduced the `preprocess_chunk_labels()` and its helper functions, let's see how it works on our minimal example from earlier.
