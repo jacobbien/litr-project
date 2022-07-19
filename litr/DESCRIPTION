@@ -15,6 +15,7 @@ Imports:
     digest,
     fs,
     knitr,
+    purrr,
     rmarkdown,
     stringr,
     usethis,

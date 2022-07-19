@@ -1,0 +1,18 @@
+Package: rF2C
+Title: A Package That Does Temperature Conversions
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "you@gmail.com", role = c("aut", "cre"))
+Description: This package that converts temperature measurements from
+    Fahrenheit to Celsius. But it's actual purpose is to show how an R
+    package can be completely coded in a single R markdown file and how to
+    use chunk references within this R markdown file.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LitrVersionUsed: 0.0.4
+LitrId: 1057055ef6e5120edffd3ab292dacd9f

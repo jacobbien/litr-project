@@ -45,6 +45,54 @@ testthat::test_that("add_text_to_file() works", {
   fs::dir_delete(dir)
 })
 
+no_chunks <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n", "\n"), recursive = FALSE)
+
+no_reference <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
+
+one_reference <- unlist(strsplit("```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
+
+missing_ref_chunk <- unlist(strsplit("```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = F)
+
+chunk_with_no_label <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n```{r}\n    1+2\n```\n", "\n"), recursive = FALSE)
+
+testthat::test_that("preprocess_chunk_labels works as expected", {
+  # handle the case where we are given a document with no codes chunks and when we do not have any chunk references
+  # for both cases preprocess_chunk_labels should return the original rmd vector
+  testthat::expect_equal(preprocess_chunk_labels(no_chunks), no_chunks)
+  testthat::expect_equal(preprocess_chunk_labels(no_reference), no_reference)
+  
+  # check that when there is a chunk reference, we correctly change the delimiter, create a duplicate chunk and add a comment to referenced chunk
+  testthat::expect_equal(preprocess_chunk_labels(one_reference), unlist(strsplit("```{r c2f, eval=FALSE}\nC2F <- function(x){\n    @@@check-arg@@@\n}\n```\n```{r c2f-dup, include=FALSE}\nC2F <- function(x){\n    <<check-arg>>\n}\n```\n\n```{r check-arg, eval=F}\n###\"check-arg\"###\n    if(!is.numeric(x)) stop('blah')\n```", "\n"), recursive = FALSE))
+  
+  # throw error if we can't find a referenced chunk in the file
+  testthat::expect_error(preprocess_chunk_labels(missing_ref_chunk), "Unable to find the following chunk reference(s) in this Rmarkdown file: convert-c2f.", fixed=TRUE)
+})
+
+rmd_mini_example <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
+
+testthat::test_that("extract_rmd_code_chunks works as expected", {
+  # handle the case where we are given a document with no codes chunks
+  # in the case of extract_rmd_code_chunks we should just return an empty list
+  testthat::expect_equal(extract_rmd_code_chunks(no_chunks), list())
+  # handle the case where we do have code chunks but no references
+  # we expect that chunk_idx should be FALSE and no chunk_ids (thus length is 0)
+  no_reference_chunks <- extract_rmd_code_chunks(no_reference)
+  no_reference_chunk_idx <- sapply(no_reference_chunks, function(x){x$contains_labels$chunk_idx})
+  no_reference_chunk_ids <- sapply(no_reference_chunks, function(x){length(x$contains_labels$chunk_ids)})
+  testthat::expect_equal(no_reference_chunk_idx, c(FALSE, FALSE))
+  testthat::expect_equal(no_reference_chunk_ids, c(0, 0))
+  # we should pull all chunks from an Rmd file
+  mini_example_chunks <- extract_rmd_code_chunks(rmd_mini_example)
+  
+  mini_example_chunk_idx <- sapply(mini_example_chunks, function(x){x$contains_labels$chunk_idx})
+  mini_example_chunk_ids <- sapply(mini_example_chunks, function(x){length(x$contains_labels$chunk_ids)})
+  mini_example_chunk_labels <- sapply(mini_example_chunks, function(x){x$chunk_label})
+  
+  testthat::expect_equal(mini_example_chunk_idx, c(FALSE, TRUE, FALSE))
+  testthat::expect_equal(mini_example_chunk_ids, c(0, 2, 0))
+  testthat::expect_equal(mini_example_chunk_labels, c("setup", "c2f", "check-arg"))
+})
+
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
