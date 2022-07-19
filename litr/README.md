@@ -67,7 +67,9 @@ with one function and one test function. To knit, you can either press
 litr::render("create-rhello.Rmd")
 ```
 
-## Examples: Package templates
+## Examples
+
+### Package templates
 
 Predefined `litr` templates make it easy to get started writing R
 packages of various kinds. The following table shows the package
@@ -86,3 +88,13 @@ Once you’ve chosen a template, you can get started as follows:
 rmarkdown::draft("create-[name-of-your-package].Rmd", template = "[name-of-template]", package = "litr")
 litr::render("create-[name-of-your-package].Rmd")
 ```
+
+### Packages in the wild
+
+We plan for this section to expand over time. Please let us know if
+you’d like your litr-knitted package to appear here (or create a pull
+request adding it).
+
+| Package name | Description                                               | Rmd source file                                                                                 | Generated html                                                                                                                   | Generated R package                                                        |
+|:-------------|:----------------------------------------------------------|:------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------|
+| jsm2022      | navigate the JSM program from the comfort of an R console | [create-jsm2022.Rmd](https://github.com/jacobbien/jsm2022-project/blob/main/create-jsm2022.Rmd) | [create-jsm2022.html](https://htmlpreview.github.io/?https://github.com/jacobbien/jsm2022-project/blob/main/create-jsm2022.html) | [jsm2022/](https://github.com/jacobbien/jsm2022-project/blob/main/jsm2022) |
