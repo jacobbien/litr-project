@@ -1,5 +1,6 @@
 # Generated from create-litr.Rmd: do not edit by hand
 
+
 #' Code for setup chunk
 #' 
 #' * Creates directory where package will be. (Deletes what is currently there as 
@@ -116,8 +117,36 @@ send_to_package <- function(before, options, envir) {
         # send this to package
         return()
       }
-      file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
-      cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+      # check whether a specific location for the object has been set by the user
+      obj_filename <- options$location
+      if(is.null(obj_filename)){
+        # send the object to {objname}.R
+        file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
+        cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+      } else{
+        # the user specified a location to send the object
+        file <- file.path(envir$package_dir, options$location)
+        print(file)
+        # check that the directory of the relative path given exists
+        if(!fs::dir_exists(fs::path_dir(file))){
+            stop(stringr::str_glue("directory {fs::path_dir(file)} does not exist"))
+        }
+        # give warning if the file name does not have .R extension
+        if(length(fs::path_ext(file)) == 0){
+            file <- fs::path_ext_set(file, "R")
+            warning(stringr::str_glue("No file extension found in supplied file name, sending {objname} to {file}"))
+        }
+        # check whether a file with this name has already been created
+        if(fs::file_exists(file)){
+            # only append the code, don't add the message
+            cat(paste(c("", options$code, ""), collapse = "\n"), file = file, append=TRUE)
+        } else{
+            # send the object to the user-supplied location with the message
+            cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
+        }
+        
+      }
+      
     }
   }
   else if (any(stringr::str_detect(options$code,

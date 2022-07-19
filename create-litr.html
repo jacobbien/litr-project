@@ -579,8 +579,36 @@ do a bit of work to remove that if it appears in the code chunk.</p>
         # send this to package
         return()
       }
-      file &lt;- file.path(envir$package_dir, &quot;R&quot;, stringr::str_glue(&quot;{objname}.R&quot;))
-      cat(paste(c(msg, &quot;&quot;, options$code, &quot;&quot;), collapse = &quot;\n&quot;), file = file)
+      # check whether a specific location for the object has been set by the user
+      obj_filename &lt;- options$location
+      if(is.null(obj_filename)){
+        # send the object to {objname}.R
+        file &lt;- file.path(envir$package_dir, &quot;R&quot;, stringr::str_glue(&quot;{objname}.R&quot;))
+        cat(paste(c(msg, &quot;&quot;, options$code, &quot;&quot;), collapse = &quot;\n&quot;), file = file)
+      } else{
+        # the user specified a location to send the object
+        file &lt;- file.path(envir$package_dir, options$location)
+        print(file)
+        # check that the directory of the relative path given exists
+        if(!fs::dir_exists(fs::path_dir(file))){
+            stop(stringr::str_glue(&quot;directory {fs::path_dir(file)} does not exist&quot;))
+        }
+        # give warning if the file name does not have .R extension
+        if(length(fs::path_ext(file)) == 0){
+            file &lt;- fs::path_ext_set(file, &quot;R&quot;)
+            warning(stringr::str_glue(&quot;No file extension found in supplied file name, sending {objname} to {file}&quot;))
+        }
+        # check whether a file with this name has already been created
+        if(fs::file_exists(file)){
+            # only append the code, don&#39;t add the message
+            cat(paste(c(&quot;&quot;, options$code, &quot;&quot;), collapse = &quot;\n&quot;), file = file, append=TRUE)
+        } else{
+            # send the object to the user-supplied location with the message
+            cat(paste(c(msg, &quot;&quot;, options$code, &quot;&quot;), collapse = &quot;\n&quot;), file = file)
+        }
+        
+      }
+      
     }
   }
   else if (any(stringr::str_detect(options$code,
@@ -1206,6 +1234,11 @@ overridden through arguments passed to <code><a href='#render'>render</a>()</cod
 ## • Refer to functions with `rmarkdown::fun()`</code></pre>
 </div>
 </div>
+
+<div id="combining-grouping-functions-in-.r-files" class="section level3">
+<h3>Combining grouping functions in .R files</h3>
+<p>By default, a separate .R file is created for each documented function. For example, if a function <code>foo</code> is defined in a code chunk, it will be written to the file <code>R/foo.R</code>. The is the default behavior the typical workflow for <code>litr</code>-based packages is centered around the Rmd file and users who want to read the R package code are recommended to read the generating Rmd file. However, users can control which .R file to write a function to by adding a <code>location</code> argument to the code chunk containing the function with the path to the preferred file name relative to <code>package_parent_dir</code> defined in the <code>knit-setup</code> chunk. For example, if we wanted to send the<code>foo</code> function to the file <code>R/bar.R</code>, we would add the code chunk argument <code>location=&quot;R/bar.R&quot;</code> to the <code>foo</code> function code chunk. Then the next time the Rmd file is knitted, the <code>foo</code> function will be sent to <code>bar.R</code> file in the <code>R</code> folder of the package.</p>
+
 <div id="combining-.r-files" class="section level3">
 <h3>Combining .R files</h3>
 <p><strong>This section should eventually be removed but for now I’m
@@ -1513,6 +1546,7 @@ sure it behaves how we expect it to:</p>
   )
   fs::dir_delete(dir)
 })</code></pre>
+
 </div>
 <div id="testing-other-templates" class="section level3">
 <h3>Testing other templates</h3>
