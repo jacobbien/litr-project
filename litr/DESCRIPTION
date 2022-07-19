@@ -9,7 +9,7 @@ Description: Allows one to fully create an R package in a single .Rmd
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Imports: 
     devtools,
     digest,
@@ -24,4 +24,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.3
-LitrId: dbd8d93151b5ca6cf80375087c827350
+LitrId: ade03179c02a36e5b8de094ea704229d

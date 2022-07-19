@@ -79,9 +79,8 @@ For more on circularity, see the section on [testing litr](#tests).
 ```{r}
 install_version_of_litr <- utils::packageVersion("litr")
 remote <- remotes::github_remote(
-  repo = "jacobbien/litr-project@*release",
-  subdir = "litr",
-  auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+  repo = "jacobbien/litr-project@*release", 
+  subdir = "litr"
   )
 version_of_latest_release <- stringr::str_remove(remote$ref, "v")
 if (install_version_of_litr != version_of_latest_release)
@@ -90,11 +89,6 @@ if (install_version_of_litr != version_of_latest_release)
     " {version_of_latest_release}),\n but you are using version",
     " {install_version_of_litr}."
   ))
-# version <- desc::desc_get_version(package_dir)
-# if (install_version_of_litr == version)
-#   stop(stringr::str_glue(
-#     "You are attempting to create litr version {version} using itself."
-#     ))
 ```
 
 ## Now to the package itself
@@ -1061,17 +1055,13 @@ We finish by running commands that will document and test `litr`.
 
 **The formatting of the test output does not print out very neatly.**
 
-**Also, once we make the repo public, we will not need the `auth_token`.**
-
 We download the latest release:
 
 ```{r}
 rm(list = ls())
 litr::document()
 install_old <- function() {
-  remotes::install_github("jacobbien/litr-project@*release", subdir = "litr",
-                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password)
-#  devtools::install("~/Downloads/litr-project-0.0.2/litr/")
+  remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 }
 xfun::Rscript_call(test_litr,
                    list(install_old = install_old, location_of_new = "."))
