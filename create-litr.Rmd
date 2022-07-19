@@ -80,8 +80,7 @@ For more on circularity, see the section on [testing litr](#tests).
 install_version_of_litr <- utils::packageVersion("litr")
 remote <- remotes::github_remote(
   repo = "jacobbien/litr-project@*release",
-  subdir = "litr",
-  # auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+  subdir = "litr"
   )
 version_of_latest_release <- stringr::str_remove(remote$ref, "v")
 if (install_version_of_litr != version_of_latest_release)
@@ -1489,7 +1488,6 @@ rm(list = ls())
 litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr",
-                          # auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
                           )
 #  devtools::install("~/Downloads/litr-project-0.0.2/litr/")
 }
