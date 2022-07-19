@@ -67,7 +67,9 @@ with one function and one test function. To knit, you can either press
 litr::render("create-rhello.Rmd")
 ```
 
-## Examples: Package templates
+## Examples
+
+### Package templates
 
 Predefined `litr` templates make it easy to get started writing R
 packages of various kinds. The following table shows the package
@@ -76,9 +78,9 @@ package” cells to see what each template produces.
 
 | Template name               | Description                                   | Rmd source file                                                                                                                     | Generated html                                                                                                                                                       | Generated R package                                                                                            |
 |:----------------------------|:----------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------|
-| make-an-r-package           | the most basic package: a function and a test | [create-rhello.Rmd](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/create-rhello.Rmd)               | [create-rhello.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/create-rhello.html)               | [rhello/](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello)               |
-| make-an-r-package-with-data | a package with a data set in it               | [create-rhasdata.Rmd](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-data/create-rhasdata.Rmd) | [create-rhasdata.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-data/create-rhasdata.html) | [rhasdata/](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-data/rhasdata) |
-| make-an-r-package-with-rcpp | a package using `Rcpp`                        | [create-withrcpp.Rmd](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-rcpp/create-withrcpp.Rmd) | [create-withrcpp.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-rcpp/create-withrcpp.html) | [withrcpp/](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-rcpp/withrcpp) |
+| make-an-r-package           | the most basic package: a function and a test | [create-rhello.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd)               | [create-rhello.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.html)               | [rhello/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/rhello)               |
+| make-an-r-package-with-data | a package with a data set in it               | [create-rhasdata.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/create-rhasdata.Rmd) | [create-rhasdata.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/create-rhasdata.html) | [rhasdata/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/rhasdata) |
+| make-an-r-package-with-rcpp | a package using `Rcpp`                        | [create-withrcpp.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/create-withrcpp.Rmd) | [create-withrcpp.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/create-withrcpp.html) | [withrcpp/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/withrcpp) |
 
 Once you’ve chosen a template, you can get started as follows:
 
@@ -86,3 +88,13 @@ Once you’ve chosen a template, you can get started as follows:
 rmarkdown::draft("create-[name-of-your-package].Rmd", template = "[name-of-template]", package = "litr")
 litr::render("create-[name-of-your-package].Rmd")
 ```
+
+### Packages in the wild
+
+We plan for this section to expand over time. Please let us know if
+you’d like your litr-knitted package to appear here (or create a pull
+request adding it).
+
+| Package name | Description                                               | Rmd source file                                                                                 | Generated html                                                                                                                   | Generated R package                                                        |
+|:-------------|:----------------------------------------------------------|:------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------|
+| jsm2022      | navigate the JSM program from the comfort of an R console | [create-jsm2022.Rmd](https://github.com/jacobbien/jsm2022-project/blob/main/create-jsm2022.Rmd) | [create-jsm2022.html](https://htmlpreview.github.io/?https://github.com/jacobbien/jsm2022-project/blob/main/create-jsm2022.html) | [jsm2022/](https://github.com/jacobbien/jsm2022-project/blob/main/jsm2022) |

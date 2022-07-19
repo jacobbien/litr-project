@@ -41,10 +41,6 @@ remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 litr::render("create-litr.Rmd")
 ```
 
-*(Note: Until we make this repo public, one will need to add to the
-`install_github()` call
-`auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password)`)*
-
 In the above code, `@*release` stands for the latest release. For
 example, at the time of creating version `0.0.2`, this would be
 `v0.0.1`.

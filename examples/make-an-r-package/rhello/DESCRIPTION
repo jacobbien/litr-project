@@ -8,9 +8,9 @@ Description: This package says hello.  But it's actual purpose is to show
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.4
-LitrId: 5c30abce857dfe0b9bf173b300f8a057
+LitrId: 333e0f9f9a7f46d4159c51254709bd68
