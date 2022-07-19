@@ -81,7 +81,7 @@ install_version_of_litr <- utils::packageVersion("litr")
 remote <- remotes::github_remote(
   repo = "jacobbien/litr-project@*release",
   subdir = "litr",
-  auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+  # auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
   )
 version_of_latest_release <- stringr::str_remove(remote$ref, "v")
 if (install_version_of_litr != version_of_latest_release)
@@ -1489,7 +1489,7 @@ rm(list = ls())
 litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr",
-                          auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
+                          # auth_token = gitcreds::gitcreds_get(use_cache=FALSE)$password
                           )
 #  devtools::install("~/Downloads/litr-project-0.0.2/litr/")
 }
@@ -1503,8 +1503,8 @@ In this section, we will litr-knit each template and put the outputs in an examp
 
 ```{r}
 build_all_templates <- function(install_old, location_of_new) {
+  
   devtools::install(location_of_new)
-
   example_dir <- file.path("..", "examples")
   if (fs::dir_exists(example_dir)) fs::dir_delete(example_dir)
   fs::dir_create(example_dir)
@@ -1516,7 +1516,7 @@ build_all_templates <- function(install_old, location_of_new) {
     pkg_name <- rmarkdown::yaml_front_matter(tmp_file)$params$package_name
     rmd_file <- file.path(example_dir, paste0("create-", pkg_name, ".Rmd"))
     fs::file_move(tmp_file, rmd_file)
-    render(rmd_file)
+    litr::render(rmd_file)
     # move to a template-specific directory:
     template_dir <- file.path(example_dir, template)
     fs::dir_create(template_dir)

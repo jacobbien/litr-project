@@ -10,9 +10,9 @@ Description: This package that converts temperature measurements from
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.4
-LitrId: 2d8bdd1faff8abcadfd9ca1ae60760d6
+LitrId: 1057055ef6e5120edffd3ab292dacd9f

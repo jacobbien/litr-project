@@ -4,6 +4,8 @@
 #' @param temp A temperature measurement on the Fahrenheit temperature scale
 #' @export 
 F2C <- function(temp){
+    ###"check-arg"###
         if(!is.numeric(temp)) stop('Please provide a numeric argument')
+    ###"convert-f2c"###
         (temp-32) * 5/9
 }

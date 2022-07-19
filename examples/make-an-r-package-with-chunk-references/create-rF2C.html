@@ -219,13 +219,15 @@ usethis::use_mit_license(copyright_holder = &quot;F. Last&quot;)</code></pre>
 #&#39; @param temp A temperature measurement on the Fahrenheit temperature scale
 #&#39; @export 
 <span id='F2C'>F2C</span> &lt;- function(temp){
-        if(!is.numeric(temp)) stop(&#39;Please provide a numeric argument&#39;)
-        (temp-32) * 5/9
+    <a href='#check-arg'>&lt&ltcheck-arg&gt&gt</a>
+    <a href='#convert-f2c'>&lt&ltconvert-f2c&gt&gt</a>
 }</code></pre>
 <p>The check here is quite simple, we simply throw an error if the input <code>temp</code> is not numeric. Note that for a reference chunk, we set <code>eval=F</code> since we do not want this chunk to be evaluated on its own.</p>
-<pre class="r"><code>    if(!is.numeric(temp)) stop(&#39;Please provide a numeric argument&#39;)</code></pre>
+<pre class="r"><code><span id='check-arg'>###&quot;check-arg&quot;###</span>
+    if(!is.numeric(temp)) stop(&#39;Please provide a numeric argument&#39;)</code></pre>
 <p>Now that we’ve confirmed that we have been supplied a numeric input, we are ready to apply the formula for converting from Fahrenheit to Celsius. Again we set <code>eval=F</code> for the same reason as the previous chunk.</p>
-<pre class="r"><code>    (temp-32) * 5/9</code></pre>
+<pre class="r"><code><span id='convert-f2c'>###&quot;convert-f2c&quot;###</span>
+    (temp-32) * 5/9</code></pre>
 <p>Finally, we can call our function to convert 90°F to Celsius</p>
 <pre class="r"><code><a href='#F2C'>F2C</a>(90)</code></pre>
 <pre><code>## [1] 32.22222</code></pre>

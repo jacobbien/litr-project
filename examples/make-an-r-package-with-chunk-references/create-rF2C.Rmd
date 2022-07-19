@@ -59,7 +59,7 @@ The Fahrenheit scale was the primary temperature standard in English-speaking co
 
 A simple function for converting temperature measurements from Fahrenheit to Celsius contains two parts: code for checking that the supplied value is numeric and then the conversion equation.
 
-```{r}
+```{r test}
 #' Convert a Fahrenheit temperature to Celsius
 #' @param temp A temperature measurement on the Fahrenheit temperature scale
 #' @export 
