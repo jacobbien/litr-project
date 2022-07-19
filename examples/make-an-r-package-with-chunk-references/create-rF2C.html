@@ -208,9 +208,9 @@ usethis::use_mit_license(copyright_holder = &quot;F. Last&quot;)</code></pre>
 <h2>Now to the package itself</h2>
 <div id="celsius-and-fahrenheit-temperature-scale" class="section level3">
 <h3>Celsius and Fahrenheit Temperature Scale</h3>
-<p>In 1724, the physicist Daniel Gabriel Fahrenheit proposed the Fahrenheit temperature scale which uses the degree Fahrenheit (symbol: °F) as the unit. In his original paper he based his scale on two reference points of temperature. The zero point , 0°F, was marked as the freezing point of a solution of brine made from a mixture of water, ice, and ammonium chloride. The second point, 96°F, was the marked as the body temperature of a healthy person. A third point, 32°F, was marked as being the temperature of an ice water solution.</p>
-<p>In 1742, Swedish astronomer Andres Celsius created a temperature scale that was the opposite of the Celsius (symbol: °C) temperature scale we all know today: 0°C represented the boiling point of water, while 100°C represented the freezing point of water. In 1743, Jean-Pierre Christin proprosed reversing the scale, resulting in the temperature scale we are familiar with today: 0°C represents freezing point of water, while 100°C represents the boiling point of water.</p>
-<p>The Fahrenheit scale was the primary temperature standard in English-speaking countries until the 1960s when the Celsius scale replaced Fahrenheit in almost all of those countries —with the notable exception of the United States and in certain cases, the United Kingdom. Since the majority of the world uses the Celsius scale, it is useful to know how to convert temperature measurements from Fahrenheit to Celsius.</p>
+<p>According to the <a href="https://en.wikipedia.org/wiki/Fahrenheit#History">Fahrenheit Wikipedia page</a>, the physicist Daniel Gabriel Fahrenheit proposed the Fahrenheit temperature scale which uses the degree Fahrenheit (symbol: °F) as the unit in 1724. In his original paper he based his scale on two reference points of temperature. The zero point , 0°F, was marked as the freezing point of a solution of brine made from a mixture of water, ice, and ammonium chloride. The second point, 96°F, was the marked as the body temperature of a healthy person. A third point, 32°F, was marked as being the temperature of an ice water solution.</p>
+<p><a href="https://en.wikipedia.org/wiki/Celsius#History">Wikipedia</a> states that in 1742, the Swedish astronomer Andres Celsius created a temperature scale that was the opposite of the Celsius (symbol: °C) temperature scale we all know today: 0°C represented the boiling point of water, while 100°C represented the freezing point of water. In 1743, Jean-Pierre Christin proposed reversing the scale, resulting in the temperature scale we are familiar with today: 0°C represents freezing point of water, while 100°C represents the boiling point of water.</p>
+<p>The Fahrenheit scale was the primary temperature standard in English-speaking countries until the 1960s when the Celsius scale replaced Fahrenheit in almost all of those countries —with the notable exception of the United States and in certain cases, the United Kingdom (See <a href="https://en.wikipedia.org/wiki/Fahrenheit#Usage" class="uri">https://en.wikipedia.org/wiki/Fahrenheit#Usage</a> for more details). Since the majority of the world uses the Celsius scale, it is useful to know how to convert temperature measurements from Fahrenheit to Celsius.</p>
 </div>
 <div id="f-to-c-function" class="section level3">
 <h3>°F to °C function</h3>
@@ -236,7 +236,7 @@ usethis::use_mit_license(copyright_holder = &quot;F. Last&quot;)</code></pre>
   testthat::expect_equal(<a href='#F2C'>F2C</a>(90), 32.222222)
   testthat::expect_error(<a href='#F2C'>F2C</a>(&quot;90°F&quot;))
 })</code></pre>
-<pre><code>## Test passed 😀</code></pre>
+<pre><code>## Test passed 🥳</code></pre>
 <p>Code chunks that have one or more lines starting with <code>test_that(</code> (or <code>testthat::test_that(</code>) are added to the package as tests.</p>
 </div>
 </div>

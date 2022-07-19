@@ -49,17 +49,17 @@ Add some package-level documentation if you want to (or delete the chunk entirel
 
 ### Celsius and Fahrenheit Temperature Scale
 
-In 1724, the physicist Daniel Gabriel Fahrenheit proposed the Fahrenheit temperature scale which uses the degree Fahrenheit (symbol: °F) as the unit. In his original paper he based his scale on two reference points of temperature. The zero point , 0°F, was marked as the freezing point of a solution of brine made from a mixture of water, ice, and ammonium chloride. The second point, 96°F, was the marked as the body temperature of a healthy person. A third point, 32°F, was marked as being the temperature of an ice water solution.
+According to the [Fahrenheit Wikipedia page](https://en.wikipedia.org/wiki/Fahrenheit#History), the physicist Daniel Gabriel Fahrenheit proposed the Fahrenheit temperature scale which uses the degree Fahrenheit (symbol: °F) as the unit in 1724. In his original paper he based his scale on two reference points of temperature. The zero point , 0°F, was marked as the freezing point of a solution of brine made from a mixture of water, ice, and ammonium chloride. The second point, 96°F, was the marked as the body temperature of a healthy person. A third point, 32°F, was marked as being the temperature of an ice water solution.
 
-In 1742, Swedish astronomer Andres Celsius created a temperature scale that was the opposite of the Celsius (symbol: °C) temperature scale we all know today: 0°C represented the boiling point of water, while 100°C represented the freezing point of water. In 1743, Jean-Pierre Christin proprosed reversing the scale, resulting in the temperature scale we are familiar with today: 0°C represents freezing point of water, while 100°C represents the boiling point of water.
+[Wikipedia](https://en.wikipedia.org/wiki/Celsius#History) states that in 1742, the Swedish astronomer Andres Celsius created a temperature scale that was the opposite of the Celsius (symbol: °C) temperature scale we all know today: 0°C represented the boiling point of water, while 100°C represented the freezing point of water. In 1743, Jean-Pierre Christin proposed reversing the scale, resulting in the temperature scale we are familiar with today: 0°C represents freezing point of water, while 100°C represents the boiling point of water.
 
-The Fahrenheit scale was the primary temperature standard in English-speaking countries until the 1960s when the Celsius scale replaced Fahrenheit in almost all of those countries —with the notable exception of the United States and in certain cases, the United Kingdom. Since the majority of the world uses the Celsius scale, it is useful to know how to convert temperature measurements from Fahrenheit to Celsius.
+The Fahrenheit scale was the primary temperature standard in English-speaking countries until the 1960s when the Celsius scale replaced Fahrenheit in almost all of those countries —with the notable exception of the United States and in certain cases, the United Kingdom (See https://en.wikipedia.org/wiki/Fahrenheit#Usage for more details). Since the majority of the world uses the Celsius scale, it is useful to know how to convert temperature measurements from Fahrenheit to Celsius.
 
 ### °F to °C function
 
 A simple function for converting temperature measurements from Fahrenheit to Celsius contains two parts: code for checking that the supplied value is numeric and then the conversion equation.
 
-```{r}
+```{r test}
 #' Convert a Fahrenheit temperature to Celsius
 #' @param temp A temperature measurement on the Fahrenheit temperature scale
 #' @export 
