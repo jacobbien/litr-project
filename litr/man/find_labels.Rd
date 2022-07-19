@@ -10,7 +10,7 @@ find_labels(chunk_code)
 \item{chunk_code}{Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.}
 }
 \value{
-List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form <<label>> was found and chunk_ids is a character vector of chunk label was found in that chunk.
+List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form \verb{<<label>>} was found and chunk_ids is a character vector of chunk label was found in that chunk.
 }
 \description{
 Find an Rmd chunk label in a code chunk

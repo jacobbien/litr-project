@@ -882,7 +882,7 @@ The `find_labels()` function is a small helper function within `extract_rmd_code
 #' Find an Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
-#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form \<\<label\>\> was found and chunk_ids is a character vector of chunk label was found in that chunk.
+#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `<<label>>` was found and chunk_ids is a character vector of chunk label was found in that chunk.
 find_labels <- function(chunk_code){
     rc <- knitr::all_patterns$md$ref.chunk
     chunk_idx <- any(idx = grepl(rc, chunk_code))
@@ -898,14 +898,14 @@ As mentioned earlier in step 3, we need a function for replacing chunk label del
 #' Replace the delimiter of Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
-#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is "@@@"
+#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is `@@@@@@`
 #' @return Character vector with replaced chunk label delimiter.
 replace_label_delimiter <- function(chunk_code, label_delim="@@@"){
     # modified version of knitr:::all_patterns$md$ref.chunk
     rc <- "^(\\s*)(<<(.+)>>)(\\s*)$"
     idx <- grepl(rc, chunk_code)
     # we want to keep the original indentation so we insert the indentation to the left and right of the label
-    sub(rc, "\\1@@@\\3@@@\\4", chunk_code)
+    sub(rc, stringr::str_glue("\\1{label_delim}\\3{label_delim}\\4"), chunk_code)
 }
 ```
 
@@ -1082,7 +1082,7 @@ The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hype
 #' 
 #' Finds chunks that are referenced in the html file by looking for comments
 #' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
-#' and then whenever the chunk label `@@@foo@@@` is found it wraps a `a href="#foo"` tag so that it be
+#' and then whenever the chunk label `@@@@@@foo@@@@@@` is found it wraps a `a href="#foo"` tag so that it be
 #' a hyperlink to `foo`'s definition.
 #' 
 #' @param html_file File name of html file that was created from Rmd file

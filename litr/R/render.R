@@ -109,13 +109,13 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 #' 
 #' Finds chunks that are referenced in the html file by looking for comments
 #' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
-#' and then whenever the chunk label `@@foo@@` is found it wraps a `a href="#foo"` tag so that it be
+#' and then whenever the chunk label `@@@@@@foo@@@@@@` is found it wraps a `a href="#foo"` tag so that it be
 #' a hyperlink to `foo`'s definition.
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
 #' @export
-add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
+add_chunk_label_hyperlinks <- function(html_file, output_file=html_file, reference_delim="@@@"){
     txt <- readLines(html_file)
     start_line <- which(txt == "<body>")
     pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
@@ -137,9 +137,9 @@ add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
     # whenever one of these named chunks is referenced, link to its definition
     txt <- stringr::str_replace_all(
     txt,
-    paste0("@@", chunk_names, "@@", collapse = "|"),
+    paste0(reference_delim, chunk_names, reference_delim, collapse = "|"),
     function(chunk_name) {
-      chunk_name <- stringr::str_remove_all(chunk_name, "@@")
+      chunk_name <- stringr::str_remove_all(chunk_name, reference_delim)
       stringr::str_glue("<a href='#{chunk_name}'>&lt&lt{chunk_name}&gt&gt</a>")
     }
     )
@@ -149,9 +149,9 @@ add_chunk_label_hyperlinks <- function(html_file, output_file=html_file){
 #' Find an Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
-#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form <<label>> was found and chunk_ids is a character vector of chunk label was found in that chunk.
+#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `<<label>>` was found and chunk_ids is a character vector of chunk label was found in that chunk.
 find_labels <- function(chunk_code){
-    rc <- knitr:::all_patterns$md$ref.chunk
+    rc <- knitr::all_patterns$md$ref.chunk
     chunk_idx <- any(idx = grepl(rc, chunk_code))
     chunk_ids <- stringr::str_trim(sub(rc, "\\1", chunk_code[grepl(rc, chunk_code)]))
     return(list(chunk_idx = chunk_idx, chunk_ids = chunk_ids))
@@ -160,14 +160,14 @@ find_labels <- function(chunk_code){
 #' Replace the delimiter of Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
-#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is "@@"
+#' @param label_delim Delimiter to replace the chunk label delimiter recognized by `knitr`. Default label delimiter is `@@@@@@`
 #' @return Character vector with replaced chunk label delimiter.
-replace_label_delimiter <- function(chunk_code, label_delim="@@"){
+replace_label_delimiter <- function(chunk_code, label_delim="@@@"){
     # modified version of knitr:::all_patterns$md$ref.chunk
     rc <- "^(\\s*)(<<(.+)>>)(\\s*)$"
     idx <- grepl(rc, chunk_code)
     # we want to keep the original indentation so we insert the indentation to the left and right of the label
-    sub(rc, "\\1@@\\3@@\\4", chunk_code)
+    sub(rc, stringr::str_glue("\\1{label_delim}\\3{label_delim}\\4"), chunk_code)
 }
 
 #' Find an Rmd chunk label in a code chunk and modify the chunk reference delimiter before knitting
@@ -290,7 +290,13 @@ extract_label <- function(chunk_option){
 #' @param chunk_option Character vector of the first line of a chunk, i.e. ```{r chunk-name, ...}
 #' @return Character vector of the chunk option with "-dup" appended to the chunk label. i.e., ```{r chunk-name-dup, ...}
 modify_chunk_label <- function(chunk_option){
-  stringr::str_replace(chunk_option, "^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$", "\\1\\2\\3-dup\\4" )
+  # look for a name in the chunk option, if there isn't a name then the fourth element will be NA
+  regex_matches <- stringr::str_match(chunk_option,"^[\t >]*(```+\\s*\\{)([a-zA-Z0-9_]+)( *[ ,][a-zA-Z0-9_-]+)?(.*\\}\\s*)$")
+  if(!is.na(regex_matches[,4])){
+    return(stringr::str_glue("{regex_matches[,2]}{regex_matches[,3]} {stringr::str_trim(regex_matches[,4])}-dup{regex_matches[,5]}"))
+  } else{
+    return(stringr::str_glue("{regex_matches[,2]}{regex_matches[,3]}{regex_matches[,5]}"))
+  }
 }
 
 #' Get parameter values used in rendering

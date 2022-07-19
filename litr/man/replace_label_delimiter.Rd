@@ -4,12 +4,12 @@
 \alias{replace_label_delimiter}
 \title{Replace the delimiter of Rmd chunk label in a code chunk}
 \usage{
-replace_label_delimiter(chunk_code, label_delim = "@@")
+replace_label_delimiter(chunk_code, label_delim = "@@@")
 }
 \arguments{
 \item{chunk_code}{Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.}
 
-\item{label_delim}{Delimiter to replace the chunk label delimiter recognized by \code{knitr}. Default label delimiter is "@"}
+\item{label_delim}{Delimiter to replace the chunk label delimiter recognized by \code{knitr}. Default label delimiter is \verb{@@@}}
 }
 \value{
 Character vector with replaced chunk label delimiter.

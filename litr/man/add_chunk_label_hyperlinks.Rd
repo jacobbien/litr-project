@@ -4,7 +4,11 @@
 \alias{add_chunk_label_hyperlinks}
 \title{Add hyperlinks to embedded chunks}
 \usage{
-add_chunk_label_hyperlinks(html_file, output_file = html_file)
+add_chunk_label_hyperlinks(
+  html_file,
+  output_file = html_file,
+  reference_delim = "@@@"
+)
 }
 \arguments{
 \item{html_file}{File name of html file that was created from Rmd file}
@@ -14,6 +18,6 @@ add_chunk_label_hyperlinks(html_file, output_file = html_file)
 \description{
 Finds chunks that are referenced in the html file by looking for comments
 of the form \verb{###"foo"###} and then wraps \code{foo} in a \code{span} tag with \code{id="foo"}
-and then whenever the chunk label \verb{@foo@} is found it wraps a \verb{a href="#foo"} tag so that it be
+and then whenever the chunk label \verb{@@@foo@@@} is found it wraps a \verb{a href="#foo"} tag so that it be
 a hyperlink to \code{foo}'s definition.
 }
