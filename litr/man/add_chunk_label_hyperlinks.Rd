@@ -14,10 +14,12 @@ add_chunk_label_hyperlinks(
 \item{html_file}{File name of html file that was created from Rmd file}
 
 \item{output_file}{File name to output to. Default: \code{html_file}}
+
+\item{reference_delim}{The delimiter used to indicate a chunk label}
 }
 \description{
 Finds chunks that are referenced in the html file by looking for comments
 of the form \verb{###"foo"###} and then wraps \code{foo} in a \code{span} tag with \code{id="foo"}
-and then whenever the chunk label \verb{@@@foo@@@} is found it wraps a \verb{a href="#foo"} tag so that it be
-a hyperlink to \code{foo}'s definition.
+and then whenever the chunk label \verb{@@@foo@@@} is found it wraps it in a
+\verb{a href="#foo"} tag so that it will be a hyperlink to \code{foo}'s definition.
 }

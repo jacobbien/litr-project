@@ -1077,13 +1077,15 @@ The `add_chunk_label_hyperlinks()` function is similar to the `add_function_hype
 #' 
 #' Finds chunks that are referenced in the html file by looking for comments
 #' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
-#' and then whenever the chunk label `@@@foo@@@` is found it wraps a `a href="#foo"` tag so that it be
-#' a hyperlink to `foo`'s definition.
+#' and then whenever the chunk label `@@@@@@foo@@@@@@` is found it wraps it in a 
+#' `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
+#' @param reference_delim The delimiter used to indicate a chunk label 
 #' @export
-add_chunk_label_hyperlinks <- function(html_file, output_file=html_file, reference_delim="@@@"){
+add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
+                                       reference_delim = "@@@"){
     txt <- readLines(html_file)
     start_line <- which(txt == "<body>")
     pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
