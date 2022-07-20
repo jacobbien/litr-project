@@ -45,7 +45,21 @@ render <- function(input, ...) {
     rmarkdown::render(input, ...)
   }
 
-  out <- xfun::Rscript_call(render_, c(input = modified_input, args))
+  out <-  tryCatch(
+      {
+        xfun::Rscript_call(render_, c(input = modified_input, args))
+      },
+      error=function(cond){
+        # look for a _TMP version of the input file
+        tmp_files <- fs::dir_ls(file.path(dirname(input)), regexp = stringr::str_replace(fs::path_file(input), ".(Rmd|rmd|RMD)","_TMP.\\1"))
+        if( length(tmp_files) > 0){
+          fs::file_delete(tmp_files)
+        }
+        stop(cond)
+      }
+    )
+    
+  # out <- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {

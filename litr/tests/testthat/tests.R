@@ -45,6 +45,24 @@ testthat::test_that("add_text_to_file() works", {
   fs::dir_delete(dir)
 })
 
+testthat::test_that("We remove _TMP files on error", {
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, "my-package.Rmd")
+  rmarkdown::draft(rmd_file, template = "make-an-r-package", package = "litr",
+                   edit = FALSE)
+  # append a chunk a the end that will cause an error
+  error_chunk="```{r}\n1 + '1'\n\```\n"
+  write(error_chunk,file=rmd_file,append=TRUE)
+  
+  testthat::expect_error(litr::render(rmd_file), regexp = "Failed to run 'render_' in a new R session.", fixed=TRUE)
+  # look for any _TMP Rmd files
+  leftover_files <- fs::dir_ls(dir, regexp = stringr::str_replace(fs::path_file(rmd_file), ".(Rmd|rmd|RMD)","_TMP.\\1"))
+  testthat::expect_true(length(leftover_files) == 0)
+  fs::dir_delete(dir)
+})
+
 no_chunks <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n", "\n"), recursive = FALSE)
 
 no_reference <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)

@@ -657,7 +657,21 @@ render <- function(input, ...) {
     rmarkdown::render(input, ...)
   }
 
-  out <- xfun::Rscript_call(render_, c(input = modified_input, args))
+  out <-  tryCatch(
+      {
+        xfun::Rscript_call(render_, c(input = modified_input, args))
+      },
+      error=function(cond){
+        # look for a _TMP version of the input file
+        tmp_files <- fs::dir_ls(file.path(dirname(input)), regexp = stringr::str_replace(fs::path_file(input), ".(Rmd|rmd|RMD)","_TMP.\\1"))
+        if( length(tmp_files) > 0){
+          fs::file_delete(tmp_files)
+        }
+        stop(cond)
+      }
+    )
+    
+  # out <- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -678,6 +692,33 @@ render <- function(input, ...) {
 ```
 
 **Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
+
+<details>
+<summary>Tests to make sure we remove temporary files on errors</summary>
+
+```{r, eval=FALSE}
+testthat::test_that("We remove _TMP files on error", {
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, "my-package.Rmd")
+  rmarkdown::draft(rmd_file, template = "make-an-r-package", package = "litr",
+                   edit = FALSE)
+  # append a chunk a the end that will cause an error
+  error_chunk="```{r}\n1 + '1'\n\```\n"
+  write(error_chunk,file=rmd_file,append=TRUE)
+  
+  testthat::expect_error(litr::render(rmd_file), regexp = "Failed to run 'render_' in a new R session.", fixed=TRUE)
+  # look for any _TMP Rmd files
+  leftover_files <- fs::dir_ls(dir, regexp = stringr::str_replace(fs::path_file(rmd_file), ".(Rmd|rmd|RMD)","_TMP.\\1"))
+  testthat::expect_true(length(leftover_files) == 0)
+  fs::dir_delete(dir)
+})
+```
+
+
+</details>
+
 
 We used `xfun`, so let's import it:
 
@@ -948,7 +989,7 @@ The purpose of these tests is to make sure that the `preprocess_chunk_labels()` 
 * Rmd files referencing a chunk that does not exist within the file
 * Rmd files with chunks that are not labeled
 
-```{r}
+```{r, eval=FALSE}
 no_chunks <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n", "\n"), recursive = FALSE)
 
 no_reference <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
@@ -976,7 +1017,7 @@ testthat::test_that("preprocess_chunk_labels works as expected", {
 
 Here we test `extract_rmd_code_chunks()` using some of the examples from the previous section as well as a combined mini example file.
 
-```{r}
+```{r, eval=FALSE}
 rmd_mini_example <- unlist(strsplit("---\ntitle: `pre_process_chunk_labels` Example\nauthor: Me\ndate: 2022-05-27\noutput: html_document\n---\n\n# Setup\n\n```{r setup, include = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n# Content\n\n\n```{r c2f}\nC2F <- function(x){\n    <<check-arg>>\n    <<convert-c2f>>\n}\n```\n\n```{r check-arg, eval=F}\n    if(!is.numeric(x)) stop('blah')\n```\n", "\n"), recursive = FALSE)
 
 testthat::test_that("extract_rmd_code_chunks works as expected", {
