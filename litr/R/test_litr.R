@@ -15,6 +15,9 @@
 #' @export
 test_litr <- function(install_old, location_of_new) {
   devtools::install(location_of_new)
+  # need this to handle devtools::install's switch to using pkgload::unregister
+  # instead of pkgload::unload devtools@v2.4.4
+  pkgload::unload("litr")
   out <- devtools::test(location_of_new)
   install_old()
   return(out)

@@ -717,7 +717,7 @@ testthat::test_that("We remove _TMP files on error", {
 ```
 
 
-</details>
+</details> <br><br>
 
 
 We used `xfun`, so let's import it:
@@ -1337,11 +1337,20 @@ Once we are done testing the new version of the package, we'd like to restore th
 #' @export
 test_litr <- function(install_old, location_of_new) {
   devtools::install(location_of_new)
+  # need this to handle devtools::install's switch to using pkgload::unregister
+  # instead of pkgload::unload devtools@v2.4.4
+  pkgload::unload("litr")
   out <- devtools::test(location_of_new)
   install_old()
   return(out)
 }
 ```
+
+We need to use `pkgload` to avoid a bug caused by how `devtools::install` unloads a package.
+```{r}
+usethis::use_package("pkgload")
+```
+
 
 ### Testing `check_unedited()` {#test-check-unedited}
 
@@ -1519,7 +1528,9 @@ We finish by running commands that will document and test `litr`.
 We download the latest release:
 
 ```{r}
-rm(list = ls())
+# need to comment this out to handle devtools::install's switch to using pkgload::unregister
+# instead of pkgload::unload as of devtools@v2.4.4
+# rm(list = ls())
 litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
@@ -1534,7 +1545,9 @@ In this section, we will litr-knit each template and put the outputs in an examp
 
 ```{r}
 build_all_templates <- function(install_old, location_of_new) {
-  
+  # need this to handle devtools::install's switch to using pkgload::unregister
+  # instead of pkgload::unload as of devtools@v2.4.4
+  pkgload::unload("litr")
   devtools::install(location_of_new)
   example_dir <- file.path("..", "examples")
   if (fs::dir_exists(example_dir)) fs::dir_delete(example_dir)
