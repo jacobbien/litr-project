@@ -9,7 +9,7 @@ params:
 ---
 
 ```{r setup, include=FALSE}
-# I'm just here to make
+# I'm just here to make devtools output print properly in HTML files
 options(crayon.enabled = TRUE)
 ansi_aware_handler <- function(x, options) {
   paste0("<pre class=\"r-output\"><code>", fansi::sgr_to_html(x = x, warn = FALSE, term.cap = "256"),"</code></pre>")}
