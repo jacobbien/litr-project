@@ -45,7 +45,7 @@ testthat::test_that("add_text_to_file() works", {
   fs::dir_delete(dir)
 })
 
-testthat::test_that("We remove _TMP files on error", {
+testthat::test_that("We switch back to the original file on error", {
   dir <- tempfile()
   if (fs::file_exists(dir)) fs::file_delete(dir)
   fs::dir_create(dir)
@@ -56,10 +56,18 @@ testthat::test_that("We remove _TMP files on error", {
   error_chunk="```{r}\n1 + '1'\n\```\n"
   write(error_chunk,file=rmd_file,append=TRUE)
   
+  untouched_file <- readLines(rmd_file)
+  
   testthat::expect_error(litr::render(rmd_file), regexp = "Failed to run 'render_' in a new R session.", fixed=TRUE)
-  # look for any _TMP Rmd files
-  leftover_files <- fs::dir_ls(dir, regexp = stringr::str_replace(fs::path_file(rmd_file), ".(Rmd|rmd|RMD)","_TMP.\\1"))
+  
+  # make sure the temp file is removed
+  leftover_files <-fs::dir_ls(dir, regex=file.path(dir,paste0(".",fs::path_file(rmd_file))))
   testthat::expect_true(length(leftover_files) == 0)
+  
+  # make sure that the file we put back is the same as it was before knitting
+  put_back_file <- readLines(rmd_file)
+  testthat::expect_equal(put_back_file, untouched_file)
+  
   fs::dir_delete(dir)
 })
 

@@ -16,13 +16,11 @@ render <- function(input, ...) {
   # need to specify output file and directory to be the directory of the input
   output_file <- paste0(fs::path_ext_remove(input), ".html")
   input_dir <- fs::path_dir(input)
-    
+  original_copy <- file.path(input_dir,paste0(".",fs::path_file(input)))
+  fs::file_copy(input,original_copy, overwrite = TRUE)
   rmd_file <- readLines(input)
   preprocessed_rmd <- preprocess_chunk_labels(rmd_file)
-  # write this to a temp file in the same directory as the input file
-  temp_file <- paste0(fs::path_ext_remove(input),"_TMP.", fs::path_ext(input))
-  modified_input <- file.path(input_dir, fs::path_file(temp_file))
-  writeLines(preprocessed_rmd, modified_input)
+  writeLines(preprocessed_rmd, input)
   # Pre-knit steps end
   
   # call rmarkdown::render in a new environment so it behaves the same as 
@@ -32,7 +30,7 @@ render <- function(input, ...) {
   args <- list(...)
   # only change the output file name if output_file is not passed by the user
   args[["output_file"]] <- ifelse(is.null(args[["output_file"]]), output_file, args[["output_file"]])
-  params <- get_params_used(modified_input, args$params)
+  params <- get_params_used(input, args$params)
   package_dir <- ifelse(
     params$package_parent_dir == ".",
     file.path(dirname(input), params$package_name),
@@ -47,19 +45,16 @@ render <- function(input, ...) {
 
   out <-  tryCatch(
       {
-        xfun::Rscript_call(render_, c(input = modified_input, args))
+        xfun::Rscript_call(render_, c(input = input, args))
       },
       error=function(cond){
-        # look for a _TMP version of the input file
-        tmp_files <- fs::dir_ls(file.path(dirname(input)), regexp = stringr::str_replace(fs::path_file(input), ".(Rmd|rmd|RMD)","_TMP.\\1"))
-        if( length(tmp_files) > 0){
-          fs::file_delete(tmp_files)
-        }
+        # swap the original copy with the modified file
+        fs::file_copy(original_copy, input, overwrite=TRUE)
+        fs::file_delete(original_copy)
         stop(cond)
       }
     )
     
-  # out <- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -68,14 +63,19 @@ render <- function(input, ...) {
     add_chunk_label_hyperlinks(html_file)
   }
   
+  
+  # swap the original copy with the modified file
+  fs::file_copy(original_copy, input, overwrite = TRUE)
+  # now that we've finished using the temporary file, let's clean up after ourselves
+  fs::file_delete(original_copy)
+  
   # add to DESCRIPTION file the version of litr used to create package:
   write_version_to_description(package_dir)
   
   # add litr hash so we can tell later if package files were manually edited:
   write_hash_to_description(package_dir)
   
-  # now that we've finished using the temporary file, let's clean up after our selves
-  fs::file_delete(modified_input)
+  
 }
 
 #' Add hyperlinks to function definitions

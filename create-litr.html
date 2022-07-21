@@ -1108,13 +1108,11 @@ the location of the outputted package can be found.</p></li>
   # need to specify output file and directory to be the directory of the input
   output_file &lt;- paste0(fs::path_ext_remove(input), &quot;.html&quot;)
   input_dir &lt;- fs::path_dir(input)
-    
+  original_copy &lt;- file.path(input_dir,paste0(&quot;.&quot;,fs::path_file(input)))
+  fs::file_copy(input,original_copy, overwrite = TRUE)
   rmd_file &lt;- readLines(input)
   preprocessed_rmd &lt;- <a href='#preprocess_chunk_labels'>preprocess_chunk_labels</a>(rmd_file)
-  # write this to a temp file in the same directory as the input file
-  temp_file &lt;- paste0(fs::path_ext_remove(input),&quot;_TMP.&quot;, fs::path_ext(input))
-  modified_input &lt;- file.path(input_dir, fs::path_file(temp_file))
-  writeLines(preprocessed_rmd, modified_input)
+  writeLines(preprocessed_rmd, input)
   # Pre-knit steps end
   
   # call rmarkdown::render in a new environment so it behaves the same as 
@@ -1124,7 +1122,7 @@ the location of the outputted package can be found.</p></li>
   args &lt;- list(...)
   # only change the output file name if output_file is not passed by the user
   args[[&quot;output_file&quot;]] &lt;- ifelse(is.null(args[[&quot;output_file&quot;]]), output_file, args[[&quot;output_file&quot;]])
-  params &lt;- <a href='#get_params_used'>get_params_used</a>(modified_input, args$params)
+  params &lt;- <a href='#get_params_used'>get_params_used</a>(input, args$params)
   package_dir &lt;- ifelse(
     params$package_parent_dir == &quot;.&quot;,
     file.path(dirname(input), params$package_name),
@@ -1139,19 +1137,16 @@ the location of the outputted package can be found.</p></li>
 
   out &lt;-  tryCatch(
       {
-        xfun::Rscript_call(render_, c(input = modified_input, args))
+        xfun::Rscript_call(render_, c(input = input, args))
       },
       error=function(cond){
-        # look for a _TMP version of the input file
-        tmp_files &lt;- fs::dir_ls(file.path(dirname(input)), regexp = stringr::str_replace(fs::path_file(input), &quot;.(Rmd|rmd|RMD)&quot;,&quot;_TMP.\\1&quot;))
-        if( length(tmp_files) &gt; 0){
-          fs::file_delete(tmp_files)
-        }
+        # swap the original copy with the modified file
+        fs::file_copy(original_copy, input, overwrite=TRUE)
+        fs::file_delete(original_copy)
         stop(cond)
       }
     )
     
-  # out &lt;- xfun::Rscript_call(render_, c(input = input, args))
   
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, &quot;html$&quot;))) {
@@ -1160,14 +1155,19 @@ the location of the outputted package can be found.</p></li>
     <a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_file)
   }
   
+  
+  # swap the original copy with the modified file
+  fs::file_copy(original_copy, input, overwrite = TRUE)
+  # now that we&#39;ve finished using the temporary file, let&#39;s clean up after ourselves
+  fs::file_delete(original_copy)
+  
   # add to DESCRIPTION file the version of litr used to create package:
   <a href='#write_version_to_description'>write_version_to_description</a>(package_dir)
   
   # add litr hash so we can tell later if package files were manually edited:
   <a href='#write_hash_to_description'>write_hash_to_description</a>(package_dir)
   
-  # now that we&#39;ve finished using the temporary file, let&#39;s clean up after our selves
-  fs::file_delete(modified_input)
+  
 }</code></pre>
 <p><strong>Note: When <code>litr::<a href='#render'>render</a>()</code> encounters an error,
 it can leave the output directory partially modified but without an
@@ -1182,7 +1182,7 @@ DESCRIPTION file doesn’t exist then this wouldn’t work.</strong></p>
 <summary>
 Tests to make sure we remove temporary files on errors
 </summary>
-<pre class="r"><code>testthat::test_that(&quot;We remove _TMP files on error&quot;, {
+<pre class="r"><code>testthat::test_that(&quot;We switch back to the original file on error&quot;, {
   dir &lt;- tempfile()
   if (fs::file_exists(dir)) fs::file_delete(dir)
   fs::dir_create(dir)
@@ -1193,10 +1193,18 @@ Tests to make sure we remove temporary files on errors
   error_chunk=&quot;```{r}\n1 + &#39;1&#39;\n\```\n&quot;
   write(error_chunk,file=rmd_file,append=TRUE)
   
+  untouched_file &lt;- readLines(rmd_file)
+  
   testthat::expect_error(litr::<a href='#render'>render</a>(rmd_file), regexp = &quot;Failed to run &#39;render_&#39; in a new R session.&quot;, fixed=TRUE)
-  # look for any _TMP Rmd files
-  leftover_files &lt;- fs::dir_ls(dir, regexp = stringr::str_replace(fs::path_file(rmd_file), &quot;.(Rmd|rmd|RMD)&quot;,&quot;_TMP.\\1&quot;))
+  
+  # make sure the temp file is removed
+  leftover_files &lt;-fs::dir_ls(dir, regex=file.path(dir,paste0(&quot;.&quot;,fs::path_file(rmd_file))))
   testthat::expect_true(length(leftover_files) == 0)
+  
+  # make sure that the file we put back is the same as it was before knitting
+  put_back_file &lt;- readLines(rmd_file)
+  testthat::expect_equal(put_back_file, untouched_file)
+  
   fs::dir_delete(dir)
 })</code></pre>
 </details>
