@@ -47,6 +47,12 @@ especially [`knitr`](https://yihui.org/knitr/),
 where he demonstrates a similar idea, although his approach appears to
 be more of a proof of concept.
 
+You can hear [Jeremy Howard](https://www.fast.ai/about/#jeremy) and
+[Hugo Bowne-Anderson](https://hugobowne.github.io/) talk about literate
+programming and [`nbdev`](https://nbdev.fast.ai/) on the [Vanishing
+Gradients podcast](https://vanishinggradients.fireside.fm/2). This
+discussion is what inspired `litr`!
+
 ## Getting started
 
 You can install `litr` and get started like so:
