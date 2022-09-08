@@ -658,6 +658,23 @@ We used the package `xfun`, so let's import it:
 usethis::use_package("xfun")
 ```
 
+The function `find_labels()` takes a block of code and returns both a logical vector of which lines contained chunk labels and another vector containing the labels of those referenced chunks.
+
+```{r}
+#' Find an Rmd chunk label in a code chunk
+#' 
+#' @param chunk_code Character vector of code from an Rmd code chunk. Each element is a line of the code chunk.
+#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `<<label>>` was found and chunk_ids is a character vector of chunk label was found in that chunk.
+find_labels <- function(chunk_code) {
+  rc <- knitr::all_patterns$md$ref.chunk
+  chunk_idx <- any(idx = grepl(rc, chunk_code))
+  chunk_ids <- stringr::str_trim(sub(rc, "\\1", chunk_code[grepl(rc, chunk_code)]))
+  return(list(chunk_idx = chunk_idx, chunk_ids = chunk_ids))
+}
+
+```
+
+
 The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
 
 ```{r}
