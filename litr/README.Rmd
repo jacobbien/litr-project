@@ -89,11 +89,16 @@ We plan for this section to expand over time.  Please let us know if you'd like 
 ```{r, eval=TRUE, echo=FALSE, results='asis'}
 path <- "https://github.com/{user}/{repo}/blob/{branch}/"
 tibble(
-  user = c("jacobbien"),
-  repo = c("jsm2022-project"),
-  branch = c("main"),
-  pkg_name = c("jsm2022"),
-  description = c("navigate the JSM program from the comfort of an R console")) %>% 
+  user = c("jacobbien",
+           "jacobbien"),
+  repo = c("jsm2022-project",
+           "rleastsquares-project"),
+  branch = c("main",
+             "main"),
+  pkg_name = c("jsm2022",
+               "rleastsquares"),
+  description = c("navigate the JSM program from the comfort of an R console",
+                  "perform least squares (a package coded in a live demo)")) %>% 
   transmute(
     `Package name` = pkg_name,
     Description = description,
