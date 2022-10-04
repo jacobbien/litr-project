@@ -2,7 +2,7 @@
 % Please edit documentation in create-litr.Rmd.
 \name{check_unedited}
 \alias{check_unedited}
-\title{Check if package directory is the unedited output of litr::render}
+\title{Check if package directory is the unedited output of litr::render()}
 \usage{
 check_unedited(package_dir)
 }

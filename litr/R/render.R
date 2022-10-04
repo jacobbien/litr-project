@@ -31,11 +31,12 @@ render <- function(input, ...) {
   }
 
   out <- xfun::Rscript_call(render_, c(input = input, args))
-  
+
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
     html_file <- stringr::str_subset(out, "html$")
     add_function_hyperlinks(html_file)
+    add_chunk_label_hyperlinks(html_file)
   }
   
   # add to DESCRIPTION file the version of litr used to create package:
@@ -81,6 +82,52 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
     function(x) {
       fn_name <- stringr::str_remove(x, "\\(")
       stringr::str_glue("<a href='#{fn_name}'>{fn_name}</a>(")
+    }
+  )
+  writeLines(txt, con = output_file)
+}
+
+#' Add hyperlinks to embedded chunks
+#' 
+#' Finds chunks that are referenced in the html file by looking for comments
+#' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
+#' and then whenever the chunk label `<<foo>>` is found it wraps it in a 
+#' `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
+#' 
+#' @param html_file File name of html file that was created from Rmd file
+#' @param output_file File name to output to. Default: `html_file`
+#' @param reference_delim The delimiter used to indicate a chunk label 
+#' @export
+add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
+                                       reference_start = "&lt;&lt;",
+                                       reference_end = "&gt;&gt;"){
+  txt <- readLines(html_file)
+  start_line <- which(txt == "<body>")
+  pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
+  # find chunks that are defined in this file:
+  chunk_names <- character(0)
+  for (i in seq(start_line + 1, length(txt))) {
+    chunk_name <- stringr::str_match(txt[i], pattern)[, 2]
+    if(is.na(chunk_name)) next
+    # a function was defined in this line, so put a span around it
+    txt[i] <- stringr::str_replace(
+      txt[i],
+      pattern,
+      stringr::str_glue("<span id='{chunk_name}'>###&quot;\\1&quot;###</span>")
+    )
+    # and keep track of it for later:
+    chunk_names <- c(chunk_names, chunk_name)
+  }
+  
+  # whenever one of these named chunks is referenced, link to its definition
+  txt <- stringr::str_replace_all(
+    txt,
+    paste0(reference_start, chunk_names, reference_end, collapse = "|"),
+    function(chunk_name) {
+      chunk_name <- stringr::str_remove_all(
+        chunk_name, 
+        paste(reference_start, reference_end, sep = "|"))
+      stringr::str_glue("<a href='#{chunk_name}'>&lt&lt{chunk_name}&gt&gt</a>")
     }
   )
   writeLines(txt, con = output_file)

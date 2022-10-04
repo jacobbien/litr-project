@@ -53,7 +53,7 @@ read_hash_from_description <- function(package_dir) {
   stringr::str_extract(txt, "\\S+$")
 }
 
-#' Check if package directory is the unedited output of litr::render
+#' Check if package directory is the unedited output of litr::render()
 #' 
 #' Uses hash stored in a special `litr` field of DESCRIPTION file to check that 
 #' the current state of the R package directory is identical to its state at the
