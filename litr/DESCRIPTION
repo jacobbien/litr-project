@@ -1,6 +1,6 @@
 Package: litr
 Title: Literate Programming for Writing R Packages
-Version: 0.0.4
+Version: 0.4.0
 Authors@R: 
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre"))
 Description: Allows one to fully create an R package in a single .Rmd
@@ -24,4 +24,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.3
-LitrId: 4724b9a7a52c33736733ba1a844ccc53
+LitrId: 621c29943ad1c5871299c16290e544bc

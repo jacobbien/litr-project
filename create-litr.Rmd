@@ -20,14 +20,14 @@ The `litr` package allows one to define an R package by writing an R markdown fi
 
 ## Package setup
 
-We start by specifying the information needed in the DESCRIPTION file of the R package.
+We start by specifying the information needed in the DESCRIPTION file of the R package. We mostly follow [the R Packages book](https://r-pkgs.org/lifecycle.html#sec-release-version)'s description of version numbering.  Releases 0.0.1, 0.0.2, and 0.0.3 should really have been 0.1.0, 0.2.0, and 0.3.0, because these were not just patches.  Rather, each added quite substantial new functionality.  For this reason, we have gone straight from 0.0.3 to 0.4.0.   We will keep the rightmost number ("major release") at 0 until we feel like the package is complete with all the intended features.
 
 ```{r package-setup, message=FALSE, results='hide'}
 usethis::create_package(
   path = ".",
   fields = list(
     Package = params$package_name,
-    Version = "0.0.4",
+    Version = "0.4.0",
     Title = "Literate Programming for Writing R Packages",
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
