@@ -17,6 +17,8 @@ subsequent manual edits.)
 \item Sets the root directory to this directory
 \item Sets up the main chunk hook \code{litr::send_to_package()} that sends code to the
 R package directory.
+\item Deactivates an internal function of the \code{usethis} package
+\item Redefines the document output hook to handle chunk references differently
 \item Sets up a \href{https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html}{custom language engine} called
 \code{package_doc} that creates a package documentation file and then inserts
 whatever the user puts in the chunk.

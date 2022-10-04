@@ -1,0 +1,117 @@
+---
+title: 'Creating the ``r params$package_name`` R package'
+knit: litr::render
+params:
+  package_name: 'rknuth' # <-- change this to your package name
+  package_parent_dir: '.' # <-- relative to this file location
+---
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = '.',
+  fields = list(
+    Package = params$package_name,
+    Version = '0.0.0.9000',
+    Title = 'A Package With Chunk References',
+    Description = 'This package is defined using references to chunks.',
+    `Authors@R` = person(
+      given = 'First',
+      family = 'Last',
+      email = 'you@gmail.com',
+      role = c('aut', 'cre')
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = 'F. Last')
+```
+
+We will try defining a bit of code that will be referenced later:
+
+```{r a, eval=FALSE}
+x <- x + 7
+y <- 2 * x
+```
+
+Then we will define a function that references various chunks:
+
+```{r}
+#' A function defined with references to chunks.
+#' 
+#' This function does some math.
+#' 
+#' @param x a number
+#' @export 
+add_five <- function(x) {
+  <<a>>
+  <<b>>
+  return(x)
+}
+```
+ 
+We can try this function:
+
+```{r some-test-cases}
+add_five(1)
+<<c>>
+add_five(10)
+```
+
+And here is another chunk that was referenced above:
+
+```{r b, eval=FALSE}
+x <- y / 2
+x <- x - 2
+```
+
+Something else to try:
+
+```{r c, eval=FALSE}
+add_five(-2)
+```
+
+And another function can reuse some of the code above:
+
+```{r}
+#' Another function defined with references to chunks.
+#' 
+#' This function does some math.
+#' 
+#' @param x a number
+#' @export 
+add_seven_and_double <- function(x) {
+  <<a>>
+  return(y)
+}
+```
+
+```{r}
+testthat::test_that('add_five() works', {
+  testthat::expect_equal(add_five(2), 7)
+})
+```
+
+```{r}
+testthat::test_that('add_seven_and_double() works', {
+  testthat::expect_equal(add_seven_and_double(1), 2 * (1 + 7))
+})
+```
+
+```{r}
+testthat::test_that('several calls to function works', {
+  <<some-test-cases>>
+  testthat::expect_equal(add_seven_and_double(-1), 2 * (-1 + 7))
+})
+```
+
+
+Some documentation.
+
+```{r}
+rm(list = ls())
+litr::document() # <-- use instead of devtools::document()
+```
+

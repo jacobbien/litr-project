@@ -142,6 +142,17 @@ testthat::test_that("get_params_used works", {
   fs::dir_delete(dir)
 })
 
+testthat::test_that('Knuth-style references work', {
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-rknuth.Rmd')
+  fs::file_copy(path = testthat::test_path("create-rknuth.Rmd"), new_path = rmd_file)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, 'create-rknuth.html')))
+  fs::dir_delete(dir)
+})
+
 testthat::test_that("templates can be knit", {
   dir <- tempfile()
   if (fs::file_exists(dir)) fs::file_delete(dir)

@@ -8,6 +8,8 @@
 #' * Sets the root directory to this directory
 #' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
 #' R package directory.
+#' * Deactivates an internal function of the `usethis` package
+#' * Redefines the document output hook to handle chunk references differently  
 #' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
 #' `package_doc` that creates a package documentation file and then inserts
 #' whatever the user puts in the chunk.
@@ -48,6 +50,55 @@ setup <- function(package_dir) {
                                                    fs::path("src", "code.cpp"))
                            }, ns = "usethis")
   
+  # define document hook to handle chunk references:
+  knitr::knit_hooks$set(document = function(x) {
+    # get the indices of x corresponding to code chunks
+    chunk_start <- "^(\n```+[a-zA-Z0-9_]+\n)"
+    idx_block <- stringr::str_which(x, chunk_start)
+    original_code <- knitr::knit_code$get()
+    labels <- names(original_code)
+    # replace each x[i] that has code in it with the original code
+    for (i in seq_along(idx_block)) {
+      # break code into multiple lines:
+      chunk <- strsplit(x[idx_block[i]], "\n")[[1]]
+      # get the fence used (in case it's more than three ticks):
+      i_start <- stringr::str_which(chunk, "^```+[a-zA-Z0-9_]+")
+      fence <- stringr::str_replace(chunk[i_start[1]],
+                                    "^(```+)[a-zA-Z0-9_]+", "\\1")
+      i_fences <- stringr::str_which(chunk, paste0("^", fence))
+      # there can be multiple code and output chunks strung together 
+      # within a single x[i] if results are not held to end
+      i_all_code <- c()
+      for (j in seq_along(i_start)) {
+        # get the elements corresponding the j-th code chunk within chunk
+        i_code_end <- i_fences[which(i_fences == i_start[j]) + 1]
+        i_all_code <- c(i_all_code, i_start[j]:i_code_end)
+      }
+      i_all_code <- setdiff(i_all_code, i_start[1])
+      chunk_no_code <- chunk[-i_all_code]
+      chunk <- c(chunk_no_code[1:i_start[1]],
+                 original_code[i][[1]], # insert the original version
+                 fence)
+      if (i_start[1] < length(chunk_no_code))
+        chunk <- c(chunk, chunk_no_code[(i_start[1] + 1):length(chunk_no_code)])
+        x[idx_block[i]] <- paste(chunk, collapse = "\n")
+    }
+    
+    # replace code chunks with the original code
+    # (so we'll still have <<label>> chunk references)
+    refs <- c() # labels that get referred to
+    for (label in labels) {
+      refs <- c(refs, find_labels(original_code[[label]])$chunk_ids)
+    }
+    refs <- unique(refs)
+    ref_id <- match(refs, labels)
+    to_insert <- paste0('###"', labels[ref_id], '"###\n')
+    x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
+                                                 chunk_start,
+                                                 paste0("\\1", to_insert))
+    x
+  })
+
   # setup package_doc engine
   knitr::knit_engines$set(package_doc = function(options) {
     # create package_doc
@@ -62,6 +113,7 @@ setup <- function(package_dir) {
     options[["eval"]] <- FALSE
     return(r_engine(options))
   })
+
 }
 
 #' Make error messages noticeable
@@ -200,4 +252,15 @@ add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) 
                  filetxt[location:length(filetxt)])
   }
   writeLines(filetxt, con = filename)
+}
+
+#' Find a .Rmd chunk label in a code chunk
+#' 
+#' @param chunk_code Character vector of code from a .Rmd code chunk. Each element is a line of the code chunk.
+#' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `<<label>>` was found and chunk_ids is a character vector of chunk label was found in that chunk.
+find_labels <- function(chunk_code) {
+  rc <- knitr::all_patterns$md$ref.chunk
+  chunk_idx <- any(idx = grepl(rc, chunk_code))
+  chunk_ids <- stringr::str_trim(sub(rc, "\\1", chunk_code[grepl(rc, chunk_code)]))
+  return(list(chunk_idx = chunk_idx, chunk_ids = chunk_ids))
 }
