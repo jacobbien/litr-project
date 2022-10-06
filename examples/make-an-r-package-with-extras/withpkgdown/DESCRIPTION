@@ -1,0 +1,18 @@
+Package: withpkgdown
+Title: A Package With a README, Vignette, and Pkgdown Site
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "you@gmail.com", role = c("aut", "cre"))
+Description: This package's purpose is to show how to have a README,
+    vignette, and a pkgdown website using litr.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown
+LitrVersionUsed: 0.4.0
+LitrId: cb9b0ba27d2ca301e3adfc4dd0a2bcc8

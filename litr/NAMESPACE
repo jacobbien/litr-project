@@ -2,7 +2,11 @@
 
 export(add_chunk_label_hyperlinks)
 export(add_function_hyperlinks)
+export(add_hex_sticker)
+export(add_pkgdown)
+export(add_readme)
 export(add_text_to_file)
+export(add_vignettes)
 export(check_unedited)
 export(document)
 export(render)

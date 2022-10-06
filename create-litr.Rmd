@@ -794,7 +794,8 @@ In addition to adding hyperlinks to function definitions, we also want to add hy
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
-#' @param reference_delim The delimiter used to indicate a chunk label 
+#' @param reference_start The delimiter used to indicate the start of a chunk label 
+#' @param reference_end The delimiter used to indicate the end of a chunk label 
 #' @export
 add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
                                        reference_start = "&lt;&lt;",
@@ -857,6 +858,128 @@ We used the package `rmarkdown`, so let's import it:
 usethis::use_package("rmarkdown")
 ```
 
+### Adding extras to an R package
+
+When writing an R package, there are some additional items one typically wants to include, such as a README file, one or more vignettes, and a `pkgdown` site.  In this section, we define some helper functions that will be make it easy to add these "extras" to a package.
+
+While a user could choose to generate all these items within the generating .Rmd file, for all but the simplest examples, it will probably be preferred to have these as separate source files.  These source files can live in the same directory as the generating .Rmd file or in their own directory (e.g., `litr-source-files` lives in the same directory as `create-litr.Rmd`, which is called `litr-project`).
+
+#### Adding a README
+
+We define a helper function that takes an externally defined README.Rmd and puts it into the package, creates a README.md, and makes sure that these will be added to the .Rbuildignore.
+
+```{r}
+#' Add README to package
+#' 
+#' This function takes a README.Rmd file, copies it into the package, and then
+#' renders it to a README.md file.  It also adds these two files to the
+#' .Rbuildignore.
+#' 
+#' @param rmd_file The path to a .Rmd file.
+#' @export
+add_readme <- function(rmd_file) {
+  usethis::use_readme_rmd(open = FALSE)
+  fs::file_copy(rmd_file, new_path = "README.Rmd", overwrite = TRUE)
+  out <- xfun::Rscript_call(
+    rmarkdown::render,
+    args = list(
+      input = "README.Rmd",
+      output_options = list(html_preview = "false")
+    )
+  )
+}
+```
+
+#### Adding a hex sticker
+
+We define a helper function that takes an externally defined hex sticker (.png file) and puts it into the package under `man/figures`.  The suggestion for storing it in this directory came from [here](https://pkgdown.r-lib.org/reference/build_home.html#images-and-figures).
+
+```{r}
+#' Add a hex sticker to package
+#' 
+#' In addition to calling this function, you should add to your README.Rmd something like this:
+#' 
+#' `# your-title <img src="man/figures/logo.png" align="right" height="139" />`
+#' 
+#' See [here](https://pkgdown.r-lib.org/reference/build_home.html#package-logo) 
+#' for more.
+#' 
+#' @param hex_png_file The .png file with your package's hex sticker
+#' @export
+add_hex_sticker <- function(hex_png_file) {
+  figures_dir <- file.path("man", "figures")
+  fs::dir_create(figures_dir)
+  fs::file_copy(path = hex_png_file, 
+                new_path = file.path(figures_dir, "logo.png"), 
+                overwrite = TRUE)
+}
+```
+
+#### Add vignettes
+
+We next define a helper function for adding vignettes to the package.  This mimics `usethis::use_vignette()`.  We couldn't directly use that function because we want the project file to live outside of the package directory, which confuses `usethis`.
+
+```{r}
+#' Add one or more vignettes to package
+#' 
+#' @param rmd_files A character vector of .Rmd files, each corresponding to 
+#' a vignette
+#' @export
+add_vignettes <- function(rmd_files) {
+  fs::dir_create("vignettes")
+  for (fn in rmd_files) fs::file_copy(fn, "vignettes")
+  
+  # update DESCRIPTION file:
+  desc::desc_set_dep("knitr", type = "Suggests")
+  desc::desc_set_dep("rmarkdown", type = "Suggests")
+  out <- desc::desc_set("VignetteBuilder", "knitr")
+}
+```
+
+Let's include the `desc` package, which helps us manipulate DESCRIPTION files.
+
+```{r}
+usethis::use_package("desc")
+```
+
+## Add a pkgdown site
+
+We define a function based on `usethis::use_pkgdown()`, but with a few differences:
+
+1. Avoid the parts to do with looking for projects
+2. Allow one to use a custom `_pkgdown.yml` that is stored outside of package
+
+```{r}
+#' Add a pkgdown site
+#' 
+#' This function creates a website for your package.  You can see it locally by
+#' opening `docs/index.html` in your package.  To get it online you can copy the
+#' `docs` directory to your website's server.
+#' 
+#' Be sure that in the generating .Rmd file this is called *after*
+#' `litr::document()` has been called.  To customize the site, you may pass a
+#' customized `_pkgdown.yml` file as described in [this `pkgdown` vignette](https://pkgdown.r-lib.org/articles/customise.html).
+#' 
+#' @param config_path The _pkgdown.yml file that lives somewhere outside of your package.  If NULL, then a basic default will be used.
+#' @export
+add_pkgdown <- function(config_path = NULL) {
+  config_file <- "_pkgdown.yml"
+  destdir <- "docs"
+  usethis::use_build_ignore(c(config_file, destdir, "pkgdown"))
+  if (is.null(config_path)) {
+    # create a new config file (note it lives outside of package)
+    config <- usethis:::pkgdown_config(destdir)
+    usethis::write_over(config_file, yaml::as.yaml(config))
+  } else {
+    # copy the one that already exists:
+    fs::file_copy(config_path, config_file)  
+  }
+  pkgdown::build_site()
+}
+```
+
+After this step, you can locally see the site by opening `docs/index.html` in the browser.  You can then copy the `docs` directory to your website's server and you're done.
+
 ### Combining .R files
 
 **This section should eventually be removed but for now I'm doing this to convince myself that the package generated by this .Rmd file really matches the initial version created without the package.**
@@ -888,6 +1011,10 @@ setup_functions <- c("setup",
                      "send_to_package",
                      "add_text_to_file",
                      "find_labels")
+extras_functions <- c("add_readme",
+                      "add_hex_sticker",
+                      "add_vignettes",
+                      "add_pkgdown")
 remove_initial_lines <- function(code_list) {
   # drop first line of each list element except for the first list element
   c(code_list[1], map(code_list[-1], ~ .x[-1]))
@@ -896,6 +1023,7 @@ fs::file_delete(setdiff(rfiles, "R/litr-package.R"))
 writeLines(unlist(remove_initial_lines(code[hash_functions])), "R/hash.R")
 writeLines(unlist(remove_initial_lines(code[render_functions])), "R/render.R")
 writeLines(unlist(remove_initial_lines(code[setup_functions])), "R/setup.R")
+writeLines(unlist(remove_initial_lines(code[extras_functions])), "R/extras.R")
 ```
 
 
@@ -958,6 +1086,40 @@ fs::file_copy(
     ),
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package-with-rcpp", "skeleton"
+    ),
+  overwrite = TRUE
+)
+```
+
+The fourth template shows how to create a package with "extras" such as a README, a vignette, and a pkgdown site:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With a README, Vignette, and Pkgdown Site",
+  template_dir = "make-an-r-package-with-extras",
+  template_description = "Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "litr-source-files", "make-an-r-package-with-extras", "skeleton.Rmd"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton"
+    ),
+  overwrite = TRUE
+)
+# fs::dir_create(file.path(
+#     "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
+#     "source-files"
+#     ))
+fs::dir_copy(
+  path = file.path(
+    "..", "litr-source-files", "make-an-r-package-with-extras", "source-files"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
+    "source-files"
     ),
   overwrite = TRUE
 )
@@ -1199,6 +1361,15 @@ testthat::test_that("templates can be knit", {
   testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
   
+  rmd_file <- file.path(dir, "create-withpkgdown.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-with-extras",
+                   package = "litr",
+                   edit = FALSE)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, "create-withpkgdown.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "withpkgdown")))
+
   fs::dir_delete(dir)
  })
 ```
@@ -1252,6 +1423,12 @@ build_all_templates <- function(install_old, location_of_new) {
     template_dir <- file.path(example_dir, template)
     fs::dir_create(template_dir)
     fs::file_move(fs::dir_ls(example_dir, regexp = pkg_name), template_dir)
+    if (fs::dir_exists(file.path(example_dir, "source-files"))) {
+      fs::dir_create(file.path(example_dir, template, "source-files"))
+      fs::dir_copy(file.path(example_dir, "source-files"),
+                   file.path(example_dir, template))
+      fs::dir_delete(file.path(example_dir, "source-files"))
+    }
   }
 
   install_old()

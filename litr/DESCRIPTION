@@ -13,6 +13,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
+    desc,
     devtools,
     digest,
     fs,
@@ -26,4 +27,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.0.3
-LitrId: 4e9ce1ffd0e5e33787d3b6788a2a0f19
+LitrId: f2189a5e3bb80439971968f2a6e7abcf

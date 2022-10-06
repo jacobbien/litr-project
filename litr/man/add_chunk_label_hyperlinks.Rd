@@ -16,7 +16,9 @@ add_chunk_label_hyperlinks(
 
 \item{output_file}{File name to output to. Default: \code{html_file}}
 
-\item{reference_delim}{The delimiter used to indicate a chunk label}
+\item{reference_start}{The delimiter used to indicate the start of a chunk label}
+
+\item{reference_end}{The delimiter used to indicate the end of a chunk label}
 }
 \description{
 Finds chunks that are referenced in the html file by looking for comments

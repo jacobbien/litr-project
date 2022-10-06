@@ -185,6 +185,15 @@ testthat::test_that("templates can be knit", {
   testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
   
+  rmd_file <- file.path(dir, "create-withpkgdown.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-with-extras",
+                   package = "litr",
+                   edit = FALSE)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, "create-withpkgdown.html")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "withpkgdown")))
+
   fs::dir_delete(dir)
  })
 

@@ -1,0 +1,43 @@
+---
+title: "Using withpkgdown Package"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using withpkgdown Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette describes how to use this package.  You start by loading the package.
+
+```{r}
+library(withpkgdown)
+```
+
+### Saying hello
+
+To say hello, you use the `say_hello()` function:
+
+For example, to say hello to someone named Jacob, you'd do the following:
+
+```{r}
+say_hello("Jacob")
+```
+
+### Saying hi
+
+To say hi to someone, one would use the following:
+
+```{r}
+say_hi("Jacob")
+```
+
+### More advanced use
+
+You can control the punctuation by using the `exclamation` argument:
+
+```{r}
+say_hello("Jacob", exclamation=FALSE)
+```
+

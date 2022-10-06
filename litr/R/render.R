@@ -96,7 +96,8 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
-#' @param reference_delim The delimiter used to indicate a chunk label 
+#' @param reference_start The delimiter used to indicate the start of a chunk label 
+#' @param reference_end The delimiter used to indicate the end of a chunk label 
 #' @export
 add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
                                        reference_start = "&lt;&lt;",
