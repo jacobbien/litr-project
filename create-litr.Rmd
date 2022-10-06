@@ -32,11 +32,9 @@ usethis::create_package(
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
     approach to R package development.",
-    `Authors@R` = person(
-      given = "Jacob",
-      family = "Bien",
-      email = "jbien@usc.edu",
-      role = c("aut", "cre")
+    `Authors@R` = c(
+      person("Jacob", "Bien", email = "jbien@usc.edu", role = c("aut", "cre")),
+      person("Patrick Vossler", role = "aut")
       )
    )
  )

@@ -28,5 +28,10 @@ litr::render("create-rhello.Rmd")
 \author{
 \strong{Maintainer}: Jacob Bien \email{jbien@usc.edu}
 
+Authors:
+\itemize{
+  \item Patrick Vossler
+}
+
 }
 \keyword{internal}
