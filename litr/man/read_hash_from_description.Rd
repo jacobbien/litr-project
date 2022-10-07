@@ -12,3 +12,4 @@ read_hash_from_description(package_dir)
 \description{
 Get the hash of the package from the DESCRIPTION file
 }
+\keyword{internal}

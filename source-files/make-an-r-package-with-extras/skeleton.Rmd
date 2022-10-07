@@ -97,7 +97,7 @@ litr::add_readme("../source-files/README.Rmd")
 ### Add a vignette
 
 ```{r}
-litr::add_vignettes("../source-files/using-this-package.Rmd")
+litr::add_vignettes("../source-files/using-package.Rmd")
 ```
 
 ### Add a pkgdown site

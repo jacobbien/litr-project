@@ -14,3 +14,4 @@ Uses hash stored in a special \code{litr} field of DESCRIPTION file to check tha
 the current state of the R package directory is identical to its state at the
 time that it was created by \code{litr::render()}.
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ List where chunk_idx is a logical vector for each line of the chunk correspondin
 \description{
 Find a .Rmd chunk label in a code chunk
 }
+\keyword{internal}

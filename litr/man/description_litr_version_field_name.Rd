@@ -9,3 +9,4 @@ description_litr_version_field_name()
 \description{
 Generate litr version field name for DESCRIPTION file
 }
+\keyword{internal}

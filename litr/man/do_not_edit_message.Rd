@@ -14,3 +14,4 @@ do_not_edit_message(rmd_file, type = c("R", "man", "c"))
 \description{
 Generate do-not-edit message to put at top of file
 }
+\keyword{internal}

@@ -8,6 +8,7 @@
 #' stored when `litr::render` generates the package.
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 hash_package_directory <- function(package_dir) {
   pkg_files <- fs::dir_ls(package_dir, recurse = TRUE, all = TRUE, type = "file")
   pkg_files <- stringr::str_subset(pkg_files, ".DS_Store$", negate = TRUE)
@@ -25,11 +26,13 @@ hash_package_directory <- function(package_dir) {
 }
 
 #' Generate litr hash field name for DESCRIPTION file
+#' @keywords internal
 description_litr_hash_field_name <- function() return("LitrId")
 
 #' Write the hash of the package to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 write_hash_to_description <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
   add_text_to_file(
@@ -42,6 +45,7 @@ write_hash_to_description <- function(package_dir) {
 #' Get the hash of the package from the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 read_hash_from_description <- function(package_dir) {
   descr <- file.path(package_dir, "DESCRIPTION")
   if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
@@ -60,7 +64,7 @@ read_hash_from_description <- function(package_dir) {
 #' time that it was created by `litr::render()`.
 #' 
 #' @param package_dir Path to package
-#' @export
+#' @keywords internal
 check_unedited <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
   hash == read_hash_from_description(package_dir)

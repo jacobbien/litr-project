@@ -22,3 +22,4 @@ that have one or more lines that start with \verb{test_that(} or
 \verb{testthat::test_that(} (potentially with some leading whitespace).  These
 chunks are then written to the \code{tests} directory of the R package.
 }
+\keyword{internal}

@@ -467,7 +467,7 @@ level-one header at the top of the README:</p>
 </div>
 <div id="add-a-vignette" class="section level3">
 <h3>Add a vignette</h3>
-<pre class="r"><code>litr::add_vignettes(&quot;../source-files/using-this-package.Rmd&quot;)</code></pre>
+<pre class="r"><code>litr::add_vignettes(&quot;../source-files/using-package.Rmd&quot;)</code></pre>
 </div>
 <div id="add-a-pkgdown-site" class="section level3">
 <h3>Add a pkgdown site</h3>
@@ -483,8 +483,6 @@ that we can have a link to it on our pkgdown site.</p>
 <code>litr::document()</code> has been called in this file.</p>
 <pre class="r"><code>litr::add_pkgdown(&quot;../source-files/_pkgdown.yml&quot;)</code></pre>
 <pre><code>## ✔ Adding &#39;^_pkgdown\\.yml$&#39;, &#39;^docs$&#39;, &#39;^pkgdown$&#39; to &#39;.Rbuildignore&#39;</code></pre>
-<pre><code>## Warning in readLines(con, warn = readLines.warn): incomplete final line found on
-## &#39;./_pkgdown.yml&#39;</code></pre>
 <pre><code>## -- Installing package into temporary library -----------------------------------
 ## == Building pkgdown site =======================================================
 ## Reading from: &#39;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withpkgdown&#39;
@@ -519,8 +517,8 @@ that we can have a link to it on our pkgdown site.</p>
 ## Writing &#39;reference/say_hi.html&#39;
 ## -- Building articles -----------------------------------------------------------
 ## Writing &#39;articles/index.html&#39;
-## Reading &#39;vignettes/using-this-package.Rmd&#39;
-## Writing &#39;articles/using-this-package.html&#39;
+## Reading &#39;vignettes/using-package.Rmd&#39;
+## Writing &#39;articles/using-package.html&#39;
 ## Writing &#39;sitemap.xml&#39;
 ## -- Building search index -------------------------------------------------------
 ## == DONE ========================================================================</code></pre>
@@ -529,8 +527,6 @@ however, here we are providing a customized _pkgdown.yml file. See <a href="http
 <code>pkgdown</code> vignette</a> for how to customize your site. Here
 is the contents of the <code>_pkgdown.yml</code> that was used:</p>
 <pre class="r"><code>cat(readLines(&quot;../source-files/_pkgdown.yml&quot;), sep = &#39;\n&#39;)</code></pre>
-<pre><code>Warning in readLines(&quot;../source-files/_pkgdown.yml&quot;): incomplete final line
-found on &#39;../source-files/_pkgdown.yml&#39;</code></pre>
 <pre><code>url: ~
 template:
   bootstrap: 5

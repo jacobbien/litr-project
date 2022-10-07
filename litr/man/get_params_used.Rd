@@ -15,3 +15,4 @@ get_params_used(input, passed_params)
 When the \code{params} argument of \code{rmarkdown::render()} is explicitly used, this
 overrides the default that appears in \code{input}.
 }
+\keyword{internal}

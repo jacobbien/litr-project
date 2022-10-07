@@ -13,3 +13,4 @@ make_noticeable(msg)
 Since litr error messages are amid a lot of output from knitting, we'd like
 the litr ones to be eye-catching.
 }
+\keyword{internal}

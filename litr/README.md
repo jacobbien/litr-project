@@ -1,16 +1,79 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# litr: Writing R packages via literate programming
+# litr: Writing R packages via literate programming <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of `litr` is to allow you to write a complete R package in a
-single R markdown document. This enables a workflow for writing R
-packages that is probably very different from what you are used to.
+## Overview
 
-## Why would one want to write R packages in this way?
+The `litr` R package lets you write a complete R package in a single R
+markdown document. This enables a workflow for writing R packages that
+is probably very different from what you are used to.
+
+![*With litr, knitting creates an R package in addition to the .html
+file.*](man/figures/diagram3.png)
+
+## Why write R packages in this way?
+
+Using `litr` brings all the benefits of R markdown to package
+development:
+
+-   **Record and explain** every step of making your R package so that
+    you and others can understand every detail years later.
+-   Present the functions in your package in a logical order that
+    maximizes **human readability**.
+-   Include all the derivations in **latex right next to the code** that
+    ends up in your package.
+-   Include **figures** alongside code to help in the explanation.
+-   Define **unit tests in the relevant context**, i.e. directly after
+    defining the function to be tested.
+
+Furthermore, writing your R package is actually *easier* with `litr`
+than without it. Just choose one of the R package
+[templates](articles/package-templates.html) below and press “Knit” –
+and you’ll have a working R package that you can then modify.
+
+## Installation
+
+You can install the latest version of `litr` on github with the
+following:
+
+``` r
+remotes::install_github("jacobbien/litr-project", subdir = "litr")
+```
+
+## Getting started
+
+Using a template is the best way to get started:
+
+``` r
+rmarkdown::draft("create-rhello.Rmd", template = "make-an-r-package", package = "litr")
+```
+
+This creates an R markdown file called
+[`create-rhello.Rmd`](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd)
+that demonstrates the literate programming workflow for writing an R
+package. In particular, when you knit `create-rhello.Rmd`, it creates a
+tiny example R package called
+[`rhello`](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello)
+with one function and one test function. To knit, you can either press
+“Knit” in RStudio or use the following command:
+
+``` r
+litr::render("create-rhello.Rmd")
+```
+
+This creates an R package! Now you can modify the template to design
+your own package.
+
+To explore other kinds of R packages, such as those using `Rcpp`, see
+the [templates](articles/package-templates.html) page. Also, see the
+section on [packages in the wild](articles/packages-in-the-wild.html)
+that use `litr`.
+
+## More background
 
 When you try to understand the code in an R package, the logic of how
 the functions relate to each other is often not obvious. While including
@@ -52,57 +115,3 @@ You can hear [Jeremy Howard](https://www.fast.ai/about/#jeremy) and
 programming and [`nbdev`](https://nbdev.fast.ai/) on the [Vanishing
 Gradients podcast](https://vanishinggradients.fireside.fm/2). This
 discussion is what inspired `litr`!
-
-## Getting started
-
-You can install `litr` and get started like so:
-
-``` r
-remotes::install_github("jacobbien/litr-project", subdir = "litr")
-rmarkdown::draft("create-rhello.Rmd", template = "make-an-r-package", package = "litr")
-```
-
-This installs `litr` and then creates an R markdown template file called
-`create-rhello.Rmd` that demonstrates the literate programming workflow
-for writing an R package. In particular, when you knit
-`create-rhello.Rmd`, it creates a tiny example R package called `rhello`
-with one function and one test function. To knit, you can either press
-“Knit” in RStudio or use the following command:
-
-``` r
-litr::render("create-rhello.Rmd")
-```
-
-## Examples
-
-### Package templates
-
-Predefined `litr` templates make it easy to get started writing R
-packages of various kinds. The following table shows the package
-templates available. Click on the “Generated html” and “Generated R
-package” cells to see what each template produces.
-
-| Template name                 | Description                                                             | Rmd source file                                                                                                                             | Generated html                                                                                                                                                               | Generated R package                                                                                                    |
-|:------------------------------|:------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------|
-| make-an-r-package             | the most basic package: a function and a test                           | [create-rhello.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd)                       | [create-rhello.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.html)                       | [rhello/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/rhello)                       |
-| make-an-r-package-with-data   | a package with a data set in it                                         | [create-rhasdata.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/create-rhasdata.Rmd)         | [create-rhasdata.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/create-rhasdata.html)         | [rhasdata/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/rhasdata)         |
-| make-an-r-package-with-rcpp   | a package using `Rcpp`                                                  | [create-withrcpp.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/create-withrcpp.Rmd)         | [create-withrcpp.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/create-withrcpp.html)         | [withrcpp/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/withrcpp)         |
-| make-an-r-package-with-extras | a package with a README, vignette(s), a pkgdown site, and a hex sticker | [create-withpkgdown.Rmd](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/create-withpkgdown.Rmd) | [create-withpkgdown.html](https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/create-withpkgdown.html) | [withpkgdown/](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/withpkgdown) |
-
-Once you’ve chosen a template, you can get started as follows:
-
-``` r
-rmarkdown::draft("create-[name-of-your-package].Rmd", template = "[name-of-template]", package = "litr")
-litr::render("create-[name-of-your-package].Rmd")
-```
-
-### Packages in the wild
-
-We plan for this section to expand over time. Please let us know if
-you’d like your litr-knitted package to appear here (or create a pull
-request adding it).
-
-| Package name  | Description                                               | Rmd source file                                                                                                   | Generated html                                                                                                                                     | Generated R package                                                                          |
-|:--------------|:----------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------|
-| jsm2022       | navigate the JSM program from the comfort of an R console | [create-jsm2022.Rmd](https://github.com/jacobbien/jsm2022-project/blob/main/create-jsm2022.Rmd)                   | [create-jsm2022.html](https://htmlpreview.github.io/?https://github.com/jacobbien/jsm2022-project/blob/main/create-jsm2022.html)                   | [jsm2022/](https://github.com/jacobbien/jsm2022-project/blob/main/jsm2022)                   |
-| rleastsquares | perform least squares (a package coded in a live demo)    | [create-rleastsquares.Rmd](https://github.com/jacobbien/rleastsquares-project/blob/main/create-rleastsquares.Rmd) | [create-rleastsquares.html](https://htmlpreview.github.io/?https://github.com/jacobbien/rleastsquares-project/blob/main/create-rleastsquares.html) | [rleastsquares/](https://github.com/jacobbien/rleastsquares-project/blob/main/rleastsquares) |

@@ -22,3 +22,4 @@ modified file.  If \code{location} is NULL, then text is added to end of file.
 If file does not exist, it is created and \code{location} is ignored (unless
 \code{req_exist} is \code{TRUE}, in which case an error is thrown).
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ state of the package. This is formed by ignoring the \code{LitrId} field of the
 DESCRIPTION file, which is the location where the output of this function is
 stored when \code{litr::render} generates the package.
 }
+\keyword{internal}

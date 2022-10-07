@@ -17,3 +17,4 @@ form \verb{foo <- function(} and then wraps \code{foo} in a \code{span} tag with
 and then whenever \code{foo} is found it wraps a \verb{a href="#foo"} tag so that it be
 a hyperlink to \code{foo}'s definition.
 }
+\keyword{internal}

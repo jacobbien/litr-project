@@ -24,3 +24,4 @@ R package directory.
 whatever the user puts in the chunk.
 }
 }
+\keyword{internal}

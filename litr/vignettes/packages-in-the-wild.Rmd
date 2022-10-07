@@ -1,0 +1,49 @@
+---
+title: "Packages in the Wild"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Packages in the Wild}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+We plan for this section to expand over time.  Please let us know^[Email [Jacob](http://faculty.marshall.usc.edu/jacob-bien/) or post an issue [here](https://github.com/jacobbien/litr-project/issues)] if you'd like your litr-knitted package to appear here.
+
+```{r, eval=TRUE, include=FALSE}
+library(dplyr)
+library(stringr)
+```
+
+```{r, eval=TRUE, echo=FALSE, results='asis'}
+path <- "https://github.com/{user}/{repo}/blob/{branch}/"
+tibble(
+  user = c("jacobbien",
+           "jacobbien"),
+  repo = c("jsm2022-project",
+           "rleastsquares-project"),
+  branch = c("main",
+             "main"),
+  pkg_name = c("jsm2022",
+               "rleastsquares"),
+  description = c("navigate the JSM program from the comfort of an R console",
+                  "perform least squares (a package coded in a live demo)")) %>% 
+  transmute(
+    `Package name` = pkg_name,
+    Description = description,
+    `Rmd source file` = str_glue(paste0(
+        "[create-{pkg_name}.Rmd](",
+        path,
+        "create-{pkg_name}.Rmd)"
+    )),
+    `Generated html` = str_glue(paste0(
+      "[create-{pkg_name}.html](https://htmlpreview.github.io/?",
+      path,
+      "create-{pkg_name}.html)"
+    )),
+    `Generated R package` = str_glue(paste0(
+      "[{pkg_name}/](", path, "{pkg_name})"
+    ))
+  ) %>% 
+knitr::kable()
+```
+

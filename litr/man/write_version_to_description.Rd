@@ -12,3 +12,4 @@ write_version_to_description(package_dir)
 \description{
 Write the version of litr used to the DESCRIPTION file
 }
+\keyword{internal}

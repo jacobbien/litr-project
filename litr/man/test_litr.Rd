@@ -23,3 +23,4 @@ Typical values for \code{install_old} could be
 \item \code{function() remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")}.
 }
 }
+\keyword{internal}

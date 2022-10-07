@@ -12,7 +12,7 @@
 #' 
 #' @param install_old A function that when run will install the old version
 #' @param location_of_new Path to the new package directory
-#' @export
+#' @keywords internal
 test_litr <- function(install_old, location_of_new) {
   devtools::install(location_of_new)
   out <- devtools::test(location_of_new)

@@ -1,6 +1,6 @@
 Package: litr
 Title: Literate Programming for Writing R Packages
-Version: 0.4.0
+Version: 0.5.0
 Authors@R: c(
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre")),
     person("Patrick Vossler", role = "aut")
@@ -23,8 +23,12 @@ Imports:
     usethis,
     xfun
 Suggests: 
+    knitr,
     Rcpp,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-LitrVersionUsed: 0.0.3
-LitrId: f0f0e75a41067a1ae5daf8f611800fbf
+VignetteBuilder: knitr
+URL: https://github.com/jacobbien/litr-project/tree/main/litr
+LitrVersionUsed: 0.4.0
+LitrId: b19efa263c236729f585d732b4207389

@@ -8,6 +8,10 @@ params:
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
+```{r, include=FALSE}
+start <- Sys.time()
+```
+
 *[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
 
 The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
@@ -27,7 +31,7 @@ usethis::create_package(
   path = ".",
   fields = list(
     Package = params$package_name,
-    Version = "0.4.0",
+    Version = "0.5.0",
     Title = "Literate Programming for Writing R Packages",
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
@@ -129,7 +133,7 @@ and we only want this to appear once in `code.cpp`, so we do a bit of work to re
 #' chunk code is executed
 #' @param options Has information from the chunk
 #' @param envir Environment
-#' @export
+#' @keywords internal
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
   if (before == FALSE) {
@@ -218,6 +222,7 @@ The code also calls the function `do_not_edit_message()`, which adds a line at t
 #' 
 #' @param rmd_file Name of the Rmd file to mention
 #' @param type Whether this is a R/ file, man/ file, or a c file
+#' @keywords internal
 do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
   if (type[1] == "R")
     return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
@@ -247,7 +252,7 @@ The above also makes use of a simple helper function that inserts text into a sp
 #' @param filename Name of file
 #' @param location Specifies where text should be added. See description for more.
 #' @param req_exist If TRUE, then 
-#' @export
+#' @keywords internal
 add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) {
   if (!file.exists(filename)) {
     if (req_exist) stop(stringr::str_glue("Cannot find file {filename}."))
@@ -365,7 +370,7 @@ The way `knitr` handles this, the code chunk would no longer look like this but 
 #' whatever the user puts in the chunk.
 #' 
 #' @param package_dir Directory where R package will be created
-#' @export
+#' @keywords internal
 setup <- function(package_dir) {
   if (file.exists(package_dir)) {
     unedited <- tryCatch(check_unedited(package_dir),
@@ -474,6 +479,7 @@ In our new `document` output hook defined above, we call a function `find_labels
 #' 
 #' @param chunk_code Character vector of code from a .Rmd code chunk. Each element is a line of the code chunk.
 #' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `<<label>>` was found and chunk_ids is a character vector of chunk label was found in that chunk.
+#' @keywords internal
 find_labels <- function(chunk_code) {
   rc <- knitr::all_patterns$md$ref.chunk
   chunk_idx <- any(idx = grepl(rc, chunk_code))
@@ -492,6 +498,7 @@ The `setup()` function also uses a small function, `make_noticeable()`, which we
 #' the litr ones to be eye-catching.
 #' 
 #' @param msg Error message
+#' @keywords internal
 make_noticeable <- function(msg) {
   paste("",
         "======",
@@ -525,6 +532,7 @@ Let's start by defining the function `hash_package_directory()` that does the ha
 #' stored when `litr::render` generates the package.
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 hash_package_directory <- function(package_dir) {
   pkg_files <- fs::dir_ls(package_dir, recurse = TRUE, all = TRUE, type = "file")
   pkg_files <- stringr::str_subset(pkg_files, ".DS_Store$", negate = TRUE)
@@ -552,6 +560,7 @@ We will store this hash in a special field within the DESCRIPTION file.  Let's c
 
 ```{r}
 #' Generate litr hash field name for DESCRIPTION file
+#' @keywords internal
 description_litr_hash_field_name <- function() return("LitrId")
 ```
 
@@ -561,6 +570,7 @@ Ok, now let's write the function that `litr::render()` will call that will take 
 #' Write the hash of the package to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 write_hash_to_description <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
   add_text_to_file(
@@ -577,6 +587,7 @@ And of course we'll need a way a function that can read the value of that field 
 #' Get the hash of the package from the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 read_hash_from_description <- function(package_dir) {
   descr <- file.path(package_dir, "DESCRIPTION")
   if (!file.exists(descr)) stop("Cannot find DESCRIPTION file.")
@@ -599,7 +610,7 @@ With all this hash functionality in place, the function `check_unedited()` is ac
 #' time that it was created by `litr::render()`.
 #' 
 #' @param package_dir Path to package
-#' @export
+#' @keywords internal
 check_unedited <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
   hash == read_hash_from_description(package_dir)
@@ -614,6 +625,7 @@ For the sake of reproducibility, it will be useful to record the version of `lit
 
 ```{r}
 #' Generate litr version field name for DESCRIPTION file
+#' @keywords internal
 description_litr_version_field_name <- function() return("LitrVersionUsed")
 ```
 
@@ -621,6 +633,7 @@ description_litr_version_field_name <- function() return("LitrVersionUsed")
 #' Write the version of litr used to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 write_version_to_description <- function(package_dir) {
   ver <- as.character(utils::packageVersion("litr"))
   add_text_to_file(
@@ -708,7 +721,7 @@ render <- function(input, ...) {
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, ...) {
-    litr::setup(package_dir)
+    litr:::setup(package_dir)
     rmarkdown::render(input, ...)
   }
 
@@ -749,7 +762,7 @@ The function `add_function_hyperlinks()` looks for text of the form `foo <- func
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
-#' @export
+#' @keywords internal
 add_function_hyperlinks <- function(html_file, output_file = html_file) {
   txt <- readLines(html_file)
   start_line <- which(txt == "<body>")
@@ -796,7 +809,7 @@ In addition to adding hyperlinks to function definitions, we also want to add hy
 #' @param output_file File name to output to. Default: `html_file`
 #' @param reference_start The delimiter used to indicate the start of a chunk label 
 #' @param reference_end The delimiter used to indicate the end of a chunk label 
-#' @export
+#' @keywords internal
 add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
                                        reference_start = "&lt;&lt;",
                                        reference_end = "&gt;&gt;"){
@@ -843,6 +856,7 @@ As described earlier, the function `get_params_used()` combines the parameters f
 #' overrides the default that appears in `input`.
 #' @param input The input file to be rendered (see `rmarkdown::render`)
 #' @param passed_params The list of parameters that were passed to `render`.
+#' @keywords internal
 get_params_used <- function(input, passed_params) {
   params <- rmarkdown::yaml_front_matter(input)$params
   for (param in names(passed_params)) {
@@ -862,7 +876,7 @@ usethis::use_package("rmarkdown")
 
 When writing an R package, there are some additional items one typically wants to include, such as a README file, one or more vignettes, and a `pkgdown` site.  In this section, we define some helper functions that will be make it easy to add these "extras" to a package.
 
-While a user could choose to generate all these items within the generating .Rmd file, for all but the simplest examples, it will probably be preferred to have these as separate source files.  These source files can live in the same directory as the generating .Rmd file or in their own directory (e.g., `litr-source-files` lives in the same directory as `create-litr.Rmd`, which is called `litr-project`).
+While a user could choose to generate all these items within the generating .Rmd file, for all but the simplest examples, it will probably be preferred to have these as separate source files.  These source files can live in the same directory as the generating .Rmd file or in their own directory (e.g., `source-files` lives in the same directory as `create-litr.Rmd`, which is called `litr-project`).
 
 #### Adding a README
 
@@ -915,7 +929,7 @@ add_hex_sticker <- function(hex_png_file) {
 }
 ```
 
-#### Add vignettes
+#### Adding vignettes
 
 We next define a helper function for adding vignettes to the package.  This mimics `usethis::use_vignette()`.  We couldn't directly use that function because we want the project file to live outside of the package directory, which confuses `usethis`.
 
@@ -942,7 +956,7 @@ Let's include the `desc` package, which helps us manipulate DESCRIPTION files.
 usethis::use_package("desc")
 ```
 
-## Add a pkgdown site
+#### Add a pkgdown site
 
 We define a function based on `usethis::use_pkgdown()`, but with a few differences:
 
@@ -1029,7 +1043,7 @@ writeLines(unlist(remove_initial_lines(code[extras_functions])), "R/extras.R")
 
 ## Including templates
 
-We now add the .Rmd templates to the package.  We have the `skeleton.Rmd` defined in `litr-source-files`.  Note that paths are relative to the outputted package's location.
+We now add the .Rmd templates to the package.  We have the `skeleton.Rmd` defined in `source-files`.  Note that paths are relative to the outputted package's location.
 
 The first template is the simplest imaginable package with a single function:
 
@@ -1042,7 +1056,7 @@ usethis::use_rmarkdown_template(
 )
 fs::file_copy(
   path = file.path(
-    "..", "litr-source-files", "make-an-r-package", "skeleton.Rmd"
+    "..", "source-files", "make-an-r-package", "skeleton.Rmd"
     ), 
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package", "skeleton"
@@ -1062,7 +1076,7 @@ usethis::use_rmarkdown_template(
 )
 fs::file_copy(
   path = file.path(
-    "..", "litr-source-files", "make-an-r-package-with-data", "skeleton.Rmd"
+    "..", "source-files", "make-an-r-package-with-data", "skeleton.Rmd"
     ), 
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package-with-data", "skeleton"
@@ -1082,7 +1096,7 @@ usethis::use_rmarkdown_template(
 )
 fs::file_copy(
   path = file.path(
-    "..", "litr-source-files", "make-an-r-package-with-rcpp", "skeleton.Rmd"
+    "..", "source-files", "make-an-r-package-with-rcpp", "skeleton.Rmd"
     ),
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package-with-rcpp", "skeleton"
@@ -1102,20 +1116,16 @@ usethis::use_rmarkdown_template(
 )
 fs::file_copy(
   path = file.path(
-    "..", "litr-source-files", "make-an-r-package-with-extras", "skeleton.Rmd"
+    "..", "source-files", "make-an-r-package-with-extras", "skeleton.Rmd"
     ),
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton"
     ),
   overwrite = TRUE
 )
-# fs::dir_create(file.path(
-#     "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
-#     "source-files"
-#     ))
 fs::dir_copy(
   path = file.path(
-    "..", "litr-source-files", "make-an-r-package-with-extras", "source-files"
+    "..", "source-files", "make-an-r-package-with-extras", "source-files"
     ),
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
@@ -1124,27 +1134,6 @@ fs::dir_copy(
   overwrite = TRUE
 )
 ```
-
-## Including README
-
-We include a `README.Rmd` and then generate the `README.md` based on it:
-
-```{r}
-usethis::use_readme_rmd(open = FALSE)
-fs::file_copy(
-  path = file.path("..", "litr-source-files", "README.Rmd"), 
-  new_path = "README.Rmd", 
-  overwrite = TRUE
-)
-xfun::Rscript_call(
-  rmarkdown::render,
-  args = list(
-    input = "README.Rmd",
-    output_options = list(html_preview = "false")
-    )
-  )
-```
-
 
 ## Defining some tests {#tests}
 
@@ -1167,7 +1156,7 @@ Once we are done testing the new version of the package, we'd like to restore th
 #' 
 #' @param install_old A function that when run will install the old version
 #' @param location_of_new Path to the new package directory
-#' @export
+#' @keywords internal
 test_litr <- function(install_old, location_of_new) {
   devtools::install(location_of_new)
   out <- devtools::test(location_of_new)
@@ -1302,7 +1291,7 @@ Here we test the handling of chunk references (as implemented in the document ou
 ```{r}
 fs::file_copy(
   path = file.path(
-    "..", "litr-source-files", "test-example-files", "create-rknuth.Rmd"
+    "..", "source-files", "test-example-files", "create-rknuth.Rmd"
     ), 
   new_path = file.path("tests", "testthat"), 
   overwrite = TRUE
@@ -1390,7 +1379,6 @@ We finish by running commands that will document and test `litr`.
 We download the latest release:
 
 ```{r}
-rm(list = ls())
 litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
@@ -1440,3 +1428,70 @@ xfun::Rscript_call(build_all_templates,
                    list(install_old = install_old, location_of_new = "."))
 ```
 
+
+## Including extras `litr`
+
+### README with hex sticker
+
+We include a `README.Rmd` and then generate the `README.md` based on it:
+
+```{r}
+add_readme(file.path("..", "source-files", "README.Rmd"))
+```
+
+Let's add the `litr` hex sticker too (which is referred to in the README).
+
+```{r}
+add_hex_sticker(file.path("..", "source-files", "litr-hex.png"))
+```
+
+Let's also add a figure we include in the README.
+
+```{r}
+fs::file_copy(file.path("..", "source-files", "diagram3.png"),
+              file.path("man", "figures"))
+```
+
+### Vignettes
+
+```{r}
+add_vignettes(c(file.path("..", "source-files", "package-templates.Rmd"),
+                file.path("..", "source-files", "packages-in-the-wild.Rmd"),
+                file.path("..", "source-files", "faqs.Rmd")))
+```
+
+
+### A pkgdown site
+
+We'll first add the github url to the DESCRIPTION file.
+
+```{r}
+usethis:::use_description_field(
+  "URL",
+  "https://github.com/jacobbien/litr-project/tree/main/litr"
+)
+```
+
+Next, we create the pkgdown site.  The customizations come from the source file `source-files/_pkgdown.yml`.
+
+
+```{r}
+pkgdown_yml <- file.path("..", "source-files", "_pkgdown.yml")
+add_pkgdown(pkgdown_yml)
+```
+
+We follow [this `pkgdown` vignette](https://pkgdown.r-lib.org/articles/customise.html) in our customizations.  Here is the contents of the `_pkgdown.yml` that was used:
+
+```{r comment=''}
+cat(readLines("../source-files/_pkgdown.yml"), sep = '\n')
+```
+
+After this step, you can locally see the site by opening `docs/index.html` in the browser.  You can then copy the `docs` directory to your website's server and you're done.
+
+```{r}
+end <- Sys.time()
+cat(stringr::str_glue("This file was run starting on {start} and took "),
+    difftime(Sys.time(), start, units = "mins"), 
+    " minutes.",
+    fill = TRUE)
+```

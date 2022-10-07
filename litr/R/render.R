@@ -26,7 +26,7 @@ render <- function(input, ...) {
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, ...) {
-    litr::setup(package_dir)
+    litr:::setup(package_dir)
     rmarkdown::render(input, ...)
   }
 
@@ -55,7 +55,7 @@ render <- function(input, ...) {
 #' 
 #' @param html_file File name of html file that was created from Rmd file
 #' @param output_file File name to output to. Default: `html_file`
-#' @export
+#' @keywords internal
 add_function_hyperlinks <- function(html_file, output_file = html_file) {
   txt <- readLines(html_file)
   start_line <- which(txt == "<body>")
@@ -98,7 +98,7 @@ add_function_hyperlinks <- function(html_file, output_file = html_file) {
 #' @param output_file File name to output to. Default: `html_file`
 #' @param reference_start The delimiter used to indicate the start of a chunk label 
 #' @param reference_end The delimiter used to indicate the end of a chunk label 
-#' @export
+#' @keywords internal
 add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
                                        reference_start = "&lt;&lt;",
                                        reference_end = "&gt;&gt;"){
@@ -140,6 +140,7 @@ add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
 #' overrides the default that appears in `input`.
 #' @param input The input file to be rendered (see `rmarkdown::render`)
 #' @param passed_params The list of parameters that were passed to `render`.
+#' @keywords internal
 get_params_used <- function(input, passed_params) {
   params <- rmarkdown::yaml_front_matter(input)$params
   for (param in names(passed_params)) {
@@ -152,6 +153,7 @@ get_params_used <- function(input, passed_params) {
 #' 
 #' @param rmd_file Name of the Rmd file to mention
 #' @param type Whether this is a R/ file, man/ file, or a c file
+#' @keywords internal
 do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
   if (type[1] == "R")
     return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
@@ -164,11 +166,13 @@ do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
 }
 
 #' Generate litr version field name for DESCRIPTION file
+#' @keywords internal
 description_litr_version_field_name <- function() return("LitrVersionUsed")
 
 #' Write the version of litr used to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
+#' @keywords internal
 write_version_to_description <- function(package_dir) {
   ver <- as.character(utils::packageVersion("litr"))
   add_text_to_file(

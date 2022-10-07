@@ -1,0 +1,9 @@
+---
+title: "More on Literate Programming for Writing R Packages"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{More on Literate Programming for Writing R Packages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+

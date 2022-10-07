@@ -12,3 +12,4 @@ write_hash_to_description(package_dir)
 \description{
 Write the hash of the package to the DESCRIPTION file
 }
+\keyword{internal}

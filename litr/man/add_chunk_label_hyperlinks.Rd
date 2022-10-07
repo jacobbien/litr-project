@@ -26,3 +26,4 @@ of the form \verb{###"foo"###} and then wraps \code{foo} in a \code{span} tag wi
 and then whenever the chunk label \verb{<<foo>>} is found it wraps it in a
 \verb{a href="#foo"} tag so that it will be a hyperlink to \code{foo}'s definition.
 }
+\keyword{internal}

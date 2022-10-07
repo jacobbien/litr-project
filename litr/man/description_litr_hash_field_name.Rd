@@ -9,3 +9,4 @@ description_litr_hash_field_name()
 \description{
 Generate litr hash field name for DESCRIPTION file
 }
+\keyword{internal}

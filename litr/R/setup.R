@@ -15,7 +15,7 @@
 #' whatever the user puts in the chunk.
 #' 
 #' @param package_dir Directory where R package will be created
-#' @export
+#' @keywords internal
 setup <- function(package_dir) {
   if (file.exists(package_dir)) {
     unedited <- tryCatch(check_unedited(package_dir),
@@ -122,6 +122,7 @@ setup <- function(package_dir) {
 #' the litr ones to be eye-catching.
 #' 
 #' @param msg Error message
+#' @keywords internal
 make_noticeable <- function(msg) {
   paste("",
         "======",
@@ -144,7 +145,7 @@ make_noticeable <- function(msg) {
 #' chunk code is executed
 #' @param options Has information from the chunk
 #' @param envir Environment
-#' @export
+#' @keywords internal
 send_to_package <- function(before, options, envir) {
   msg <- do_not_edit_message(knitr::current_input(), type = "R")
   if (before == FALSE) {
@@ -230,7 +231,7 @@ send_to_package <- function(before, options, envir) {
 #' @param filename Name of file
 #' @param location Specifies where text should be added. See description for more.
 #' @param req_exist If TRUE, then 
-#' @export
+#' @keywords internal
 add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) {
   if (!file.exists(filename)) {
     if (req_exist) stop(stringr::str_glue("Cannot find file {filename}."))
@@ -258,6 +259,7 @@ add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE) 
 #' 
 #' @param chunk_code Character vector of code from a .Rmd code chunk. Each element is a line of the code chunk.
 #' @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `<<label>>` was found and chunk_ids is a character vector of chunk label was found in that chunk.
+#' @keywords internal
 find_labels <- function(chunk_code) {
   rc <- knitr::all_patterns$md$ref.chunk
   chunk_idx <- any(idx = grepl(rc, chunk_code))

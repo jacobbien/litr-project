@@ -1,0 +1,46 @@
+---
+title: "R Package Templates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{R Package Templates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Predefined `litr` templates make it easy to get started writing R packages of various kinds.  The following table shows the package templates available.  Click on the "Generated html" and "Generated R package" cells to see what each template produces.
+
+```{r, eval=TRUE, include=FALSE}
+library(dplyr)
+library(stringr)
+```
+
+```{r, eval=TRUE, echo=FALSE, results='asis'}
+path <- "https://github.com/jacobbien/litr-project/blob/main/examples"
+tibble(
+  template = c("make-an-r-package", 
+               "make-an-r-package-with-data",
+               "make-an-r-package-with-rcpp",
+               "make-an-r-package-with-extras"),
+  pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown"),
+  description = c("the most basic package: a function and a test",
+                  "a package with a data set in it",
+                  "a package using `Rcpp`",
+                  "a package with a README, vignette(s), a pkgdown site, and a hex sticker")) %>% 
+  transmute(
+    `Template name` = template,
+    Description = description,
+    `Rmd source file` = str_glue("[create-{pkg_name}.Rmd]({path}/{template}/create-{pkg_name}.Rmd)"),
+    `Generated html` = str_glue(
+      "[create-{pkg_name}.html](https://htmlpreview.github.io/?{path}/{template}/create-{pkg_name}.html)"
+      ),
+    `Generated R package` = str_glue("[{pkg_name}/]({path}/{template}/{pkg_name})")
+  ) %>% 
+knitr::kable()
+```
+
+Once you've chosen a template, you can get started as follows:
+
+```{r, eval=FALSE}
+rmarkdown::draft("create-[name-of-your-package].Rmd", template = "[name-of-template]", package = "litr")
+litr::render("create-[name-of-your-package].Rmd")
+```
