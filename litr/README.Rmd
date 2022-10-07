@@ -58,11 +58,15 @@ library(stringr)
 ```{r, eval=TRUE, echo=FALSE, results='asis'}
 path <- "https://github.com/jacobbien/litr-project/blob/main/examples"
 tibble(
-  template = c("make-an-r-package", "make-an-r-package-with-data", "make-an-r-package-with-rcpp"),
-  pkg_name = c("rhello", "rhasdata", "withrcpp"),
+  template = c("make-an-r-package", 
+               "make-an-r-package-with-data",
+               "make-an-r-package-with-rcpp",
+               "make-an-r-package-with-extras"),
+  pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown"),
   description = c("the most basic package: a function and a test",
                   "a package with a data set in it",
-                  "a package using `Rcpp`")) %>% 
+                  "a package using `Rcpp`",
+                  "a package with a README, vignette(s), a pkgdown site, and a hex sticker")) %>% 
   transmute(
     `Template name` = template,
     Description = description,
