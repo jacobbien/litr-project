@@ -31,6 +31,11 @@ Yes!  You can do so using the function `litr::add_vignettes()`.  See the templat
 
 Yes!  See the template [`create-withpkgdown.Rmd`](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/create-withpkgdown.Rmd) for an example of how this works.
 
+## Is it true that literate programming won an Academy Award?
+
+Almost, but not quite.  Donald Knuth was personally thanked in an Academy Award acceptance speech for developing literate programming.  See Kristen Bell and Michael B. Jordan clapping for literate programming [here](https://www.youtube.com/watch?v=7d9juPsv1QU&t=143s).
+
+
 ## Did you use `litr` to write `litr`?
 
 Yes! Version 0.0.1 of `litr` was written in the traditional way (since `litr` didn't yet exist...).  But thereafter, version n+1 of `litr` was written using version n of `litr`.  For more on the creation of `litr`, see [here](https://github.com/jacobbien/litr-project).  Or if you're really interested, have a look at [`create-litr.Rmd`](https://github.com/jacobbien/litr-project/blob/main/create-litr.Rmd).
