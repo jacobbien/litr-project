@@ -1457,7 +1457,8 @@ fs::file_copy(file.path("..", "source-files", "diagram3.png"),
 ```{r}
 add_vignettes(c(file.path("..", "source-files", "package-templates.Rmd"),
                 file.path("..", "source-files", "packages-in-the-wild.Rmd"),
-                file.path("..", "source-files", "faqs.Rmd")))
+                file.path("..", "source-files", "faqs.Rmd"),
+                file.path("..", "source-files", "basic-example.Rmd")))
 ```
 
 

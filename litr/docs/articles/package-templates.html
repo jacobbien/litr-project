@@ -48,6 +48,7 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/basic-example.html">A Basic Example</a>
     <a class="dropdown-item" href="../articles/faqs.html">FAQs</a>
     <a class="dropdown-item" href="../articles/package-templates.html">R Package Templates</a>
     <a class="dropdown-item" href="../articles/packages-in-the-wild.html">Packages in the Wild</a>
@@ -140,7 +141,9 @@ and a hex sticker</td>
 </table>
 <p>Once you’ve chosen a template, you can get started as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-[name-of-your-package].Rmd"</span>, template <span class="op">=</span> <span class="st">"[name-of-template]"</span>, package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-[name-of-your-package].Rmd"</span>,</span>
+<span>                 template <span class="op">=</span> <span class="st">"[name-of-template]"</span>,</span>
+<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
 <span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-[name-of-your-package].Rmd"</span><span class="op">)</span></span></code></pre></div>
   </main>
 </div>

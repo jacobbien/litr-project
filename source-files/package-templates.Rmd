@@ -41,6 +41,8 @@ knitr::kable()
 Once you've chosen a template, you can get started as follows:
 
 ```{r, eval=FALSE}
-rmarkdown::draft("create-[name-of-your-package].Rmd", template = "[name-of-template]", package = "litr")
+rmarkdown::draft("create-[name-of-your-package].Rmd",
+                 template = "[name-of-template]",
+                 package = "litr")
 litr::render("create-[name-of-your-package].Rmd")
 ```
