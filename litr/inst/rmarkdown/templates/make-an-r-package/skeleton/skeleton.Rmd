@@ -22,7 +22,7 @@ usethis::create_package(
     Package = params$package_name,
     Version = "0.0.0.9000",
     Title = "A Package That Says Hello",
-    Description = "This package says hello.  But it's actual purpose is to show how an R package can be completely coded in a single R markdown file.",
+    Description = "This package says hello.  But its actual purpose is to show how an R package can be completely coded in a single R markdown file.",
     `Authors@R` = person(
       given = "First",
       family = "Last",

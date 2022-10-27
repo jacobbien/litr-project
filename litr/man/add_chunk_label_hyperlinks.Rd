@@ -5,25 +5,24 @@
 \title{Add hyperlinks to embedded chunks}
 \usage{
 add_chunk_label_hyperlinks(
-  html_file,
-  output_file = html_file,
+  html_files,
   reference_start = "&lt;&lt;",
   reference_end = "&gt;&gt;"
 )
 }
 \arguments{
-\item{html_file}{File name of html file that was created from Rmd file}
-
-\item{output_file}{File name to output to. Default: \code{html_file}}
+\item{html_files}{Character vector of file names of html files that were created
+from Rmd files}
 
 \item{reference_start}{The delimiter used to indicate the start of a chunk label}
 
 \item{reference_end}{The delimiter used to indicate the end of a chunk label}
 }
 \description{
-Finds chunks that are referenced in the html file by looking for comments
+Finds chunks that are referenced in the html file(s) by looking for comments
 of the form \verb{###"foo"###} and then wraps \code{foo} in a \code{span} tag with \code{id="foo"}
 and then whenever the chunk label \verb{<<foo>>} is found it wraps it in a
-\verb{a href="#foo"} tag so that it will be a hyperlink to \code{foo}'s definition.
+\verb{a href="file.html#foo"} tag so that it will be a hyperlink to \code{foo}'s
+definition.
 }
 \keyword{internal}

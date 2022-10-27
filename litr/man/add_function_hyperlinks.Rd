@@ -4,17 +4,16 @@
 \alias{add_function_hyperlinks}
 \title{Add hyperlinks to function definitions}
 \usage{
-add_function_hyperlinks(html_file, output_file = html_file)
+add_function_hyperlinks(html_files)
 }
 \arguments{
-\item{html_file}{File name of html file that was created from Rmd file}
-
-\item{output_file}{File name to output to. Default: \code{html_file}}
+\item{html_files}{Character vector of file names of html files that were created
+from Rmd files}
 }
 \description{
-Finds functions that are defined in the html file by looking for text of the
+Finds functions that are defined in the html file(s) by looking for text of the
 form \verb{foo <- function(} and then wraps \code{foo} in a \code{span} tag with \code{id="foo"}
-and then whenever \code{foo} is found it wraps a \verb{a href="#foo"} tag so that it be
-a hyperlink to \code{foo}'s definition.
+and then whenever \code{foo} is found it wraps a \verb{a href="file.html#foo"} tag so
+that it will be a hyperlink to \code{foo}'s definition.
 }
 \keyword{internal}

@@ -41,3 +41,12 @@ reference:
     - add_vignettes
     - add_pkgdown
     - add_hex_sticker
+
+- title: Newer functions
+  desc: >
+    These are the functions for producing different output formats.
+  contents:
+    - litr_html_document
+    - litr_pdf_document
+    - litr_gitbook
+    - litrify_output_format

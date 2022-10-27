@@ -299,8 +299,8 @@ pre code {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -308,16 +308,9 @@ pre code {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -382,7 +375,7 @@ of the R package.</p>
     Package = params$package_name,
     Version = &quot;0.0.0.9000&quot;,
     Title = &quot;A Package That Says Hello&quot;,
-    Description = &quot;This package says hello.  But it&#39;s actual purpose is to show how an R package can be completely coded in a single R markdown file.&quot;,
+    Description = &quot;This package says hello.  But its actual purpose is to show how an R package can be completely coded in a single R markdown file.&quot;,
     `Authors@R` = person(
       given = &quot;First&quot;,
       family = &quot;Last&quot;,
@@ -409,17 +402,17 @@ usethis::use_mit_license(copyright_holder = &quot;F. Last&quot;)</code></pre>
 <p>Code chunks whose first line starts with <code>#&#39;</code> are added to
 the package.</p>
 <p>We can try running it.</p>
-<pre class="r"><code><a href='#say_hello'>say_hello</a>(&quot;Jacob&quot;)</code></pre>
+<pre class="r"><code><a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;)</code></pre>
 <pre><code>## [1] &quot;Hello Jacob!&quot;</code></pre>
 <p>That code chunk does not start with <code>#&#39;</code>, so it is not
 added to the package.</p>
 <p>Let’s write some tests to make sure the function behaves as
 desired:</p>
 <pre class="r"><code>testthat::test_that(&quot;say_hello works&quot;, {
-  testthat::expect_equal(<a href='#say_hello'>say_hello</a>(&quot;Jacob&quot;), &quot;Hello Jacob!&quot;)
-  testthat::expect_equal(<a href='#say_hello'>say_hello</a>(&quot;Jacob&quot;, exclamation = FALSE), &quot;Hello Jacob.&quot;)
+  testthat::expect_equal(<a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;), &quot;Hello Jacob!&quot;)
+  testthat::expect_equal(<a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;, exclamation = FALSE), &quot;Hello Jacob.&quot;)
 })</code></pre>
-<pre><code>## Test passed 😀</code></pre>
+<pre><code>## Test passed 🎉</code></pre>
 <p>Code chunks that have one or more lines starting with
 <code>test_that(</code> (or <code>testthat::test_that(</code>) are added
 to the package as tests.</p>
@@ -431,14 +424,14 @@ to the package as tests.</p>
 the package. It may also be a good idea to check the package from within
 this file.</p>
 <pre class="r"><code>rm(list = ls())
-litr::document() # &lt;-- use instead of devtools::document()</code></pre>
-<pre><code>## ℹ Updating rhello documentation</code></pre>
-<pre><code>## ℹ Loading rhello
-## Writing &#39;NAMESPACE&#39;
-## Writing &#39;say_hello.Rd&#39;</code></pre>
-<pre class="r"><code># devtools::build()
+litr::document() # &lt;-- use instead of devtools::document()
+# devtools::build()
 # devtools::install()
 # devtools::check(document = FALSE)</code></pre>
+<pre><code>## ℹ Updating rhello documentation</code></pre>
+<pre><code>## ℹ Loading rhello
+## Writing &#39;]8;;file:///Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/rhello/NAMESPACENAMESPACE]8;;&#39;
+## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;say_hello&#39;)say_hello.Rd]8;;&#39;</code></pre>
 </div>
 
 

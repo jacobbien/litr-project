@@ -82,6 +82,18 @@
     <loc>/reference/litr-package.html</loc>
   </url>
   <url>
+    <loc>/reference/litr_gitbook.html</loc>
+  </url>
+  <url>
+    <loc>/reference/litr_html_document.html</loc>
+  </url>
+  <url>
+    <loc>/reference/litr_pdf_document.html</loc>
+  </url>
+  <url>
+    <loc>/reference/litrify_output_format.html</loc>
+  </url>
+  <url>
     <loc>/reference/make_noticeable.html</loc>
   </url>
   <url>

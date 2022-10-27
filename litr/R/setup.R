@@ -152,6 +152,8 @@ send_to_package <- function(before, options, envir) {
     # Don't do anything after the code chunk has been executed.
     return()
   }
+  package_dir <- knitr::opts_knit$get("root.dir")
+  package_name <- fs::path_file(package_dir)
   if (stringr::str_detect(options$code[1], "^#' ")) {
     # starts with roxygen2, so let's assume this chunk is defining an R function
     # or dataset that belongs in the package
@@ -169,14 +171,14 @@ send_to_package <- function(before, options, envir) {
         # send this to package
         return()
       }
-      file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
+      file <- file.path(package_dir, "R", stringr::str_glue("{objname}.R"))
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
   else if (any(stringr::str_detect(options$code,
                                    "^\\s*(testthat::)?test_that\\("))) {
     # This chunk is inferred to be a test
-    test_dir <- file.path(envir$package_dir, "tests", "testthat")
+    test_dir <- file.path(package_dir, "tests", "testthat")
     test_file <- file.path(test_dir, "tests.R")
     if (!file.exists(test_file)) {
       # It's the first chunk with tests
@@ -191,13 +193,13 @@ send_to_package <- function(before, options, envir) {
   } else if (options$engine == "Rcpp") {
     # To add Rcpp code, we need the package documentation file to exist 
     if (!file.exists(file.path(
-      envir$package_dir,
+      package_dir,
       "R",
-      paste0(envir$package_name, "-package.R"))
+      paste0(package_name, "-package.R"))
       )) {
       usethis::use_package_doc(open = FALSE)
     }
-    cpp_file <- file.path(envir$package_dir, "src", "code.cpp")
+    cpp_file <- file.path(package_dir, "src", "code.cpp")
     if (!file.exists(cpp_file)) {
       # set up package for Rcpp
       usethis::use_rcpp(name = "code")

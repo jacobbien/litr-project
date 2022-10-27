@@ -8,10 +8,6 @@ params:
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
-```{r, include=FALSE}
-start <- Sys.time()
-```
-
 *[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
 
 The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
@@ -24,7 +20,7 @@ The `litr` package allows one to define an R package by writing an R markdown fi
 
 ## Package setup
 
-We start by specifying the information needed in the DESCRIPTION file of the R package. We mostly follow [the R Packages book](https://r-pkgs.org/lifecycle.html#sec-release-version)'s description of version numbering.  Releases 0.0.1, 0.0.2, and 0.0.3 should really have been 0.1.0, 0.2.0, and 0.3.0, because these were not just patches.  Rather, each added quite substantial new functionality.  For this reason, we have gone straight from 0.0.3 to 0.4.0.   We will keep the rightmost number ("major release") at 0 until we feel like the package is complete with all the intended features.
+We start by specifying the information needed in the DESCRIPTION file of the R package. We mostly follow [the R Packages book](https://r-pkgs.org/lifecycle.html#sec-release-version)'s description of version numbering.  Releases 0.0.1, 0.0.2, and 0.0.3 should really have been 0.1.0, 0.2.0, and 0.3.0, because these were not just patches.  Rather, each added quite substantial new functionality.  For this reason, we have gone straight from 0.0.3 to 0.4.0.   We will keep the leftmost number ("major release") at 0 until we feel like the package is complete with all the intended features.
 
 ```{r package-setup, message=FALSE, results='hide'}
 usethis::create_package(
@@ -140,6 +136,8 @@ send_to_package <- function(before, options, envir) {
     # Don't do anything after the code chunk has been executed.
     return()
   }
+  package_dir <- knitr::opts_knit$get("root.dir")
+  package_name <- fs::path_file(package_dir)
   if (stringr::str_detect(options$code[1], "^#' ")) {
     # starts with roxygen2, so let's assume this chunk is defining an R function
     # or dataset that belongs in the package
@@ -157,14 +155,14 @@ send_to_package <- function(before, options, envir) {
         # send this to package
         return()
       }
-      file <- file.path(envir$package_dir, "R", stringr::str_glue("{objname}.R"))
+      file <- file.path(package_dir, "R", stringr::str_glue("{objname}.R"))
       cat(paste(c(msg, "", options$code, ""), collapse = "\n"), file = file)
     }
   }
   else if (any(stringr::str_detect(options$code,
                                    "^\\s*(testthat::)?test_that\\("))) {
     # This chunk is inferred to be a test
-    test_dir <- file.path(envir$package_dir, "tests", "testthat")
+    test_dir <- file.path(package_dir, "tests", "testthat")
     test_file <- file.path(test_dir, "tests.R")
     if (!file.exists(test_file)) {
       # It's the first chunk with tests
@@ -179,13 +177,13 @@ send_to_package <- function(before, options, envir) {
   } else if (options$engine == "Rcpp") {
     # To add Rcpp code, we need the package documentation file to exist 
     if (!file.exists(file.path(
-      envir$package_dir,
+      package_dir,
       "R",
-      paste0(envir$package_name, "-package.R"))
+      paste0(package_name, "-package.R"))
       )) {
       usethis::use_package_doc(open = FALSE)
     }
-    cpp_file <- file.path(envir$package_dir, "src", "code.cpp")
+    cpp_file <- file.path(package_dir, "src", "code.cpp")
     if (!file.exists(cpp_file)) {
       # set up package for Rcpp
       usethis::use_rcpp(name = "code")
@@ -519,7 +517,7 @@ usethis::use_package("knitr")
 
 ### Not overwriting a manually edited R package {#hash}
 
-As described in the previous section, the function `setup()` will only overwrite a directory if it is the unedited output of a call to `litr::render()`.  The basic idea is that the function `litr::render()` when creating a new package finishes by adding a hash to the DESCRIPTION file.  This hash is a function of everything in the package, so if anything about the package changes (any file is modified, added, or removed) then the function `check_unedited()` will be able to detect that by recomputing the hash and seeing that it doesn't match the hash in the DESCRIPTION file.
+As described in the previous section, the function `setup()` will only overwrite a directory if it is the unedited output from using `litr`.  The basic idea is that the function `litr::render()` when creating a new package finishes by adding a hash to the DESCRIPTION file.  (And likewise when `rmarkdown::render()` is used with a `litr` output format, as described [here]{#output-format}.) This hash is a function of everything in the package, so if anything about the package changes (any file is modified, added, or removed) then the function `check_unedited()` will be able to detect that by recomputing the hash and seeing that it doesn't match the hash in the DESCRIPTION file.
 
 Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash*.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
 
@@ -680,7 +678,7 @@ We used `devtools`, so let's import it:
 usethis::use_package("devtools")
 ```
 
-#### Defining `litr::render()`
+#### Defining `litr::render()` {#render}
 
 This function does a number of things:
 
@@ -726,6 +724,7 @@ render <- function(input, ...) {
   }
 
   out <- xfun::Rscript_call(render_, c(input = input, args))
+#  out <- do.call(render_, c(input = input, args))
 
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -755,43 +754,81 @@ The function `add_function_hyperlinks()` looks for text of the form `foo <- func
 ```{r}
 #' Add hyperlinks to function definitions
 #' 
-#' Finds functions that are defined in the html file by looking for text of the 
+#' Finds functions that are defined in the html file(s) by looking for text of the 
 #' form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` 
-#' and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it be
-#' a hyperlink to `foo`'s definition.
+#' and then whenever `foo` is found it wraps a `a href="file.html#foo"` tag so 
+#' that it will be a hyperlink to `foo`'s definition.
 #' 
-#' @param html_file File name of html file that was created from Rmd file
-#' @param output_file File name to output to. Default: `html_file`
+#' @param html_files Character vector of file names of html files that were created
+#' from Rmd files
 #' @keywords internal
-add_function_hyperlinks <- function(html_file, output_file = html_file) {
-  txt <- readLines(html_file)
-  start_line <- which(txt == "<body>")
-  pattern <- "([a-zA-Z0-9_.]+)(\\s*&lt;-\\s*function)"
-  # find functions that are defined in this file:
-  function_names <- character(0)
-  for (i in seq(start_line + 1, length(txt))) {
-    fn_name <- stringr::str_match(txt[i], pattern)[, 2]
-    if(is.na(fn_name)) next
-    # a function was defined in this line, so put a span around it
-    txt[i] <- stringr::str_replace(
-      txt[i],
-      pattern,
-      stringr::str_glue("<span id='{fn_name}'>\\1</span>\\2")
-    )
-    # and keep track of it for later:
-    function_names <- c(function_names, fn_name)
-  }
-  
-  # whenever one of these named functions is named, link to its definition
-  txt <- stringr::str_replace_all(
-    txt,
-    paste0(function_names, "\\(", collapse = "|"),
-    function(x) {
-      fn_name <- stringr::str_remove(x, "\\(")
-      stringr::str_glue("<a href='#{fn_name}'>{fn_name}</a>(")
+add_function_hyperlinks <- function(html_files) {
+  find_function_defs <- function(html_file) {
+    txt <- readLines(html_file)
+    start_line <- which(txt == "<body>")
+    pattern1 <- '([a-zA-Z0-9_.]+)(\\s*&lt;-\\s*function)'
+    pattern2 <- stringr::str_replace(pattern1,
+                                     '&lt;-',
+                                     '<span class="ot">&lt;-</span>')
+    pattern2 <- stringr::str_replace(pattern2,
+                                     'function',
+                                     '<span class="cf">function</span>')
+    # find functions that are defined in this file:
+    function_names <- character(0)
+    for (pattern in c(pattern1, pattern2)) {
+      for (i in seq(start_line + 1, length(txt))) {
+        fn_name <- stringr::str_match(txt[i], pattern)[, 2]
+        if(is.na(fn_name)) next
+        # a function was defined in this line, so put a span around it
+        txt[i] <- stringr::str_replace(
+          txt[i],
+          pattern,
+          stringr::str_glue("<span id='{fn_name}'>\\1</span>\\2")
+        )
+        # and keep track of it for later:
+        function_names <- c(function_names, fn_name)
+      }
     }
-  )
-  writeLines(txt, con = output_file)
+    list(function_names = function_names, txt = txt)
+  }
+  fdefs <- lapply(html_files, find_function_defs)
+  all_function_names <- unlist(lapply(fdefs, function(lst) lst$function_names))
+  if (length(all_function_names) == 0) {
+    # no functions defined in package, so nothing more to be done here
+    return()
+  }
+  num_per_file <- unlist(lapply(fdefs, function(lst) length(lst$function_names)))
+  where_defined <- rep(fs::path_file(html_files), times = num_per_file)
+  defined_functions_pattern <- paste0(all_function_names, "\\(", collapse = "|")
+  for (i in seq_along(html_files)) {
+    # whenever one of the defined functions is named, link to its definition
+    # using the format `file_where_foo_is_defined.html#foo`
+    txt <- stringr::str_replace_all(
+      fdefs[[i]]$txt,
+      defined_functions_pattern,
+      function(x) {
+        fn_name <- stringr::str_remove(x, "\\(")
+        def_file <- where_defined[all_function_names == fn_name]
+        stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
+      }
+    )
+    # There's also this case: <span class="fu">myfunction</span>
+    defined_functions_pattern2 <- paste0(
+      '<span class="fu">', all_function_names, '</span>\\(',
+      collapse = "|")
+    
+    txt <- stringr::str_replace_all(
+      txt,
+      defined_functions_pattern2,
+      function(x) {
+        fn_name <- stringr::str_remove(x, '</span>\\(')
+        fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
+        def_file <- where_defined[all_function_names == fn_name]
+        stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
+      }
+    )
+    writeLines(txt, con = html_files[i])
+  }
 }
 ```
 
@@ -800,49 +837,90 @@ In addition to adding hyperlinks to function definitions, we also want to add hy
 ```{r}
 #' Add hyperlinks to embedded chunks
 #' 
-#' Finds chunks that are referenced in the html file by looking for comments
+#' Finds chunks that are referenced in the html file(s) by looking for comments
 #' of the form `###"foo"###` and then wraps `foo` in a `span` tag with `id="foo"` 
 #' and then whenever the chunk label `<<foo>>` is found it wraps it in a 
-#' `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
+#' `a href="file.html#foo"` tag so that it will be a hyperlink to `foo`'s 
+#' definition.
 #' 
-#' @param html_file File name of html file that was created from Rmd file
-#' @param output_file File name to output to. Default: `html_file`
+#' @param html_files Character vector of file names of html files that were created
+#' from Rmd files
 #' @param reference_start The delimiter used to indicate the start of a chunk label 
 #' @param reference_end The delimiter used to indicate the end of a chunk label 
 #' @keywords internal
-add_chunk_label_hyperlinks <- function(html_file, output_file = html_file,
+add_chunk_label_hyperlinks <- function(html_files,
                                        reference_start = "&lt;&lt;",
                                        reference_end = "&gt;&gt;"){
-  txt <- readLines(html_file)
-  start_line <- which(txt == "<body>")
-  pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
-  # find chunks that are defined in this file:
-  chunk_names <- character(0)
-  for (i in seq(start_line + 1, length(txt))) {
-    chunk_name <- stringr::str_match(txt[i], pattern)[, 2]
-    if(is.na(chunk_name)) next
-    # a function was defined in this line, so put a span around it
-    txt[i] <- stringr::str_replace(
-      txt[i],
-      pattern,
-      stringr::str_glue("<span id='{chunk_name}'>###&quot;\\1&quot;###</span>")
-    )
-    # and keep track of it for later:
-    chunk_names <- c(chunk_names, chunk_name)
+  find_chunk_defs <- function(html_file) {
+    txt <- readLines(html_file)
+    start_line <- which(txt == "<body>")
+    pattern <- '###&quot;([a-zA-Z0-9-_.]+)&quot;###'
+    # find chunks that are defined in this file:
+    chunk_names <- character(0)
+    for (i in seq(start_line + 1, length(txt))) {
+      chunk_name <- stringr::str_match(txt[i], pattern)[, 2]
+      if(is.na(chunk_name)) next
+      # a chunk was defined in this line, so put a span around it
+      txt[i] <- stringr::str_replace(
+        txt[i],
+        pattern,
+        stringr::str_glue("<span id='{chunk_name}'>###&quot;\\1&quot;###</span>")
+      )
+      # and keep track of it for later:
+      chunk_names <- c(chunk_names, chunk_name)
+    }
+    list(chunk_names = chunk_names, txt = txt)
   }
   
-  # whenever one of these named chunks is referenced, link to its definition
-  txt <- stringr::str_replace_all(
-    txt,
-    paste0(reference_start, chunk_names, reference_end, collapse = "|"),
-    function(chunk_name) {
-      chunk_name <- stringr::str_remove_all(
-        chunk_name, 
-        paste(reference_start, reference_end, sep = "|"))
-      stringr::str_glue("<a href='#{chunk_name}'>&lt&lt{chunk_name}&gt&gt</a>")
-    }
-  )
-  writeLines(txt, con = output_file)
+  cdefs <- lapply(html_files, find_chunk_defs)
+  all_chunk_names <- unlist(lapply(cdefs, function(lst) lst$chunk_names))
+  num_per_file <- unlist(lapply(cdefs, function(lst) length(lst$chunk_names)))
+  where_defined <- rep(fs::path_file(html_files), times = num_per_file)
+  
+  defined_chunks_pattern <- paste0(reference_start, all_chunk_names, reference_end, 
+                                   collapse = "|")
+  ref_start <- '<span class="sc">&lt;</span><span class="er">&lt;</span>'
+  ref_end <- '<span class="sc">&gt;</span><span class="er">&gt;</span></span>'
+  hyphen_with_extras <- '<span class="sc">-</span>'
+  all_chunk_names2 <- stringr::str_replace_all(all_chunk_names, "-", hyphen_with_extras)
+  defined_chunks_pattern2 <- paste0(ref_start, all_chunk_names2, ref_end, 
+                                   collapse = "|")
+
+  for (i in seq_along(html_files)) {
+    # whenever one of these named chunks is referenced, link to its definition
+    # using the format `file_where_chunk_is_defined.html#chunkname`
+    txt <- stringr::str_replace_all(
+      cdefs[[i]]$txt,
+      defined_chunks_pattern,
+      function(x) {
+        cname <- stringr::str_remove_all(
+          x,
+          paste(reference_start, reference_end, sep = "|")
+        )
+        def_file <- where_defined[all_chunk_names == cname]
+        stringr::str_glue(
+          "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
+          )
+      }
+    )
+    txt <- stringr::str_replace_all(
+      txt,
+      defined_chunks_pattern2,
+      function(x) {
+        cname <- stringr::str_remove_all(
+          x,
+          paste(ref_start, ref_end, sep = "|")
+        )
+        def_file <- where_defined[all_chunk_names2 == cname]
+        cname <- stringr::str_replace_all(cname, hyphen_with_extras, "-")
+        stringr::str_glue(
+          "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
+          )
+      }
+    )
+
+    writeLines(txt, con = html_files[i])
+  }
 }
 ```
 
@@ -871,6 +949,172 @@ We used the package `rmarkdown`, so let's import it:
 ```{r}
 usethis::use_package("rmarkdown")
 ```
+
+#### Defining `litr` output formats {#output-format}
+
+This is an alternative way to get the special `litr` knitting behavior without relying on `litr::render()`.  The reason for this is that `rmarkdown::render()` allows for customizable behavior through the use of custom [output formats](https://bookdown.org/yihui/rmarkdown/new-formats.html).  This feels like the better way of doing things than requiring the user to use the function `litr::render()`.  That said, we should probably keep `litr::render()` for backward compatibility purposes.
+
+Given a preexisting output format (e.g. `rmarkdown::html_document`), we would like to modify it to have `litr`-behavior -- i.e., to create a package as it is being rendered.  This next function takes a preexisting output format and "litr-ifies" it by making the following changes:
+
+1. It modifies the `pre_knit()` function so that `litr::setup()` is called before the preexisting output format's `pre_knit()` function is called.  As the name suggests, this is a function that gets called before knitting.  
+
+2. It modifies the `post_processor()` function so that the DESCRIPTION file gets marked with the version of `litr` used and with the `litr` hash (as already described [here](#hash)).
+
+```{r}
+#' Modify an existing output format to have `litr` behavior
+#' 
+#' This function modifies the `pre_knit()` and `post_processor()` functions of a
+#' preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::render()` is called).
+#' 
+#' @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
+#' @export
+litrify_output_format <- function(base_format = rmarkdown::html_document) {
+  function(...) {
+    old <- base_format(...)
+    new <- old
+    new$pre_knit <- function(...) {
+      args <- list(...)
+      input <- args$input
+      params <- knitr::knit_params(readLines(input))
+      package_dir <- ifelse(
+        params$package_parent_dir$value == ".",
+        file.path(dirname(input), params$package_name$value),
+        file.path(dirname(input), params$package_parent_dir$value, params$package_name$value)
+      )
+      setup(package_dir)
+      if (!is.null(old$pre_knit)) old$pre_knit(...)
+    }
+
+    new$post_processor <- function(metadata, input_file, output_file, ...) {
+      out <- old$post_processor(metadata, input_file, output_file, ...)
+      
+      package_dir <- ifelse(
+        metadata$params$package_parent_dir == ".",
+        file.path(dirname(input_file), metadata$params$package_name),
+        file.path(dirname(input_file),
+                  metadata$params$package_parent_dir,
+                  metadata$params$package_name)
+      )
+
+      # add to DESCRIPTION file the version of litr used to create package:
+      write_version_to_description(package_dir)
+
+      # add litr hash so we can tell later if package files were manually edited:
+      write_hash_to_description(package_dir)
+      out
+    }
+
+    new
+  }
+}
+```
+
+We use the above function to create some `litr` versions of common output formats.
+
+##### .pdf output format
+
+The next function could have been defined in a single line: `litr_pdf_document <- litrify_output_format(rmarkdown::pdf_document)`
+
+However, for `litr` to recognize this as a function, we make it a bit longer with the `<- function(` format.
+
+```{r}
+#' litr version of `pdf_document()`
+#' 
+#' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
+#' R package.
+#' 
+#' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
+#' @export
+litr_pdf_document <- function(...) {
+  litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document)
+  litr_pdf_document_(...)
+}
+```
+
+##### .html output format
+
+For .html documents, we'd like to add a bit more in the postprocessing step.  In particular, we'd like the special function and chunk hyperlinking behavior described [here](#render).
+
+```{r}
+#' litr version of `html_document()`
+#' 
+#' This behaves like `rmarkdown::html_document()` with a few differences:
+#' - It creates an R package.
+#' - It adds hyperlinks to function definitions whenever a function is used
+#' elsewhere in the document.
+#' - It does "Knuth-style" chunk referencing with hyperlinks.
+#' 
+#' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
+#' @export
+litr_html_document <- function(...) {
+  litr_html_document_ <- litrify_output_format(rmarkdown::html_document)
+  old <- litr_html_document_(...)
+  new <- old
+  # modify post_processor
+  new$post_processor <- function(metadata, input_file, output_file, ...) {
+    out <- old$post_processor(metadata, input_file, output_file, ...)
+    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
+    # add hyperlinks within html output to make it easier to navigate:
+    add_function_hyperlinks(html_files)
+    add_chunk_label_hyperlinks(html_files)
+    out
+  }
+  new
+}
+```
+
+##### `bookdown::gitbook()` output format
+
+It turns out that our modification to the `bookdown::gitbook()` format's postprocessor is identical to the above.  This suggests that we should probably reuse code more effectively.  But for now I will leave it how it is:
+
+```{r}
+#' litr version of `bookdown::gitbook()`
+#' 
+#' This behaves like `bookdown::gitbook()` with a few differences:
+#' - It creates an R package.
+#' - It adds hyperlinks to function definitions whenever a function is used
+#' elsewhere in the document.
+#' - It does "Knuth-style" chunk referencing with hyperlinks.
+#' 
+#' @param ... Parameters to be passed to `bookdown::gitbook()` 
+#' @export
+litr_gitbook <- function(...) {
+  litr_gitbook_ <- litrify_output_format(bookdown::gitbook)
+  old <- litr_gitbook_(...)
+  new <- old
+  # modify post_processor
+  new$post_processor <- function(metadata, input_file, output_file, ...) {
+    out <- old$post_processor(metadata, input_file, output_file, ...)
+    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
+    # add hyperlinks within html output to make it easier to navigate:
+    add_function_hyperlinks(html_files)
+    add_chunk_label_hyperlinks(html_files)
+    out
+  }
+  new
+}
+```
+
+To use this output format, one would use `bookdown::render_book()` instead of `rmarkdown::render()`.  In particular:
+
+```{r, eval = FALSE}
+bookdown::render_book(output_format = litr::litr_gitbook())
+```
+
+The preamble in `index.Rmd` would look something like this:
+
+```
+---
+title: "A `litr` Book"
+author: "Your Name"
+site: bookdown::bookdown_site
+params:
+  package_name: "rleastsquares" # <-- change this to your package name
+  package_parent_dir: "." # <-- relative to this file's location
+documentclass: book
+---
+```
+
 
 ### Adding extras to an R package
 
@@ -1013,6 +1257,10 @@ hash_functions <- c("hash_package_directory",
                     "read_hash_from_description",
                     "check_unedited")
 render_functions <- c("render",
+                      "litrify_output_format",
+                      "litr_pdf_document",
+                      "litr_html_document",
+                      "litr_gitbook",
                       "add_function_hyperlinks",
                       "add_chunk_label_hyperlinks",
                       "get_params_used",
@@ -1488,11 +1736,3 @@ cat(readLines("../source-files/_pkgdown.yml"), sep = '\n')
 ```
 
 After this step, you can locally see the site by opening `docs/index.html` in the browser.  You can then copy the `docs` directory to your website's server and you're done.
-
-```{r}
-end <- Sys.time()
-cat(stringr::str_glue("This file was run starting on {start} and took "),
-    difftime(Sys.time(), start, units = "mins"), 
-    " minutes.",
-    fill = TRUE)
-```
