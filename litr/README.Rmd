@@ -39,11 +39,13 @@ Furthermore, writing your R package is actually *easier* with `litr` than withou
 
 ## Installation
 
-You can install the latest version of `litr` on github with the following:
+You can install the latest release of `litr` on github with the following:
 
 ```{r}
-remotes::install_github("jacobbien/litr-project", subdir = "litr")
+remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 ```
+
+Or for the latest development version, remove the `@*release` in the above.
 
 ## Getting started
 

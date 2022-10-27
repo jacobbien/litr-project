@@ -37,12 +37,15 @@ and you’ll have a working R package that you can then modify.
 
 ## Installation
 
-You can install the latest version of `litr` on github with the
+You can install the latest release of `litr` on github with the
 following:
 
 ``` r
-remotes::install_github("jacobbien/litr-project", subdir = "litr")
+remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 ```
+
+Or for the latest development version, remove the `@*release` in the
+above.
 
 ## Getting started
 
