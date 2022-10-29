@@ -2,7 +2,7 @@
 % Please edit documentation in create-litr.Rmd.
 \name{litr_html_document}
 \alias{litr_html_document}
-\title{litr version of \code{html_document()}}
+\title{litr version of \code{rmarkdown::html_document()}}
 \usage{
 litr_html_document(...)
 }

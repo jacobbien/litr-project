@@ -15,14 +15,54 @@ render <- function(input, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
-
   args <- list(...)
+
+  # let's determine if the output format being used is a litr format.
+  # If it is, then we'll simply want to call rmarkdown::render() since the 
+  # special litr behavior will be attained through the output format.
+  litr_format <- FALSE
+  bookdown_format <- FALSE
+  if ("output_format" %in% names(args)) {
+    if ("litr_format" %in% names(args$output_format)) {
+      litr_format <- TRUE
+    }
+    if ("bookdown_output_format" %in% names(args$output_format)) {
+      bookdown_format <- TRUE
+    }
+  } else {
+    frontmatter <- rmarkdown::yaml_front_matter(input)
+    if ("output" %in% names(frontmatter)) {
+      formats <- ifelse(is.list(frontmatter$output),
+                        names(frontmatter$output),
+                        frontmatter$output)
+      if (any(stringr::str_detect(formats, "litr::"))) {
+        litr_format <- TRUE
+      }
+      if (any(stringr::str_detect(formats, "litr::litr_gitbook"))) {
+        bookdown_format <- TRUE
+      }
+    }
+  }
+  
+  if (litr_format) {
+    # this uses a litr output format, so we don't need to do anything litr-specific
+    # here because it will happen through the output format
+    if (bookdown_format)
+      return(invisible(xfun::Rscript_call(bookdown::render_book,
+                                          c(input = input, args))))
+    else
+      return(invisible(xfun::Rscript_call(rmarkdown::render,
+                                          c(input = input, args))))
+  }
+  
+  # the output format being used is not a litr-specific one, so we need to make
+  # sure that all the special litr things happen
   params <- get_params_used(input, args$params)
-  package_dir <- ifelse(
-    params$package_parent_dir == ".",
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
+  package_dir <- package_dir <- get_package_directory(
+        params$package_parent_dir,
+        params$package_name,
+        input
+      )
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, ...) {
@@ -62,24 +102,20 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
       args <- list(...)
       input <- args$input
       params <- knitr::knit_params(readLines(input))
-      package_dir <- ifelse(
-        params$package_parent_dir$value == ".",
-        file.path(dirname(input), params$package_name$value),
-        file.path(dirname(input), params$package_parent_dir$value, params$package_name$value)
-      )
-      setup(package_dir)
+      package_dir <- get_package_directory(
+        params$package_parent_dir$value,
+        params$package_name$value,
+        input)
+      litr:::setup(package_dir)
       if (!is.null(old$pre_knit)) old$pre_knit(...)
     }
 
     new$post_processor <- function(metadata, input_file, output_file, ...) {
       out <- old$post_processor(metadata, input_file, output_file, ...)
-      
-      package_dir <- ifelse(
-        metadata$params$package_parent_dir == ".",
-        file.path(dirname(input_file), metadata$params$package_name),
-        file.path(dirname(input_file),
-                  metadata$params$package_parent_dir,
-                  metadata$params$package_name)
+      package_dir <- get_package_directory(
+        metadata$params$package_parent_dir,
+        metadata$params$package_name,
+        input_file
       )
 
       # add to DESCRIPTION file the version of litr used to create package:
@@ -89,12 +125,15 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
       write_hash_to_description(package_dir)
       out
     }
+    
+    # mark this as a litr_format
+    new$litr_format <- TRUE
 
     new
   }
 }
 
-#' litr version of `pdf_document()`
+#' litr version of `rmarkdown::pdf_document()`
 #' 
 #' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
 #' R package.
@@ -106,7 +145,7 @@ litr_pdf_document <- function(...) {
   litr_pdf_document_(...)
 }
 
-#' litr version of `html_document()`
+#' litr version of `rmarkdown::html_document()`
 #' 
 #' This behaves like `rmarkdown::html_document()` with a few differences:
 #' - It creates an R package.
@@ -338,6 +377,18 @@ get_params_used <- function(input, passed_params) {
     params[[param]] <- passed_params[[param]]
   }
   params
+}
+
+#' Get package directory
+#' 
+#' @param package_parent_dir The directory of where the package should go (relative to the input directory)
+#' @param package_name The name of the package
+#' @param input The file name of the input
+#' @keywords internal
+get_package_directory <- function(package_parent_dir, package_name, input) {
+  if (package_parent_dir == ".")
+    return(file.path(dirname(input), package_name))
+  file.path(dirname(input), package_parent_dir, package_name)
 }
 
 #' Generate do-not-edit message to put at top of file

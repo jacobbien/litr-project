@@ -369,8 +369,8 @@ pre code {
 writing an R markdown file. The package consists of (a) document
 templates that users can use as the basis for creating an R package, (b)
 code needed so that when such a R markdown file is knitted, it will
-generate not just an .html but also an R package. The code has the
-following components:</p>
+generate not just an .html (or some other output format) but also an R
+package. The code has the following components:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#generating-package">Functionality for generating the R
 package when the .Rmd file is knitted.</a> In particular, we define a
@@ -390,16 +390,31 @@ documentation.</p></li>
 outputted will not overwrite a manually edited R package.</a> Our
 approach here is to use a hash that will make it clear whether something
 has been modified.</p></li>
-<li><p><a href="#wrappers">Wrappers to <code>devtools::<a href='#document'>document</a>()</code>
-and <code>rmarkdown::<a href='#render'>render</a>()</code>.</a> The reason we write wrappers
-is because we want a few extra things to happen. For example,
-<code>devtools::<a href='#document'>document</a>()</code> reminds the reader to edit the roxygen
-in the <code>R/</code> files, whereas in our case, we want to make sure
-they edit the original .Rmd file, not the <code>R/</code> files.
-Likewise, <code>litr::<a href='#render'>render</a>()</code> sets up all the special
-functionality of sending code chunks to the R package before calling
-<code>rmarkdown::<a href='#render'>render</a>()</code> and also adds hyperlinks to the .html
-file that make it easy to navigate to function definitions.</p></li>
+<li><p><a href="#document">Wrapper to
+<code>devtools::<a href='#document'>document</a>()</code></a> The reason we write a wrapper for
+<code>devtools::<a href='#document'>document</a>()</code> is because we want it to behave
+slightly differently. In particular, <code>devtools::<a href='#document'>document</a>()</code>
+reminds the reader to edit the roxygen in the <code>R/</code> files,
+whereas in our case, we want to make sure they edit the original .Rmd
+file, not the <code>R/</code> files.</p></li>
+<li><p><a href="#rendering">Functionality to alter the rendering
+process</a> The focus here is to make it so that all the special
+<code>litr</code> functionality will be active when the .Rmd is
+rendered. We implement two ways this can happen. First, we have several
+custom <a href="https://bookdown.org/yihui/rmarkdown/new-formats.html">output
+formats</a>, such as <code><a href='#litr_html_document'>litr_html_document</a>()</code>. When
+<code>rmarkdown::<a href='#render'>render</a>()</code> is called with one of these
+<code>litr</code> output formats, <code><a href='#setup'>setup</a>()</code> gets called
+before knitting occurs and some other litr-specific post-processing
+occurs as well. The second way is through the function
+<code>litr::<a href='#render'>render</a>()</code>. If a user calls <code>litr::<a href='#render'>render</a>()</code>
+with a non-<code>litr</code> output format,
+e.g. <code>rmarkdown::html_<a href='#document'>document</a>()</code>, then <code><a href='#setup'>setup</a>()</code>
+gets called before <code>rmarkdown::<a href='#render'>render</a>()</code> and also
+post-processing can again happen. Another thing of note about
+<code>litr::<a href='#render'>render</a>()</code> is that it renders the document in a fresh
+environment, which ensures identical behavior to when a user presses
+“Knit” in RStudio.</p></li>
 </ol>
 <div id="package-setup" class="section level2">
 <h2>Package setup</h2>
@@ -745,7 +760,7 @@ replace <code>cat()</code> in the above with calls to
                          readLines(myfile))
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 😸</code></pre>
+<pre><code>## Test passed 😀</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level4">
 <h4>Setting up the R package creation</h4>
@@ -1119,11 +1134,8 @@ by adding a field to the DESCRIPTION file.</p>
     )
 }</code></pre>
 </div>
-<div id="wrappers" class="section level3">
-<h3>Wrappers to <code>devtools::<a href='#document'>document</a>()</code> and
-<code>rmarkdown::<a href='#render'>render</a>()</code></h3>
-<div id="defining-litrdocument" class="section level4">
-<h4>Defining <code>litr::<a href='#document'>document</a>()</code></h4>
+<div id="document" class="section level3">
+<h3>Wrapper to <code>devtools::<a href='#document'>document</a>()</code></h3>
 <p>This function is nearly identical to
 <code>devtools::<a href='#document'>document</a>()</code> except that it changes the roxygen2
 message that says “Please edit documentation in R/[…].R” to instead
@@ -1153,109 +1165,212 @@ mention the generating .Rmd file.</p>
 <pre><code>## ✔ Adding &#39;devtools&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `devtools::fun()`</code></pre>
 </div>
-<div id="render" class="section level4">
-<h4>Defining <code>litr::<a href='#render'>render</a>()</code></h4>
-<p>This function does a number of things:</p>
+<div id="rendering" class="section level3">
+<h3>Altering the rendering process</h3>
+<p>The focus here is to make it so that all the special
+<code>litr</code> functionality will be active when the .Rmd is
+rendered. In particular, we need to make sure that <code><a href='#setup'>setup</a>()</code>
+has been called before knitting occurs (so that, for example,
+<code><a href='#send_to_package'>send_to_package</a>()</code> will be active). We also need to make
+sure that after knitting certain things occur, such as the litr-hash
+being written to the package and, in some cases, hyperlinks are added
+for easier navigation.</p>
+<p>We implement two ways for the above to occur, which we describe in
+the next two subsections:</p>
 <ol style="list-style-type: decimal">
-<li><p>Calls <code><a href='#setup'>setup</a>()</code>, which creates the R package directory
-and makes it so that when we knit the file using
-<code>rmarkdown::<a href='#render'>render</a>()</code>, a lot of special things will happen,
-such as code being sent to the R package directory.</p></li>
-<li><p>Calls <code>rmarkdown::<a href='#render'>render</a>()</code>. This is done in a very
-particular way <a href="https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html">as
-described in the Rmarkdown Cookbook</a> that ensures the identical
-behavior to when one clicks the “Knit” in RStudio. In particular, we
-have a fresh R session opened in which first <code><a href='#setup'>setup</a>()</code> and
-then <code>rmarkdown::<a href='#render'>render</a>()</code> are called.</p></li>
-<li><p>If a .html file was created by the previous call, we call a
-function <code><a href='#add_function_hyperlinks'>add_function_hyperlinks</a>()</code> that processes this
-.html file, making it so that one can easily navigate to function
-definitions within the .html file. (This function is described lower in
-this section.) We likewise call a function
-<code><a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>()</code>, which makes chunk references
-into clickable links. In particular, the chunk reference
-<code><a href='#my-chunk'>&lt&ltmy-chunk&gt&gt</a></code> within a code chunk would link to
-a chunk named “my-chunk” that begins with <code><span id='my-chunk'>###&quot;my-chunk&quot;###</span></code>.
-The <code><span id='my-chunk'>###&quot;my-chunk&quot;###</span></code> line is added by a document hook
-defined in <code><a href='#setup'>setup</a>()</code>.</p></li>
-<li><p>Adds a field to the DESCRIPTION file giving the version of
-<code>litr</code> used to generate this package. This will be useful for
-reproducibility.</p></li>
-<li><p>Writes the special <code>litr</code> hash (as already described
-<a href="#hash">here</a>). Before we can write the hash, we need to
-determine the location of the outputted package. The location of the
-package is specified as parameters in the YAML header of the generating
-.Rmd file; however, these parameter values can be overridden within a
-call to <code>render</code> if one passes any of these parameters as
-arguments. The function <code><a href='#get_params_used'>get_params_used</a>()</code>, defined at the
-end of this section, gets the actual parameters that are used so that
-the location of the outputted package can be found.</p></li>
+<li><p>The first approach is by defining <a href="#output-format">custom
+litr output formats</a>. When <code>rmarkdown::<a href='#render'>render</a>()</code> (or
+<code>bookdown::render_book()</code>) is called with one of these
+<code>litr</code> output formats, the <code>litr</code>-specific
+operations occur before and after knitting.</p></li>
+<li><p>The second way is through the function <a href="#render"><code>litr::<a href='#render'>render</a>()</code></a>. If a user calls
+<code>litr::<a href='#render'>render</a>()</code> with a non-<code>litr</code> output format,
+e.g. <code>rmarkdown::html_<a href='#document'>document</a>()</code>, then it adds the necessary
+<code>litr</code>-specific operations before/after
+<code>rmarkdown::<a href='#render'>render</a>()</code> is called. Another thing of note about
+<code>litr::<a href='#render'>render</a>()</code> is that it renders the document in a fresh
+environment, which ensures identical behavior to when a user presses
+“Knit” in RStudio.</p></li>
 </ol>
-<pre class="r"><code>#&#39; Render R markdown file
+<p>Although these are presented as two separate approaches, we have
+written <code>litr::<a href='#render'>render</a>()</code> so that if a user passes one of the
+<code>litr</code> output formats to <code>litr::<a href='#render'>render</a>()</code>, it will
+still work.</p>
+<div id="output-format" class="section level4">
+<h4>Defining <code>litr</code> output formats</h4>
+<p>The function <code>rmarkdown::<a href='#render'>render</a>()</code> allows for customizable
+behavior through the use of custom <a href="https://bookdown.org/yihui/rmarkdown/new-formats.html">output
+formats</a>.</p>
+<p>Given a preexisting output format
+(e.g. <code>rmarkdown::html_document</code>), we would like to modify it
+to have <code>litr</code>-behavior – i.e., to create a package as it is
+being rendered. This next function takes a preexisting output format and
+“<code>litr</code>-ifies” it by making three changes:</p>
+<ol style="list-style-type: decimal">
+<li><p>It modifies the <code><a href='#pre_knit'>pre_knit</a>()</code> function.</p></li>
+<li><p>It modifies the <code><a href='#post_processor'>post_processor</a>()</code> function.</p></li>
+<li><p>It adds a marker (<code>litr_format &lt;- TRUE</code>) that will
+help <code>litr::<a href='#render'>render</a>()</code> know when a <code>litr</code> output
+format is being passed to it.</p></li>
+</ol>
+<p>We present the function and then describe the details of the new
+<code><a href='#pre_knit'>pre_knit</a>()</code> and <code><a href='#post_processor'>post_processor</a>()</code> functions
+below.</p>
+<pre class="r"><code>#&#39; Modify an existing output format to have `litr` behavior
 #&#39; 
-#&#39; Wrapper to `rmarkdown::render` that does some post-processing on the html 
-#&#39; file when that is the output.  In particular, when an html file is among the 
-#&#39; outputs, it adds hyperlinks to functions defined within the file to make it 
-#&#39; easier for someone reading the code to see where different functions are
-#&#39; defined.
+#&#39; This function modifies the `<a href='#pre_knit'>pre_knit</a>()` and `<a href='#post_processor'>post_processor</a>()` functions of a
+#&#39; preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::<a href='#render'>render</a>()` is called).
 #&#39; 
-#&#39; @param input The input file to be rendered (see `rmarkdown::render`)
-#&#39; @param ... Additional parameters to pass to `rmarkdown::render`
+#&#39; @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
 #&#39; @export
-<span id='render'>render</span> &lt;- function(input, ...) {
-  # call rmarkdown::render in a new environment so it behaves the same as 
-  # pressing the knit button in RStudio:
-  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+<span id='litrify_output_format'>litrify_output_format</span> &lt;- function(base_format = rmarkdown::html_document) {
+  function(...) {
+    old &lt;- base_format(...)
+    new &lt;- old
+    new$<span id='pre_knit'>pre_knit</span> &lt;- function(...) {
+      args &lt;- list(...)
+      input &lt;- args$input
+      params &lt;- knitr::knit_params(readLines(input))
+      package_dir &lt;- <a href='#get_package_directory'>get_package_directory</a>(
+        params$package_parent_dir$value,
+        params$package_name$value,
+        input)
+      litr:::<a href='#setup'>setup</a>(package_dir)
+      if (!is.null(old$pre_knit)) old$<a href='#pre_knit'>pre_knit</a>(...)
+    }
 
-  args &lt;- list(...)
-  params &lt;- <a href='#get_params_used'>get_params_used</a>(input, args$params)
-  package_dir &lt;- ifelse(
-    params$package_parent_dir == &quot;.&quot;,
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
-  args$package_dir &lt;- package_dir
+    new$<span id='post_processor'>post_processor</span> &lt;- function(metadata, input_file, output_file, ...) {
+      out &lt;- old$<a href='#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
+      package_dir &lt;- <a href='#get_package_directory'>get_package_directory</a>(
+        metadata$params$package_parent_dir,
+        metadata$params$package_name,
+        input_file
+      )
 
-  <span id='render_'>render_</span> &lt;- function(input, package_dir, ...) {
-    litr:::<a href='#setup'>setup</a>(package_dir)
-    rmarkdown::<a href='#render'>render</a>(input, ...)
+      # add to DESCRIPTION file the version of litr used to create package:
+      <a href='#write_version_to_description'>write_version_to_description</a>(package_dir)
+
+      # add litr hash so we can tell later if package files were manually edited:
+      <a href='#write_hash_to_description'>write_hash_to_description</a>(package_dir)
+      out
+    }
+    
+    # mark this as a litr_format
+    new$litr_format &lt;- TRUE
+
+    new
   }
-
-  out &lt;- xfun::Rscript_call(render_, c(input = input, args))
-#  out &lt;- do.call(render_, c(input = input, args))
-
-  # add hyperlinks within html output to make it easier to navigate:
-  if (any(stringr::str_detect(out, &quot;html$&quot;))) {
-    html_file &lt;- stringr::str_subset(out, &quot;html$&quot;)
-    <a href='#add_function_hyperlinks'>add_function_hyperlinks</a>(html_file)
-    <a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_file)
-  }
-  
-  # add to DESCRIPTION file the version of litr used to create package:
-  <a href='#write_version_to_description'>write_version_to_description</a>(package_dir)
-  
-  # add litr hash so we can tell later if package files were manually edited:
-  <a href='#write_hash_to_description'>write_hash_to_description</a>(package_dir)
 }</code></pre>
-<p><strong>Note: When <code>litr::<a href='#render'>render</a>()</code> encounters an error,
-it can leave the output directory partially modified but without an
-updated hash. As a result, the next time one calls
-<code>litr::<a href='#render'>render</a>()</code> it does not allow this directory to be
-overwritten. This behavior should be fixed by wrapping the
-<code>xfun::Rscript_call</code> in a tryCatch and then if there’s an
-error either (a) deleting everything that had been partially created or
-(b) writing the hash based on the current state. Of course, if the
-DESCRIPTION file doesn’t exist then this wouldn’t work.</strong></p>
-<p>We used the package <code>xfun</code>, so let’s import it:</p>
-<pre class="r"><code>usethis::use_package(&quot;xfun&quot;)</code></pre>
-<pre><code>## ✔ Adding &#39;xfun&#39; to Imports field in DESCRIPTION
-## • Refer to functions with `xfun::fun()`</code></pre>
+<ol style="list-style-type: decimal">
+<li><p>The <code><a href='#pre_knit'>pre_knit</a>()</code> function is modified so that
+<code><a href='#setup'>setup</a>()</code> is called before the preexisting output format’s
+<code><a href='#pre_knit'>pre_knit</a>()</code> function is called. As the name suggests, this
+is a function that gets called before knitting. The purpose of the call
+to <code><a href='#setup'>setup</a>()</code> is to create the R package directory and make it
+so that when we knit the file using <code>rmarkdown::<a href='#render'>render</a>()</code>, a
+lot of special things will happen, such as code being sent to the R
+package directory.</p></li>
+<li><p>The <code><a href='#post_processor'>post_processor</a>()</code> function is modified so that
+the DESCRIPTION file gets marked with the version of <code>litr</code>
+used and with the <code>litr</code> hash (as already described <a href="#hash">here</a>).</p></li>
+</ol>
+<p>We use the above function to create some <code>litr</code> versions
+of common output formats, as seen in the next few subsections.</p>
+<p>Before proceeding, we did make use of a small function for getting
+the package directory based on the input file’s location and the
+parameters that are being used in the rendering process. We define it
+here:</p>
+<pre class="r"><code>#&#39; Get package directory
+#&#39; 
+#&#39; @param package_parent_dir The directory of where the package should go (relative to the input directory)
+#&#39; @param package_name The name of the package
+#&#39; @param input The file name of the input
+#&#39; @keywords internal
+<span id='get_package_directory'>get_package_directory</span> &lt;- function(package_parent_dir, package_name, input) {
+  if (package_parent_dir == &quot;.&quot;)
+    return(file.path(dirname(input), package_name))
+  file.path(dirname(input), package_parent_dir, package_name)
+}</code></pre>
+<p>Let’s write some tests to make sure it’s behaving as expected:</p>
+<pre class="r"><code>testthat::test_that(&quot;<a href='#get_package_directory'>get_package_directory</a>() works&quot;, {
+  input &lt;- file.path(&quot;inputdir&quot;, &quot;input.Rmd&quot;)
+  testthat::expect_equal(
+    <a href='#get_package_directory'>get_package_directory</a>(&quot;.&quot;, &quot;mypkg&quot;, input),
+    file.path(&quot;inputdir&quot;, &quot;mypkg&quot;) # inputdir/mypkg
+  )
+  testthat::expect_equal(
+    <a href='#get_package_directory'>get_package_directory</a>(&quot;..&quot;, &quot;mypkg&quot;, input),
+    file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) # inputdir/../mypkg
+  )
+})</code></pre>
+<pre><code>## Test passed 🎉</code></pre>
+<div id="pdf-output-format" class="section level5">
+<h5>.pdf output format</h5>
+<p>The next function could have been defined in a single line:
+<code>litr_pdf_document &lt;- <a href='#litrify_output_format'>litrify_output_format</a>(rmarkdown::pdf_document)</code></p>
+<p>However, for <code>litr</code> to recognize this as a function, we
+make it a bit longer with the <code>&lt;- function(</code> format and
+add documentation.</p>
+<pre class="r"><code>#&#39; litr version of `rmarkdown::pdf_<a href='#document'>document</a>()`
+#&#39; 
+#&#39; This behaves exactly like `rmarkdown::pdf_<a href='#document'>document</a>()` except it creates an 
+#&#39; R package.
+#&#39; 
+#&#39; @param ... Parameters to be passed to `rmarkdown::pdf_<a href='#document'>document</a>()` 
+#&#39; @export
+<span id='litr_pdf_document'>litr_pdf_document</span> &lt;- function(...) {
+  litr_pdf_document_ &lt;- <a href='#litrify_output_format'>litrify_output_format</a>(rmarkdown::pdf_document)
+  litr_pdf_document_(...)
+}</code></pre>
+</div>
+<div id="html-output-format" class="section level5">
+<h5>.html output format</h5>
+<p>For .html documents, we’d like to add a bit more in the
+postprocessing step. In particular, we include some special function and
+chunk hyperlinking behavior described below. The function
+<code><a href='#add_function_hyperlinks'>add_function_hyperlinks</a>()</code> processes the outputted .html
+file(s), making it so that one can easily navigate to function
+definitions. (This function is described lower in this section.) We
+likewise call a function <code><a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>()</code>,
+which makes chunk references into clickable links. In particular, the
+chunk reference <code><a href='#my-chunk'>&lt&ltmy-chunk&gt&gt</a></code> within a code
+chunk would link to a chunk named “my-chunk” that begins with
+<code><span id='my-chunk'>###&quot;my-chunk&quot;###</span></code>. The <code>###&quot;my-chunk&quot;###</code> line is
+added by a document hook defined in <code><a href='#setup'>setup</a>()</code>.</p>
+<pre class="r"><code>#&#39; litr version of `rmarkdown::html_<a href='#document'>document</a>()`
+#&#39; 
+#&#39; This behaves like `rmarkdown::html_<a href='#document'>document</a>()` with a few differences:
+#&#39; - It creates an R package.
+#&#39; - It adds hyperlinks to function definitions whenever a function is used
+#&#39; elsewhere in the document.
+#&#39; - It does &quot;Knuth-style&quot; chunk referencing with hyperlinks.
+#&#39; 
+#&#39; @param ... Parameters to be passed to `rmarkdown::pdf_<a href='#document'>document</a>()` 
+#&#39; @export
+<span id='litr_html_document'>litr_html_document</span> &lt;- function(...) {
+  litr_html_document_ &lt;- <a href='#litrify_output_format'>litrify_output_format</a>(rmarkdown::html_document)
+  old &lt;- litr_html_document_(...)
+  new &lt;- old
+  # modify post_processor
+  new$<span id='post_processor'>post_processor</span> &lt;- function(metadata, input_file, output_file, ...) {
+    out &lt;- old$<a href='#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
+    html_files &lt;- fs::dir_ls(fs::path_dir(out), regexp = &quot;.html$&quot;)
+    # add hyperlinks within html output to make it easier to navigate:
+    <a href='#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files)
+    <a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)
+    out
+  }
+  new
+}</code></pre>
+<p>We describe these two <code>add_*_hyperlinks()</code> functions
+next.</p>
 <p>The function <code><a href='#add_function_hyperlinks'>add_function_hyperlinks</a>()</code> looks for text of
 the form <code><span id='foo'>foo</span> &lt;- function(</code> and then wraps
-<code>foo</code> in a <code>span</code> tag with <code>id=&quot;foo&quot;</code>
-and then whenever <code>foo</code> is found it wraps a
-<code>a href=&quot;#foo&quot;</code> tag so that it will be a hyperlink to
-<code>foo</code>’s definition.</p>
+<code>foo</code> in a <code>span</code> tag with <code>id=&quot;foo&quot;</code>;
+whenever <code>foo</code> is found it wraps a
+<code>a href=&quot;file.html#foo&quot;</code> tag (where <code>file.html</code> is
+the file where <code>foo</code> is defined), so that it will be a
+hyperlink to <code>foo</code>’s definition.</p>
 <pre class="r"><code>#&#39; Add hyperlinks to function definitions
 #&#39; 
 #&#39; Finds functions that are defined in the html file(s) by looking for text of the 
@@ -1426,148 +1541,6 @@ want to add hyperlinks for chunk references of the form
     writeLines(txt, con = html_files[i])
   }
 }</code></pre>
-<p>As described earlier, the function <code><a href='#get_params_used'>get_params_used</a>()</code>
-combines the parameters from the YAML but allows for those values to be
-overridden through arguments passed to <code><a href='#render'>render</a>()</code>.</p>
-<pre class="r"><code>#&#39; Get parameter values used in rendering
-#&#39; 
-#&#39; When the `params` argument of `rmarkdown::<a href='#render'>render</a>()` is explicitly used, this
-#&#39; overrides the default that appears in `input`.
-#&#39; @param input The input file to be rendered (see `rmarkdown::render`)
-#&#39; @param passed_params The list of parameters that were passed to `render`.
-#&#39; @keywords internal
-<span id='get_params_used'>get_params_used</span> &lt;- function(input, passed_params) {
-  params &lt;- rmarkdown::yaml_front_matter(input)$params
-  for (param in names(passed_params)) {
-    params[[param]] &lt;- passed_params[[param]]
-  }
-  params
-}</code></pre>
-<p>We used the package <code>rmarkdown</code>, so let’s import it:</p>
-<pre class="r"><code>usethis::use_package(&quot;rmarkdown&quot;)</code></pre>
-<pre><code>## ✔ Adding &#39;rmarkdown&#39; to Imports field in DESCRIPTION
-## • Refer to functions with `rmarkdown::fun()`</code></pre>
-</div>
-<div id="output-format" class="section level4">
-<h4>Defining <code>litr</code> output formats</h4>
-<p>This is an alternative way to get the special <code>litr</code>
-knitting behavior without relying on <code>litr::<a href='#render'>render</a>()</code>. The
-reason for this is that <code>rmarkdown::<a href='#render'>render</a>()</code> allows for
-customizable behavior through the use of custom <a href="https://bookdown.org/yihui/rmarkdown/new-formats.html">output
-formats</a>. This feels like the better way of doing things than
-requiring the user to use the function <code>litr::<a href='#render'>render</a>()</code>. That
-said, we should probably keep <code>litr::<a href='#render'>render</a>()</code> for backward
-compatibility purposes.</p>
-<p>Given a preexisting output format
-(e.g. <code>rmarkdown::html_document</code>), we would like to modify it
-to have <code>litr</code>-behavior – i.e., to create a package as it is
-being rendered. This next function takes a preexisting output format and
-“litr-ifies” it by making the following changes:</p>
-<ol style="list-style-type: decimal">
-<li><p>It modifies the <code><a href='#pre_knit'>pre_knit</a>()</code> function so that
-<code>litr::<a href='#setup'>setup</a>()</code> is called before the preexisting output
-format’s <code><a href='#pre_knit'>pre_knit</a>()</code> function is called. As the name
-suggests, this is a function that gets called before knitting.</p></li>
-<li><p>It modifies the <code><a href='#post_processor'>post_processor</a>()</code> function so that
-the DESCRIPTION file gets marked with the version of <code>litr</code>
-used and with the <code>litr</code> hash (as already described <a href="#hash">here</a>).</p></li>
-</ol>
-<pre class="r"><code>#&#39; Modify an existing output format to have `litr` behavior
-#&#39; 
-#&#39; This function modifies the `<a href='#pre_knit'>pre_knit</a>()` and `<a href='#post_processor'>post_processor</a>()` functions of a
-#&#39; preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::<a href='#render'>render</a>()` is called).
-#&#39; 
-#&#39; @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
-#&#39; @export
-<span id='litrify_output_format'>litrify_output_format</span> &lt;- function(base_format = rmarkdown::html_document) {
-  function(...) {
-    old &lt;- base_format(...)
-    new &lt;- old
-    new$<span id='pre_knit'>pre_knit</span> &lt;- function(...) {
-      args &lt;- list(...)
-      input &lt;- args$input
-      params &lt;- knitr::knit_params(readLines(input))
-      package_dir &lt;- ifelse(
-        params$package_parent_dir$value == &quot;.&quot;,
-        file.path(dirname(input), params$package_name$value),
-        file.path(dirname(input), params$package_parent_dir$value, params$package_name$value)
-      )
-      <a href='#setup'>setup</a>(package_dir)
-      if (!is.null(old$pre_knit)) old$<a href='#pre_knit'>pre_knit</a>(...)
-    }
-
-    new$<span id='post_processor'>post_processor</span> &lt;- function(metadata, input_file, output_file, ...) {
-      out &lt;- old$<a href='#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
-      
-      package_dir &lt;- ifelse(
-        metadata$params$package_parent_dir == &quot;.&quot;,
-        file.path(dirname(input_file), metadata$params$package_name),
-        file.path(dirname(input_file),
-                  metadata$params$package_parent_dir,
-                  metadata$params$package_name)
-      )
-
-      # add to DESCRIPTION file the version of litr used to create package:
-      <a href='#write_version_to_description'>write_version_to_description</a>(package_dir)
-
-      # add litr hash so we can tell later if package files were manually edited:
-      <a href='#write_hash_to_description'>write_hash_to_description</a>(package_dir)
-      out
-    }
-
-    new
-  }
-}</code></pre>
-<p>We use the above function to create some <code>litr</code> versions
-of common output formats.</p>
-<div id="pdf-output-format" class="section level5">
-<h5>.pdf output format</h5>
-<p>The next function could have been defined in a single line:
-<code>litr_pdf_document &lt;- <a href='#litrify_output_format'>litrify_output_format</a>(rmarkdown::pdf_document)</code></p>
-<p>However, for <code>litr</code> to recognize this as a function, we
-make it a bit longer with the <code>&lt;- function(</code> format.</p>
-<pre class="r"><code>#&#39; litr version of `pdf_<a href='#document'>document</a>()`
-#&#39; 
-#&#39; This behaves exactly like `rmarkdown::pdf_<a href='#document'>document</a>()` except it creates an 
-#&#39; R package.
-#&#39; 
-#&#39; @param ... Parameters to be passed to `rmarkdown::pdf_<a href='#document'>document</a>()` 
-#&#39; @export
-<span id='litr_pdf_document'>litr_pdf_document</span> &lt;- function(...) {
-  litr_pdf_document_ &lt;- <a href='#litrify_output_format'>litrify_output_format</a>(rmarkdown::pdf_document)
-  litr_pdf_document_(...)
-}</code></pre>
-</div>
-<div id="html-output-format" class="section level5">
-<h5>.html output format</h5>
-<p>For .html documents, we’d like to add a bit more in the
-postprocessing step. In particular, we’d like the special function and
-chunk hyperlinking behavior described <a href="#render">here</a>.</p>
-<pre class="r"><code>#&#39; litr version of `html_<a href='#document'>document</a>()`
-#&#39; 
-#&#39; This behaves like `rmarkdown::html_<a href='#document'>document</a>()` with a few differences:
-#&#39; - It creates an R package.
-#&#39; - It adds hyperlinks to function definitions whenever a function is used
-#&#39; elsewhere in the document.
-#&#39; - It does &quot;Knuth-style&quot; chunk referencing with hyperlinks.
-#&#39; 
-#&#39; @param ... Parameters to be passed to `rmarkdown::pdf_<a href='#document'>document</a>()` 
-#&#39; @export
-<span id='litr_html_document'>litr_html_document</span> &lt;- function(...) {
-  litr_html_document_ &lt;- <a href='#litrify_output_format'>litrify_output_format</a>(rmarkdown::html_document)
-  old &lt;- litr_html_document_(...)
-  new &lt;- old
-  # modify post_processor
-  new$<span id='post_processor'>post_processor</span> &lt;- function(metadata, input_file, output_file, ...) {
-    out &lt;- old$<a href='#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
-    html_files &lt;- fs::dir_ls(fs::path_dir(out), regexp = &quot;.html$&quot;)
-    # add hyperlinks within html output to make it easier to navigate:
-    <a href='#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files)
-    <a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)
-    out
-  }
-  new
-}</code></pre>
 </div>
 <div id="bookdowngitbook-output-format" class="section level5">
 <h5><code>bookdown::gitbook()</code> output format</h5>
@@ -1611,11 +1584,169 @@ title: &quot;A `litr` Book&quot;
 author: &quot;Your Name&quot;
 site: bookdown::bookdown_site
 params:
-  package_name: &quot;rleastsquares&quot; # &lt;-- change this to your package name
+  package_name: &quot;frombookdown&quot; # &lt;-- change this to your package name
   package_parent_dir: &quot;.&quot; # &lt;-- relative to this file&#39;s location
 documentclass: book
 ---</code></pre>
+<p>Or one can add to the preamble the lines</p>
+<pre><code>knit: bookdown::render_book
+output: litr::litr_gitbook</code></pre>
+<p>This first line makes it so that in RStudio when you press “Knit”, it
+calls <code>bookdown::render_book()</code>, and the second line makes it
+so that the output format will be the special litr one.</p>
 </div>
+</div>
+<div id="render" class="section level4">
+<h4>Defining <code>litr::<a href='#render'>render</a>()</code></h4>
+<p>There are two primary use cases for this function:</p>
+<ol style="list-style-type: decimal">
+<li><p>To render a .Rmd with a non-<code>litr</code> output format
+(e.g., <code>rmarkdown::html_document</code>) in such a way that it will
+generate an R package (and include the special litr-hyperlinking if
+.html files were created).</p></li>
+<li><p>To render a .Rmd with a <code>litr</code> output format
+(including the <code><a href='#litr_gitbook'>litr_gitbook</a>()</code> format).</p></li>
+</ol>
+<p>The second use case might seem unnecessary in that</p>
+<pre class="r"><code>rmarkdown::<a href='#render'>render</a>(&quot;create-pkg.Rmd&quot;, output_format = litr::<a href='#litr_html_document'>litr_html_document</a>())</code></pre>
+<p>or</p>
+<pre class="r"><code>bookdown::render_book(&quot;index.Rmd&quot;, output_format = litr::<a href='#litr_gitbook'>litr_gitbook</a>())</code></pre>
+<p>would do what we want. However, the reason to still prefer
+<code>litr::<a href='#render'>render</a>()</code> is that this function ensures the identical
+behavior to when one clicks the “Knit” in RStudio. It does this by
+opening a fresh R session in which <code>rmarkdown::<a href='#render'>render</a>()</code> (or
+<code>bookdown::render_book()</code>) is called. This is based on <a href="https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html">the
+description in the Rmarkdown Cookbook</a>.</p>
+<p>In the first use case, <code>litr::<a href='#render'>render</a>()</code> is responsible for
+ensuring all the special <code>litr</code> things happen (like
+<code><a href='#setup'>setup</a>()</code> being called before knitting, the litr-hash being
+written afterwards, and hyperlinking occurs). The details of what it
+does is very similar to what is described in the <a href="#output-format">output formats</a> section, especially the one on
+the <a href="#html-output-format">html output format</a>.</p>
+<p>One thing that is different is that we need a function
+<code><a href='#get_params_used'>get_params_used</a>()</code>, defined at the end of this section, that
+gets the actual parameters that are used so that the location of the
+outputted package can be found.</p>
+<pre class="r"><code>#&#39; Render R markdown file
+#&#39; 
+#&#39; Wrapper to `rmarkdown::render` that does some post-processing on the html 
+#&#39; file when that is the output.  In particular, when an html file is among the 
+#&#39; outputs, it adds hyperlinks to functions defined within the file to make it 
+#&#39; easier for someone reading the code to see where different functions are
+#&#39; defined.
+#&#39; 
+#&#39; @param input The input file to be rendered (see `rmarkdown::render`)
+#&#39; @param ... Additional parameters to pass to `rmarkdown::render`
+#&#39; @export
+<span id='render'>render</span> &lt;- function(input, ...) {
+  # call rmarkdown::render in a new environment so it behaves the same as 
+  # pressing the knit button in RStudio:
+  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+  args &lt;- list(...)
+
+  # let&#39;s determine if the output format being used is a litr format.
+  # If it is, then we&#39;ll simply want to call rmarkdown::<a href='#render'>render</a>() since the 
+  # special litr behavior will be attained through the output format.
+  litr_format &lt;- FALSE
+  bookdown_format &lt;- FALSE
+  if (&quot;output_format&quot; %in% names(args)) {
+    if (&quot;litr_format&quot; %in% names(args$output_format)) {
+      litr_format &lt;- TRUE
+    }
+    if (&quot;bookdown_output_format&quot; %in% names(args$output_format)) {
+      bookdown_format &lt;- TRUE
+    }
+  } else {
+    frontmatter &lt;- rmarkdown::yaml_front_matter(input)
+    if (&quot;output&quot; %in% names(frontmatter)) {
+      formats &lt;- ifelse(is.list(frontmatter$output),
+                        names(frontmatter$output),
+                        frontmatter$output)
+      if (any(stringr::str_detect(formats, &quot;litr::&quot;))) {
+        litr_format &lt;- TRUE
+      }
+      if (any(stringr::str_detect(formats, &quot;litr::litr_gitbook&quot;))) {
+        bookdown_format &lt;- TRUE
+      }
+    }
+  }
+  
+  if (litr_format) {
+    # this uses a litr output format, so we don&#39;t need to do anything litr-specific
+    # here because it will happen through the output format
+    if (bookdown_format)
+      return(invisible(xfun::Rscript_call(bookdown::render_book,
+                                          c(input = input, args))))
+    else
+      return(invisible(xfun::Rscript_call(rmarkdown::render,
+                                          c(input = input, args))))
+  }
+  
+  # the output format being used is not a litr-specific one, so we need to make
+  # sure that all the special litr things happen
+  params &lt;- <a href='#get_params_used'>get_params_used</a>(input, args$params)
+  package_dir &lt;- package_dir &lt;- <a href='#get_package_directory'>get_package_directory</a>(
+        params$package_parent_dir,
+        params$package_name,
+        input
+      )
+  args$package_dir &lt;- package_dir
+
+  <span id='render_'>render_</span> &lt;- function(input, package_dir, ...) {
+    litr:::<a href='#setup'>setup</a>(package_dir)
+    rmarkdown::<a href='#render'>render</a>(input, ...)
+  }
+
+  out &lt;- xfun::Rscript_call(render_, c(input = input, args))
+#  out &lt;- do.call(render_, c(input = input, args))
+
+  # add hyperlinks within html output to make it easier to navigate:
+  if (any(stringr::str_detect(out, &quot;html$&quot;))) {
+    html_file &lt;- stringr::str_subset(out, &quot;html$&quot;)
+    <a href='#add_function_hyperlinks'>add_function_hyperlinks</a>(html_file)
+    <a href='#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_file)
+  }
+  
+  # add to DESCRIPTION file the version of litr used to create package:
+  <a href='#write_version_to_description'>write_version_to_description</a>(package_dir)
+  
+  # add litr hash so we can tell later if package files were manually edited:
+  <a href='#write_hash_to_description'>write_hash_to_description</a>(package_dir)
+}</code></pre>
+<p><strong>Note: When <code>litr::<a href='#render'>render</a>()</code> encounters an error,
+it can leave the output directory partially modified but without an
+updated hash. As a result, the next time one calls
+<code>litr::<a href='#render'>render</a>()</code> it does not allow this directory to be
+overwritten. This behavior should be fixed by wrapping the
+<code>xfun::Rscript_call</code> in a tryCatch and then if there’s an
+error either (a) deleting everything that had been partially created or
+(b) writing the hash based on the current state. Of course, if the
+DESCRIPTION file doesn’t exist then this wouldn’t work.</strong></p>
+<p>We used the package <code>xfun</code>, so let’s import it:</p>
+<pre class="r"><code>usethis::use_package(&quot;xfun&quot;)</code></pre>
+<pre><code>## ✔ Adding &#39;xfun&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `xfun::fun()`</code></pre>
+<p>As described earlier, the function <code><a href='#get_params_used'>get_params_used</a>()</code>
+combines the parameters from the YAML but allows for those values to be
+overridden through arguments passed to <code><a href='#render'>render</a>()</code>.</p>
+<pre class="r"><code>#&#39; Get parameter values used in rendering
+#&#39; 
+#&#39; When the `params` argument of `rmarkdown::<a href='#render'>render</a>()` is explicitly used, this
+#&#39; overrides the default that appears in `input`.
+#&#39; @param input The input file to be rendered (see `rmarkdown::render`)
+#&#39; @param passed_params The list of parameters that were passed to `render`.
+#&#39; @keywords internal
+<span id='get_params_used'>get_params_used</span> &lt;- function(input, passed_params) {
+  params &lt;- rmarkdown::yaml_front_matter(input)$params
+  for (param in names(passed_params)) {
+    params[[param]] &lt;- passed_params[[param]]
+  }
+  params
+}</code></pre>
+<p>We used the package <code>rmarkdown</code>, so let’s import it:</p>
+<pre class="r"><code>usethis::use_package(&quot;rmarkdown&quot;)</code></pre>
+<pre><code>## ✔ Adding &#39;rmarkdown&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `rmarkdown::fun()`</code></pre>
 </div>
 </div>
 <div id="adding-extras-to-an-r-package" class="section level3">
@@ -1776,6 +1907,7 @@ render_functions &lt;- c(&quot;render&quot;,
                       &quot;add_function_hyperlinks&quot;,
                       &quot;add_chunk_label_hyperlinks&quot;,
                       &quot;get_params_used&quot;,
+                      &quot;get_package_directory&quot;,
                       &quot;do_not_edit_message&quot;,
                       &quot;description_litr_version_field_name&quot;,
                       &quot;write_version_to_description&quot;,
@@ -1899,6 +2031,25 @@ fs::dir_copy(
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/skeleton/skeleton.Rmd&#39;</code></pre>
+<p>The fifth template shows how to create a package from a bookdown
+site, i.e. instead of having just a single <code>create-pkg.Rmd</code>,
+we can have a series of .Rmd files that together create a bookdown:</p>
+<pre class="r"><code>usethis::use_rmarkdown_template(
+  template_name = &quot;Template To Make an R Package From a Bookdown&quot;,
+  template_dir = &quot;make-an-r-package-from-bookdown&quot;,
+  template_description = &quot;Template for a bookdown that defines an R package using literate programming.&quot;,
+  template_create_dir = TRUE
+)
+fs::dir_copy(
+  path = file.path(&quot;..&quot;, &quot;source-files&quot;, &quot;make-an-r-package-from-bookdown&quot;),
+  new_path = file.path(
+    &quot;inst&quot;, &quot;rmarkdown&quot;, &quot;templates&quot;, &quot;make-an-r-package-from-bookdown&quot;, &quot;skeleton&quot;
+    ),
+  overwrite = TRUE
+)</code></pre>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/skeleton/skeleton.Rmd&#39;</code></pre>
 </div>
 <div id="tests" class="section level2">
 <h2>Defining some tests</h2>
@@ -2144,6 +2295,19 @@ run as expected.</p>
   testthat::expect_true(fs::file_exists(file.path(dir, &quot;create-withpkgdown.html&quot;)))
   testthat::expect_true(fs::file_exists(file.path(dir, &quot;withpkgdown&quot;)))
 
+  rmd_file &lt;- file.path(dir, &quot;create-frombookdown.Rmd&quot;)
+  rmarkdown::draft(rmd_file,
+                   template = &quot;make-an-r-package-from-bookdown&quot;,
+                   package = &quot;litr&quot;,
+                   edit = FALSE)
+  <a href='#render'>render</a>(file.path(&quot;create-frombookdown&quot;, &quot;index.Rmd&quot;))
+  testthat::expect_true(
+    fs::file_exists(file.path(dir, &quot;create-frombookdown&quot;, &quot;_book&quot;, &quot;index.html&quot;))
+    )
+  testthat::expect_true(
+    fs::file_exists(file.path(dir, &quot;create-frombookdown&quot;, &quot;withpkgdown&quot;))
+    )
+
   fs::dir_delete(dir)
  })</code></pre>
 <p>Even though <code>litr</code> doesn’t directly use <code>Rcpp</code>,
@@ -2189,6 +2353,7 @@ xfun::Rscript_call(test_litr,
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_function_hyperlinks&#39;)add_function_hyperlinks.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_chunk_label_hyperlinks&#39;)add_chunk_label_hyperlinks.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;get_params_used&#39;)get_params_used.Rd]8;;&#39;
+## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;get_package_directory&#39;)get_package_directory.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;do_not_edit_message&#39;)do_not_edit_message.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;description_litr_version_field_name&#39;)description_litr_version_field_name.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;write_version_to_description&#39;)write_version_to_description.Rd]8;;&#39;
@@ -2199,24 +2364,27 @@ xfun::Rscript_call(test_litr,
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_text_to_file&#39;)add_text_to_file.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;find_labels&#39;)find_labels.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;test_litr&#39;)test_litr.Rd]8;;&#39;</code></pre>
-<pre><code>##      file context                        test nb failed skipped error warning
-## 1 tests.R   tests    <a href='#add_text_to_file'>add_text_to_file</a>() works 10      0   FALSE FALSE       0
-## 2 tests.R   tests        check_unedited works 11      0   FALSE FALSE       0
-## 3 tests.R   tests       get_params_used works  3      0   FALSE FALSE       0
-## 4 tests.R   tests Knuth-style references work  1      0   FALSE FALSE       0
-## 5 tests.R   tests       templates can be knit  8      0   FALSE FALSE       0
+<pre><code>##      file context                          test nb failed skipped error warning
+## 1 tests.R   tests      <a href='#add_text_to_file'>add_text_to_file</a>() works 10      0   FALSE FALSE       0
+## 2 tests.R   tests <a href='#get_package_directory'>get_package_directory</a>() works  2      0   FALSE FALSE       0
+## 3 tests.R   tests          check_unedited works 11      0   FALSE FALSE       0
+## 4 tests.R   tests         get_params_used works  3      0   FALSE FALSE       0
+## 5 tests.R   tests   Knuth-style references work  1      0   FALSE FALSE       0
+## 6 tests.R   tests         templates can be knit  9      0   FALSE  TRUE       1
 ##    user system   real passed
-## 1 0.195  0.017  0.236     10
-## 2 0.194  0.064  4.034     11
-## 3 0.028  0.007  0.043      3
-## 4 0.203  0.019  3.245      1
-## 5 4.941  0.143 71.219      8
+## 1 0.148  0.013  0.170     10
+## 2 0.010  0.001  0.010      2
+## 3 0.125  0.080  5.068     11
+## 4 0.032  0.006  0.074      3
+## 5 0.116  0.023  5.860      1
+## 6 0.155  0.036 70.543      8
 ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   result
 ## 1 , 10, 3, 10, 77, 3, 77, 10, 10, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, fs::file_exists(myfile) is not TRUE\n\n, 16, 3, 16, 48, 3, 48, 16, 16, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, `sometxt` (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 17, 3, 17, 52, 3, 52, 17, 17, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 22, 3, 22, 64, 3, 64, 22, 22, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 25, 3, 25, 62, 3, 62, 25, 25, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 26, 3, 26, 63, 3, 63, 26, 26, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, , 27, 3, 27, 62, 3, 62, 27, 27, testthat::expect_error(<a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 32, 3, 32, 74, 3, 74, 32, 32, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 37, 3, 38, 43, 3, 43, 37, 38, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt, moretxt4) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 43, 3, 44, 43, 3, 43, 43, 44, 45, 47, <a href='#add_text_to_file'>add_text_to_file</a>() works
-## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 61, 3, 61, 53, 3, 53, 61, 61, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 66, 3, 66, 54, 3, 54, 66, 66, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 70, 3, 70, 53, 3, 53, 70, 70, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 75, 3, 75, 54, 3, 54, 75, 75, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 78, 3, 78, 53, 3, 53, 78, 78, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 85, 3, 85, 54, 3, 54, 85, 85, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 88, 3, 88, 53, 3, 53, 88, 88, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 96, 3, 96, 54, 3, 54, 96, 96, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 99, 3, 99, 53, 3, 53, 99, 99, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 107, 3, 107, 54, 3, 54, 107, 107, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 110, 3, 110, 53, 3, 53, 110, 110, 45, 47, check_unedited works
-## 3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       `default_params` (`actual`) not equal to rmarkdown::yaml_front_matter(rmd_file)$params (`expected`).\n\n, 123, 3, 126, 3, 3, 3, 123, 126, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(rmd_file, passed_params = list(package_parent_dir = &quot;dir&quot;)) (`actual`) not equal to `params1` (`expected`).\n\n, 129, 3, 132, 3, 3, 3, 129, 132, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(...) (`actual`) not equal to `params2` (`expected`).\n\n, 136, 3, 141, 3, 3, 3, 136, 141, 45, 47, get_params_used works
-## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           fs::file_exists(file.path(dir, &quot;create-rknuth.html&quot;)) is not TRUE\n\n, 152, 3, 152, 78, 3, 78, 152, 152, 45, 47, Knuth-style references work
-## 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       fs::file_exists(file.path(dir, &quot;create-rhello.html&quot;)) is not TRUE\n\n, 167, 3, 167, 78, 3, 78, 167, 167, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;rhello&quot;)) is not TRUE\n\n, 168, 3, 168, 66, 3, 66, 168, 168, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;create-rhasdata.html&quot;)) is not TRUE\n\n, 176, 3, 176, 80, 3, 80, 176, 176, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;rhasdata&quot;)) is not TRUE\n\n, 177, 3, 177, 68, 3, 68, 177, 177, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;create-withrcpp.html&quot;)) is not TRUE\n\n, 185, 3, 185, 80, 3, 80, 185, 185, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;withrcpp&quot;)) is not TRUE\n\n, 186, 3, 186, 68, 3, 68, 186, 186, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;create-withpkgdown.html&quot;)) is not TRUE\n\n, 194, 3, 194, 83, 3, 83, 194, 194, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;withpkgdown&quot;)) is not TRUE\n\n, 195, 3, 195, 71, 3, 71, 195, 195, 45, 47, templates can be knit</code></pre>
+## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <a href='#get_package_directory'>get_package_directory</a>(&quot;.&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 50, 3, 53, 3, 3, 3, 50, 53, 45, 47, <a href='#get_package_directory'>get_package_directory</a>() works, <a href='#get_package_directory'>get_package_directory</a>(&quot;..&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 54, 3, 57, 3, 3, 3, 54, 57, 45, 47, <a href='#get_package_directory'>get_package_directory</a>() works
+## 3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 73, 3, 73, 53, 3, 53, 73, 73, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 78, 3, 78, 54, 3, 54, 78, 78, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 82, 3, 82, 53, 3, 53, 82, 82, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 87, 3, 87, 54, 3, 54, 87, 87, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 90, 3, 90, 53, 3, 53, 90, 90, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 97, 3, 97, 54, 3, 54, 97, 97, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 100, 3, 100, 53, 3, 53, 100, 100, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 108, 3, 108, 54, 3, 54, 108, 108, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 111, 3, 111, 53, 3, 53, 111, 111, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not FALSE\n\n, 119, 3, 119, 54, 3, 54, 119, 119, 45, 47, check_unedited works, <a href='#check_unedited'>check_unedited</a>(package_path) is not TRUE\n\n, 122, 3, 122, 53, 3, 53, 122, 122, 45, 47, check_unedited works
+## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       `default_params` (`actual`) not equal to rmarkdown::yaml_front_matter(rmd_file)$params (`expected`).\n\n, 135, 3, 138, 3, 3, 3, 135, 138, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(rmd_file, passed_params = list(package_parent_dir = &quot;dir&quot;)) (`actual`) not equal to `params1` (`expected`).\n\n, 141, 3, 144, 3, 3, 3, 141, 144, 45, 47, get_params_used works, <a href='#get_params_used'>get_params_used</a>(...) (`actual`) not equal to `params2` (`expected`).\n\n, 148, 3, 153, 3, 3, 3, 148, 153, 45, 47, get_params_used works
+## 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           fs::file_exists(file.path(dir, &quot;create-rknuth.html&quot;)) is not TRUE\n\n, 164, 3, 164, 78, 3, 78, 164, 164, 45, 47, Knuth-style references work
+## 6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       fs::file_exists(file.path(dir, &quot;create-rhello.html&quot;)) is not TRUE\n\n, 179, 3, 179, 78, 3, 78, 179, 179, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;rhello&quot;)) is not TRUE\n\n, 180, 3, 180, 66, 3, 66, 180, 180, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;create-rhasdata.html&quot;)) is not TRUE\n\n, 188, 3, 188, 80, 3, 80, 188, 188, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;rhasdata&quot;)) is not TRUE\n\n, 189, 3, 189, 68, 3, 68, 189, 189, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;create-withrcpp.html&quot;)) is not TRUE\n\n, 197, 3, 197, 80, 3, 80, 197, 197, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;withrcpp&quot;)) is not TRUE\n\n, 198, 3, 198, 68, 3, 68, 198, 198, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;create-withpkgdown.html&quot;)) is not TRUE\n\n, 206, 3, 206, 83, 3, 83, 206, 206, 45, 47, templates can be knit, fs::file_exists(file.path(dir, &quot;withpkgdown&quot;)) is not TRUE\n\n, 207, 3, 207, 71, 3, 71, 207, 207, 45, 47, templates can be knit, cannot open file &#39;create-frombookdown/index.Rmd&#39;: No such file or directory, 214, 3, 214, 55, 3, 55, 214, 214, <a href='#render'>render</a>(file.path(&quot;create-frombookdown&quot;, &quot;index.Rmd&quot;)), rmarkdown::yaml_front_matter(input), parse_yaml_front_matter(read_utf8(input)), partition_yaml_front_matter(input_lines), grep(&quot;^(---|\\\\.\\\\.\\\\.)\\\\s*$&quot;, input_lines), is.factor(x), read_utf8(input), readLines(con, warn = FALSE), 0, 1, 2, 3, 4, 5, 2, 7, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, litr, rmarkdown, rmarkdown, rmarkdown, base, base, rmarkdown, base, ::, ::, :::, :::, ::, ::, :::, ::, 45, 52, templates can be knit</code></pre>
 </div>
 <div id="add-examples-folder-with-the-output-of-knitting-each-example" class="section level2">
 <h2>Add examples folder with the output of knitting each example</h2>
@@ -2231,7 +2399,9 @@ package. These examples are linked to in <code>README.Rmd</code>.</p>
   fs::dir_create(example_dir)
   
   templates &lt;- fs::path_file(fs::dir_ls(&quot;inst/rmarkdown/templates&quot;))
-  for (template in templates) {
+  templates_bookdown &lt;- stringr::str_subset(templates, &quot;bookdown&quot;)
+  templates_nonbookdown &lt;- setdiff(templates, templates_bookdown)
+  for (template in templates_nonbookdown) {
     tmp_file &lt;- file.path(example_dir, &quot;temp.Rmd&quot;)
     rmarkdown::draft(tmp_file, template, package = &quot;litr&quot;, edit = FALSE)
     pkg_name &lt;- rmarkdown::yaml_front_matter(tmp_file)$params$package_name
@@ -2248,6 +2418,23 @@ package. These examples are linked to in <code>README.Rmd</code>.</p>
                    file.path(example_dir, template))
       fs::dir_delete(file.path(example_dir, &quot;source-files&quot;))
     }
+  }
+
+  for (template in templates_bookdown) {
+    tmp_dir &lt;- file.path(example_dir, &quot;temp&quot;)
+    rmarkdown::draft(file.path(example_dir, &quot;temp.Rmd&quot;),
+                     template,
+                     package = &quot;litr&quot;,
+                     edit = FALSE)
+    prev_dir &lt;- getwd()
+    setwd(tmp_dir)
+    fs::file_delete(&quot;temp.Rmd&quot;)
+    pkg_name &lt;- rmarkdown::yaml_front_matter(&quot;index.Rmd&quot;)$params$package_name
+    <a href='#render'>render</a>(&quot;index.Rmd&quot;)
+    # move to a template-specific directory:
+    setwd(prev_dir)
+    fs::dir_copy(tmp_dir, file.path(example_dir, template))
+    fs::dir_delete(tmp_dir)
   }
 
   <a href='#install_old'>install_old</a>()
@@ -2350,6 +2537,8 @@ source file <code>source-files/_pkgdown.yml</code>.</p>
 ## Writing &#39;reference/document.html&#39;
 ## Reading &#39;man/find_labels.Rd&#39;
 ## Writing &#39;reference/find_labels.html&#39;
+## Reading &#39;man/get_package_directory.Rd&#39;
+## Writing &#39;reference/get_package_directory.html&#39;
 ## Reading &#39;man/get_params_used.Rd&#39;
 ## Writing &#39;reference/get_params_used.html&#39;
 ## Reading &#39;man/hash_package_directory.Rd&#39;

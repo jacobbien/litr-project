@@ -15,5 +15,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-LitrVersionUsed: 0.0.4
-LitrId: 18f477ee231926ce373ae0253fb38aa3
+LitrVersionUsed: 0.5.0
+LitrId: ab925c790f8136a44785040e5bd80b49

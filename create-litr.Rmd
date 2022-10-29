@@ -10,13 +10,15 @@ params:
 
 *[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
 
-The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html but also an R package.   The code has the following components:
+The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html (or some other output format) but also an R package.   The code has the following components:
 
 1. [Functionality for generating the R package when the .Rmd file is knitted.](#generating-package)  In particular, we define a `knitr` [chunk hook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-hooks.html), which we call `send_to_package()` that identifies code chunks in the .Rmd file that should be included in the package.  To make it so that this chunk hook will be active, we also have a function called `setup()` that is called at the start of `litr::render()` right before `rmarkdown::render()` is called.  The `setup()` function makes it so that when the .Rmd file is knitted, the chunk hook `send_to_package()` will be invoked on each code chunk.  It is also responsible for other preliminaries, such as defining a new `knitr` language engine that can interpret package-level documentation.
 
 2. [Functionality for making sure the R package outputted will not overwrite a manually edited R package.](#hash)  Our approach here is to use a hash that will make it clear whether something has been modified.
 
-3. [Wrappers to `devtools::document()` and `rmarkdown::render()`.](#wrappers)  The reason we write wrappers is because we want a few extra things to happen.  For example, `devtools::document()` reminds the reader to edit the roxygen in the `R/` files, whereas in our case, we want to make sure they edit the original .Rmd file, not the `R/` files.  Likewise, `litr::render()` sets up all the special functionality of sending code chunks to the R package before calling `rmarkdown::render()` and also adds hyperlinks to the .html file that make it easy to navigate to function definitions.
+3. [Wrapper to `devtools::document()`](#document)  The reason we write a wrapper for `devtools::document()` is because we want it to behave slightly differently.  In particular, `devtools::document()` reminds the reader to edit the roxygen in the `R/` files, whereas in our case, we want to make sure they edit the original .Rmd file, not the `R/` files.
+
+4. [Functionality to alter the rendering process](#rendering)  The focus here is to make it so that all the special `litr` functionality will be active when the .Rmd is rendered.  We implement two ways this can happen.  First, we have several custom [output formats](https://bookdown.org/yihui/rmarkdown/new-formats.html), such as `litr_html_document()`.  When `rmarkdown::render()` is called with one of these `litr` output formats, `setup()` gets called before knitting occurs and some other litr-specific post-processing occurs as well.  The second way is through the function `litr::render()`.  If a user calls `litr::render()` with a non-`litr` output format, e.g. `rmarkdown::html_document()`, then `setup()` gets called before `rmarkdown::render()` and also post-processing can again happen.  Another thing of note about `litr::render()` is that it renders the document in a fresh environment, which ensures identical behavior to when a user presses "Knit" in RStudio.
 
 ## Package setup
 
@@ -643,9 +645,7 @@ write_version_to_description <- function(package_dir) {
 ```
 
 
-### Wrappers to `devtools::document()` and `rmarkdown::render()` {#wrappers}
-
-#### Defining `litr::document()`
+### Wrapper to `devtools::document()` {#document}
 
 This function is nearly identical to `devtools::document()` except that it changes the roxygen2 message that says "Please edit documentation in R/[...].R" to instead mention the generating .Rmd file.
 
@@ -678,78 +678,174 @@ We used `devtools`, so let's import it:
 usethis::use_package("devtools")
 ```
 
-#### Defining `litr::render()` {#render}
+### Altering the rendering process {#rendering}
 
-This function does a number of things:
+The focus here is to make it so that all the special `litr` functionality will be active when the .Rmd is rendered.  In particular, we need to make sure that `setup()` has been called before knitting occurs (so that, for example, `send_to_package()` will be active).  We also need to make sure that after knitting certain things occur, such as the litr-hash being written to the package and, in some cases, hyperlinks are added for easier navigation.
 
-1. Calls `setup()`, which creates the R package directory and makes it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory.
+We implement two ways for the above to occur, which we describe in the next two subsections:
 
-2. Calls `rmarkdown::render()`.  This is done in a very particular way [as described in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html) that ensures the identical behavior to when one clicks the "Knit" in RStudio.  In particular, we have a fresh R session opened in which first `setup()` and then `rmarkdown::render()` are called.
+1. The first approach is by defining [custom litr output formats](#output-format).  When `rmarkdown::render()` (or `bookdown::render_book()`) is called with one of these `litr` output formats, the `litr`-specific operations occur before and after knitting.
 
-3. If a .html file was created by the previous call, we call a function `add_function_hyperlinks()` that processes this .html file, making it so that one can easily navigate to function definitions within the .html file.  (This function is described lower in this section.)  We likewise call a function `add_chunk_label_hyperlinks()`, which makes chunk references into clickable links.  In particular, the chunk reference `<<my-chunk>>` within a code chunk would link to a chunk named "my-chunk" that begins with `###"my-chunk"###`.  The `###"my-chunk"###` line is added by a document hook defined in `setup()`.
+2. The second way is through the function [`litr::render()`](#render).  If a user calls `litr::render()` with a non-`litr` output format, e.g. `rmarkdown::html_document()`, then it adds the necessary `litr`-specific operations before/after `rmarkdown::render()` is called.  Another thing of note about `litr::render()` is that it renders the document in a fresh environment, which ensures identical behavior to when a user presses "Knit" in RStudio.
 
-4. Adds a field to the DESCRIPTION file giving the version of `litr` used to generate this package.  This will be useful for reproducibility.
+Although these are presented as two separate approaches, we have written `litr::render()` so that if a user passes one of the `litr` output formats to `litr::render()`, it will still work.
 
-5. Writes the special `litr` hash (as already described [here](#hash)).  Before we can write the hash, we need to determine the location of the outputted package.  The location of the package is specified as parameters in the YAML header of the generating .Rmd file; however, these parameter values can be overridden within a call to `render` if one passes any of these parameters as arguments. The function `get_params_used()`, defined at the end of this section, gets the actual parameters that are used so that the location of the outputted package can be found.
+#### Defining `litr` output formats {#output-format}
+
+The function `rmarkdown::render()` allows for customizable behavior through the use of custom [output formats](https://bookdown.org/yihui/rmarkdown/new-formats.html).
+
+Given a preexisting output format (e.g. `rmarkdown::html_document`), we would like to modify it to have `litr`-behavior -- i.e., to create a package as it is being rendered.  This next function takes a preexisting output format and "`litr`-ifies" it by making three changes:
+
+1. It modifies the `pre_knit()` function.
+
+2. It modifies the `post_processor()` function.
+
+3. It adds a marker (`litr_format <- TRUE`) that will help `litr::render()` know when a `litr` output format is being passed to it.
+
+We present the function and then describe the details of the new `pre_knit()` and `post_processor()` functions below.
 
 ```{r}
-#' Render R markdown file
+#' Modify an existing output format to have `litr` behavior
 #' 
-#' Wrapper to `rmarkdown::render` that does some post-processing on the html 
-#' file when that is the output.  In particular, when an html file is among the 
-#' outputs, it adds hyperlinks to functions defined within the file to make it 
-#' easier for someone reading the code to see where different functions are
-#' defined.
+#' This function modifies the `pre_knit()` and `post_processor()` functions of a
+#' preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::render()` is called).
 #' 
-#' @param input The input file to be rendered (see `rmarkdown::render`)
-#' @param ... Additional parameters to pass to `rmarkdown::render`
+#' @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
 #' @export
-render <- function(input, ...) {
-  # call rmarkdown::render in a new environment so it behaves the same as 
-  # pressing the knit button in RStudio:
-  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+litrify_output_format <- function(base_format = rmarkdown::html_document) {
+  function(...) {
+    old <- base_format(...)
+    new <- old
+    new$pre_knit <- function(...) {
+      args <- list(...)
+      input <- args$input
+      params <- knitr::knit_params(readLines(input))
+      package_dir <- get_package_directory(
+        params$package_parent_dir$value,
+        params$package_name$value,
+        input)
+      litr:::setup(package_dir)
+      if (!is.null(old$pre_knit)) old$pre_knit(...)
+    }
 
-  args <- list(...)
-  params <- get_params_used(input, args$params)
-  package_dir <- ifelse(
-    params$package_parent_dir == ".",
-    file.path(dirname(input), params$package_name),
-    file.path(dirname(input), params$package_parent_dir, params$package_name)
-  )
-  args$package_dir <- package_dir
+    new$post_processor <- function(metadata, input_file, output_file, ...) {
+      out <- old$post_processor(metadata, input_file, output_file, ...)
+      package_dir <- get_package_directory(
+        metadata$params$package_parent_dir,
+        metadata$params$package_name,
+        input_file
+      )
 
-  render_ <- function(input, package_dir, ...) {
-    litr:::setup(package_dir)
-    rmarkdown::render(input, ...)
+      # add to DESCRIPTION file the version of litr used to create package:
+      write_version_to_description(package_dir)
+
+      # add litr hash so we can tell later if package files were manually edited:
+      write_hash_to_description(package_dir)
+      out
+    }
+    
+    # mark this as a litr_format
+    new$litr_format <- TRUE
+
+    new
   }
-
-  out <- xfun::Rscript_call(render_, c(input = input, args))
-#  out <- do.call(render_, c(input = input, args))
-
-  # add hyperlinks within html output to make it easier to navigate:
-  if (any(stringr::str_detect(out, "html$"))) {
-    html_file <- stringr::str_subset(out, "html$")
-    add_function_hyperlinks(html_file)
-    add_chunk_label_hyperlinks(html_file)
-  }
-  
-  # add to DESCRIPTION file the version of litr used to create package:
-  write_version_to_description(package_dir)
-  
-  # add litr hash so we can tell later if package files were manually edited:
-  write_hash_to_description(package_dir)
 }
 ```
 
-**Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
+1. The `pre_knit()` function is modified so that `setup()` is called before the preexisting output format's `pre_knit()` function is called.  As the name suggests, this is a function that gets called before knitting.  The purpose of the call to `setup()` is to create the R package directory and make it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory.
 
-We used the package `xfun`, so let's import it:
+2. The `post_processor()` function is modified so that the DESCRIPTION file gets marked with the version of `litr` used and with the `litr` hash (as already described [here](#hash)).
+
+We use the above function to create some `litr` versions of common output formats, as seen in the next few subsections.
+
+Before proceeding, we did make use of a small function for getting the package directory based on the input file's location and the parameters that are being used in the rendering process.  We define it here:
 
 ```{r}
-usethis::use_package("xfun")
+#' Get package directory
+#' 
+#' @param package_parent_dir The directory of where the package should go (relative to the input directory)
+#' @param package_name The name of the package
+#' @param input The file name of the input
+#' @keywords internal
+get_package_directory <- function(package_parent_dir, package_name, input) {
+  if (package_parent_dir == ".")
+    return(file.path(dirname(input), package_name))
+  file.path(dirname(input), package_parent_dir, package_name)
+}
 ```
 
-The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` and then whenever `foo` is found it wraps a `a href="#foo"` tag so that it will be a hyperlink to `foo`'s definition.
+Let's write some tests to make sure it's behaving as expected:
+
+```{r}
+testthat::test_that("get_package_directory() works", {
+  input <- file.path("inputdir", "input.Rmd")
+  testthat::expect_equal(
+    get_package_directory(".", "mypkg", input),
+    file.path("inputdir", "mypkg") # inputdir/mypkg
+  )
+  testthat::expect_equal(
+    get_package_directory("..", "mypkg", input),
+    file.path("inputdir", "..", "mypkg") # inputdir/../mypkg
+  )
+})
+```
+
+
+##### .pdf output format
+
+The next function could have been defined in a single line: `litr_pdf_document <- litrify_output_format(rmarkdown::pdf_document)`
+
+However, for `litr` to recognize this as a function, we make it a bit longer with the `<- function(` format and add documentation.
+
+```{r}
+#' litr version of `rmarkdown::pdf_document()`
+#' 
+#' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
+#' R package.
+#' 
+#' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
+#' @export
+litr_pdf_document <- function(...) {
+  litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document)
+  litr_pdf_document_(...)
+}
+```
+
+##### .html output format {#html-output-format}
+
+For .html documents, we'd like to add a bit more in the postprocessing step.  In particular, we include some special function and chunk hyperlinking behavior described below.  The function `add_function_hyperlinks()` processes the outputted .html file(s), making it so that one can easily navigate to function definitions.  (This function is described lower in this section.)  We likewise call a function `add_chunk_label_hyperlinks()`, which makes chunk references into clickable links.  In particular, the chunk reference `<<my-chunk>>` within a code chunk would link to a chunk named "my-chunk" that begins with `###"my-chunk"###`.  The `###"my-chunk"###` line is added by a document hook defined in `setup()`.
+
+```{r}
+#' litr version of `rmarkdown::html_document()`
+#' 
+#' This behaves like `rmarkdown::html_document()` with a few differences:
+#' - It creates an R package.
+#' - It adds hyperlinks to function definitions whenever a function is used
+#' elsewhere in the document.
+#' - It does "Knuth-style" chunk referencing with hyperlinks.
+#' 
+#' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
+#' @export
+litr_html_document <- function(...) {
+  litr_html_document_ <- litrify_output_format(rmarkdown::html_document)
+  old <- litr_html_document_(...)
+  new <- old
+  # modify post_processor
+  new$post_processor <- function(metadata, input_file, output_file, ...) {
+    out <- old$post_processor(metadata, input_file, output_file, ...)
+    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
+    # add hyperlinks within html output to make it easier to navigate:
+    add_function_hyperlinks(html_files)
+    add_chunk_label_hyperlinks(html_files)
+    out
+  }
+  new
+}
+```
+
+We describe these two `add_*_hyperlinks()` functions next.
+
+The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"`; whenever `foo` is found it wraps a `a href="file.html#foo"` tag (where `file.html` is the file where `foo` is defined), so that it will be a hyperlink to `foo`'s definition.
 
 ```{r}
 #' Add hyperlinks to function definitions
@@ -925,143 +1021,6 @@ add_chunk_label_hyperlinks <- function(html_files,
 ```
 
 
-As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
-
-```{r}
-#' Get parameter values used in rendering
-#' 
-#' When the `params` argument of `rmarkdown::render()` is explicitly used, this
-#' overrides the default that appears in `input`.
-#' @param input The input file to be rendered (see `rmarkdown::render`)
-#' @param passed_params The list of parameters that were passed to `render`.
-#' @keywords internal
-get_params_used <- function(input, passed_params) {
-  params <- rmarkdown::yaml_front_matter(input)$params
-  for (param in names(passed_params)) {
-    params[[param]] <- passed_params[[param]]
-  }
-  params
-}
-```
-
-We used the package `rmarkdown`, so let's import it:
-
-```{r}
-usethis::use_package("rmarkdown")
-```
-
-#### Defining `litr` output formats {#output-format}
-
-This is an alternative way to get the special `litr` knitting behavior without relying on `litr::render()`.  The reason for this is that `rmarkdown::render()` allows for customizable behavior through the use of custom [output formats](https://bookdown.org/yihui/rmarkdown/new-formats.html).  This feels like the better way of doing things than requiring the user to use the function `litr::render()`.  That said, we should probably keep `litr::render()` for backward compatibility purposes.
-
-Given a preexisting output format (e.g. `rmarkdown::html_document`), we would like to modify it to have `litr`-behavior -- i.e., to create a package as it is being rendered.  This next function takes a preexisting output format and "litr-ifies" it by making the following changes:
-
-1. It modifies the `pre_knit()` function so that `litr::setup()` is called before the preexisting output format's `pre_knit()` function is called.  As the name suggests, this is a function that gets called before knitting.  
-
-2. It modifies the `post_processor()` function so that the DESCRIPTION file gets marked with the version of `litr` used and with the `litr` hash (as already described [here](#hash)).
-
-```{r}
-#' Modify an existing output format to have `litr` behavior
-#' 
-#' This function modifies the `pre_knit()` and `post_processor()` functions of a
-#' preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::render()` is called).
-#' 
-#' @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
-#' @export
-litrify_output_format <- function(base_format = rmarkdown::html_document) {
-  function(...) {
-    old <- base_format(...)
-    new <- old
-    new$pre_knit <- function(...) {
-      args <- list(...)
-      input <- args$input
-      params <- knitr::knit_params(readLines(input))
-      package_dir <- ifelse(
-        params$package_parent_dir$value == ".",
-        file.path(dirname(input), params$package_name$value),
-        file.path(dirname(input), params$package_parent_dir$value, params$package_name$value)
-      )
-      setup(package_dir)
-      if (!is.null(old$pre_knit)) old$pre_knit(...)
-    }
-
-    new$post_processor <- function(metadata, input_file, output_file, ...) {
-      out <- old$post_processor(metadata, input_file, output_file, ...)
-      
-      package_dir <- ifelse(
-        metadata$params$package_parent_dir == ".",
-        file.path(dirname(input_file), metadata$params$package_name),
-        file.path(dirname(input_file),
-                  metadata$params$package_parent_dir,
-                  metadata$params$package_name)
-      )
-
-      # add to DESCRIPTION file the version of litr used to create package:
-      write_version_to_description(package_dir)
-
-      # add litr hash so we can tell later if package files were manually edited:
-      write_hash_to_description(package_dir)
-      out
-    }
-
-    new
-  }
-}
-```
-
-We use the above function to create some `litr` versions of common output formats.
-
-##### .pdf output format
-
-The next function could have been defined in a single line: `litr_pdf_document <- litrify_output_format(rmarkdown::pdf_document)`
-
-However, for `litr` to recognize this as a function, we make it a bit longer with the `<- function(` format.
-
-```{r}
-#' litr version of `pdf_document()`
-#' 
-#' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
-#' R package.
-#' 
-#' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
-#' @export
-litr_pdf_document <- function(...) {
-  litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document)
-  litr_pdf_document_(...)
-}
-```
-
-##### .html output format
-
-For .html documents, we'd like to add a bit more in the postprocessing step.  In particular, we'd like the special function and chunk hyperlinking behavior described [here](#render).
-
-```{r}
-#' litr version of `html_document()`
-#' 
-#' This behaves like `rmarkdown::html_document()` with a few differences:
-#' - It creates an R package.
-#' - It adds hyperlinks to function definitions whenever a function is used
-#' elsewhere in the document.
-#' - It does "Knuth-style" chunk referencing with hyperlinks.
-#' 
-#' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
-#' @export
-litr_html_document <- function(...) {
-  litr_html_document_ <- litrify_output_format(rmarkdown::html_document)
-  old <- litr_html_document_(...)
-  new <- old
-  # modify post_processor
-  new$post_processor <- function(metadata, input_file, output_file, ...) {
-    out <- old$post_processor(metadata, input_file, output_file, ...)
-    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
-    # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files)
-    add_chunk_label_hyperlinks(html_files)
-    out
-  }
-  new
-}
-```
 
 ##### `bookdown::gitbook()` output format
 
@@ -1109,10 +1068,168 @@ title: "A `litr` Book"
 author: "Your Name"
 site: bookdown::bookdown_site
 params:
-  package_name: "rleastsquares" # <-- change this to your package name
+  package_name: "frombookdown" # <-- change this to your package name
   package_parent_dir: "." # <-- relative to this file's location
 documentclass: book
 ---
+```
+
+Or one can add to the preamble the lines
+
+```
+knit: bookdown::render_book
+output: litr::litr_gitbook
+```
+
+This first line makes it so that in RStudio when you press "Knit", it calls `bookdown::render_book()`, and the second line makes it so that the output format will be the special litr one.
+
+#### Defining `litr::render()` {#render}
+
+There are two primary use cases for this function:
+
+1. To render a .Rmd with a non-`litr` output format (e.g., `rmarkdown::html_document`) in such a way that it will generate an R package (and include the special litr-hyperlinking if .html files were created).
+
+2. To render a .Rmd with a `litr` output format (including the `litr_gitbook()` format).
+
+The second use case might seem unnecessary in that
+
+```{r, eval=FALSE}
+rmarkdown::render("create-pkg.Rmd", output_format = litr::litr_html_document())
+```
+
+or
+
+```{r, eval = FALSE}
+bookdown::render_book("index.Rmd", output_format = litr::litr_gitbook())
+```
+
+would do what we want.  However, the reason to still prefer `litr::render()` is that this function ensures the identical behavior to when one clicks the "Knit" in RStudio.  It does this by opening a fresh R session in which `rmarkdown::render()` (or `bookdown::render_book()`) is called.  This is based on [the description in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html).
+
+In the first use case, `litr::render()` is responsible for ensuring all the special `litr` things happen (like `setup()` being called before knitting, the litr-hash being written afterwards, and hyperlinking occurs).  The details of what it does is very similar to what is described in the [output formats](#output-format) section, especially the one on the [html output format](#html-output-format).
+
+One thing that is different is that we need a function `get_params_used()`, defined at the end of this section, that gets the actual parameters that are used so that the location of the outputted package can be found.
+
+
+```{r}
+#' Render R markdown file
+#' 
+#' Wrapper to `rmarkdown::render` that does some post-processing on the html 
+#' file when that is the output.  In particular, when an html file is among the 
+#' outputs, it adds hyperlinks to functions defined within the file to make it 
+#' easier for someone reading the code to see where different functions are
+#' defined.
+#' 
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param ... Additional parameters to pass to `rmarkdown::render`
+#' @export
+render <- function(input, ...) {
+  # call rmarkdown::render in a new environment so it behaves the same as 
+  # pressing the knit button in RStudio:
+  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+  args <- list(...)
+
+  # let's determine if the output format being used is a litr format.
+  # If it is, then we'll simply want to call rmarkdown::render() since the 
+  # special litr behavior will be attained through the output format.
+  litr_format <- FALSE
+  bookdown_format <- FALSE
+  if ("output_format" %in% names(args)) {
+    if ("litr_format" %in% names(args$output_format)) {
+      litr_format <- TRUE
+    }
+    if ("bookdown_output_format" %in% names(args$output_format)) {
+      bookdown_format <- TRUE
+    }
+  } else {
+    frontmatter <- rmarkdown::yaml_front_matter(input)
+    if ("output" %in% names(frontmatter)) {
+      formats <- ifelse(is.list(frontmatter$output),
+                        names(frontmatter$output),
+                        frontmatter$output)
+      if (any(stringr::str_detect(formats, "litr::"))) {
+        litr_format <- TRUE
+      }
+      if (any(stringr::str_detect(formats, "litr::litr_gitbook"))) {
+        bookdown_format <- TRUE
+      }
+    }
+  }
+  
+  if (litr_format) {
+    # this uses a litr output format, so we don't need to do anything litr-specific
+    # here because it will happen through the output format
+    if (bookdown_format)
+      return(invisible(xfun::Rscript_call(bookdown::render_book,
+                                          c(input = input, args))))
+    else
+      return(invisible(xfun::Rscript_call(rmarkdown::render,
+                                          c(input = input, args))))
+  }
+  
+  # the output format being used is not a litr-specific one, so we need to make
+  # sure that all the special litr things happen
+  params <- get_params_used(input, args$params)
+  package_dir <- package_dir <- get_package_directory(
+        params$package_parent_dir,
+        params$package_name,
+        input
+      )
+  args$package_dir <- package_dir
+
+  render_ <- function(input, package_dir, ...) {
+    litr:::setup(package_dir)
+    rmarkdown::render(input, ...)
+  }
+
+  out <- xfun::Rscript_call(render_, c(input = input, args))
+#  out <- do.call(render_, c(input = input, args))
+
+  # add hyperlinks within html output to make it easier to navigate:
+  if (any(stringr::str_detect(out, "html$"))) {
+    html_file <- stringr::str_subset(out, "html$")
+    add_function_hyperlinks(html_file)
+    add_chunk_label_hyperlinks(html_file)
+  }
+  
+  # add to DESCRIPTION file the version of litr used to create package:
+  write_version_to_description(package_dir)
+  
+  # add litr hash so we can tell later if package files were manually edited:
+  write_hash_to_description(package_dir)
+}
+```
+
+**Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
+
+We used the package `xfun`, so let's import it:
+
+```{r}
+usethis::use_package("xfun")
+```
+
+As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
+
+```{r}
+#' Get parameter values used in rendering
+#' 
+#' When the `params` argument of `rmarkdown::render()` is explicitly used, this
+#' overrides the default that appears in `input`.
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param passed_params The list of parameters that were passed to `render`.
+#' @keywords internal
+get_params_used <- function(input, passed_params) {
+  params <- rmarkdown::yaml_front_matter(input)$params
+  for (param in names(passed_params)) {
+    params[[param]] <- passed_params[[param]]
+  }
+  params
+}
+```
+
+We used the package `rmarkdown`, so let's import it:
+
+```{r}
+usethis::use_package("rmarkdown")
 ```
 
 
@@ -1264,6 +1381,7 @@ render_functions <- c("render",
                       "add_function_hyperlinks",
                       "add_chunk_label_hyperlinks",
                       "get_params_used",
+                      "get_package_directory",
                       "do_not_edit_message",
                       "description_litr_version_field_name",
                       "write_version_to_description",
@@ -1378,6 +1496,24 @@ fs::dir_copy(
   new_path = file.path(
     "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
     "source-files"
+    ),
+  overwrite = TRUE
+)
+```
+
+The fifth template shows how to create a package from a bookdown site, i.e. instead of having just a single `create-pkg.Rmd`, we can have a series of .Rmd files that together create a bookdown:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package From a Bookdown",
+  template_dir = "make-an-r-package-from-bookdown",
+  template_description = "Template for a bookdown that defines an R package using literate programming.",
+  template_create_dir = TRUE
+)
+fs::dir_copy(
+  path = file.path("..", "source-files", "make-an-r-package-from-bookdown"),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-from-bookdown", "skeleton"
     ),
   overwrite = TRUE
 )
@@ -1607,6 +1743,19 @@ testthat::test_that("templates can be knit", {
   testthat::expect_true(fs::file_exists(file.path(dir, "create-withpkgdown.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withpkgdown")))
 
+  rmd_file <- file.path(dir, "create-frombookdown.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-from-bookdown",
+                   package = "litr",
+                   edit = FALSE)
+  render(file.path("create-frombookdown", "index.Rmd"))
+  testthat::expect_true(
+    fs::file_exists(file.path(dir, "create-frombookdown", "_book", "index.html"))
+    )
+  testthat::expect_true(
+    fs::file_exists(file.path(dir, "create-frombookdown", "withpkgdown"))
+    )
+
   fs::dir_delete(dir)
  })
 ```
@@ -1648,7 +1797,9 @@ build_all_templates <- function(install_old, location_of_new) {
   fs::dir_create(example_dir)
   
   templates <- fs::path_file(fs::dir_ls("inst/rmarkdown/templates"))
-  for (template in templates) {
+  templates_bookdown <- stringr::str_subset(templates, "bookdown")
+  templates_nonbookdown <- setdiff(templates, templates_bookdown)
+  for (template in templates_nonbookdown) {
     tmp_file <- file.path(example_dir, "temp.Rmd")
     rmarkdown::draft(tmp_file, template, package = "litr", edit = FALSE)
     pkg_name <- rmarkdown::yaml_front_matter(tmp_file)$params$package_name
@@ -1665,6 +1816,23 @@ build_all_templates <- function(install_old, location_of_new) {
                    file.path(example_dir, template))
       fs::dir_delete(file.path(example_dir, "source-files"))
     }
+  }
+
+  for (template in templates_bookdown) {
+    tmp_dir <- file.path(example_dir, "temp")
+    rmarkdown::draft(file.path(example_dir, "temp.Rmd"),
+                     template,
+                     package = "litr",
+                     edit = FALSE)
+    prev_dir <- getwd()
+    setwd(tmp_dir)
+    fs::file_delete("temp.Rmd")
+    pkg_name <- rmarkdown::yaml_front_matter("index.Rmd")$params$package_name
+    render("index.Rmd")
+    # move to a template-specific directory:
+    setwd(prev_dir)
+    fs::dir_copy(tmp_dir, file.path(example_dir, template))
+    fs::dir_delete(tmp_dir)
   }
 
   install_old()

@@ -2,7 +2,7 @@
 % Please edit documentation in create-litr.Rmd.
 \name{litr_pdf_document}
 \alias{litr_pdf_document}
-\title{litr version of \code{pdf_document()}}
+\title{litr version of \code{rmarkdown::pdf_document()}}
 \usage{
 litr_pdf_document(...)
 }

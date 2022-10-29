@@ -1,10 +1,10 @@
 pandoc: '2.18'
 pkgdown: 2.0.6.9000
-pkgdown_sha: 738974f38c28945cd465b756889cfce6793617b4
+pkgdown_sha: 5bb671b1a8bac8e926479868681936f7c9ee41b3
 articles:
   basic-example: basic-example.html
   faqs: faqs.html
   package-templates: package-templates.html
   packages-in-the-wild: packages-in-the-wild.html
-last_built: 2022-10-27T06:43Z
+last_built: 2022-10-29T21:14Z
 

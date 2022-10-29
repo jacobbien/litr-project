@@ -1,0 +1,35 @@
+# The basics of saying hello
+
+Let's define a function for our R package:
+
+```{r}
+#' Say hello to someone
+#' 
+#' @param name Name of a person
+#' @param exclamation Whether to include an exclamation mark
+#' @export 
+say_hello <- function(name, exclamation = TRUE) {
+  paste0("Hello ", name, ifelse(exclamation, "!", "."))
+}
+```
+
+Code chunks whose first line starts with `#'` are added to the package.
+
+We can try running it.
+
+```{r}
+say_hello("Jacob")
+```
+
+That code chunk does not start with `#'`, so it is not added to the package.
+
+Let's write some tests to make sure the function behaves as desired:
+
+```{r}
+testthat::test_that("say_hello works", {
+  testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
+  testthat::expect_equal(say_hello("Jacob", exclamation = FALSE), "Hello Jacob.")
+})
+```
+
+Code chunks that have one or more lines starting with `test_that(` (or `testthat::test_that(`) are added to the package as tests.

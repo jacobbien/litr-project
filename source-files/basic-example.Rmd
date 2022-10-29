@@ -188,6 +188,10 @@ There's a [template](package-templates.html) for that.
 
 There's a [template](package-templates.html) for that.
 
+### Defining your package with `bookdown`
+
+If you're writing a large package, it may be convenient to define it across multiple .Rmd files. You can use `bookdown` for this, which leads to a nice looking online book with multiple chapters.  There's a [template](package-templates.html) for that.
+
 ## Documenting the package
 
 We finish by running a commands that will turn the `royxgen2` into traditional documentation files in our R package.

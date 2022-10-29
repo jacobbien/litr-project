@@ -19,6 +19,10 @@ No.  The .Rmd file that generates an R package with `litr` uses exactly the same
 
 A vignette serves a very different purpose from the .Rmd file you use in `litr`.  The goal of a vignette is to show potential users of your package how they can use it.  By contrast, the `litr` .Rmd file is a document that **is** the source code, presented in a way that is optimized for human readability. The audience of this file is your future self or anyone who may eventually wish to modify your R package or understand its inner workings.  Typical users of your package will not need to see this document.
 
+## For large packages, can I write my package across multiple .Rmd files?
+
+Yes!  You can use `bookdown` to define your R package across multiple .Rmd files.  This leads to a nice looking online book with multiple chapters.  When you render the book all .Rmd files are run in a single environment, so it behaves in the same way as if you had one enormous .Rmd file.  [Here](http://faculty.marshall.usc.edu/jacob-bien/frombookdown/_book/)'s an example.  The easiest way to get started is to work from the [template](package-templates.html) called `make-an-r-package-from-bookdown`.
+
 ## Can I include a README for my package?
 
 Yes!  You can do so using the function `litr::add_readme()`.  See the template [`create-withpkgdown.Rmd`](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/create-withpkgdown.Rmd) for an example of how this works.

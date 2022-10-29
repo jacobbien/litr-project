@@ -2,13 +2,13 @@
 title: "Creating the ``r params$package_name`` R package"
 author: "Your Name"
 date: "The Date"
-knit: litr::render
+output: litr::litr_html_document
 params:
   package_name: "withrcpp" # <-- change this to your package name
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
-<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `rmarkdown::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
 -->
 
 ## Package setup

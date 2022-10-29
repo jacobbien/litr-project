@@ -45,6 +45,18 @@ testthat::test_that("add_text_to_file() works", {
   fs::dir_delete(dir)
 })
 
+testthat::test_that("get_package_directory() works", {
+  input <- file.path("inputdir", "input.Rmd")
+  testthat::expect_equal(
+    get_package_directory(".", "mypkg", input),
+    file.path("inputdir", "mypkg") # inputdir/mypkg
+  )
+  testthat::expect_equal(
+    get_package_directory("..", "mypkg", input),
+    file.path("inputdir", "..", "mypkg") # inputdir/../mypkg
+  )
+})
+
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
@@ -193,6 +205,19 @@ testthat::test_that("templates can be knit", {
   render(rmd_file)
   testthat::expect_true(fs::file_exists(file.path(dir, "create-withpkgdown.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withpkgdown")))
+
+  rmd_file <- file.path(dir, "create-frombookdown.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-from-bookdown",
+                   package = "litr",
+                   edit = FALSE)
+  render(file.path("create-frombookdown", "index.Rmd"))
+  testthat::expect_true(
+    fs::file_exists(file.path(dir, "create-frombookdown", "_book", "index.html"))
+    )
+  testthat::expect_true(
+    fs::file_exists(file.path(dir, "create-frombookdown", "withpkgdown"))
+    )
 
   fs::dir_delete(dir)
  })

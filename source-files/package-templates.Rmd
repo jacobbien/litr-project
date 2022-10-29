@@ -16,16 +16,18 @@ library(stringr)
 
 ```{r, eval=TRUE, echo=FALSE, results='asis'}
 path <- "https://github.com/jacobbien/litr-project/blob/main/examples"
-tibble(
+tbl <- tibble(
   template = c("make-an-r-package", 
                "make-an-r-package-with-data",
                "make-an-r-package-with-rcpp",
-               "make-an-r-package-with-extras"),
-  pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown"),
+               "make-an-r-package-with-extras",
+               "make-an-r-package-from-bookdown"),
+  pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown", "frombookdown"),
   description = c("the most basic package: a function and a test",
                   "a package with a data set in it",
                   "a package using `Rcpp`",
-                  "a package with a README, vignette(s), a pkgdown site, and a hex sticker")) %>% 
+                  "a package with a README, vignette(s), a pkgdown site, and a hex sticker",
+                  "a package defined in a bookdown")) %>% 
   transmute(
     `Template name` = template,
     Description = description,
@@ -34,8 +36,18 @@ tibble(
       "[create-{pkg_name}.html](https://htmlpreview.github.io/?{path}/{template}/create-{pkg_name}.html)"
       ),
     `Generated R package` = str_glue("[{pkg_name}/]({path}/{template}/{pkg_name})")
-  ) %>% 
-knitr::kable()
+  )
+ibookdown <- str_which(tbl$`Template name`, "make-an-r-package-from-bookdown")
+tbl[ibookdown, "Rmd source file"] <- str_glue(
+  "[index.Rmd]({file})",
+  file = paste0(path, "/make-an-r-package-from-bookdown/index.Rmd"))
+tbl[ibookdown, "Generated html"] <- str_glue(
+  "[_book/index.html]({file})",
+  file = paste0("https://htmlpreview.github.io/?", path, "/make-an-r-package-from-bookdown/_book/index.html"))
+tbl[ibookdown, "Generated R package"] <- str_glue(
+  "[frombookdown/]({file})",
+  file = paste0(path, "/make-an-r-package-from-bookdown/frombookdown"))
+knitr::kable(tbl)
 ```
 
 Once you've chosen a template, you can get started as follows:
