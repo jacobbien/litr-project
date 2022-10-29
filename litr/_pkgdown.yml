@@ -42,7 +42,7 @@ reference:
     - add_pkgdown
     - add_hex_sticker
 
-- title: Newer functions
+- title: Custom output formats
   desc: >
     These are the functions for producing different output formats.
   contents:

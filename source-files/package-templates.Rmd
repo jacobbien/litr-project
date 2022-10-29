@@ -39,8 +39,9 @@ tbl <- tibble(
   )
 ibookdown <- str_which(tbl$`Template name`, "make-an-r-package-from-bookdown")
 tbl[ibookdown, "Rmd source file"] <- str_glue(
-  "[index.Rmd]({file})",
-  file = paste0(path, "/make-an-r-package-from-bookdown/index.Rmd"))
+  "[index.Rmd]({file_index}), [1description.Rmd]({file_desc}), etc.",
+  file_index = paste0(path, "/make-an-r-package-from-bookdown/index.Rmd"),
+  file_desc = paste0(path, "/make-an-r-package-from-bookdown/1description.Rmd"))
 tbl[ibookdown, "Generated html"] <- str_glue(
   "[_book/index.html]({file})",
   file = paste0("https://htmlpreview.github.io/?", path, "/make-an-r-package-from-bookdown/_book/index.html"))
