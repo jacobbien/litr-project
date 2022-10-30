@@ -1083,6 +1083,13 @@ output: litr::litr_gitbook
 
 This first line makes it so that in RStudio when you press "Knit", it calls `bookdown::render_book()`, and the second line makes it so that the output format will be the special litr one.
 
+Since the above function uses `bookdown`, we include it in our package:
+
+```{r}
+usethis::use_package("bookdown")
+```
+
+
 #### Defining `litr::render()` {#render}
 
 There are two primary use cases for this function:
@@ -1305,8 +1312,11 @@ add_vignettes <- function(rmd_files) {
   for (fn in rmd_files) fs::file_copy(fn, "vignettes")
   
   # update DESCRIPTION file:
-  desc::desc_set_dep("knitr", type = "Suggests")
-  desc::desc_set_dep("rmarkdown", type = "Suggests")
+  deps <- desc::desc_get_deps()$package
+  if (!("knitr" %in% deps))
+    desc::desc_set_dep("knitr", type = "Suggests")
+  if (!("rmarkdown" %in% deps))
+    desc::desc_set_dep("rmarkdown", type = "Suggests")
   out <- desc::desc_set("VignetteBuilder", "knitr")
 }
 ```
@@ -1354,6 +1364,14 @@ add_pkgdown <- function(config_path = NULL) {
 ```
 
 After this step, you can locally see the site by opening `docs/index.html` in the browser.  You can then copy the `docs` directory to your website's server and you're done.
+
+Since the above function uses `pkgdown` and `yaml`, we include these in our package:
+
+```{r}
+usethis::use_package("pkgdown")
+usethis::use_package("yaml")
+```
+
 
 ### Combining .R files
 
@@ -1748,12 +1766,16 @@ testthat::test_that("templates can be knit", {
                    template = "make-an-r-package-from-bookdown",
                    package = "litr",
                    edit = FALSE)
-  render(file.path("create-frombookdown", "index.Rmd"))
+  prev_dir <- getwd()
+  setwd(file.path(dir, "create-frombookdown"))
+  fs::file_delete("create-frombookdown.Rmd")
+  render("index.Rmd")
+  setwd(prev_dir)
   testthat::expect_true(
     fs::file_exists(file.path(dir, "create-frombookdown", "_book", "index.html"))
     )
   testthat::expect_true(
-    fs::file_exists(file.path(dir, "create-frombookdown", "withpkgdown"))
+    fs::file_exists(file.path(dir, "create-frombookdown", "frombookdown"))
     )
 
   fs::dir_delete(dir)
@@ -1827,7 +1849,6 @@ build_all_templates <- function(install_old, location_of_new) {
     prev_dir <- getwd()
     setwd(tmp_dir)
     fs::file_delete("temp.Rmd")
-    pkg_name <- rmarkdown::yaml_front_matter("index.Rmd")$params$package_name
     render("index.Rmd")
     # move to a template-specific directory:
     setwd(prev_dir)
@@ -1876,6 +1897,14 @@ add_vignettes(c(file.path("..", "source-files", "package-templates.Rmd"),
                 file.path("..", "source-files", "faqs.Rmd"),
                 file.path("..", "source-files", "basic-example.Rmd")))
 ```
+
+The templates vignette uses `dplyr` and `stringr`, so we add them as "Suggests" in the DESCRIPTION file:
+
+```{r}
+usethis::use_package("dplyr", type = "Suggests")
+usethis::use_package("stringr", type = "Suggests")
+```
+
 
 
 ### A pkgdown site

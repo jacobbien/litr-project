@@ -13,22 +13,24 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
+    bookdown,
     desc,
     devtools,
     digest,
     fs,
     knitr,
+    pkgdown,
     rmarkdown,
     stringr,
     usethis,
-    xfun
+    xfun,
+    yaml
 Suggests: 
-    knitr,
+    dplyr,
     Rcpp,
-    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
 LitrVersionUsed: 0.4.0
-LitrId: 3a6214d002818286618a68c2042835e2
+LitrId: 933d1f4dcaa557c9de856ec0bb2306f4

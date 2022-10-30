@@ -49,8 +49,11 @@ add_vignettes <- function(rmd_files) {
   for (fn in rmd_files) fs::file_copy(fn, "vignettes")
   
   # update DESCRIPTION file:
-  desc::desc_set_dep("knitr", type = "Suggests")
-  desc::desc_set_dep("rmarkdown", type = "Suggests")
+  deps <- desc::desc_get_deps()$package
+  if (!("knitr" %in% deps))
+    desc::desc_set_dep("knitr", type = "Suggests")
+  if (!("rmarkdown" %in% deps))
+    desc::desc_set_dep("rmarkdown", type = "Suggests")
   out <- desc::desc_set("VignetteBuilder", "knitr")
 }
 

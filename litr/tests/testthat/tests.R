@@ -211,12 +211,16 @@ testthat::test_that("templates can be knit", {
                    template = "make-an-r-package-from-bookdown",
                    package = "litr",
                    edit = FALSE)
-  render(file.path("create-frombookdown", "index.Rmd"))
+  prev_dir <- getwd()
+  setwd(file.path(dir, "create-frombookdown"))
+  fs::file_delete("create-frombookdown.Rmd")
+  render("index.Rmd")
+  setwd(prev_dir)
   testthat::expect_true(
     fs::file_exists(file.path(dir, "create-frombookdown", "_book", "index.html"))
     )
   testthat::expect_true(
-    fs::file_exists(file.path(dir, "create-frombookdown", "withpkgdown"))
+    fs::file_exists(file.path(dir, "create-frombookdown", "frombookdown"))
     )
 
   fs::dir_delete(dir)
