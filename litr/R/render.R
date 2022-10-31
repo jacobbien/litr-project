@@ -110,7 +110,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
       if (!is.null(old$pre_knit)) old$pre_knit(...)
     }
 
-    new$post_processor = function(metadata, input_file, output_file, ...) {
+    new$post_processor <- function(metadata, input_file, output_file, ...) {
       out <- old$post_processor(metadata, input_file, output_file, ...)
       package_dir <- get_package_directory(
         metadata$params$package_parent_dir,
@@ -160,7 +160,7 @@ litr_html_document <- function(...) {
   old <- litr_html_document_(...)
   new <- old
   # modify post_processor
-  new$post_processor <- function(metadata, input_file, output_file, ...) {
+  new$post_processor = function(metadata, input_file, output_file, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
     html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
@@ -241,13 +241,16 @@ add_function_hyperlinks <- function(html_files) {
   # if a function is defined multiple times, then it's ambiguous where to link to
   # so let's not try linking to it (this can occur when a function is defined 
   # within a function, such as `new$post_processor()`)
-  all_function_names <- setdiff(all_function_names,
-                                names(which(table(all_function_names) > 1)))
+  repeated <- names(which(table(all_function_names) > 1))
+  all_function_names <- setdiff(all_function_names, repeated)
   if (length(all_function_names) == 0) {
     # no functions defined in package, so nothing more to be done here
     return()
   }
-  num_per_file <- unlist(lapply(fdefs, function(lst) length(lst$function_names)))
+  num_per_file <- unlist(lapply(fdefs, 
+                                function(lst) {
+                                  length(setdiff(lst$function_names, repeated))
+                                }))
   where_defined <- rep(fs::path_file(html_files), times = num_per_file)
   defined_functions_pattern <- paste0(all_function_names, "\\(", collapse = "|")
   for (i in seq_along(html_files)) {
