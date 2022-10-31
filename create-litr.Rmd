@@ -728,7 +728,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
       if (!is.null(old$pre_knit)) old$pre_knit(...)
     }
 
-    new$post_processor <- function(metadata, input_file, output_file, ...) {
+    new$post_processor = function(metadata, input_file, output_file, ...) {
       out <- old$post_processor(metadata, input_file, output_file, ...)
       package_dir <- get_package_directory(
         metadata$params$package_parent_dir,
@@ -845,7 +845,7 @@ litr_html_document <- function(...) {
 
 We describe these two `add_*_hyperlinks()` functions next.
 
-The function `add_function_hyperlinks()` looks for text of the form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"`; whenever `foo` is found it wraps a `a href="file.html#foo"` tag (where `file.html` is the file where `foo` is defined), so that it will be a hyperlink to `foo`'s definition.
+The function `add_function_hyperlinks()` looks for `foo` followed by `<- function(` and then wraps `foo` in a `span` tag with `id="foo"`; whenever `foo` is found it wraps a `a href="file.html#foo"` tag (where `file.html` is the file where `foo` is defined), so that it will be a hyperlink to `foo`'s definition.
 
 ```{r}
 #' Add hyperlinks to function definitions
@@ -889,6 +889,11 @@ add_function_hyperlinks <- function(html_files) {
   }
   fdefs <- lapply(html_files, find_function_defs)
   all_function_names <- unlist(lapply(fdefs, function(lst) lst$function_names))
+  # if a function is defined multiple times, then it's ambiguous where to link to
+  # so let's not try linking to it (this can occur when a function is defined 
+  # within a function, such as `new$post_processor()`)
+  all_function_names <- setdiff(all_function_names,
+                                names(which(table(all_function_names) > 1)))
   if (length(all_function_names) == 0) {
     # no functions defined in package, so nothing more to be done here
     return()
@@ -928,7 +933,7 @@ add_function_hyperlinks <- function(html_files) {
 }
 ```
 
-In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form `<<foo>>` by wrapping comments of the form `###"foo"###` in a `span` tag with `id="foo"`.
+In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form `<<chunk-name>>` by wrapping comments of the form `###"chunk-name"###` in a `span` tag with `id="chunk-name"`.
 
 ```{r}
 #' Add hyperlinks to embedded chunks
@@ -1042,7 +1047,7 @@ litr_gitbook <- function(...) {
   old <- litr_gitbook_(...)
   new <- old
   # modify post_processor
-  new$post_processor <- function(metadata, input_file, output_file, ...) {
+  new$post_processor = function(metadata, input_file, output_file, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
     html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
