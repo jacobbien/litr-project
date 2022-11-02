@@ -479,7 +479,7 @@ that we can have a link to it on our pkgdown site.</p>
 <pre><code>## -- Installing package into temporary library -----------------------------------
 ## == Building pkgdown site =======================================================
 ## Reading from: &#39;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withpkgdown&#39;
-## Writing to:   &#39;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withpkgdown/docs&#39;
+## Writing to:   &#39;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/docs&#39;
 ## -- Initialising site -----------------------------------------------------------
 ## Copying &#39;../../../../../../Library/R/x86_64/4.2/library/pkgdown/BS5/assets/link.svg&#39; to &#39;link.svg&#39;
 ## Copying &#39;../../../../../../Library/R/x86_64/4.2/library/pkgdown/BS5/assets/pkgdown.js&#39; to &#39;pkgdown.js&#39;
@@ -520,7 +520,9 @@ however, here we are providing a customized _pkgdown.yml file. See <a href="http
 <code>pkgdown</code> vignette</a> for how to customize your site. Here
 is the contents of the <code>_pkgdown.yml</code> that was used:</p>
 <pre class="r"><code>cat(readLines(&quot;../source-files/_pkgdown.yml&quot;), sep = &#39;\n&#39;)</code></pre>
-<pre><code>url: ~
+<pre><code>destination: ../docs/
+
+url: ~
 template:
   bootstrap: 5
 

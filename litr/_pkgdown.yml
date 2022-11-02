@@ -1,3 +1,5 @@
+destination: ../docs/
+
 url: ~
 template:
   bootstrap: 5

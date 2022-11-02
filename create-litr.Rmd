@@ -1840,11 +1840,19 @@ build_all_templates <- function(install_old, location_of_new) {
     template_dir <- file.path(example_dir, template)
     fs::dir_create(template_dir)
     fs::file_move(fs::dir_ls(example_dir, regexp = pkg_name), template_dir)
+    # move the source-files directory
     if (fs::dir_exists(file.path(example_dir, "source-files"))) {
       fs::dir_create(file.path(example_dir, template, "source-files"))
       fs::dir_copy(file.path(example_dir, "source-files"),
                    file.path(example_dir, template))
       fs::dir_delete(file.path(example_dir, "source-files"))
+    }
+    # move the docs directory (when pkgdown creates one)
+    if (fs::dir_exists(file.path(example_dir, "docs"))) {
+      fs::dir_create(file.path(example_dir, template, "docs"))
+      fs::dir_copy(file.path(example_dir, "docs"),
+                   file.path(example_dir, template))
+      fs::dir_delete(file.path(example_dir, "docs"))
     }
   }
 

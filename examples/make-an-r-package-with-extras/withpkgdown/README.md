@@ -11,7 +11,7 @@ This package’s purpose is to show how to use
 create a package with a README, a vignette, a pkgdown site, and (of
 course) a hex sticker. We can see the result of all of that at this
 package’s website
-[here](http://faculty.marshall.usc.edu/jacob-bien/withpkgdown/docs/index.html).
+[here](https://jacobbien.github.io/withpkgdown-project/).
 
 ## Getting started
 
