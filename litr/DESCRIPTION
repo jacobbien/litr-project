@@ -1,6 +1,6 @@
 Package: litr
 Title: Literate Programming for Writing R Packages
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: c(
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre")),
     person("Patrick Vossler", role = "aut")
@@ -32,5 +32,5 @@ Suggests:
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
-LitrVersionUsed: 0.4.0
-LitrId: 3987cd4c19882b7ffdce98c56aceff14
+LitrVersionUsed: 0.5.0
+LitrId: 50cd46067d48239938eaaefc69e2a2e7
