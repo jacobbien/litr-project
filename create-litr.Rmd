@@ -8,7 +8,7 @@ params:
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
-```{r message=FALSE, results='hide'}
+```{r message=FALSE, results='hide', include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE)
 options(crayon.enabled = TRUE)
 knitr::knit_hooks$set(
