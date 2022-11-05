@@ -69,7 +69,13 @@ If file does not exist, it is created and <code>location</code> is ignored (unle
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_text_to_file</span><span class="op">(</span><span class="va">txt</span>, <span class="va">filename</span>, location <span class="op">=</span> <span class="cn">NULL</span>, req_exist <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_text_to_file</span><span class="op">(</span></span>
+<span>  <span class="va">txt</span>,</span>
+<span>  <span class="va">filename</span>,</span>
+<span>  location <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  req_exist <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  pad <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -87,7 +93,11 @@ If file does not exist, it is created and <code>location</code> is ignored (unle
 
 
 <dt>req_exist</dt>
-<dd><p>If TRUE, then</p></dd>
+<dd><p>If TRUE, then throws an error if file doesn't exist</p></dd>
+
+
+<dt>pad</dt>
+<dd><p>If TRUE, then when text is being added to a preexisting file, it adds a newline</p></dd>
 
 </dl></div>
 

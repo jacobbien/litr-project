@@ -9,7 +9,7 @@ vignette: >
 
 ## Does all code in the .Rmd end up in the R package?
 
-No, a code chunk is only sent to the `R/` file of the R package if it starts with `#'`.  If `testthat::test_that()` is used in a code chunk, that chunk will be added to the package as a unit test.  For an example of both of these, see [`create-rhello.Rmd`](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd) and [the resulting package](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello).
+No, a code chunk is only sent to the `R/` file of the R package if it starts with `#'`.  If `testthat::test_that()` is used in a code chunk, that chunk will be added to the package as a unit test.  For an example of both of these, see [`create-rhello.Rmd`](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd) and [the resulting package](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello).  If you want a code chunk sent to your R package that doesn't start with the `roxygen2`-style `#'`, you can instead add the explicit location of where it should go using a chunk option of the form `send_to="R/myfile.R"`.  You can send code from multiple code chunks to the same file if you like.
 
 ## Do I have to learn special syntax to use `litr`?
 

@@ -4,7 +4,13 @@
 \alias{add_text_to_file}
 \title{Add Some Text to a File}
 \usage{
-add_text_to_file(txt, filename, location = NULL, req_exist = FALSE)
+add_text_to_file(
+  txt,
+  filename,
+  location = NULL,
+  req_exist = FALSE,
+  pad = FALSE
+)
 }
 \arguments{
 \item{txt}{Character vector to add to file}
@@ -13,7 +19,9 @@ add_text_to_file(txt, filename, location = NULL, req_exist = FALSE)
 
 \item{location}{Specifies where text should be added. See description for more.}
 
-\item{req_exist}{If TRUE, then}
+\item{req_exist}{If TRUE, then throws an error if file doesn't exist}
+
+\item{pad}{If TRUE, then when text is being added to a preexisting file, it adds a newline}
 }
 \description{
 The text will be added to the file at a particular line specified by

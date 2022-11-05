@@ -96,7 +96,11 @@ package if it starts with <code>#'</code>. If
 will be added to the package as a unit test. For an example of both of
 these, see <a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd" class="external-link"><code>create-rhello.Rmd</code></a>
 and <a href="https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello" class="external-link">the
-resulting package</a>.</p>
+resulting package</a>. If you want a code chunk sent to your R package
+that doesn’t start with the <code>roxygen2</code>-style <code>#'</code>,
+you can instead add the explicit location of where it should go using a
+chunk option of the form <code>send_to="R/myfile.R"</code>. You can send
+code from multiple code chunks to the same file if you like.</p>
 </div>
 <div class="section level2">
 <h2 id="do-i-have-to-learn-special-syntax-to-use-litr">Do I have to learn special syntax to use <code>litr</code>?<a class="anchor" aria-label="anchor" href="#do-i-have-to-learn-special-syntax-to-use-litr"></a>

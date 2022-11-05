@@ -152,6 +152,10 @@ testthat::test_that("do_least_squares() works", {
 
 ## Some fancier features
 
+### Finer control over where in the package your code is sent
+
+As noted above, `litr` detects whether to send a code chunk to the package based on whether it starts with `#'` or has `test_that` in it.  However, sometimes you'll want finer control.  In this case you can override the behavior by explicitly specifying the target location.  To do so, use a code chunk option of the form `send_to="R/myfile.R"`.  This will add your code to that particular file (either creating it if need be or else appending it).  There are two primary use cases for this feature: (a) when you don't want to use `roxygen2` to document a function and (b) when you want several functions to appear together in the same .R file.
+
 ### Using a function from a different package
 
 Imagine we wanted to actually use a function from another package in our own.  For example, perhaps we want to use `lsfit()` from the `stats` package:

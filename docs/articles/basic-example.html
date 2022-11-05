@@ -224,6 +224,20 @@ starting with <code>test_that(</code> or
 <h2 id="some-fancier-features">Some fancier features<a class="anchor" aria-label="anchor" href="#some-fancier-features"></a>
 </h2>
 <div class="section level3">
+<h3 id="finer-control-over-where-in-the-package-your-code-is-sent">Finer control over where in the package your code is sent<a class="anchor" aria-label="anchor" href="#finer-control-over-where-in-the-package-your-code-is-sent"></a>
+</h3>
+<p>As noted above, <code>litr</code> detects whether to send a code
+chunk to the package based on whether it starts with <code>#'</code> or
+has <code>test_that</code> in it. However, sometimes you’ll want finer
+control. In this case you can override the behavior by explicitly
+specifying the target location. To do so, use a code chunk option of the
+form <code>send_to="R/myfile.R"</code>. This will add your code to that
+particular file (either creating it if need be or else appending it).
+There are two primary use cases for this feature: (a) when you don’t
+want to use <code>roxygen2</code> to document a function and (b) when
+you want several functions to appear together in the same .R file.</p>
+</div>
+<div class="section level3">
 <h3 id="using-a-function-from-a-different-package">Using a function from a different package<a class="anchor" aria-label="anchor" href="#using-a-function-from-a-different-package"></a>
 </h3>
 <p>Imagine we wanted to actually use a function from another package in
