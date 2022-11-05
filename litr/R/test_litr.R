@@ -14,6 +14,7 @@
 #' @param location_of_new Path to the new package directory
 #' @keywords internal
 test_litr <- function(install_old, location_of_new) {
+  devtools::unload(params$package_name)
   devtools::install(location_of_new)
   out <- devtools::test(location_of_new)
   install_old()
