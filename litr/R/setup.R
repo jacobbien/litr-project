@@ -135,11 +135,14 @@ make_noticeable <- function(msg) {
 #' A knitr chunk hook for writing R code and tests
 #' 
 #' This chunk hook detects whether a chunk is defining a function or dataset
-#' to be included in the R package (looks for the Roxygen2 comment format `#' `).
+#' to be included in the R package (looks for the `roxygen2` comment format `#' `).
 #' If so, then it is written to the `R/` directory.  It also looks for chunks 
 #' that have one or more lines that start with `test_that(` or 
 #' `testthat::test_that(` (potentially with some leading whitespace).  These 
 #' chunks are then written to the `tests` directory of the R package.
+#' 
+#' When the `send_to` option is used, this chunk hook instead simply writes the
+#' code chunk to the file specified.
 #' 
 #' @param before Indicates whether this is being called before or after the 
 #' chunk code is executed
@@ -154,6 +157,13 @@ send_to_package <- function(before, options, envir) {
   }
   package_dir <- knitr::opts_knit$get("root.dir")
   package_name <- fs::path_file(package_dir)
+  if (!is.null(options$send_to)) {
+    # the user has defined an option that indicates where in the package this
+    # code should be written
+    file <- file.path(package_dir, options$send_to)
+    add_text_to_file(options$code, file, pad = TRUE)
+    return()
+  }
   if (stringr::str_detect(options$code[1], "^#' ")) {
     # starts with roxygen2, so let's assume this chunk is defining an R function
     # or dataset that belongs in the package

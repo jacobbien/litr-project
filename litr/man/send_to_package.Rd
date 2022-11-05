@@ -16,10 +16,14 @@ chunk code is executed}
 }
 \description{
 This chunk hook detects whether a chunk is defining a function or dataset
-to be included in the R package (looks for the Roxygen2 comment format \verb{#' }).
+to be included in the R package (looks for the \code{roxygen2} comment format \verb{#' }).
 If so, then it is written to the \verb{R/} directory.  It also looks for chunks
 that have one or more lines that start with \verb{test_that(} or
 \verb{testthat::test_that(} (potentially with some leading whitespace).  These
 chunks are then written to the \code{tests} directory of the R package.
+}
+\details{
+When the \code{send_to} option is used, this chunk hook instead simply writes the
+code chunk to the file specified.
 }
 \keyword{internal}

@@ -101,13 +101,15 @@ We start by defining a [chunk hook](https://bookdown.org/yihui/rmarkdown-cookboo
 
 We start by making sure that code is only sent to the R package once (arbitrarily we have code outputted to the package *before* and not after the chunk is run).
 
-The function then checks if this code chunk is code that should be put into the package.  There are three specific cases it considers:
+The function then checks if this code chunk is code that should be put into the package.  There are four specific cases it considers:
 
-1. Is it a piece of code to be sent to the `R/` directory?  In particular, it checks to see if the code chunk begins with the characteristic [roxygen2](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html) characters `#'`.  If it does, then the name of the object being documented is identified (could be a function, a dataset, an S4 object, etc.) and then we write the code chunk to the file `R/<objectname>.R`.
+1. If the special option `send_to` is used in this code chunk, then things are very simple in that the user has explicitly told us where this code should be added.  For example, if `send_to="R/file.R"`, then the code in this chunk will be appended to `R/file.R` in the R package (and if that file doesn't yet exist, it will be created).
 
-2. If the code chunk does not start with `#'`, then we check if it has any line starting with `test_that(` or `testthat::test_that(`.  If so, then this whole code chunk is appended to `tests/testthat/tests.R` (and this file is created the first time a test chunk is sent to the package).
+2. Is it a piece of code to be sent to the `R/` directory?  In particular, it checks to see if the code chunk begins with the characteristic [roxygen2](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html) characters `#'`.  If it does, then the name of the object being documented is identified (could be a function, a dataset, an S4 object, etc.) and then we write the code chunk to the file `R/<objectname>.R`.
 
-3. Next, it checks if the language engine is `Rcpp`.  This occurs when the code chunk starts with `{Rcpp`, rather than the usual `{r` (or alternatively when the `engine="Rcpp"` option is used).  We then invoke `usesthis::use_rcpp()` to set things up appropriately for the use of `Rcpp` within the package.  Finally, we write the code chunk to `src/code.cpp`.  There is a common header used,
+3. If the code chunk does not start with `#'`, then we check if it has any line starting with `test_that(` or `testthat::test_that(`.  If so, then this whole code chunk is appended to `tests/testthat/tests.R` (and this file is created the first time a test chunk is sent to the package).
+
+4. Next, it checks if the language engine is `Rcpp`.  This occurs when the code chunk starts with `{Rcpp`, rather than the usual `{r` (or alternatively when the `engine="Rcpp"` option is used).  We then invoke `usesthis::use_rcpp()` to set things up appropriately for the use of `Rcpp` within the package.  Finally, we write the code chunk to `src/code.cpp`.  There is a common header used,
 
 ```Rcpp
 #include <Rcpp.h>
@@ -121,11 +123,14 @@ and we only want this to appear once in `code.cpp`, so we do a bit of work to re
 #' A knitr chunk hook for writing R code and tests
 #' 
 #' This chunk hook detects whether a chunk is defining a function or dataset
-#' to be included in the R package (looks for the Roxygen2 comment format `#' `).
+#' to be included in the R package (looks for the `roxygen2` comment format `#' `).
 #' If so, then it is written to the `R/` directory.  It also looks for chunks 
 #' that have one or more lines that start with `test_that(` or 
 #' `testthat::test_that(` (potentially with some leading whitespace).  These 
 #' chunks are then written to the `tests` directory of the R package.
+#' 
+#' When the `send_to` option is used, this chunk hook instead simply writes the
+#' code chunk to the file specified.
 #' 
 #' @param before Indicates whether this is being called before or after the 
 #' chunk code is executed
@@ -140,6 +145,13 @@ send_to_package <- function(before, options, envir) {
   }
   package_dir <- knitr::opts_knit$get("root.dir")
   package_name <- fs::path_file(package_dir)
+  if (!is.null(options$send_to)) {
+    # the user has defined an option that indicates where in the package this
+    # code should be written
+    file <- file.path(package_dir, options$send_to)
+    add_text_to_file(options$code, file, pad = TRUE)
+    return()
+  }
   if (stringr::str_detect(options$code[1], "^#' ")) {
     # starts with roxygen2, so let's assume this chunk is defining an R function
     # or dataset that belongs in the package
