@@ -1583,12 +1583,15 @@ Once we are done testing the new version of the package, we'd like to restore th
 #' @param location_of_new Path to the new package directory
 #' @keywords internal
 test_litr <- function(install_old, location_of_new) {
+  devtools::unload(params$package_name)
   devtools::install(location_of_new)
   out <- devtools::test(location_of_new)
   install_old()
   return(out)
 }
 ```
+
+Note: The call to `devtools::unload()` is to address an issue discussed [here](https://github.com/jacobbien/litr-project/issues/30).
 
 ### Testing `check_unedited()` {#test-check-unedited}
 
