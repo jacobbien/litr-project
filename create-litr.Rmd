@@ -8,26 +8,6 @@ params:
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
-```{r message=FALSE, results='hide', include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
-options(crayon.enabled = TRUE)
-knitr::knit_hooks$set(
-  message = function(x, options){
-    paste0(
-      "<pre class=\"r-output\"><code>",
-      fansi::sgr_to_html(x = x, warn = FALSE),
-      "</code></pre>"
-    )
-  },
-  output = function(x, options){
-    paste0(
-      "<pre class=\"r-output\"><code>",
-      fansi::sgr_to_html(x = x, warn = FALSE),
-      "</code></pre>"
-    )
-  }
-)
-```
 
 *[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
 
@@ -372,13 +352,15 @@ When the user calls `litr::render()` (either in the console or by pressing "Knit
 
 3. Makes it so that the `send_to_package()` chunk hook is active for each code chunk.  This involves registering a new chunk hook using the function `knitr::knit_hooks$set()` and then setting an option with the same name to `TRUE` within each chunk.
 
-4. Deactivates an internal function of the `usethis` package, `usethis:::challenge_nested_project()`.  This was actually a difficult issue to address that involves the intersection of `usethis`, `here`, and our particular use case.  The problem is that `usethis` was not designed for our setting in which an R package is being created programmatically.  When using `litr`, the project directory will have the generating .Rmd file and when this is knit it will create an R package within this project.  However, this leads `usethis` to prompt the user with a message of the form
+4. Creates hooks for replacing ANSI control sequences with their HTML equivalents in all messages and chunk outputs.
+
+5. Deactivates an internal function of the `usethis` package, `usethis:::challenge_nested_project()`.  This was actually a difficult issue to address that involves the intersection of `usethis`, `here`, and our particular use case.  The problem is that `usethis` was not designed for our setting in which an R package is being created programmatically.  When using `litr`, the project directory will have the generating .Rmd file and when this is knit it will create an R package within this project.  However, this leads `usethis` to prompt the user with a message of the form
 
 > "New project '[...]' is nested inside an existing project '[...]'.  This is rarely a good idea. Do you wish to create anyway?"
 
 But since this is encountered through knitting rather than interactively, this results in an error.  [This](https://github.com/r-lib/usethis/issues/553) `usethis` issue describes this exact problem.  The solution suggested there by jennybc involving `testthat::with_mock()` is along the lines of what we want; however, that would lead to some ugly looking code in the generating .Rmd file.  The best solution I could find was to use `utils::assignInNamespace()` as described [here](https://stat.ethz.ch/pipermail/r-help/2008-August/171215.html).  This function allows us to change the internal function `usethis:::challenge_nested_project()` so that it no longer prompts the user with concerns about nested projects.
 
-5. Changes how [chunk references](https://bookdown.org/yihui/rmarkdown-cookbook/reuse-chunks.html) are handled. In particular, consider the following code chunk:
+6. Changes how [chunk references](https://bookdown.org/yihui/rmarkdown-cookbook/reuse-chunks.html) are handled. In particular, consider the following code chunk:
 
 ```
 a <- 2
@@ -388,7 +370,7 @@ a
 
 The way `knitr` handles this, the code chunk would no longer look like this but it would rather have replaced the `<<my-chunk>>` line by the code that appears in the code chunk labeled "my-chunk".  We instead would like the above code chunk to appear as written and then for the code chunk labeled "my-chunk" to have its label visible to the reader of the .html file.  This gives the coder more control over when the reader learns about different parts of the code.  It also more closely resembles Donald Knuth's form of literate programming.  For convenience, we'd like `<<my-chunk>>` to be a link that navigates to the code chunk labeled "my-chunk".  To accomplish this, we modify the `document` output hook in `setup()` (and then we also add a function called `add_chunk_label_hyperlinks()` within `render()`).
 
-6. Define a `package_doc` engine which allows users to define package-level documentation.
+7. Define a `package_doc` engine which allows users to define package-level documentation.
 
 ```{r}
 #' Code for setup chunk
@@ -399,6 +381,8 @@ The way `knitr` handles this, the code chunk would no longer look like this but 
 #' * Sets the root directory to this directory
 #' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
 #' R package directory.
+#' * Sets up message and output hooks for converting control sequences to their HTML 
+#' equivalents for better formatting the output of packages such as `testthat` and `usethis`.
 #' * Deactivates an internal function of the `usethis` package
 #' * Redefines the document output hook to handle chunk references differently  
 #' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
@@ -429,6 +413,27 @@ setup <- function(package_dir) {
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+  
+  # add message and output hooks for converting control sequences to HTML
+  # equivalents
+  knitr::opts_chunk$set(collapse = TRUE)
+  options(crayon.enabled = TRUE)
+  knitr::knit_hooks$set(
+    message = function(x, options){
+      paste0(
+        "<pre class=\"r-output\"><code>",
+        fansi::sgr_to_html(x = x, warn = FALSE),
+        "</code></pre>"
+      )
+    },
+    output = function(x, options){
+      paste0(
+        "<pre class=\"r-output\"><code>",
+        fansi::sgr_to_html(x = x, warn = FALSE),
+        "</code></pre>"
+      )
+    }
+  )
   
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
@@ -489,7 +494,7 @@ setup <- function(package_dir) {
                                                  paste0("\\1", to_insert))
     x
   })
-
+  
   # setup package_doc engine
   knitr::knit_engines$set(package_doc = function(options) {
     # create package_doc
@@ -545,11 +550,12 @@ make_noticeable <- function(msg) {
 }
 ```
 
-The code in this section used the `fs` and `knitr` packages, so we import those:
+The code in this section used the `fs`, `knitr`, and `fansi` packages, so we import those:
 
 ```{r}
 usethis::use_package("fs")
 usethis::use_package("knitr")
+usethis::use_package("fansi")
 ```
 
 
