@@ -32,8 +32,9 @@ development:
 
 Furthermore, writing your R package is actually *easier* with `litr`
 than without it. Just choose one of the R package
-[templates](articles/package-templates.html) below and press “Knit” –
-and you’ll have a working R package that you can then modify.
+[templates](https://jacobbien.github.io/litr-project/articles/package-templates.html)
+below and press “Knit” – and you’ll have a working R package that you
+can then modify.
 
 ## Installation
 
@@ -72,8 +73,10 @@ This creates an R package! Now you can modify the template to design
 your own package.
 
 To explore other kinds of R packages, such as those using `Rcpp`, see
-the [templates](articles/package-templates.html) page. Also, see the
-section on [packages in the wild](articles/packages-in-the-wild.html)
+the
+[templates](https://jacobbien.github.io/litr-project/articles/package-templates.html)
+page. Also, see the section on [packages in the
+wild](https://jacobbien.github.io/litr-project/articles/packages-in-the-wild.html)
 that use `litr`.
 
 ## More background
