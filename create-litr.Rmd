@@ -588,15 +588,18 @@ Ok, now let's write the function that `litr::render()` will call that will take 
 #' @keywords internal
 write_hash_to_description <- function(package_dir) {
   hash <- hash_package_directory(package_dir)
-  add_text_to_file(
-    txt = stringr::str_glue("{description_litr_hash_field_name()}: {hash}"),
-    filename = file.path(package_dir, "DESCRIPTION"),
-    req_exist = TRUE
-    )
+  desc::desc_set(description_litr_hash_field_name(), hash, 
+                 file = file.path(package_dir, "DESCRIPTION"))
 }
 ```
 
-And of course we'll need a way a function that can read the value of that field as well:
+Let's include the `desc` package, which helps us manipulate DESCRIPTION files.
+
+```{r}
+usethis::use_package("desc")
+```
+
+And of course we'll need a function that can read the value of that field as well:
 
 ```{r}
 #' Get the hash of the package from the DESCRIPTION file
@@ -701,9 +704,11 @@ We implement two ways for the above to occur, which we describe in the next two 
 
 1. The first approach is by defining [custom litr output formats](#output-format).  When `rmarkdown::render()` (or `bookdown::render_book()`) is called with one of these `litr` output formats, the `litr`-specific operations occur before and after knitting.
 
-2. The second way is through the function [`litr::render()`](#render).  If a user calls `litr::render()` with a non-`litr` output format, e.g. `rmarkdown::html_document()`, then it adds the necessary `litr`-specific operations before/after `rmarkdown::render()` is called.  Another thing of note about `litr::render()` is that it renders the document in a fresh environment, which ensures identical behavior to when a user presses "Knit" in RStudio.
+2. The second way is through the function `litr::render()`.  If a user calls `litr::render()` with a non-`litr` output format, e.g. `rmarkdown::html_document()`, then it adds the necessary `litr`-specific operations before/after `rmarkdown::render()` is called.  Another thing of note about `litr::render()` is that it renders the document in a fresh environment, which ensures identical behavior to when a user presses "Knit" in RStudio.
 
 Although these are presented as two separate approaches, we have written `litr::render()` so that if a user passes one of the `litr` output formats to `litr::render()`, it will still work.
+
+We encourage users to use `litr::render()`^[For example, we include the line `knit: litr::render` in the yaml of the templates for this reason.] rather than `rmarkdown::render()` since in `litr::render()` we're able to wrap the call to `rmarkdown::render()` in the function `with_cleanup()`.  This ensures that, if an error occurs during the knitting process, the special `litr` hash will still be created.  This is desirable since it means that the next time we try to litr-knit, we will not get an error about overwriting a manually edited package directory.
 
 #### Defining `litr` output formats {#output-format}
 
@@ -1045,7 +1050,7 @@ add_chunk_label_hyperlinks <- function(html_files,
 
 
 
-##### `bookdown::gitbook()` output format
+##### bookdown output format
 
 It turns out that our modification to the `bookdown::gitbook()` format's postprocessor is identical to the above.  This suggests that we should probably reuse code more effectively.  But for now I will leave it how it is:
 
@@ -1100,11 +1105,11 @@ documentclass: book
 Or one can add to the preamble the lines
 
 ```
-knit: bookdown::render_book
+knit: litr::render
 output: litr::litr_gitbook
 ```
 
-This first line makes it so that in RStudio when you press "Knit", it calls `bookdown::render_book()`, and the second line makes it so that the output format will be the special litr one.
+This first line makes it so that in RStudio when you press "Knit", it calls `litr::render()`, and the second line makes it so that it will use the special litr bookdown output format.
 
 Since the above function uses `bookdown`, we include it in our package:
 
@@ -1133,7 +1138,7 @@ or
 bookdown::render_book("index.Rmd", output_format = litr::litr_gitbook())
 ```
 
-would do what we want.  However, the reason to still prefer `litr::render()` is that this function ensures the identical behavior to when one clicks the "Knit" in RStudio.  It does this by opening a fresh R session in which `rmarkdown::render()` (or `bookdown::render_book()`) is called.  This is based on [the description in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html).
+would do what we want.  However, a reason to still prefer `litr::render()` is that this function ensures the identical behavior to when one clicks the "Knit" in RStudio.  It does this by opening a fresh R session in which `rmarkdown::render()` (or `bookdown::render_book()`) is called.  This is based on [the description in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html).  Another reason to prefer `litr::render()` is that if there is an error in the rendering process, the special [litr hash](#hash) will still be written to the DESCRIPTION file.  This means that after fixing that error when one calls `litr::render()`, one will not get the error telling the user to delete the partially generated package directory.  We accomplish this with the function `with_cleanup()` defined below.
 
 In the first use case, `litr::render()` is responsible for ensuring all the special `litr` things happen (like `setup()` being called before knitting, the litr-hash being written afterwards, and hyperlinking occurs).  The details of what it does is very similar to what is described in the [output formats](#output-format) section, especially the one on the [html output format](#html-output-format).
 
@@ -1143,10 +1148,10 @@ One thing that is different is that we need a function `get_params_used()`, defi
 ```{r}
 #' Render R markdown file
 #' 
-#' Wrapper to `rmarkdown::render` that does some post-processing on the html 
-#' file when that is the output.  In particular, when an html file is among the 
-#' outputs, it adds hyperlinks to functions defined within the file to make it 
-#' easier for someone reading the code to see where different functions are
+#' Wrapper to `rmarkdown::render()` that produces an R package as output in addition to the standard output document.  It does some post-processing on the 
+#' html file when that is the output.  In particular, when an html file is among
+#' the outputs, it adds hyperlinks to functions defined within the file to make 
+#' it easier for someone reading the code to see where different functions are
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
@@ -1184,26 +1189,30 @@ render <- function(input, ...) {
       }
     }
   }
-  
+
+  # get package_directory
+  params <- get_params_used(input, args$params)
+  package_dir <- get_package_directory(
+    params$package_parent_dir,
+    params$package_name,
+    input
+    )
+
   if (litr_format) {
     # this uses a litr output format, so we don't need to do anything litr-specific
     # here because it will happen through the output format
     if (bookdown_format)
-      return(invisible(xfun::Rscript_call(bookdown::render_book,
+      return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
+                                                       package_dir),
                                           c(input = input, args))))
     else
-      return(invisible(xfun::Rscript_call(rmarkdown::render,
+      return(invisible(xfun::Rscript_call(with_cleanup(rmarkdown::render,
+                                                       package_dir),
                                           c(input = input, args))))
   }
   
   # the output format being used is not a litr-specific one, so we need to make
   # sure that all the special litr things happen
-  params <- get_params_used(input, args$params)
-  package_dir <- package_dir <- get_package_directory(
-        params$package_parent_dir,
-        params$package_name,
-        input
-      )
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, ...) {
@@ -1211,8 +1220,9 @@ render <- function(input, ...) {
     rmarkdown::render(input, ...)
   }
 
-  out <- xfun::Rscript_call(render_, c(input = input, args))
-#  out <- do.call(render_, c(input = input, args))
+  out <- xfun::Rscript_call(with_cleanup(render_, package_dir),
+                            c(input = input, args))
+#  out <- do.call(with_cleanup(render_, package_dir), c(input = input, args))
 
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -1229,13 +1239,39 @@ render <- function(input, ...) {
 }
 ```
 
-**Note: When `litr::render()` encounters an error, it can leave the output directory partially modified but without an updated hash.  As a result, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  This behavior should be fixed by wrapping the `xfun::Rscript_call` in a tryCatch and then if there's an error either (a) deleting everything that had been partially created or (b) writing the hash based on the current state.  Of course, if the DESCRIPTION file doesn't exist then this wouldn't work.**
-
 We used the package `xfun`, so let's import it:
 
 ```{r}
 usethis::use_package("xfun")
 ```
+
+When `litr::render()` encounters an error, it can leave the output directory partially modified.  We want to make sure the `litr` hash still gets written to the DESCRIPTION file.  Otherwise, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  We do this by using `withCallingHandlers()`.  This function, explained [here](http://adv-r.had.co.nz/Exceptions-Debugging.html), is similar to `tryCatch()`, but with the advantage that it lets the function to continue to run normally, meaning that we will still get the error message as it would appear if we hadn't done the condition handling.
+
+```{r}
+#' Add litr hash to DESCRIPTION file if error encountered
+#' 
+#' This creates a function that calls the passed function within the context of
+#' a try-catch.  If an error is encountered, the litr hash is still added to
+#' the DESCRIPTION file so that future calls to `litr::render()` will recognize
+#' that it can safely overwrite the package directory (i.e., no manual editing
+#' occurred).
+#' 
+#' @param fun function being called
+#' @param package_dir directory where package is being written to
+#' @param ... arguments to be passed to `fun`
+#' @keywords internal
+with_cleanup <- function(fun, package_dir) {
+  return(function(...) {
+    withCallingHandlers(
+      fun(...),
+      error = function(e) {
+        # add litr hash so we can tell later if package files were manually edited:
+        write_hash_to_description(package_dir)
+      })
+  })
+}
+```
+
 
 As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
 
@@ -1344,12 +1380,6 @@ add_vignettes <- function(rmd_files) {
 }
 ```
 
-Let's include the `desc` package, which helps us manipulate DESCRIPTION files.
-
-```{r}
-usethis::use_package("desc")
-```
-
 #### Add a pkgdown site
 
 We define a function based on `usethis::use_pkgdown()`, but with a few differences:
@@ -1415,6 +1445,7 @@ hash_functions <- c("hash_package_directory",
                     "read_hash_from_description",
                     "check_unedited")
 render_functions <- c("render",
+                      "with_cleanup",
                       "litrify_output_format",
                       "litr_pdf_document",
                       "litr_html_document",

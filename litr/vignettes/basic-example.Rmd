@@ -22,6 +22,7 @@ rmarkdown::draft("create-rleastsquares.Rmd",
 When you work from template, you'll notice some special lines in the yaml:
 
 ```
+knit: litr::render
 output: litr::litr_html_document
 params:
   package_name: "rhello" # <-- change this to your package name

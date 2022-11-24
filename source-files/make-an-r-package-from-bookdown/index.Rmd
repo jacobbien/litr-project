@@ -3,7 +3,7 @@ title: "Creating the ``r params$package_name`` R package"
 author: "Jacob Bien"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
-knit: bookdown::render_book
+knit: litr::render
 output: litr::litr_gitbook
 params:
   package_name: "frombookdown" # <-- change this to your package name

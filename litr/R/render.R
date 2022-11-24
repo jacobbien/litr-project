@@ -2,10 +2,10 @@
 
 #' Render R markdown file
 #' 
-#' Wrapper to `rmarkdown::render` that does some post-processing on the html 
-#' file when that is the output.  In particular, when an html file is among the 
-#' outputs, it adds hyperlinks to functions defined within the file to make it 
-#' easier for someone reading the code to see where different functions are
+#' Wrapper to `rmarkdown::render()` that produces an R package as output in addition to the standard output document.  It does some post-processing on the 
+#' html file when that is the output.  In particular, when an html file is among
+#' the outputs, it adds hyperlinks to functions defined within the file to make 
+#' it easier for someone reading the code to see where different functions are
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
@@ -43,26 +43,30 @@ render <- function(input, ...) {
       }
     }
   }
-  
+
+  # get package_directory
+  params <- get_params_used(input, args$params)
+  package_dir <- get_package_directory(
+    params$package_parent_dir,
+    params$package_name,
+    input
+    )
+
   if (litr_format) {
     # this uses a litr output format, so we don't need to do anything litr-specific
     # here because it will happen through the output format
     if (bookdown_format)
-      return(invisible(xfun::Rscript_call(bookdown::render_book,
+      return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
+                                                       package_dir),
                                           c(input = input, args))))
     else
-      return(invisible(xfun::Rscript_call(rmarkdown::render,
+      return(invisible(xfun::Rscript_call(with_cleanup(rmarkdown::render,
+                                                       package_dir),
                                           c(input = input, args))))
   }
   
   # the output format being used is not a litr-specific one, so we need to make
   # sure that all the special litr things happen
-  params <- get_params_used(input, args$params)
-  package_dir <- package_dir <- get_package_directory(
-        params$package_parent_dir,
-        params$package_name,
-        input
-      )
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, ...) {
@@ -70,8 +74,9 @@ render <- function(input, ...) {
     rmarkdown::render(input, ...)
   }
 
-  out <- xfun::Rscript_call(render_, c(input = input, args))
-#  out <- do.call(render_, c(input = input, args))
+  out <- xfun::Rscript_call(with_cleanup(render_, package_dir),
+                            c(input = input, args))
+#  out <- do.call(with_cleanup(render_, package_dir), c(input = input, args))
 
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -85,6 +90,29 @@ render <- function(input, ...) {
   
   # add litr hash so we can tell later if package files were manually edited:
   write_hash_to_description(package_dir)
+}
+
+#' Add litr hash to DESCRIPTION file if error encountered
+#' 
+#' This creates a function that calls the passed function within the context of
+#' a try-catch.  If an error is encountered, the litr hash is still added to
+#' the DESCRIPTION file so that future calls to `litr::render()` will recognize
+#' that it can safely overwrite the package directory (i.e., no manual editing
+#' occurred).
+#' 
+#' @param fun function being called
+#' @param package_dir directory where package is being written to
+#' @param ... arguments to be passed to `fun`
+#' @keywords internal
+with_cleanup <- function(fun, package_dir) {
+  return(function(...) {
+    withCallingHandlers(
+      fun(...),
+      error = function(e) {
+        # add litr hash so we can tell later if package files were manually edited:
+        write_hash_to_description(package_dir)
+      })
+  })
 }
 
 #' Modify an existing output format to have `litr` behavior
