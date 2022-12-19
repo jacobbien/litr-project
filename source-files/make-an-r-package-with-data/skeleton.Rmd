@@ -2,6 +2,7 @@
 title: "Creating the ``r params$package_name`` R package"
 author: "Your Name"
 date: "The Date"
+knit: litr::render
 output: litr::litr_html_document
 params:
   package_name: "rhasdata" # <-- change this to your package name

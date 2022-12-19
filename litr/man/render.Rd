@@ -12,9 +12,9 @@ render(input, ...)
 \item{...}{Additional parameters to pass to \code{rmarkdown::render}}
 }
 \description{
-Wrapper to \code{rmarkdown::render} that does some post-processing on the html
-file when that is the output.  In particular, when an html file is among the
-outputs, it adds hyperlinks to functions defined within the file to make it
-easier for someone reading the code to see where different functions are
+Wrapper to \code{rmarkdown::render()} that produces an R package as output in addition to the standard output document.  It does some post-processing on the
+html file when that is the output.  In particular, when an html file is among
+the outputs, it adds hyperlinks to functions defined within the file to make
+it easier for someone reading the code to see where different functions are
 defined.
 }

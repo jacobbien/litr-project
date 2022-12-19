@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">litr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,7 +99,8 @@ creating this from a template:</p>
 <span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span></code></pre></div>
 <p>When you work from template, you’ll notice some special lines in the
 yaml:</p>
-<pre><code><span><span class="va">output</span><span class="op">:</span> <span class="fu">litr</span><span class="fu">::</span><span class="va"><a href="../reference/litr_html_document.html">litr_html_document</a></span></span>
+<pre><code><span><span class="va">knit</span><span class="op">:</span> <span class="fu">litr</span><span class="fu">::</span><span class="va"><a href="../reference/render.html">render</a></span></span>
+<span><span class="va">output</span><span class="op">:</span> <span class="fu">litr</span><span class="fu">::</span><span class="va"><a href="../reference/litr_html_document.html">litr_html_document</a></span></span>
 <span><span class="va">params</span><span class="op">:</span></span>
 <span>  <span class="va">package_name</span><span class="op">:</span> <span class="st">"rhello"</span> <span class="co"># &lt;-- change this to your package name</span></span>
 <span>  <span class="va">package_parent_dir</span><span class="op">:</span> <span class="st">"."</span> <span class="co"># &lt;-- relative to this file's location</span></span></code></pre>

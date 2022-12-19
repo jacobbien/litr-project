@@ -20,20 +20,21 @@ file.*](man/figures/diagram3.png)
 Using `litr` brings all the benefits of R markdown to package
 development:
 
--   **Record and explain** every step of making your R package so that
-    you and others can understand every detail years later.
--   Present the functions in your package in a logical order that
-    maximizes **human readability**.
--   Include all the derivations in **latex right next to the code** that
-    ends up in your package.
--   Include **figures** alongside code to help in the explanation.
--   Define **unit tests in the relevant context**, i.e. directly after
-    defining the function to be tested.
+- **Record and explain** every step of making your R package so that you
+  and others can understand every detail years later.
+- Present the functions in your package in a logical order that
+  maximizes **human readability**.
+- Include all the derivations in **latex right next to the code** that
+  ends up in your package.
+- Include **figures** alongside code to help in the explanation.
+- Define **unit tests in the relevant context**, i.e. directly after
+  defining the function to be tested.
 
 Furthermore, writing your R package is actually *easier* with `litr`
 than without it. Just choose one of the R package
-[templates](articles/package-templates.html) below and press “Knit” –
-and you’ll have a working R package that you can then modify.
+[templates](https://jacobbien.github.io/litr-project/articles/package-templates.html)
+below and press “Knit” – and you’ll have a working R package that you
+can then modify.
 
 ## Installation
 
@@ -72,8 +73,10 @@ This creates an R package! Now you can modify the template to design
 your own package.
 
 To explore other kinds of R packages, such as those using `Rcpp`, see
-the [templates](articles/package-templates.html) page. Also, see the
-section on [packages in the wild](articles/packages-in-the-wild.html)
+the
+[templates](https://jacobbien.github.io/litr-project/articles/package-templates.html)
+page. Also, see the section on [packages in the
+wild](https://jacobbien.github.io/litr-project/articles/packages-in-the-wild.html)
 that use `litr`.
 
 ## More background

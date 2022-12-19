@@ -115,6 +115,9 @@
     <loc>/reference/test_litr.html</loc>
   </url>
   <url>
+    <loc>/reference/with_cleanup.html</loc>
+  </url>
+  <url>
     <loc>/reference/write_hash_to_description.html</loc>
   </url>
   <url>
