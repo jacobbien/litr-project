@@ -410,22 +410,6 @@ setup <- function(package_dir) {
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
   
-  # add message and output hooks for converting control sequences to HTML
-  # equivalents
-  # options(crayon.enabled = TRUE)
-  # ansi_aware_handler <- function(x, options) {
-  #   paste0(
-  #     "<pre class=\"r-output\"><code>",
-  #     fansi::sgr_to_html(x = x, warn = FALSE, term.cap = "256"),
-  #     "</code></pre>"
-  #   )
-  # }
-  # knitr::knit_hooks$set(
-  #   output = ansi_aware_handler, 
-  #   message = ansi_aware_handler, 
-  #   warning = ansi_aware_handler,
-  #   error = ansi_aware_handler
-  # )
   
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
