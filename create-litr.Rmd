@@ -826,7 +826,7 @@ testthat::test_that("get_package_directory() works", {
 
 ##### .pdf output format
 
-We want our .pdf documents to accurately display the "logging" output from functions in packages such as `devtools` that use special [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) for displaying information in the terminal. Unfortunately, these codes use escape characters which cause problems when creating .pdf versions of our documents. While it is relatively straightforward to map ANSI escape codes to HTML tags, as we will see in the .html output format section, converting these escape codes to Latex commands is more complicated. As a result, we define a `post_knit` function in our `litr_pdf_document` format to avoid this issue by stripping out all escape codes in the file before it is converted into a .tex file and then compiled into a .pdf document.
+We want our .pdf documents to accurately display the "logging" output from functions in packages such as `devtools` that use special [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) for displaying information in the terminal. Unfortunately, these codes use escape characters which cause problems when creating .pdf versions of our documents. While it is relatively straightforward to map ANSI escape codes to HTML tags, as we will see in the [.html output format section](#html-output-format), converting these escape codes to Latex commands is more complicated. As a result, we define a `post_knit` function in our `litr_pdf_document` format to avoid this issue by stripping out all escape codes in the file before it is converted into a .tex file and then compiled into a .pdf document.
 
 Specifically, the `post_knit` function modifies the intermediate .knit.md file, which contains both the .Rmd file, as well as the output of each code chunk. Thus, we can inspect the output text of each code chunk and remove any ANSI escape codes before the .knit.md is converted to a .tex file and then a .pdf document. We rely upon two internal functions from the `fansi` R package to remove all possible escape codes and return a clean character vector.
 
@@ -858,6 +858,13 @@ litr_pdf_document <- function(...) {
   }
 }
 ```
+
+Since the above section uses the `fansi` package for handling ANSI escape sequences, we include it in our package:
+
+```{r}
+usethis::use_package("fansi")
+```
+
 
 ##### .html output format {#html-output-format}
 
@@ -1098,13 +1105,6 @@ replace_ansi_sequences <- function(html_files) {
     writeLines(txt, con = html_files[i])
   }
 }
-```
-
-
-Since the above section uses the `fansi` package for handling ANSI escape sequences in HTML files, we include it in our package:
-
-```{r}
-usethis::use_package("fansi")
 ```
 
 
