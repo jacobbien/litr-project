@@ -8,7 +8,6 @@ params:
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
-
 *[This file was litr-knitted using `litr` version `r utils::packageVersion("litr")`]*
 
 The `litr` package allows one to define an R package by writing an R markdown file.  The package consists of (a) document templates that users can use as the basis for creating an R package, (b) code needed so that when such a R markdown file is knitted, it will generate not just an .html (or some other output format) but also an R package.   The code has the following components:
