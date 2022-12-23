@@ -1,7 +1,7 @@
-pandoc: 2.19.2
-pkgdown: 2.0.6.9000
-pkgdown_sha: 4d7f0f8620fc6b9c80932cac0c7ec7946678bbd3
+pandoc: '2.18'
+pkgdown: 2.0.7
+pkgdown_sha: ~
 articles:
   using-package: using-package.html
-last_built: 2022-11-24T01:51Z
+last_built: 2022-12-23T21:23Z
 

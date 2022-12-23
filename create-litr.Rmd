@@ -426,6 +426,24 @@ setup <- function(package_dir) {
     chunk_start <- "^(\n```+[a-zA-Z0-9_]+\n)"
     idx_block <- stringr::str_which(x, chunk_start)
     original_code <- knitr::knit_code$get()
+    # We first get indices of skipped chunks in original_code list
+    skipped_chunks <- which(sapply(original_code, function(x){
+      echo_attr <- attr(x, "chunk_opts")$echo
+      include_attr <- attr(x, "chunk_opts")$include
+      if(!is.null(echo_attr) | !is.null(include_attr)){
+        if(!is.null(echo_attr)){
+          return(!echo_attr)
+        } 
+        if(!is.null(include_attr)){
+          return(!include_attr)
+        }
+      } else{
+        return(FALSE)
+      }
+    }))
+    # Next we remove the indices of skipped chunks and sort for good measure
+    original_code_idx_fixed <- sort(setdiff(seq(length(original_code)), skipped_chunks))
+    
     labels <- names(original_code)
     # replace each x[i] that has code in it with the original code
     for (i in seq_along(idx_block)) {
@@ -447,7 +465,8 @@ setup <- function(package_dir) {
       i_all_code <- setdiff(i_all_code, i_start[1])
       chunk_no_code <- chunk[-i_all_code]
       chunk <- c(chunk_no_code[1:i_start[1]],
-                 original_code[i][[1]], # insert the original version
+                 original_code[original_code_idx_fixed[i]][[1]],
+                 # insert the original version, accounting for skipped chunks
                  fence)
       if (i_start[1] < length(chunk_no_code))
         chunk <- c(chunk, chunk_no_code[(i_start[1] + 1):length(chunk_no_code)])
