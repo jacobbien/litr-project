@@ -856,6 +856,7 @@ litr_pdf_document <- function(...) {
     })
     writeLines(cleaned_output, knitted_filename)
   }
+  new
 }
 ```
 
@@ -1508,6 +1509,7 @@ render_functions <- c("render",
                       "litr_pdf_document",
                       "litr_html_document",
                       "litr_gitbook",
+                      "replace_ansi_sequences",
                       "add_function_hyperlinks",
                       "add_chunk_label_hyperlinks",
                       "get_params_used",
