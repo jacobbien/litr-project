@@ -139,7 +139,19 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
     }
 
     new$post_processor <- function(metadata, input_file, output_file, ...) {
-      out <- old$post_processor(metadata, input_file, output_file, ...)
+      # typically the post_processor function returns the output file path
+      # if old$post_processor is NULL, as in the case of pdf_document,
+      # then R will throw an error when trying to call old$post_processor
+      # if we only add a check for non null old$post_processor and otherwise
+      # set out <- NULL then R will throw an error later in rmarkdown::render
+      # since output_file is set to the output of the post_processor if 
+      # output_format$post_processor is not null (See line 478 in rmarkdown::render)
+      # Therefore, our solution is to set out to the output_file path if old$post_process is null.
+      if (!is.null(old$post_processor)){
+        out <- old$post_processor(metadata, input_file, output_file, ...)  
+      } else {
+        out <- output_file 
+      }
       package_dir <- get_package_directory(
         metadata$params$package_parent_dir,
         metadata$params$package_name,
@@ -170,7 +182,23 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
 #' @export
 litr_pdf_document <- function(...) {
   litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document)
-  litr_pdf_document_(...)
+  old <- litr_pdf_document_(...)
+  new <- old
+
+  # post_knit
+  new$post_knit = function(...){
+    args = list(...)
+    input_filename <- args[[2]]
+    knitted_filename <- fs::path_ext_set(input_filename, ".knit.md")
+    knitted_output <- readLines(knitted_filename)
+    cleaned_output <- sapply(1:length(knitted_output), function(i){
+      test_str <- knitted_output[i]
+      fansi:::VAL_IN_ENV(x=test_str, ctl="all", warn=TRUE, warn.mask=fansi:::get_warn_mangled())
+      .Call(fansi:::FANSI_strip_csi, test_str, CTL.INT, WARN.INT)
+    })
+    writeLines(cleaned_output, knitted_filename)
+  }
+  new
 }
 
 #' litr version of `rmarkdown::html_document()`
@@ -194,6 +222,8 @@ litr_html_document <- function(...) {
     # add hyperlinks within html output to make it easier to navigate:
     add_function_hyperlinks(html_files)
     add_chunk_label_hyperlinks(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    replace_ansi_sequences(html_files)
     out
   }
   new
@@ -223,6 +253,24 @@ litr_gitbook <- function(...) {
     out
   }
   new
+}
+
+#' Replace ANSI escape sequences with their HTML equivalents
+#' 
+#' Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package
+#' 
+#' @param html_files Character vector of file names of html files that were created
+#' from Rmd files
+#' @keywords internal
+replace_ansi_sequences <- function(html_files) {
+  for (i in seq_along(html_files)) {
+    file_lines <- readLines(html_files[i])
+    txt <-
+      fansi::sgr_to_html(x = file_lines,
+                         warn = FALSE,
+                         term.cap = "256")
+    writeLines(txt, con = html_files[i])
+  }
 }
 
 #' Add hyperlinks to function definitions

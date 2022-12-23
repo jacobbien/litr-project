@@ -409,11 +409,11 @@ section</a>.</p>
 <p>This should happen before the pkgdown part.</p>
 <pre class="r"><code>rm(list = ls())
 litr::document()</code></pre>
-<pre><code>## ℹ Updating withpkgdown documentation</code></pre>
-<pre><code>## ℹ Loading withpkgdown
-## Writing &#39;]8;;file:///Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withpkgdown/NAMESPACENAMESPACE]8;;&#39;
-## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;say_hello&#39;)say_hello.Rd]8;;&#39;
-## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;say_hi&#39;)say_hi.Rd]8;;&#39;</code></pre>
+<pre><code>## ℹ Updating withpkgdown documentation
+## ℹ Loading withpkgdown
+## Writing &#39;<a href='file:///Users/jacobbien/Documents/GitHub/litr-project/examples/withpkgdown/NAMESPACE'>NAMESPACE</a>&#39;
+## Writing &#39;<a href='say_hello&#39;)'>say_hello.Rd</a>&#39;
+## Writing &#39;<a href='say_hi&#39;)'>say_hi.Rd</a>&#39;</code></pre>
 </div>
 <div id="extra" class="section level2">
 <h2>Add extra items</h2>
@@ -464,19 +464,19 @@ that we can have a link to it on our pkgdown site.</p>
   &quot;URL&quot;,
   &quot;https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown&quot;
 )</code></pre>
-<pre><code>## ✔ Setting URL field in DESCRIPTION to &#39;https://github.com/jacobbien/litr-
-## project/tree/main/examples/make-an-r-package-with-extras/withpkgdown&#39;</code></pre>
+<pre><code>## ✔ Setting URL field in DESCRIPTION to
+## &#39;https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown&#39;</code></pre>
 <p>Be sure that this next command appears after
 <code>litr::document()</code> has been called in this file.</p>
 <pre class="r"><code>litr::add_pkgdown(&quot;../source-files/_pkgdown.yml&quot;)</code></pre>
 <pre><code>## ✔ Adding &#39;^_pkgdown\\.yml$&#39;, &#39;^docs$&#39;, &#39;^pkgdown$&#39; to &#39;.Rbuildignore&#39;</code></pre>
 <pre><code>## -- Installing package into temporary library -----------------------------------
 ## == Building pkgdown site =======================================================
-## Reading from: &#39;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withpkgdown&#39;
-## Writing to:   &#39;/Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/docs&#39;
+## Reading from: &#39;/Users/jacobbien/Documents/GitHub/litr-project/examples/withpkgdown&#39;
+## Writing to:   &#39;/Users/jacobbien/Documents/GitHub/litr-project/examples/docs&#39;
 ## -- Initialising site -----------------------------------------------------------
-## Copying &#39;../../../../../../Library/R/x86_64/4.2/library/pkgdown/BS5/assets/link.svg&#39; to &#39;link.svg&#39;
-## Copying &#39;../../../../../../Library/R/x86_64/4.2/library/pkgdown/BS5/assets/pkgdown.js&#39; to &#39;pkgdown.js&#39;
+## Copying &#39;../../../../../Library/R/arm64/4.2/library/pkgdown/BS5/assets/link.svg&#39; to &#39;link.svg&#39;
+## Copying &#39;../../../../../Library/R/arm64/4.2/library/pkgdown/BS5/assets/pkgdown.js&#39; to &#39;pkgdown.js&#39;
 ## -- Building favicons -----------------------------------------------------------
 ## Building favicons with realfavicongenerator.net...
 ## Copying &#39;pkgdown/favicon/apple-touch-icon-120x120.png&#39; to &#39;apple-touch-icon-120x120.png&#39;
