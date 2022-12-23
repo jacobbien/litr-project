@@ -787,7 +787,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
 
 1. The `pre_knit()` function is modified so that `setup()` is called before the preexisting output format's `pre_knit()` function is called.  As the name suggests, this is a function that gets called before knitting.  The purpose of the call to `setup()` is to create the R package directory and make it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory.
 
-2. The `post_processor()` function is modified so that the DESCRIPTION file gets marked with the version of `litr` used and with the `litr` hash (as already described [here](#hash)).
+2. The `post_processor()` function is modified so that the DESCRIPTION file gets marked with the version of `litr` used and with the `litr` hash (as already described [here](#hash)).  Some special care is taken for the case that the original output format doesn't have a post processor (e.g., this is the case for the `pdf_document` output format).  The particulars of this are given in a comment in the code chunk above.
 
 We use the above function to create some `litr` versions of common output formats, as seen in the next few subsections.
 
