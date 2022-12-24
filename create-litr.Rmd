@@ -824,7 +824,7 @@ testthat::test_that("get_package_directory() works", {
 ```
 
 
-##### .pdf output format
+##### .pdf output format {#pdf-output-format}
 
 We want our .pdf documents to accurately display the "logging" output from functions in packages such as `devtools` that use special [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) for displaying information in the terminal. Unfortunately, these codes use escape characters which cause problems when creating .pdf versions of our documents. While it is relatively straightforward to map ANSI escape codes to HTML tags, as we will see in the [.html output format section](#html-output-format), converting these escape codes to Latex commands is more complicated. As a result, we define a `post_knit` function in our `litr_pdf_document` format to avoid this issue by stripping out all escape codes in the file before it is converted into a .tex file and then compiled into a .pdf document.
 
@@ -869,7 +869,7 @@ usethis::use_package("fansi")
 
 ##### .html output format {#html-output-format}
 
-For .html documents, we'd like to add a bit more in the postprocessing step.  In particular, we include some special function and chunk hyperlinking behavior described below.  The function `add_function_hyperlinks()` processes the outputted .html file(s), making it so that one can easily navigate to function definitions.  (This function is described lower in this section.)  We likewise call a function `add_chunk_label_hyperlinks()`, which makes chunk references into clickable links.  In particular, the chunk reference `<<my-chunk>>` within a code chunk would link to a chunk named "my-chunk" that begins with `###"my-chunk"###`.  The `###"my-chunk"###` line is added by a document hook defined in `setup()`.
+For .html documents, we'd like to add a bit more in the postprocessing step.  In particular, we include some special function and chunk hyperlinking behavior described below.  The function `add_function_hyperlinks()` processes the outputted .html file(s), making it so that one can easily navigate to function definitions.  (This function is described lower in this section.)  We likewise call a function `add_chunk_label_hyperlinks()`, which makes chunk references into clickable links.  In particular, the chunk reference `<<my-chunk>>` within a code chunk would link to a chunk named "my-chunk" that begins with `###"my-chunk"###`.  The `###"my-chunk"###` line is added by a document hook defined in `setup()`.  Finally, we replace ANSI sequences with HTML tag equivalents (the need for this is explained in the [section on the .pdf output format](#pdf-output-format)).
 
 ```{r}
 #' litr version of `rmarkdown::html_document()`
