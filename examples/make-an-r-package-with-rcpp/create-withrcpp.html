@@ -451,25 +451,53 @@ litr::document() # &lt;-- use instead of devtools::document()
 # devtools::build()
 # devtools::install()
 # devtools::check(document = FALSE)</code></pre>
-<pre><code>## ℹ Updating withrcpp documentation</code></pre>
-<pre><code>## ℹ Loading withrcpp</code></pre>
-<pre><code>## Exports from /Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withrcpp/src/code.cpp:
+<pre><code>## ℹ Updating withrcpp documentation
+## ℹ Loading withrcpp</code></pre>
+<pre><code>## Exports from /Users/jacobbien/Documents/GitHub/litr-project/examples/withrcpp/src/code.cpp:
 ##    NumericVector alternate_signs(NumericVector v)
 ## 
-## /Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withrcpp/src/RcppExports.cpp updated.
-## /Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withrcpp/R/RcppExports.R updated.</code></pre>
-<pre><code>## Re-compiling withrcpp</code></pre>
-<pre><code>## * installing *source* package ‘withrcpp’ ...
+## /Users/jacobbien/Documents/GitHub/litr-project/examples/withrcpp/src/RcppExports.cpp updated.
+## /Users/jacobbien/Documents/GitHub/litr-project/examples/withrcpp/R/RcppExports.R updated.</code></pre>
+<pre><code>## ℹ Re-compiling withrcpp (debug build)</code></pre>
+<pre><code>## ── R CMD INSTALL ───────────────────────────────────────────────────────────────
+## * installing *source* package ‘withrcpp’ ...
 ## ** using staged installation
 ## ** libs
-## clang++ -mmacosx-version-min=10.13 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/jacobbien/Library/R/x86_64/4.2/library/Rcpp/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c RcppExports.cpp -o RcppExports.o
-## clang++ -mmacosx-version-min=10.13 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/jacobbien/Library/R/x86_64/4.2/library/Rcpp/include&#39; -I/usr/local/include   -fPIC  -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c code.cpp -o code.o
-## clang++ -mmacosx-version-min=10.13 -std=gnu++14 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/usr/local/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
-## installing to /private/var/folders/wk/ysb32prj0gqdt1q08l3cwxlm0000gp/T/Rtmp57ioJE/devtools_install_60a5255156d9/00LOCK-withrcpp/00new/withrcpp/libs
+## clang++ -arch arm64 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include&#39; -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c RcppExports.cpp -o RcppExports.o
+## In file included from RcppExports.cpp:4:
+## In file included from /Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include/Rcpp.h:27:
+## In file included from /Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include/RcppCommon.h:168:
+## /Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include/Rcpp/internal/r_coerce.h:255:7: warning: &#39;sprintf&#39; is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+##     ::sprintf(buff, &quot;%02x&quot;, from);
+##       ^
+## /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdio.h:188:1: note: &#39;sprintf&#39; has been explicitly marked deprecated here
+## __deprecated_msg(&quot;This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.&quot;)
+## ^
+## /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:215:48: note: expanded from macro &#39;__deprecated_msg&#39;
+##         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+##                                                       ^
+## 1 warning generated.
+## clang++ -arch arm64 -std=gnu++14 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG  -I&#39;/Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include&#39; -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c code.cpp -o code.o
+## In file included from code.cpp:1:
+## In file included from /Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include/Rcpp.h:27:
+## In file included from /Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include/RcppCommon.h:168:
+## /Users/jacobbien/Library/R/arm64/4.2/library/Rcpp/include/Rcpp/internal/r_coerce.h:255:7: warning: &#39;sprintf&#39; is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+##     ::sprintf(buff, &quot;%02x&quot;, from);
+##       ^
+## /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdio.h:188:1: note: &#39;sprintf&#39; has been explicitly marked deprecated here
+## __deprecated_msg(&quot;This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.&quot;)
+## ^
+## /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:215:48: note: expanded from macro &#39;__deprecated_msg&#39;
+##         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+##                                                       ^
+## 1 warning generated.
+## clang++ -arch arm64 -std=gnu++14 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+## ld: warning: -undefined dynamic_lookup may not work with chained fixups
+## installing to /private/var/folders/wk/ysb32prj0gqdt1q08l3cwxlm0000gp/T/RtmpTlTnOO/devtools_install_65c738c6c87/00LOCK-withrcpp/00new/withrcpp/libs
 ## ** checking absolute paths in shared objects and dynamic libraries
 ## * DONE (withrcpp)</code></pre>
-<pre><code>## Writing &#39;]8;;file:///Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withrcpp/NAMESPACENAMESPACE]8;;&#39;
-## Writing &#39;]8;;file:///Users/jacobbien/Dropbox/literate/Rpackage/litr-project/examples/withrcpp/NAMESPACENAMESPACE]8;;&#39;
+<pre><code>## Writing &#39;]8;;file:///Users/jacobbien/Documents/GitHub/litr-project/examples/withrcpp/NAMESPACENAMESPACE]8;;&#39;
+## Writing &#39;]8;;file:///Users/jacobbien/Documents/GitHub/litr-project/examples/withrcpp/NAMESPACENAMESPACE]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;alternate_signs&#39;)alternate_signs.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;withrcpp-package&#39;)withrcpp-package.Rd]8;;&#39;</code></pre>
 </div>

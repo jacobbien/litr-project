@@ -34,9 +34,10 @@ description_litr_hash_field_name <- function() return("LitrId")
 #' @param package_dir Path to package
 #' @keywords internal
 write_hash_to_description <- function(package_dir) {
+  desc_file <- file.path(package_dir, "DESCRIPTION")
+  if (!file.exists(desc_file)) file.create(desc_file)
   hash <- hash_package_directory(package_dir)
-  desc::desc_set(description_litr_hash_field_name(), hash, 
-                 file = file.path(package_dir, "DESCRIPTION"))
+  desc::desc_set(description_litr_hash_field_name(), hash, file = desc_file)
 }
 
 #' Get the hash of the package from the DESCRIPTION file
