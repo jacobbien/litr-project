@@ -7,6 +7,8 @@ subsequent manual edits.)
 Sets the root directory to this directory
 Sets up the main chunk hook litr::send_to_package() that sends code to the
 R package directory.
+In the case that minimal_eval=TRUE, sets up an options hook for eval so
+chunks are only evaluated if there is a usethis command
 Deactivates an internal function of the usethis package
 Redefines the document output hook to handle chunk references differently
 Sets up a custom language engine called
@@ -21,6 +23,8 @@ subsequent manual edits.)
 Sets the root directory to this directory
 Sets up the main chunk hook litr::send_to_package() that sends code to the
 R package directory.
+In the case that minimal_eval=TRUE, sets up an options hook for eval so
+chunks are only evaluated if there is a usethis command
 Deactivates an internal function of the usethis package
 Redefines the document output hook to handle chunk references differently
 Sets up a custom language engine called
@@ -87,6 +91,8 @@ subsequent manual edits.)</p></li>
 <li><p>Sets the root directory to this directory</p></li>
 <li><p>Sets up the main chunk hook <code><a href="send_to_package.html">litr::send_to_package()</a></code> that sends code to the
 R package directory.</p></li>
+<li><p>In the case that <code>minimal_eval=TRUE</code>, sets up an options hook for <code>eval</code> so
+chunks are only evaluated if there is a <code>usethis</code> command</p></li>
 <li><p>Deactivates an internal function of the <code>usethis</code> package</p></li>
 <li><p>Redefines the document output hook to handle chunk references differently</p></li>
 <li><p>Sets up a <a href="https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html" class="external-link">custom language engine</a> called
@@ -96,7 +102,7 @@ whatever the user puts in the chunk.</p></li>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setup</span><span class="op">(</span><span class="va">package_dir</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setup</span><span class="op">(</span><span class="va">package_dir</span>, <span class="va">minimal_eval</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -104,7 +110,21 @@ whatever the user puts in the chunk.</p></li>
     <dl><dt>package_dir</dt>
 <dd><p>Directory where R package will be created</p></dd>
 
+
+<dt>minimal_eval</dt>
+<dd><p>If <code>TRUE</code>, then only chunks with <code>usethis</code> commands will
+be evaluated.  This can be convenient in coding when you just want to quickly
+update the R package without having to wait for long evaluations to occur</p></dd>
+
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Returns the original state of the knitr objects that have been modified in
+setup.  This allows us to return things to the previous state after we are
+finished.  This is relevant in the case where litr-knitting occurs in the
+current session and we don't want to leave things in a permanently modified
+state.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

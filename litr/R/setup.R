@@ -8,15 +8,26 @@
 #' * Sets the root directory to this directory
 #' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
 #' R package directory.
+#' * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so
+#'   chunks are only evaluated if there is a `usethis` command
 #' * Deactivates an internal function of the `usethis` package
 #' * Redefines the document output hook to handle chunk references differently  
 #' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
 #' `package_doc` that creates a package documentation file and then inserts
 #' whatever the user puts in the chunk.
 #' 
+#' Returns the original state of the knitr objects that have been modified in 
+#' setup.  This allows us to return things to the previous state after we are
+#' finished.  This is relevant in the case where litr-knitting occurs in the 
+#' current session and we don't want to leave things in a permanently modified
+#' state.
+#' 
 #' @param package_dir Directory where R package will be created
+#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
+#' be evaluated.  This can be convenient in coding when you just want to quickly
+#' update the R package without having to wait for long evaluations to occur
 #' @keywords internal
-setup <- function(package_dir) {
+setup <- function(package_dir, minimal_eval) {
   if (file.exists(package_dir)) {
     unedited <- tryCatch(check_unedited(package_dir),
                          error = function(e) {
@@ -35,9 +46,31 @@ setup <- function(package_dir) {
     unlink(package_dir, recursive = TRUE)
   }
   fs::dir_create(package_dir)
+  usethis:::proj_set_(usethis:::proj_path_prep(package_dir))
+
+  # let's keep a version of the knitr objects before modifying them:
+  original_knitr <- list(opts_knit = knitr::opts_knit$get(),
+                         knit_hooks = knitr::knit_hooks$get(),
+                         opts_chunk = knitr::opts_chunk$get(),
+                         opts_hooks = knitr::opts_hooks$get(),
+                         knit_engines = knitr::knit_engines$get()
+                         )
+  
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+  if (minimal_eval) {
+    # only evaluate chunks that appear to include usethis commands
+    # but if someone has specifically set eval=FALSE in a particular chunk, 
+    # do honor that
+    usethis_exports <- getNamespaceExports("usethis")
+    usethis_pattern <- paste(c("usethis::", usethis_exports), collapse = "|")
+    knitr::opts_hooks$set(eval = function(options) {
+      if (options$eval)
+        options$eval <- any(stringr::str_detect(options$code, usethis_pattern))
+      return(options)
+    })
+  }
   
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
@@ -113,7 +146,7 @@ setup <- function(package_dir) {
     options[["eval"]] <- FALSE
     return(r_engine(options))
   })
-
+  return(original_knitr)
 }
 
 #' Make error messages noticeable

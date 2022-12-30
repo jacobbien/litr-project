@@ -106,6 +106,9 @@
     <loc>/reference/render.html</loc>
   </url>
   <url>
+    <loc>/reference/restore_knitr_objects.html</loc>
+  </url>
+  <url>
     <loc>/reference/send_to_package.html</loc>
   </url>
   <url>

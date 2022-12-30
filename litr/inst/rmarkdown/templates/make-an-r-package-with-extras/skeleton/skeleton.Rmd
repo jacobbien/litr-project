@@ -65,7 +65,6 @@ say_hi <- function(name, exclamation = TRUE) {
 This should happen before the pkgdown part.
 
 ```{r}
-rm(list = ls())
 litr::document()
 ```
 

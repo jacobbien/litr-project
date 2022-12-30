@@ -111,7 +111,6 @@ testthat::test_that('several calls to function works', {
 Some documentation.
 
 ```{r}
-rm(list = ls())
 litr::document() # <-- use instead of devtools::document()
 ```
 

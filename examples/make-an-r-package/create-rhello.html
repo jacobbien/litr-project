@@ -406,7 +406,7 @@ desired:</p>
   testthat::expect_equal(<a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;), &quot;Hello Jacob!&quot;)
   testthat::expect_equal(<a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;, exclamation = FALSE), &quot;Hello Jacob.&quot;)
 })</code></pre>
-<pre><code>## Test passed 😸</code></pre>
+<pre><code>## Test passed 🎉</code></pre>
 <p>Code chunks that have one or more lines starting with
 <code>test_that(</code> (or <code>testthat::test_that(</code>) are added
 to the package as tests.</p>
@@ -417,8 +417,7 @@ to the package as tests.</p>
 <p>We finish by running commands that will document, build, and install
 the package. It may also be a good idea to check the package from within
 this file.</p>
-<pre class="r"><code>rm(list = ls())
-litr::document() # &lt;-- use instead of devtools::document()
+<pre class="r"><code>litr::document() # &lt;-- use instead of devtools::document()
 # devtools::build()
 # devtools::install()
 # devtools::check(document = FALSE)</code></pre>

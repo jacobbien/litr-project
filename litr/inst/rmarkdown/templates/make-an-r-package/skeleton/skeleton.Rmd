@@ -78,7 +78,6 @@ Code chunks that have one or more lines starting with `test_that(` (or `testthat
 We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
 
 ```{r}
-rm(list = ls())
 litr::document() # <-- use instead of devtools::document()
 # devtools::build()
 # devtools::install()

@@ -4,10 +4,17 @@
 \alias{litrify_output_format}
 \title{Modify an existing output format to have \code{litr} behavior}
 \usage{
-litrify_output_format(base_format = rmarkdown::html_document)
+litrify_output_format(
+  base_format = rmarkdown::html_document,
+  minimal_eval = FALSE
+)
 }
 \arguments{
 \item{base_format}{a preexisting, non-litr output format such as \code{rmarkdown::html_document}}
+
+\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{usethis} commands will
+be evaluated.  This can be convenient in coding when you just want to quickly
+update the R package without having to wait for long evaluations to occur}
 }
 \description{
 This function modifies the \code{pre_knit()} and \code{post_processor()} functions of a
