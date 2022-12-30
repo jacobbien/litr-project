@@ -3,7 +3,6 @@
 When you are done defining the package, it remains to convert the Roxygen to documentation.
 
 ```{r}
-rm(list = ls())
 litr::document() # <-- use instead of devtools::document()
 ```
 

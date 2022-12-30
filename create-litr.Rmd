@@ -378,15 +378,24 @@ The way `knitr` handles this, the code chunk would no longer look like this but 
 #' * Sets the root directory to this directory
 #' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
 #' R package directory.
+#' * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so
+#'   chunks are only evaluated if there is a `usethis` command
 #' * Deactivates an internal function of the `usethis` package
 #' * Redefines the document output hook to handle chunk references differently  
 #' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
 #' `package_doc` that creates a package documentation file and then inserts
 #' whatever the user puts in the chunk.
 #' 
+#' Returns the original state of the knitr objects that have been modified in 
+#' setup.  This allows us to return things to the previous state after we are
+#' finished.  This is relevant in the case where litr-knitting occurs in the 
+#' current session and we don't want to leave things in a permanently modified
+#' state.
+#' 
 #' @param package_dir Directory where R package will be created
+<<param-minimal_eval>>
 #' @keywords internal
-setup <- function(package_dir) {
+setup <- function(package_dir, minimal_eval) {
   if (file.exists(package_dir)) {
     unedited <- tryCatch(check_unedited(package_dir),
                          error = function(e) {
@@ -405,9 +414,31 @@ setup <- function(package_dir) {
     unlink(package_dir, recursive = TRUE)
   }
   fs::dir_create(package_dir)
+  usethis:::proj_set_(usethis:::proj_path_prep(package_dir))
+
+  # let's keep a version of the knitr objects before modifying them:
+  original_knitr <- list(opts_knit = knitr::opts_knit$get(),
+                         knit_hooks = knitr::knit_hooks$get(),
+                         opts_chunk = knitr::opts_chunk$get(),
+                         opts_hooks = knitr::opts_hooks$get(),
+                         knit_engines = knitr::knit_engines$get()
+                         )
+  
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
+  if (minimal_eval) {
+    # only evaluate chunks that appear to include usethis commands
+    # but if someone has specifically set eval=FALSE in a particular chunk, 
+    # do honor that
+    usethis_exports <- getNamespaceExports("usethis")
+    usethis_pattern <- paste(c("usethis::", usethis_exports), collapse = "|")
+    knitr::opts_hooks$set(eval = function(options) {
+      if (options$eval)
+        options$eval <- any(stringr::str_detect(options$code, usethis_pattern))
+      return(options)
+    })
+  }
   
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
@@ -483,7 +514,7 @@ setup <- function(package_dir) {
     options[["eval"]] <- FALSE
     return(r_engine(options))
   })
-
+  return(original_knitr)
 }
 ```
 
@@ -711,6 +742,15 @@ Although these are presented as two separate approaches, we have written `litr::
 
 We encourage users to use `litr::render()`^[For example, we include the line `knit: litr::render` in the yaml of the templates for this reason.] rather than `rmarkdown::render()` since in `litr::render()` we're able to wrap the call to `rmarkdown::render()` in the function `with_cleanup()`.  This ensures that, if an error occurs during the knitting process, the special `litr` hash will still be created.  This is desirable since it means that the next time we try to litr-knit, we will not get an error about overwriting a manually edited package directory.
 
+When coding an R package with `litr`, sometimes there are code chunks that can take a while to evaluate (e.g., tests), which slows down the coding process.  We therefore provide an argument (to both `litr::render()` and the various litr output formats) that allows for "minimal eval" to occur.  The goal is to allow the R package to be updated completely but without any of the code chunks being evaluated, except those whose involving usethis, since `usethis` commands lead to changes in the R package itself.  Here is the documentation associated with the `minimal_eval` parameter, which is an argument to a number of functions in this section:
+
+```{r param-minimal_eval}
+#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
+#' be evaluated.  This can be convenient in coding when you just want to quickly
+#' update the R package without having to wait for long evaluations to occur
+```
+
+
 #### Defining `litr` output formats {#output-format}
 
 The function `rmarkdown::render()` allows for customizable behavior through the use of custom [output formats](https://bookdown.org/yihui/rmarkdown/new-formats.html).
@@ -732,11 +772,16 @@ We present the function and then describe the details of the new `pre_knit()` an
 #' preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::render()` is called).
 #' 
 #' @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
+<<param-minimal_eval>>
 #' @export
-litrify_output_format <- function(base_format = rmarkdown::html_document) {
+litrify_output_format <- function(base_format = rmarkdown::html_document,
+                                  minimal_eval = FALSE) {
+  force(base_format) # I think using force here is advisable?
+  force(minimal_eval) # https://adv-r.hadley.nz/function-factories.html
   function(...) {
     old <- base_format(...)
     new <- old
+    new$original_knitr_objects <- list()
     new$pre_knit <- function(...) {
       args <- list(...)
       input <- args$input
@@ -745,7 +790,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
         params$package_parent_dir$value,
         params$package_name$value,
         input)
-      litr:::setup(package_dir)
+      new$original_knitr_objects <<- litr:::setup(package_dir, minimal_eval)
       if (!is.null(old$pre_knit)) old$pre_knit(...)
     }
 
@@ -762,20 +807,33 @@ litrify_output_format <- function(base_format = rmarkdown::html_document) {
 
       # add litr hash so we can tell later if package files were manually edited:
       write_hash_to_description(package_dir)
+      
       out
+    }
+    
+    new$on_exit <- function() {
+      old$on_exit()
+      
+      # restore knitr to its original state
+      restore_knitr_objects(new$original_knitr_objects)
     }
     
     # mark this as a litr_format
     new$litr_format <- TRUE
+    
+    # litr formats have minimal_eval as an option
+    new$minimal_eval <- minimal_eval
 
     new
   }
 }
 ```
 
-1. The `pre_knit()` function is modified so that `setup()` is called before the preexisting output format's `pre_knit()` function is called.  As the name suggests, this is a function that gets called before knitting.  The purpose of the call to `setup()` is to create the R package directory and make it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory.
+1. The `pre_knit()` function is modified so that `setup()` is called before the preexisting output format's `pre_knit()` function is called.  As the name suggests, this is a function that gets called before knitting.  The purpose of the call to `setup()` is to create the R package directory and make it so that when we knit the file using `rmarkdown::render()`, a lot of special things will happen, such as code being sent to the R package directory. The function `setup()` returns the state of the `knitr` settings before any changes were made.  This previous state of the knitr settings will be restored at the end of the rendering process in `on_exit()`.
 
 2. The `post_processor()` function is modified so that the DESCRIPTION file gets marked with the version of `litr` used and with the `litr` hash (as already described [here](#hash)).
+
+3. The `on_exit()` function is modified so that it restores the state of all the knitr settings to how it was when render was first called.
 
 We use the above function to create some `litr` versions of common output formats, as seen in the next few subsections.
 
@@ -814,7 +872,7 @@ testthat::test_that("get_package_directory() works", {
 
 ##### .pdf output format
 
-The next function could have been defined in a single line: `litr_pdf_document <- litrify_output_format(rmarkdown::pdf_document)`
+The next function could have been defined in a single line: `litr_pdf_document <- litrify_output_format(rmarkdown::pdf_document, minimal_eval = minimal_eval)`
 
 However, for `litr` to recognize this as a function, we make it a bit longer with the `<- function(` format and add documentation.
 
@@ -824,10 +882,12 @@ However, for `litr` to recognize this as a function, we make it a bit longer wit
 #' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
 #' R package.
 #' 
+<<param-minimal_eval>>
 #' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
 #' @export
-litr_pdf_document <- function(...) {
-  litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document)
+litr_pdf_document <- function(minimal_eval = FALSE, ...) {
+  litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document,
+                                              minimal_eval = minimal_eval)
   litr_pdf_document_(...)
 }
 ```
@@ -845,10 +905,12 @@ For .html documents, we'd like to add a bit more in the postprocessing step.  In
 #' elsewhere in the document.
 #' - It does "Knuth-style" chunk referencing with hyperlinks.
 #' 
+<<param-minimal_eval>>
 #' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
 #' @export
-litr_html_document <- function(...) {
-  litr_html_document_ <- litrify_output_format(rmarkdown::html_document)
+litr_html_document <- function(minimal_eval = FALSE, ...) {
+  litr_html_document_ <- litrify_output_format(rmarkdown::html_document,
+                                               minimal_eval = minimal_eval)
   old <- litr_html_document_(...)
   new <- old
   # modify post_processor
@@ -1064,10 +1126,12 @@ It turns out that our modification to the `bookdown::gitbook()` format's postpro
 #' elsewhere in the document.
 #' - It does "Knuth-style" chunk referencing with hyperlinks.
 #' 
+<<param-minimal_eval>>
 #' @param ... Parameters to be passed to `bookdown::gitbook()` 
 #' @export
-litr_gitbook <- function(...) {
-  litr_gitbook_ <- litrify_output_format(bookdown::gitbook)
+litr_gitbook <- function(minimal_eval = FALSE, ...) {
+  litr_gitbook_ <- litrify_output_format(bookdown::gitbook,
+                                         minimal_eval = minimal_eval)
   old <- litr_gitbook_(...)
   new <- old
   # modify post_processor
@@ -1156,9 +1220,12 @@ One thing that is different is that we need a function `get_params_used()`, defi
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
+#' be evaluated.  This can be convenient in coding when you just want to quickly
+#' update the R package without having to wait for long evaluations to occur
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
-render <- function(input, ...) {
+render <- function(input, minimal_eval, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
@@ -1169,7 +1236,9 @@ render <- function(input, ...) {
   # special litr behavior will be attained through the output format.
   litr_format <- FALSE
   bookdown_format <- FALSE
+  output_format_arg <- FALSE
   if ("output_format" %in% names(args)) {
+    output_format_arg <- TRUE
     if ("litr_format" %in% names(args$output_format)) {
       litr_format <- TRUE
     }
@@ -1198,10 +1267,30 @@ render <- function(input, ...) {
     params$package_name,
     input
     )
-
+  
+  # if minimal_eval was passed to render, add this to the output_options
+  # argument that will be passed to rmarkdown::render
+  if (is.null(args$output_options)) args$output_options <- list()
+  if (!missing(minimal_eval)) args$output_options$minimal_eval <- minimal_eval
+  
   if (litr_format) {
     # this uses a litr output format, so we don't need to do anything litr-specific
     # here because it will happen through the output format
+    
+    if (output_format_arg & !missing(minimal_eval)) {
+      # the output format was passed through the output_format argument rather 
+      # than through the metadata
+      if (minimal_eval) {
+        stop(make_noticeable(paste(
+          "When passing a litr output format using the output_format argument,",
+          "you should not pass minimal_eval = TRUE directly to render.",
+          "Instead, pass it to the litr output format function.  For example,",
+          "litr::litr_html_document(minimal_eval = TRUE).",
+          collapse = " "
+          )))
+      }
+    }
+
     if (bookdown_format)
       return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
                                                        package_dir),
@@ -1216,14 +1305,17 @@ render <- function(input, ...) {
   # sure that all the special litr things happen
   args$package_dir <- package_dir
 
-  render_ <- function(input, package_dir, ...) {
-    litr:::setup(package_dir)
-    rmarkdown::render(input, ...)
+  render_ <- function(input, package_dir, minimal_eval, ...) {
+    knitr_objects <- litr:::setup(package_dir, minimal_eval)
+    out <- rmarkdown::render(input, ...)
+    restore_knitr_objects(knitr_objects)
+    return(out)
   }
 
+  if (missing(minimal_eval)) minimal_eval <- FALSE
   out <- xfun::Rscript_call(with_cleanup(render_, package_dir),
-                            c(input = input, args))
-#  out <- do.call(with_cleanup(render_, package_dir), c(input = input, args))
+                            c(input = input, minimal_eval = minimal_eval, args))
+
 
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
@@ -1270,6 +1362,22 @@ with_cleanup <- function(fun, package_dir) {
         write_hash_to_description(package_dir)
       })
   })
+}
+```
+
+In `setup()`, we modified the knitr objects (e.g., adding hooks, engines, etc.).  We call the function `restore_knitr_objects()` after we're done, to put things back how they were:
+
+```{r}
+#' Return the knitr objects to their original state
+#' 
+#' @param original_knitr_objects As returned by `setup()`
+#' @keywords internal
+restore_knitr_objects <- function(original_knitr_objects) {
+  knitr::opts_knit$restore(original_knitr_objects$opts_knit)
+  knitr::knit_hooks$restore(original_knitr_objects$knit_hooks)
+  knitr::opts_chunk$restore(original_knitr_objects$opts_chunk)
+  knitr::opts_hooks$restore(original_knitr_objects$opts_hooks)
+  knitr::knit_engines$restore(original_knitr_objects$knit_engines)
 }
 ```
 
@@ -1453,6 +1561,7 @@ render_functions <- c("render",
                       "litr_gitbook",
                       "add_function_hyperlinks",
                       "add_chunk_label_hyperlinks",
+                      "restore_knitr_objects",
                       "get_params_used",
                       "get_package_directory",
                       "do_not_edit_message",
