@@ -248,6 +248,45 @@ testthat::test_that('Rendering in all possible ways works', {
   fs::dir_delete(dir)
 })
 
+testthat::test_that('Rendering with minimal_eval=TRUE works', {
+  
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-pkg.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
+  # .Rmd without output format in preamble
+  html_file <- file.path(dir, "create-pkg.html")
+  html_file_a <- file.path(dir, "a","create-pkg.html")
+  pkg <- file.path(dir, "pkg")
+  pkg_a <- file.path(dir, "a", "pkg")
+
+  ## Now test that all the cases give the same outputs:
+  
+  # Case 1: minimal_eval = FALSE
+  render(rmd_file, output_file = html_file, minimal_eval = FALSE)
+  if (fs::file_exists(file.path(dir, "a"))) fs::file_delete(file.path(dir, "a"))
+  fs::dir_create(file.path(dir, "a"))
+  fs::dir_copy(pkg, pkg_a)
+  fs::dir_delete(pkg)
+
+  # Case 2: minimal_eval = TRUE passed to render
+  render(rmd_file, output_file = html_file, minimal_eval = TRUE)
+  testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                         readLines(file.path(pkg_a, "DESCRIPTION")))
+
+  # Case 3: minimal_eval = TRUE passed to output format
+  render(rmd_file,
+         output_file = html_file,
+         output_format = litr::litr_html_document(minimal_eval = TRUE)
+         )
+  testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                         readLines(file.path(pkg_a, "DESCRIPTION")))
+
+  fs::dir_delete(dir)
+})
+
 testthat::test_that("templates can be knit", {
   dir <- tempfile()
   if (fs::file_exists(dir)) fs::file_delete(dir)

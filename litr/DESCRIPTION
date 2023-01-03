@@ -33,4 +33,4 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
 LitrVersionUsed: 0.6.0
-LitrId: 029f2c33eff2f9656a0ef7c0ec862212
+LitrId: 5cecf9aa11a3238c700b50f89486cee5

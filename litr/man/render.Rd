@@ -9,9 +9,10 @@ render(input, minimal_eval, ...)
 \arguments{
 \item{input}{The input file to be rendered (see \code{rmarkdown::render})}
 
-\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{usethis} commands will
-be evaluated.  This can be convenient in coding when you just want to quickly
-update the R package without having to wait for long evaluations to occur}
+\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{litr::document()} or
+\code{usethis} commands will be evaluated.  This can be convenient in coding when
+you just want to quickly update the R package without having to wait for long
+evaluations to occur.}
 
 \item{...}{Additional parameters to pass to \code{rmarkdown::render}}
 }

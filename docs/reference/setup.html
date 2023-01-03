@@ -8,7 +8,8 @@ Sets the root directory to this directory
 Sets up the main chunk hook litr::send_to_package() that sends code to the
 R package directory.
 In the case that minimal_eval=TRUE, sets up an options hook for eval so
-chunks are only evaluated if there is a usethis command
+chunks are only evaluated if there is a usethis or litr::document()
+command
 Deactivates an internal function of the usethis package
 Redefines the document output hook to handle chunk references differently
 Sets up a custom language engine called
@@ -24,7 +25,8 @@ Sets the root directory to this directory
 Sets up the main chunk hook litr::send_to_package() that sends code to the
 R package directory.
 In the case that minimal_eval=TRUE, sets up an options hook for eval so
-chunks are only evaluated if there is a usethis command
+chunks are only evaluated if there is a usethis or litr::document()
+command
 Deactivates an internal function of the usethis package
 Redefines the document output hook to handle chunk references differently
 Sets up a custom language engine called
@@ -92,7 +94,8 @@ subsequent manual edits.)</p></li>
 <li><p>Sets up the main chunk hook <code><a href="send_to_package.html">litr::send_to_package()</a></code> that sends code to the
 R package directory.</p></li>
 <li><p>In the case that <code>minimal_eval=TRUE</code>, sets up an options hook for <code>eval</code> so
-chunks are only evaluated if there is a <code>usethis</code> command</p></li>
+chunks are only evaluated if there is a <code>usethis</code> or <code><a href="document.html">litr::document()</a></code>
+command</p></li>
 <li><p>Deactivates an internal function of the <code>usethis</code> package</p></li>
 <li><p>Redefines the document output hook to handle chunk references differently</p></li>
 <li><p>Sets up a <a href="https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html" class="external-link">custom language engine</a> called
@@ -112,9 +115,10 @@ whatever the user puts in the chunk.</p></li>
 
 
 <dt>minimal_eval</dt>
-<dd><p>If <code>TRUE</code>, then only chunks with <code>usethis</code> commands will
-be evaluated.  This can be convenient in coding when you just want to quickly
-update the R package without having to wait for long evaluations to occur</p></dd>
+<dd><p>If <code>TRUE</code>, then only chunks with <code><a href="document.html">litr::document()</a></code> or
+<code>usethis</code> commands will be evaluated.  This can be convenient in coding when
+you just want to quickly update the R package without having to wait for long
+evaluations to occur.</p></dd>
 
 </dl></div>
     <div class="section level2">

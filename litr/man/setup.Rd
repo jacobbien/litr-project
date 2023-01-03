@@ -9,9 +9,10 @@ setup(package_dir, minimal_eval)
 \arguments{
 \item{package_dir}{Directory where R package will be created}
 
-\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{usethis} commands will
-be evaluated.  This can be convenient in coding when you just want to quickly
-update the R package without having to wait for long evaluations to occur}
+\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{litr::document()} or
+\code{usethis} commands will be evaluated.  This can be convenient in coding when
+you just want to quickly update the R package without having to wait for long
+evaluations to occur.}
 }
 \description{
 \itemize{
@@ -22,7 +23,8 @@ subsequent manual edits.)
 \item Sets up the main chunk hook \code{litr::send_to_package()} that sends code to the
 R package directory.
 \item In the case that \code{minimal_eval=TRUE}, sets up an options hook for \code{eval} so
-chunks are only evaluated if there is a \code{usethis} command
+chunks are only evaluated if there is a \code{usethis} or \code{litr::document()}
+command
 \item Deactivates an internal function of the \code{usethis} package
 \item Redefines the document output hook to handle chunk references differently
 \item Sets up a \href{https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html}{custom language engine} called

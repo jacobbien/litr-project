@@ -9,9 +9,10 @@
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
 render <- function(input, minimal_eval, ...) {
@@ -151,9 +152,10 @@ with_cleanup <- function(fun, package_dir) {
 #' preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::render()` is called).
 #' 
 #' @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @export
 litrify_output_format <- function(base_format = rmarkdown::html_document,
                                   minimal_eval = FALSE) {
@@ -216,9 +218,10 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
 #' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
 #' R package.
 #' 
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
 #' @export
 litr_pdf_document <- function(minimal_eval = FALSE, ...) {
@@ -235,9 +238,10 @@ litr_pdf_document <- function(minimal_eval = FALSE, ...) {
 #' elsewhere in the document.
 #' - It does "Knuth-style" chunk referencing with hyperlinks.
 #' 
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
 #' @export
 litr_html_document <- function(minimal_eval = FALSE, ...) {
@@ -265,9 +269,10 @@ litr_html_document <- function(minimal_eval = FALSE, ...) {
 #' elsewhere in the document.
 #' - It does "Knuth-style" chunk referencing with hyperlinks.
 #' 
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Parameters to be passed to `bookdown::gitbook()` 
 #' @export
 litr_gitbook <- function(minimal_eval = FALSE, ...) {

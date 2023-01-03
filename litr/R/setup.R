@@ -9,7 +9,8 @@
 #' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
 #' R package directory.
 #' * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so
-#'   chunks are only evaluated if there is a `usethis` command
+#'   chunks are only evaluated if there is a `usethis` or `litr::document()`
+#'   command
 #' * Deactivates an internal function of the `usethis` package
 #' * Redefines the document output hook to handle chunk references differently  
 #' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
@@ -23,9 +24,10 @@
 #' state.
 #' 
 #' @param package_dir Directory where R package will be created
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @keywords internal
 setup <- function(package_dir, minimal_eval) {
   if (file.exists(package_dir)) {
@@ -60,14 +62,14 @@ setup <- function(package_dir, minimal_eval) {
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
   if (minimal_eval) {
-    # only evaluate chunks that appear to include usethis commands
-    # but if someone has specifically set eval=FALSE in a particular chunk, 
-    # do honor that
+    # only evaluate chunks that appear to include usethis commands or 
+    # a call to litr::document() but if someone has specifically set eval=FALSE
+    # in a particular chunk, do honor that
     usethis_exports <- getNamespaceExports("usethis")
-    usethis_pattern <- paste(c("usethis::", usethis_exports), collapse = "|")
+    patterns <- paste(c("usethis::", usethis_exports, "litr::document\\("), collapse = "|")
     knitr::opts_hooks$set(eval = function(options) {
       if (options$eval)
-        options$eval <- any(stringr::str_detect(options$code, usethis_pattern))
+        options$eval <- any(stringr::str_detect(options$code, patterns))
       return(options)
     })
   }
