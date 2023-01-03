@@ -379,7 +379,8 @@ The way `knitr` handles this, the code chunk would no longer look like this but 
 #' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
 #' R package directory.
 #' * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so
-#'   chunks are only evaluated if there is a `usethis` command
+#'   chunks are only evaluated if there is a `usethis` or `litr::document()`
+#'   command
 #' * Deactivates an internal function of the `usethis` package
 #' * Redefines the document output hook to handle chunk references differently  
 #' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
@@ -428,14 +429,14 @@ setup <- function(package_dir, minimal_eval) {
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
   if (minimal_eval) {
-    # only evaluate chunks that appear to include usethis commands
-    # but if someone has specifically set eval=FALSE in a particular chunk, 
-    # do honor that
+    # only evaluate chunks that appear to include usethis commands or 
+    # a call to litr::document() but if someone has specifically set eval=FALSE
+    # in a particular chunk, do honor that
     usethis_exports <- getNamespaceExports("usethis")
-    usethis_pattern <- paste(c("usethis::", usethis_exports), collapse = "|")
+    patterns <- paste(c("usethis::", usethis_exports, "litr::document\\("), collapse = "|")
     knitr::opts_hooks$set(eval = function(options) {
       if (options$eval)
-        options$eval <- any(stringr::str_detect(options$code, usethis_pattern))
+        options$eval <- any(stringr::str_detect(options$code, patterns))
       return(options)
     })
   }
@@ -742,12 +743,13 @@ Although these are presented as two separate approaches, we have written `litr::
 
 We encourage users to use `litr::render()`^[For example, we include the line `knit: litr::render` in the yaml of the templates for this reason.] rather than `rmarkdown::render()` since in `litr::render()` we're able to wrap the call to `rmarkdown::render()` in the function `with_cleanup()`.  This ensures that, if an error occurs during the knitting process, the special `litr` hash will still be created.  This is desirable since it means that the next time we try to litr-knit, we will not get an error about overwriting a manually edited package directory.
 
-When coding an R package with `litr`, sometimes there are code chunks that can take a while to evaluate (e.g., tests), which slows down the coding process.  We therefore provide an argument (to both `litr::render()` and the various litr output formats) that allows for "minimal eval" to occur.  The goal is to allow the R package to be updated completely but without any of the code chunks being evaluated, except those whose involving usethis, since `usethis` commands lead to changes in the R package itself.  Here is the documentation associated with the `minimal_eval` parameter, which is an argument to a number of functions in this section:
+When coding an R package with `litr`, sometimes there are code chunks that can take a while to evaluate (e.g., tests), which slows down the coding process.  We therefore provide an argument (to both `litr::render()` and the various litr output formats) that allows for "minimal eval" to occur.  The goal is to allow the R package to be updated completely but without any of the code chunks being evaluated, except those whose involving usethis or a call to `litr::document()`, since these commands lead to changes in the R package itself.  Here is the documentation associated with the `minimal_eval` parameter, which is an argument to a number of functions in this section:
 
 ```{r param-minimal_eval}
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 ```
 
 
@@ -1222,9 +1224,7 @@ One thing that is different is that we need a function `get_params_used()`, defi
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
-#' @param minimal_eval If `TRUE`, then only chunks with `usethis` commands will 
-#' be evaluated.  This can be convenient in coding when you just want to quickly
-#' update the R package without having to wait for long evaluations to occur
+<<param-minimal_eval>>
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
 render <- function(input, minimal_eval, ...) {
@@ -2025,6 +2025,50 @@ testthat::test_that('Rendering in all possible ways works', {
   fs::dir_delete(dir)
 })
 ```
+
+Let's also make sure that we get the same R package output when using `minimal_eval=TRUE` as `minimal_eval=TRUE`.
+
+```{r, eval=FALSE}
+testthat::test_that('Rendering with minimal_eval=TRUE works', {
+  
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-pkg.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
+  # .Rmd without output format in preamble
+  html_file <- file.path(dir, "create-pkg.html")
+  html_file_a <- file.path(dir, "a","create-pkg.html")
+  pkg <- file.path(dir, "pkg")
+  pkg_a <- file.path(dir, "a", "pkg")
+
+  ## Now test that all the cases give the same outputs:
+  
+  # Case 1: minimal_eval = FALSE
+  render(rmd_file, output_file = html_file, minimal_eval = FALSE)
+  if (fs::file_exists(file.path(dir, "a"))) fs::file_delete(file.path(dir, "a"))
+  fs::dir_create(file.path(dir, "a"))
+  fs::dir_copy(pkg, pkg_a)
+  fs::dir_delete(pkg)
+
+  # Case 2: minimal_eval = TRUE passed to render
+  render(rmd_file, output_file = html_file, minimal_eval = TRUE)
+  testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                         readLines(file.path(pkg_a, "DESCRIPTION")))
+
+  # Case 3: minimal_eval = TRUE passed to output format
+  render(rmd_file,
+         output_file = html_file,
+         output_format = litr::litr_html_document(minimal_eval = TRUE)
+         )
+  testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                         readLines(file.path(pkg_a, "DESCRIPTION")))
+
+  fs::dir_delete(dir)
+})
+```
+
 
 ### Testing other templates
 
