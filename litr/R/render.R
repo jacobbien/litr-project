@@ -98,6 +98,8 @@ render <- function(input, minimal_eval, ...) {
     knitr_objects <- litr:::setup(package_dir, minimal_eval)
     out <- rmarkdown::render(input, ...)
     restore_knitr_objects(knitr_objects)
+    # remove .Rproj and .gitignore if usethis::create_package() added these
+    remove_rstudio_extras(package_dir)
     return(out)
   }
 
@@ -180,6 +182,8 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
         metadata$params$package_name,
         input_file
       )
+      # remove .Rproj and .gitignore if usethis::create_package() added these
+      remove_rstudio_extras(package_dir)
 
       # add to DESCRIPTION file the version of litr used to create package:
       write_version_to_description(package_dir)
@@ -468,6 +472,23 @@ restore_knitr_objects <- function(original_knitr_objects) {
   knitr::opts_chunk$restore(original_knitr_objects$opts_chunk)
   knitr::opts_hooks$restore(original_knitr_objects$opts_hooks)
   knitr::knit_engines$restore(original_knitr_objects$knit_engines)
+}
+
+#' Remove extra files added by usethis
+#' 
+#' Remove .Rproj and .gitignore files if they are in the package directory.
+#' 
+#' @param package_dir Path to package
+#' @keywords internal
+remove_rstudio_extras <- function(package_dir) {
+  extras <- fs::dir_ls(package_dir,
+                       all = TRUE,
+                       regexp = "[.]Rproj$|[.]gitignore$")
+  rbuildignore <- file.path(package_dir, ".Rbuildignore")
+  txt <- readLines(rbuildignore)
+  txt <- stringr::str_subset(txt, "^.*Rproj.*$", negate = TRUE)
+  writeLines(txt, con = rbuildignore)
+  for (extra in extras) fs::file_delete(extra)
 }
 
 #' Get parameter values used in rendering
