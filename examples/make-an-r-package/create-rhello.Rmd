@@ -8,13 +8,13 @@ params:
   package_name: "rhello" # <-- change this to your package name
   package_parent_dir: "." # <-- relative to this file's location
 ---
-
-<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+  
+  <!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
 -->
-
-## Package setup
-
-We start by specifying the information needed in the DESCRIPTION file of the R package.
+  
+  ## Package setup
+  
+  We start by specifying the information needed in the DESCRIPTION file of the R package.
 
 ```{r package-setup, message=FALSE, results='hide'}
 usethis::create_package(
@@ -29,7 +29,7 @@ usethis::create_package(
       family = "Last",
       email = "you@gmail.com",
       role = c("aut", "cre")
-      )
+    )
   )
 )
 usethis::use_mit_license(copyright_holder = "F. Last")
@@ -59,6 +59,17 @@ We can try running it.
 ```{r}
 say_hello("Jacob")
 ```
+
+
+```{r, echo=FALSE}
+1+1
+```
+
+
+```{r, echo=FALSE}
+say_hello("Patrick")
+```
+
 
 That code chunk does not start with `#'`, so it is not added to the package.
 

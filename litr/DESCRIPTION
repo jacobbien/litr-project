@@ -12,25 +12,4 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Imports: 
-    bookdown,
-    desc,
-    devtools,
-    digest,
-    fs,
-    knitr,
-    pkgdown,
-    rmarkdown,
-    stringr,
-    usethis,
-    xfun,
-    yaml
-Suggests: 
-    dplyr,
-    Rcpp,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
-VignetteBuilder: knitr
-URL: https://github.com/jacobbien/litr-project/tree/main/litr
-LitrVersionUsed: 0.6.0
-LitrId: 0f47cb503b15462489caf11d97802331
+LitrId: 74c87427588ffa7237349784192dd178

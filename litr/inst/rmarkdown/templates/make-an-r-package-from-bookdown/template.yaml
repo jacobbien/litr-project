@@ -1,4 +1,0 @@
-name: Template To Make an R Package From a Bookdown
-description: >
-   Template for a bookdown that defines an R package using literate programming.
-create_dir: TRUE

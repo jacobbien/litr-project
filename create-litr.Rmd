@@ -428,18 +428,7 @@ setup <- function(package_dir) {
     original_code <- knitr::knit_code$get()
     # We first get indices of skipped chunks in original_code list
     skipped_chunks <- which(sapply(original_code, function(x){
-      echo_attr <- attr(x, "chunk_opts")$echo
-      include_attr <- attr(x, "chunk_opts")$include
-      if(!is.null(echo_attr) | !is.null(include_attr)){
-        if(!is.null(echo_attr)){
-          return(!echo_attr)
-        } 
-        if(!is.null(include_attr)){
-          return(!include_attr)
-        }
-      } else{
-        return(FALSE)
-      }
+      return(isFALSE(attr(x, "chunk_opts")$echo) || isFALSE(attr(x, "chunk_opts")$include))
     }))
     # Next we remove the indices of skipped chunks
     original_code_idx_fixed <- setdiff(seq(length(original_code)), skipped_chunks)
