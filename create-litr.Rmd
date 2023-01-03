@@ -441,8 +441,8 @@ setup <- function(package_dir) {
         return(FALSE)
       }
     }))
-    # Next we remove the indices of skipped chunks and sort for good measure
-    original_code_idx_fixed <- sort(setdiff(seq(length(original_code)), skipped_chunks))
+    # Next we remove the indices of skipped chunks
+    original_code_idx_fixed <- setdiff(seq(length(original_code)), skipped_chunks)
     
     labels <- names(original_code)
     # replace each x[i] that has code in it with the original code
