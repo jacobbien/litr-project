@@ -1465,10 +1465,7 @@ load_all <- function(input, output_dir = NULL, ...) {
   }
   fs::dir_copy(fs::path_dir(input), output_dir, overwrite = TRUE)
   input_path <- fs::path_split(input)[[1]]
-  copied_dir_name <- input_path[length(input_path) - 1]
-  moved_input <- file.path(output_dir,
-                           #copied_dir_name, 
-                           fs::path_file(input))
+  moved_input <- file.path(output_dir, fs::path_file(input))
   
   litr::render(moved_input, minimal_eval = TRUE, output_dir = output_dir)
   
