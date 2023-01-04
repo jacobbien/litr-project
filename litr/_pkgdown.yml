@@ -34,6 +34,7 @@ reference:
   contents:
     - render
     - document
+    - load_all
 
 - title: Functions for adding "extras" to your package
   desc: >

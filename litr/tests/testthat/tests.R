@@ -57,6 +57,21 @@ testthat::test_that("get_package_directory() works", {
   )
 })
 
+testthat::test_that('load_all() works', {
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-pkg.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
+  html_file <- file.path(dir, "create-pkg.html")
+
+  load_all(rmd_file)
+  testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
+  
+  fs::dir_delete(dir)
+})
+
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")

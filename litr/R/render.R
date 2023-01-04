@@ -80,11 +80,13 @@ render <- function(input, minimal_eval, ...) {
           )))
       }
     }
-
-    if (bookdown_format)
+    
+    if (bookdown_format) {
+      if (fs::is_file(input)) input <- fs::path_dir(input)
       return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
                                                        package_dir),
                                           c(input = input, args))))
+    }
     else
       return(invisible(xfun::Rscript_call(with_cleanup(rmarkdown::render,
                                                        package_dir),
@@ -575,4 +577,43 @@ document <- function(...) {
     txt <- stringr::str_replace(readLines(fname), pattern, msg)
     cat(paste(txt, collapse = "\n"), file = fname)
   }
+}
+
+#' Load complete package
+#' 
+#' This is a litr wrapper to `devtools::load_all()`.  It first calls
+#' `litr::render()` with `minimal_eval=TRUE`, then it calls
+#' `devtools::load_all()` on the generated package.
+#' 
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param output_dir By default (and in typical usage) this is NULL, meaning
+#' that no .html/bookdown/.pdf will result.  However, when a directory is given,
+#' the result of the litr-knitting will be saved to this location.
+#' @param ... Additional parameters to be passed to `devtools::load_all()`
+#' @export
+load_all <- function(input, output_dir = NULL, ...) {
+  no_output <- is.null(output_dir)
+  if (no_output) {
+    output_dir <- tempfile()
+    if (fs::file_exists(output_dir)) fs::file_delete(output_dir)
+    fs::dir_create(output_dir)
+  }
+  fs::dir_copy(fs::path_dir(input), output_dir, overwrite = TRUE)
+  input_path <- fs::path_split(input)[[1]]
+  moved_input <- file.path(output_dir, fs::path_file(input))
+  
+  litr::render(moved_input, minimal_eval = TRUE, output_dir = output_dir)
+  
+  # get package directory
+  params <- get_params_used(moved_input, list())
+  package_dir <- get_package_directory(
+    params$package_parent_dir,
+    params$package_name,
+    moved_input
+  )
+  new_package_dir <- file.path(fs::path_dir(input), params$package_name)
+  fs::dir_copy(package_dir, new_package_dir, overwrite = TRUE)
+  if (no_output) fs::dir_delete(output_dir)
+  
+  devtools::load_all(new_package_dir)
 }
