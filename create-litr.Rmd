@@ -1292,11 +1292,13 @@ render <- function(input, minimal_eval, ...) {
           )))
       }
     }
-
-    if (bookdown_format)
+    
+    if (bookdown_format) {
+      if (fs::is_file(input)) input <- fs::path_dir(input)
       return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
                                                        package_dir),
                                           c(input = input, args))))
+    }
     else
       return(invisible(xfun::Rscript_call(with_cleanup(rmarkdown::render,
                                                        package_dir),
@@ -1431,6 +1433,77 @@ We used the package `rmarkdown`, so let's import it:
 
 ```{r}
 usethis::use_package("rmarkdown")
+```
+
+### Functionality to facilitate workflow
+
+When someone is writing an R package with devtools, it is common to use `devtools::load_all()` to quickly try out the functions of an R package in the console.  We'd like to allow for a similar workflow using litr.  We define a litr function called `load_all()`, which will do the following:
+
+1. Litr-knit the .Rmd file with `minimal_eval=TRUE` to some temporary location (since the idea of `load_all()` is to leave the .html file alone) and then delete the .html file.
+
+2. Run `devtools::load_all()` on the output.
+
+```{r}
+#' Load complete package
+#' 
+#' This is a litr wrapper to `devtools::load_all()`.  It first calls
+#' `litr::render()` with `minimal_eval=TRUE`, then it calls
+#' `devtools::load_all()` on the generated package.
+#' 
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param output_dir By default (and in typical usage) this is NULL, meaning
+#' that no .html/bookdown/.pdf will result.  However, when a directory is given,
+#' the result of the litr-knitting will be saved to this location.
+#' @param ... Additional parameters to be passed to `devtools::load_all()`
+#' @export
+load_all <- function(input, output_dir = NULL, ...) {
+  no_output <- is.null(output_dir)
+  if (no_output) {
+    output_dir <- tempfile()
+    if (fs::file_exists(output_dir)) fs::file_delete(output_dir)
+    fs::dir_create(output_dir)
+  }
+  fs::dir_copy(fs::path_dir(input), output_dir, overwrite = TRUE)
+  input_path <- fs::path_split(input)[[1]]
+  copied_dir_name <- input_path[length(input_path) - 1]
+  moved_input <- file.path(output_dir,
+                           #copied_dir_name, 
+                           fs::path_file(input))
+  
+  litr::render(moved_input, minimal_eval = TRUE, output_dir = output_dir)
+  
+  # get package directory
+  params <- get_params_used(moved_input, list())
+  package_dir <- get_package_directory(
+    params$package_parent_dir,
+    params$package_name,
+    moved_input
+  )
+  new_package_dir <- file.path(fs::path_dir(input), params$package_name)
+  fs::dir_copy(package_dir, new_package_dir, overwrite = TRUE)
+  if (no_output) fs::dir_delete(output_dir)
+  
+  devtools::load_all(new_package_dir)
+}
+```
+
+Let's test that this works.  In particular, we'll call `load_all()` and then try to use one of the functions from the package.
+
+```{r, eval=FALSE}
+testthat::test_that('load_all() works', {
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-pkg.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
+  html_file <- file.path(dir, "create-pkg.html")
+
+  load_all(rmd_file)
+  testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
+  
+  fs::dir_delete(dir)
+})
 ```
 
 
@@ -1594,7 +1667,8 @@ render_functions <- c("render",
                       "do_not_edit_message",
                       "description_litr_version_field_name",
                       "write_version_to_description",
-                      "document")
+                      "document",
+                      "load_all")
 setup_functions <- c("setup",
                      "make_noticeable",
                      "send_to_package",
