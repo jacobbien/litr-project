@@ -1,0 +1,3 @@
+# Generalization to other greetings
+
+We can now get fancier and define more functions across as many .Rmd files as we like.  Hyperlinks work across different .Rmd files.  For example, you can click on `say_hello()` and it will bring you to the definition in the previous chapter.

@@ -1,0 +1,16 @@
+Package: frombookdown
+Title: A Package Defined in a Bookdown
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "you@gmail.com", role = c("aut", "cre"))
+Description: This package uses litr to define an R package through writing
+    a bookdown.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LitrVersionUsed: 0.7.0
+LitrId: 7236bfa9adb9b386d5868874e7335783

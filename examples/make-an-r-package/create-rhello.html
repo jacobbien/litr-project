@@ -363,9 +363,10 @@ package</h1>
 </div>
 
 
-<p><!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
---></p>
-<p>## Package setup</p>
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+-->
+<div id="package-setup" class="section level2">
+<h2>Package setup</h2>
 <p>We start by specifying the information needed in the DESCRIPTION file
 of the R package.</p>
 <pre class="r"><code>usethis::create_package(
@@ -380,10 +381,11 @@ of the R package.</p>
       family = &quot;Last&quot;,
       email = &quot;you@gmail.com&quot;,
       role = c(&quot;aut&quot;, &quot;cre&quot;)
-    )
+      )
   )
 )
 usethis::use_mit_license(copyright_holder = &quot;F. Last&quot;)</code></pre>
+</div>
 <div id="now-to-the-package-itself" class="section level2">
 <h2>Now to the package itself</h2>
 <div id="define-a-function" class="section level3">
@@ -402,8 +404,6 @@ the package.</p>
 <p>We can try running it.</p>
 <pre class="r"><code><a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;)</code></pre>
 <pre><code>## [1] &quot;Hello Jacob!&quot;</code></pre>
-<pre><code>## [1] 2</code></pre>
-<pre><code>## [1] &quot;Hello Patrick!&quot;</code></pre>
 <p>That code chunk does not start with <code>#&#39;</code>, so it is not
 added to the package.</p>
 <p>Let’s write some tests to make sure the function behaves as
@@ -412,7 +412,7 @@ desired:</p>
   testthat::expect_equal(<a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;), &quot;Hello Jacob!&quot;)
   testthat::expect_equal(<a href='create-rhello.html#say_hello'>say_hello</a>(&quot;Jacob&quot;, exclamation = FALSE), &quot;Hello Jacob.&quot;)
 })</code></pre>
-<pre><code>## Test passed 🥇</code></pre>
+<pre><code>## Test passed 😀</code></pre>
 <p>Code chunks that have one or more lines starting with
 <code>test_that(</code> (or <code>testthat::test_that(</code>) are added
 to the package as tests.</p>
@@ -430,7 +430,7 @@ litr::document() # &lt;-- use instead of devtools::document()
 # devtools::check(document = FALSE)</code></pre>
 <pre><code>## ℹ Updating rhello documentation
 ## ℹ Loading rhello
-## Writing &#39;]8;;file:///Users/vossler/litr-project/examples/make-an-r-package/rhello/NAMESPACENAMESPACE]8;;&#39;
+## Writing &#39;]8;;file:///Users/vossler/litr-project/examples/rhello/NAMESPACENAMESPACE]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;say_hello&#39;)say_hello.Rd]8;;&#39;</code></pre>
 </div>
 

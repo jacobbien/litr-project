@@ -1,0 +1,112 @@
+---
+title: "Creating the ``r params$package_name`` R package"
+author: "Your Name"
+date: "The Date"
+knit: litr::render
+output: litr::litr_html_document
+params:
+  package_name: "withrcpp" # <-- change this to your package name
+  package_parent_dir: "." # <-- relative to this file's location
+---
+
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+-->
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = params$package_name,
+    Version = "0.0.0.9000",
+    Title = "A Package That Uses Rcpp Code",
+    Description = "This package uses Rcpp.",
+    `Authors@R` = person(
+      given = "First",
+      family = "Last",
+      email = "you@gmail.com",
+      role = c("aut", "cre")
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = "F. Last")
+```
+
+Add some package-level documentation if you want to (or delete the chunk entirely).  This is what will show up when someone types `package?withrcpp` in the console.
+
+```{package_doc}
+#' My great package
+#'
+#' Here's an overview of the package.
+#' 
+#' @docType package
+#' @seealso \code{\link{alternate_signs}}
+```
+
+## Now to the package itself
+
+### Define a function
+
+Let's define a function written in C++ for our R package:
+
+We now define a code chunk using Rcpp.  Notice that instead of the chunk starting with `{R`, it instead starts with `{Rcpp`.  The code in this chunk will be placed in the proper place in the R package.  Use Roxygen2 to document this as you would an R function, except instead of `#'` at the start of each line, use `//'`.  Including the line `// [[Rcpp::export]]` is important for this to work.
+
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+//' Alternately flip the signs of elements of a vector
+//' 
+//' @param v A numerical vector
+//' @export
+// [[Rcpp::export]]
+NumericVector alternate_signs(NumericVector v) {
+  int n = v.size();
+  NumericVector out(n);
+  for(int i = 0; i < n; i++) {
+    if (i % 2 == 0) {
+      out[i] = v[i];
+    }
+    else {
+      out[i] = -v[i];
+    }
+  }
+  return out;
+}
+```
+
+We can try running it.
+
+```{r}
+alternate_signs(1:10)
+```
+
+Great!  Note: If you're not going to call the function within this Rmd file, you can set `eval=FALSE`.  This will speed up the knitting process a bit (and the code will still be included in the package).
+
+
+Let's write some tests to make sure the function behaves as desired:
+
+```{r}
+testthat::test_that("alternate_signs works", {
+  testthat::expect_equal(alternate_signs(1:3), c(1, -2, 3))
+  testthat::expect_equal(alternate_signs(c(-4, 2)), c(-4, -2))
+})
+```
+
+Recall that code chunks that have one or more lines starting with `test_that(` (or `testthat::test_that(`) are added to the package as tests.
+
+## Documenting the package and building
+
+We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+
+```{r}
+rm(list = ls())
+litr::document() # <-- use instead of devtools::document()
+# devtools::build()
+# devtools::install()
+# devtools::check(document = FALSE)
+```
+
