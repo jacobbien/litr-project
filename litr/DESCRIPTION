@@ -17,7 +17,6 @@ Imports:
     desc,
     devtools,
     digest,
-    fansi,
     fs,
     knitr,
     pkgdown,
@@ -34,4 +33,4 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
 LitrVersionUsed: 0.6.0
-LitrId: 16bf359592eedb064a90f542a0877934
+LitrId: 010c4fc01c3c413526d017da22be3376

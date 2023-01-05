@@ -427,6 +427,14 @@ setup <- function(package_dir) {
     chunk_start <- "^(\n```+[a-zA-Z0-9_]+\n)"
     idx_block <- stringr::str_which(x, chunk_start)
     original_code <- knitr::knit_code$get()
+    # We first get indices of skipped chunks in original_code list
+    skipped_chunks <- which(sapply(original_code, function(x){
+      return(isFALSE(attr(x, "chunk_opts")$echo) || isFALSE(attr(x, "chunk_opts")$include))
+    }))
+
+    # Next we remove the indices of skipped chunks
+    original_code_idx_fixed <- setdiff(seq(length(original_code)), skipped_chunks)
+    
     labels <- names(original_code)
     # replace each x[i] that has code in it with the original code
     for (i in seq_along(idx_block)) {
@@ -448,7 +456,8 @@ setup <- function(package_dir) {
       i_all_code <- setdiff(i_all_code, i_start[1])
       chunk_no_code <- chunk[-i_all_code]
       chunk <- c(chunk_no_code[1:i_start[1]],
-                 original_code[i][[1]], # insert the original version
+                 original_code[original_code_idx_fixed[i]][[1]],
+                 # insert the original version, accounting for skipped chunks
                  fence)
       if (i_start[1] < length(chunk_no_code))
         chunk <- c(chunk, chunk_no_code[(i_start[1] + 1):length(chunk_no_code)])
@@ -462,8 +471,9 @@ setup <- function(package_dir) {
       refs <- c(refs, find_labels(original_code[[label]])$chunk_ids)
     }
     refs <- unique(refs)
-    ref_id <- match(refs, labels)
-    to_insert <- paste0('###"', labels[ref_id], '"###\n')
+    adj_labels <- labels[!labels %in% names(skipped_chunks)]
+    ref_id <- match(refs, adj_labels)
+    to_insert <- paste0('###"', adj_labels[ref_id], '"###\n')
     x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
                                                  chunk_start,
                                                  paste0("\\1", to_insert))
@@ -588,9 +598,10 @@ Ok, now let's write the function that `litr::render()` will call that will take 
 #' @param package_dir Path to package
 #' @keywords internal
 write_hash_to_description <- function(package_dir) {
+  desc_file <- file.path(package_dir, "DESCRIPTION")
+  if (!file.exists(desc_file)) file.create(desc_file)
   hash <- hash_package_directory(package_dir)
-  desc::desc_set(description_litr_hash_field_name(), hash, 
-                 file = file.path(package_dir, "DESCRIPTION"))
+  desc::desc_set(description_litr_hash_field_name(), hash, file = desc_file)
 }
 ```
 
