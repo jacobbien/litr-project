@@ -430,6 +430,7 @@ setup <- function(package_dir) {
     skipped_chunks <- which(sapply(original_code, function(x){
       return(isFALSE(attr(x, "chunk_opts")$echo) || isFALSE(attr(x, "chunk_opts")$include))
     }))
+
     # Next we remove the indices of skipped chunks
     original_code_idx_fixed <- setdiff(seq(length(original_code)), skipped_chunks)
     
@@ -469,8 +470,9 @@ setup <- function(package_dir) {
       refs <- c(refs, find_labels(original_code[[label]])$chunk_ids)
     }
     refs <- unique(refs)
-    ref_id <- match(refs, labels)
-    to_insert <- paste0('###"', labels[ref_id], '"###\n')
+    adj_labels <- labels[!labels %in% names(skipped_chunks)]
+    ref_id <- match(refs, adj_labels)
+    to_insert <- paste0('###"', adj_labels[ref_id], '"###\n')
     x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
                                                  chunk_start,
                                                  paste0("\\1", to_insert))
