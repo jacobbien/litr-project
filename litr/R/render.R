@@ -305,12 +305,12 @@ add_function_hyperlinks <- function(html_files, pkg_name) {
 #' and then whenever `foo` is found it wraps a `a href="file.html#foo"` tag so 
 #' that it will be a hyperlink to `foo`'s definition.
 #' 
-#' @param txt
-#' @param function_pattern
-#' @param where_defined
-#' @param all_function_names
-#' @param pkg_name Name of the package created by litr. Taken from YAML front matter
-#' @param remove_span
+#' @param txt Character vector where each element is a row of the knitted HTML file.
+#' @param function_pattern Regular Expression passed from `add_function_hyperlinks` that contains all referenced functions in the document.
+#' @param where_defined Character vector that contains the name of the file in which a function was defined.
+#' @param all_function_names Character vector of all referenced functions in the document.
+#' @param pkg_name Name of the package created by litr. Taken from YAML front matter.
+#' @param remove_span Boolean argument for removing span tags. Used for minimizing code duplication.
 #' @keywords internal
 insert_hrefs <- function(txt, function_pattern, where_defined,
                          all_function_names, pkg_name, remove_span=FALSE){
@@ -320,39 +320,31 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
   has_only_fn_name <- setdiff(has_fn_name, has_colon_prefix)
   has_pkg_colon_prefix <- which(stringr::str_detect(txt, paste0(stringr::str_glue("{pkg_name}::"))))
   
-  # first add in hyperlinks for double colon references
-  if(remove_span){
-    colon_pref_replace_fn <- function(x){
+  # define different replacement functions for colon prefix cases and regular cases
+  colon_pref_replace_fn <- function(x){
+    if(remove_span){
       fn_name <- stringr::str_remove(x, "</span>\\(")
       fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
-      fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
-      # implicitly assuming that a function is not redefined in another file
-      def_file <- where_defined[all_function_names == fn_name]
-      return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
-      
-    }
-    regular_replace_fn <- function(x){
-      fn_name <- stringr::str_remove(x, '</span>\\(')
-      fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
-      # implicitly assuming that a function is not redefined in another file
-      def_file <- where_defined[all_function_names == fn_name]
-      stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
-    }
-  } else {
-    colon_pref_replace_fn <- function(x){
+    } else{
       fn_name <- stringr::str_remove(x, "\\(")
-      fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
-      # implicitly assuming that a function is not redefined in another file
-      def_file <- where_defined[all_function_names == fn_name]
-      return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
-    }  
-    regular_replace_fn <- function(x){
-      fn_name <- stringr::str_remove(x, "\\(")
-      # implicitly assuming that a function is not redefined in another file
-      def_file <- where_defined[all_function_names == fn_name]
-      stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
     }
+    fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
+    # implicitly assuming that a function is not redefined in another file
+    def_file <- where_defined[all_function_names == fn_name]
+    return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
+    
   }
+  regular_replace_fn <- function(x){
+    if(remove_span){
+      fn_name <- stringr::str_remove(x, '</span>\\(')
+      fn_name <- stringr::str_remove(fn_name, '<span class="fu">')  
+    } else {
+      fn_name <- stringr::str_remove(x, "\\(")
+    }
+    # implicitly assuming that a function is not redefined in another file
+    def_file <- where_defined[all_function_names == fn_name]
+    stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
+  }  
   
   colon_prefix_function_pattern <- paste0(stringr::str_glue("{pkg_name}::"),all_function_names, "\\(", collapse = "|")
   colon_prefix_refs <- stringr::str_replace_all(

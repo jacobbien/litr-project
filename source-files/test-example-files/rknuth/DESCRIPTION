@@ -1,19 +1,15 @@
-Package: withrcpp
-Title: A Package That Uses Rcpp Code
+Package: rknuth
+Title: A Package With Chunk References
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "you@gmail.com", role = c("aut", "cre"))
-Description: This package uses Rcpp.
+Description: This package is defined using references to chunks.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-LinkingTo: 
-    Rcpp
-Imports: 
-    Rcpp
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.7.0
-LitrId: 1a9394431ed6c6527defc1925e9947ae
+LitrId: 4445031597a2c47f6bd447528de2518f

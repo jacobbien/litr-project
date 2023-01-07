@@ -14,7 +14,17 @@ insert_hrefs(
 )
 }
 \arguments{
-\item{pkg_name}{Name of the package created by litr. Taken from YAML front matter}
+\item{txt}{Character vector where each element is a row of the knitted HTML file.}
+
+\item{function_pattern}{Regular Expression passed from \code{add_function_hyperlinks} that contains all referenced functions in the document.}
+
+\item{where_defined}{Character vector that contains the name of the file in which a function was defined.}
+
+\item{all_function_names}{Character vector of all referenced functions in the document.}
+
+\item{pkg_name}{Name of the package created by litr. Taken from YAML front matter.}
+
+\item{remove_span}{Boolean argument for removing span tags. Used for minimizing code duplication.}
 }
 \description{
 Finds functions that are defined in the html file(s) by looking for text of the

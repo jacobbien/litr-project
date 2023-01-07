@@ -78,8 +78,28 @@ that it will be a hyperlink to <code>foo</code>'s definition.</p>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>pkg_name</dt>
-<dd><p>Name of the package created by litr. Taken from YAML front matter</p></dd>
+    <dl><dt>txt</dt>
+<dd><p>Character vector where each element is a row of the knitted HTML file.</p></dd>
+
+
+<dt>function_pattern</dt>
+<dd><p>Regular Expression passed from <code>add_function_hyperlinks</code> that contains all referenced functions in the document.</p></dd>
+
+
+<dt>where_defined</dt>
+<dd><p>Character vector that contains the name of the file in which a function was defined.</p></dd>
+
+
+<dt>all_function_names</dt>
+<dd><p>Character vector of all referenced functions in the document.</p></dd>
+
+
+<dt>pkg_name</dt>
+<dd><p>Name of the package created by litr. Taken from YAML front matter.</p></dd>
+
+
+<dt>remove_span</dt>
+<dd><p>Boolean argument for removing span tags. Used for minimizing code duplication.</p></dd>
 
 </dl></div>
 
