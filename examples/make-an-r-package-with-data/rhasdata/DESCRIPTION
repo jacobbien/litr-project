@@ -8,9 +8,9 @@ Description: This package has a dataset.  It could also have some
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10)
 LazyData: true
 LitrVersionUsed: 0.7.0
-LitrId: 1e32fc517ee12783a6939bf71657be38
+LitrId: 05f71ce8067c1eda5a443899e04843b5

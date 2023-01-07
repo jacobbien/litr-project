@@ -855,7 +855,7 @@ litr_html_document <- function(...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
     html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files)
+    add_function_hyperlinks(html_files, metadata$params$package_name)
     add_chunk_label_hyperlinks(html_files)
     out
   }
@@ -950,19 +950,20 @@ add_function_hyperlinks <- function(html_files, pkg_name) {
 #' and then whenever `foo` is found it wraps a `a href="file.html#foo"` tag so 
 #' that it will be a hyperlink to `foo`'s definition.
 #' 
-#' @param txt
-#' @param function_pattern
-#' @param where_defined
-#' @param all_function_names
-#' @param pkg_name Name of the package created by litr. Taken from YAML front matter
-#' @param remove_span
+#' @param txt Character vector where each element is a row of the knitted HTML file.
+#' @param function_pattern Regular Expression passed from `add_function_hyperlinks` that contains all referenced functions in the document.
+#' @param where_defined Character vector that contains the name of the file in which a function was defined.
+#' @param all_function_names Character vector of all referenced functions in the document.
+#' @param pkg_name Name of the package created by litr. Taken from YAML front matter.
+#' @param remove_span Boolean argument for removing span tags. Used for minimizing code duplication.
 #' @keywords internal
 insert_hrefs <- function(txt, function_pattern, where_defined,
                          all_function_names, pkg_name, remove_span=FALSE){
   # filter down matches of defined_functions_pattern
   has_fn_name <- which(stringr::str_detect(txt, function_pattern))
-  has_colon_prefex <- which(stringr::str_detect(txt, paste0("::", function_pattern)))
-  has_only_fn_name <- setdiff(has_fn_name, has_colon_prefex)
+  has_colon_prefix <- which(stringr::str_detect(txt, paste0("::", all_function_names, "\\(", collapse = "|")))
+  has_only_fn_name <- setdiff(has_fn_name, has_colon_prefix)
+  has_pkg_colon_prefix <- which(stringr::str_detect(txt, paste0(stringr::str_glue("{pkg_name}::"))))
   
   # first add in hyperlinks for double colon references
   if(remove_span){
@@ -970,13 +971,15 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
       fn_name <- stringr::str_remove(x, "</span>\\(")
       fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
       fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
+      # implicitly assuming that a function is not redefined in another file
       def_file <- where_defined[all_function_names == fn_name]
-      return(stringr::str_glue("PKG_NAME::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
+      return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
       
     }
     regular_replace_fn <- function(x){
       fn_name <- stringr::str_remove(x, '</span>\\(')
       fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
+      # implicitly assuming that a function is not redefined in another file
       def_file <- where_defined[all_function_names == fn_name]
       stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
     }
@@ -984,24 +987,24 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
     colon_pref_replace_fn <- function(x){
       fn_name <- stringr::str_remove(x, "\\(")
       fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
+      # implicitly assuming that a function is not redefined in another file
       def_file <- where_defined[all_function_names == fn_name]
-      return(stringr::str_glue("PKG_NAME::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
+      return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
     }  
     regular_replace_fn <- function(x){
       fn_name <- stringr::str_remove(x, "\\(")
+      # implicitly assuming that a function is not redefined in another file
       def_file <- where_defined[all_function_names == fn_name]
       stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
     }
   }
   
+  colon_prefix_function_pattern <- paste0(stringr::str_glue("{pkg_name}::"),all_function_names, "\\(", collapse = "|")
   colon_prefix_refs <- stringr::str_replace_all(
-    txt[has_colon_prefex],
-    paste0(stringr::str_glue("{pkg_name}::"), function_pattern),
+    txt[has_pkg_colon_prefix],
+    colon_prefix_function_pattern,
     colon_pref_replace_fn
   )
-  # Hack b/c can't pass pkg_name into colon_pref_replace_fn
-  colon_prefix_refs <- stringr::str_replace_all(colon_prefix_refs, "PKG_NAME::",
-                                                stringr::str_glue("{pkg_name}::"))
   
   regular_refs <- stringr::str_replace_all(
     txt[has_only_fn_name],
@@ -1009,7 +1012,7 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
     regular_replace_fn
   )
   # now put back in the changed lines
-  txt[has_colon_prefex] <- colon_prefix_refs
+  txt[has_pkg_colon_prefix] <- colon_prefix_refs
   txt[has_only_fn_name] <- regular_refs
   txt
 }
@@ -1134,7 +1137,7 @@ litr_gitbook <- function(...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
     html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files)
+    add_function_hyperlinks(html_files, metadata$params$package_name)
     add_chunk_label_hyperlinks(html_files)
     out
   }
@@ -1287,7 +1290,7 @@ render <- function(input, ...) {
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
     html_file <- stringr::str_subset(out, "html$")
-    add_function_hyperlinks(html_file)
+    add_function_hyperlinks(html_file, params$package_name)
     add_chunk_label_hyperlinks(html_file)
   }
   
@@ -1511,6 +1514,7 @@ render_functions <- c("render",
                       "litr_html_document",
                       "litr_gitbook",
                       "add_function_hyperlinks",
+                      "insert_hrefs",
                       "add_chunk_label_hyperlinks",
                       "get_params_used",
                       "get_package_directory",

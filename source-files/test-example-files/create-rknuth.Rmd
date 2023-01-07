@@ -1,6 +1,7 @@
 ---
 title: 'Creating the ``r params$package_name`` R package'
 knit: litr::render
+output: litr::litr_html_document
 params:
   package_name: 'rknuth' # <-- change this to your package name
   package_parent_dir: '.' # <-- relative to this file location
@@ -106,6 +107,25 @@ testthat::test_that('several calls to function works', {
   testthat::expect_equal(add_seven_and_double(-1), 2 * (-1 + 7))
 })
 ```
+
+
+## Test function hyperlink insertion behavior
+
+`test_pkg::add_seven_and_double()` and `rknuth::add_seven_and_double()`.
+
+`rknuth::add_five()` and `test_pkg::add_five()`.
+
+`test-pkg::add_five()` on a separate line.
+
+`rknuth::add_five()` on a separate line.
+
+test_pkg::add_seven_and_double() with no backticks.
+
+rknuth::add_five() with no backticks.
+
+add_five() with no backticks.
+
+We properly handle functions wrapped in a span tag with class "fu": <span class="fu">add_five</span>()
 
 
 Some documentation.

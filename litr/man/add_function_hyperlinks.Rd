@@ -4,11 +4,13 @@
 \alias{add_function_hyperlinks}
 \title{Add hyperlinks to function definitions}
 \usage{
-add_function_hyperlinks(html_files)
+add_function_hyperlinks(html_files, pkg_name)
 }
 \arguments{
 \item{html_files}{Character vector of file names of html files that were created
 from Rmd files}
+
+\item{pkg_name}{Name of the package created by litr. Taken from YAML front matter}
 }
 \description{
 Finds functions that are defined in the html file(s) by looking for text of the
