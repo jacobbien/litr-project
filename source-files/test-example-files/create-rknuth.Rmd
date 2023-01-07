@@ -1,6 +1,7 @@
 ---
 title: 'Creating the ``r params$package_name`` R package'
 knit: litr::render
+output: litr::litr_html_document
 params:
   package_name: 'rknuth' # <-- change this to your package name
   package_parent_dir: '.' # <-- relative to this file location

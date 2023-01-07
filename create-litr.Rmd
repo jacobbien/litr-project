@@ -1110,6 +1110,15 @@ Finally, we want to replace the ANSI escape sequences used by packages such as `
 replace_ansi_sequences <- function(html_files) {
   for (i in seq_along(html_files)) {
     file_lines <- readLines(html_files[i])
+    # look for lines with escape sequences for URLs and remove the URL
+    # escape sequences before we convert to HTML
+    url_code_regex <- "\\033]8;;.*\\a(.*?)\\033]8;;\\a"
+    url_seq_idx <- which(stringr::str_detect(file_lines, url_code_regex))
+    file_lines[url_seq_idx] <- sapply(url_seq_idx, function(idx){
+      line <- file_lines[idx]
+      stringr::str_replace(line, url_code_regex, stringr::str_glue("\\1"))  
+    })
+    
     txt <-
       fansi::sgr_to_html(x = file_lines,
                          warn = FALSE,
@@ -1146,6 +1155,8 @@ litr_gitbook <- function(...) {
     # add hyperlinks within html output to make it easier to navigate:
     add_function_hyperlinks(html_files)
     add_chunk_label_hyperlinks(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    replace_ansi_sequences(html_files)
     out
   }
   new
