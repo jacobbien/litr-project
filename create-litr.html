@@ -779,7 +779,7 @@ replace <code>cat()</code> in the above with calls to
                          readLines(myfile))
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🎉</code></pre>
+<pre><code>## Test passed 🥇</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level4">
 <h4>Setting up the R package creation</h4>
@@ -1100,9 +1100,10 @@ puts the hash in the DESCRIPTION file under that special
 #&#39; @param package_dir Path to package
 #&#39; @keywords internal
 <span id='write_hash_to_description'>write_hash_to_description</span> &lt;- function(package_dir) {
+  desc_file &lt;- file.path(package_dir, &quot;DESCRIPTION&quot;)
+  if (!file.exists(desc_file)) file.create(desc_file)
   hash &lt;- <a href='create-litr.html#hash_package_directory'>hash_package_directory</a>(package_dir)
-  desc::desc_set(<a href='create-litr.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>(), hash, 
-                 file = file.path(package_dir, &quot;DESCRIPTION&quot;))
+  desc::desc_set(<a href='create-litr.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>(), hash, file = desc_file)
 }</code></pre>
 <p>Let’s include the <code>desc</code> package, which helps us
 manipulate DESCRIPTION files.</p>
@@ -1343,7 +1344,7 @@ here:</p>
     file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) # inputdir/../mypkg
   )
 })</code></pre>
-<pre><code>## Test passed 😀</code></pre>
+<pre><code>## Test passed 🥳</code></pre>
 <div id="pdf-output-format" class="section level5">
 <h5>.pdf output format</h5>
 <p>The next function could have been defined in a single line:
@@ -1396,7 +1397,7 @@ added by a document hook defined in <code><a href='create-litr.html#setup'>setup
     out &lt;- old$<a href='create-litr.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
     html_files &lt;- fs::dir_ls(fs::path_dir(out), regexp = &quot;.html$&quot;)
     # add hyperlinks within html output to make it easier to navigate:
-    <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files)
+    <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files, metadata$params$package_name)
     <a href='create-litr.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)
     out
   }
@@ -1420,8 +1421,9 @@ hyperlink to <code>foo</code>’s definition.</p>
 #&#39; 
 #&#39; @param html_files Character vector of file names of html files that were created
 #&#39; from Rmd files
+#&#39; @param pkg_name Name of the package created by litr. Taken from YAML front matter
 #&#39; @keywords internal
-<span id='add_function_hyperlinks'>add_function_hyperlinks</span> &lt;- function(html_files) {
+<span id='add_function_hyperlinks'>add_function_hyperlinks</span> &lt;- function(html_files, pkg_name) {
   <span id='find_function_defs'>find_function_defs</span> &lt;- function(html_file) {
     txt &lt;- readLines(html_file)
     start_line &lt;- which(txt == &quot;&lt;body&gt;&quot;)
@@ -1466,36 +1468,86 @@ hyperlink to <code>foo</code>’s definition.</p>
                                   length(setdiff(lst$function_names, repeated))
                                 }))
   where_defined &lt;- rep(fs::path_file(html_files), times = num_per_file)
-  defined_functions_pattern &lt;- paste0(all_function_names, &quot;\\(&quot;, collapse = &quot;|&quot;)
+  defined_functions_pattern &lt;- paste0(&quot;(::)?&quot;,all_function_names, &quot;\\(&quot;, collapse = &quot;|&quot;)
+  # There&#39;s also this case: &lt;span class=&quot;fu&quot;&gt;myfunction&lt;/span&gt;
+  defined_functions_pattern2 &lt;- paste0(
+    &#39;&lt;span class=&quot;fu&quot;&gt;&#39;, all_function_names, &#39;&lt;/span&gt;\\(&#39;,
+    collapse = &quot;|&quot;)
+  
   for (i in seq_along(html_files)) {
     # whenever one of the defined functions is named, link to its definition
     # using the format `file_where_foo_is_defined.html#foo`
-    txt &lt;- stringr::str_replace_all(
-      fdefs[[i]]$txt,
-      defined_functions_pattern,
-      function(x) {
-        fn_name &lt;- stringr::str_remove(x, &quot;\\(&quot;)
-        def_file &lt;- where_defined[all_function_names == fn_name]
-        stringr::str_glue(&quot;&lt;a href=&#39;{def_file}#{fn_name}&#39;&gt;{fn_name}&lt;/a&gt;(&quot;)
-      }
-    )
-    # There&#39;s also this case: &lt;span class=&quot;fu&quot;&gt;myfunction&lt;/span&gt;
-    defined_functions_pattern2 &lt;- paste0(
-      &#39;&lt;span class=&quot;fu&quot;&gt;&#39;, all_function_names, &#39;&lt;/span&gt;\\(&#39;,
-      collapse = &quot;|&quot;)
-    
-    txt &lt;- stringr::str_replace_all(
-      txt,
-      defined_functions_pattern2,
-      function(x) {
-        fn_name &lt;- stringr::str_remove(x, &#39;&lt;/span&gt;\\(&#39;)
-        fn_name &lt;- stringr::str_remove(fn_name, &#39;&lt;span class=&quot;fu&quot;&gt;&#39;)
-        def_file &lt;- where_defined[all_function_names == fn_name]
-        stringr::str_glue(&quot;&lt;a href=&#39;{def_file}#{fn_name}&#39;&gt;{fn_name}&lt;/a&gt;(&quot;)
-      }
-    )
-    writeLines(txt, con = html_files[i])
+    modified_txt &lt;- <a href='create-litr.html#insert_hrefs'>insert_hrefs</a>(fdefs[[i]]$txt, defined_functions_pattern,
+                                 where_defined, all_function_names, pkg_name)
+    modified_txt &lt;- <a href='create-litr.html#insert_hrefs'>insert_hrefs</a>(modified_txt, defined_functions_pattern2,
+                                 where_defined, all_function_names, pkg_name, remove_span=TRUE)
+    writeLines(modified_txt, con = html_files[i])
   }
+}</code></pre>
+<pre class="r"><code>#&#39; Add hyperlinks to function definitions
+#&#39; 
+#&#39; Finds functions that are defined in the html file(s) by looking for text of the 
+#&#39; form `<span id='foo'>foo</span> &lt;- function(` and then wraps `foo` in a `span` tag with `id=&quot;foo&quot;` 
+#&#39; and then whenever `foo` is found it wraps a `a href=&quot;file.html#foo&quot;` tag so 
+#&#39; that it will be a hyperlink to `foo`&#39;s definition.
+#&#39; 
+#&#39; @param txt Character vector where each element is a row of the knitted HTML file.
+#&#39; @param function_pattern Regular Expression passed from `add_function_hyperlinks` that contains all referenced functions in the document.
+#&#39; @param where_defined Character vector that contains the name of the file in which a function was defined.
+#&#39; @param all_function_names Character vector of all referenced functions in the document.
+#&#39; @param pkg_name Name of the package created by litr. Taken from YAML front matter.
+#&#39; @param remove_span Boolean argument for removing span tags. Used for minimizing code duplication.
+#&#39; @keywords internal
+<span id='insert_hrefs'>insert_hrefs</span> &lt;- function(txt, function_pattern, where_defined,
+                         all_function_names, pkg_name, remove_span=FALSE){
+  # filter down matches of defined_functions_pattern
+  has_fn_name &lt;- which(stringr::str_detect(txt, function_pattern))
+  has_colon_prefix &lt;- which(stringr::str_detect(txt, paste0(&quot;::&quot;, all_function_names, &quot;\\(&quot;, collapse = &quot;|&quot;)))
+  has_only_fn_name &lt;- setdiff(has_fn_name, has_colon_prefix)
+  has_pkg_colon_prefix &lt;- which(stringr::str_detect(txt, paste0(stringr::str_glue(&quot;{pkg_name}::&quot;))))
+  
+  # define different replacement functions for colon prefix cases and regular cases
+  <span id='colon_pref_replace_fn'>colon_pref_replace_fn</span> &lt;- function(x){
+    if(remove_span){
+      fn_name &lt;- stringr::str_remove(x, &quot;&lt;/span&gt;\\(&quot;)
+      fn_name &lt;- stringr::str_remove(fn_name, &#39;&lt;span class=&quot;fu&quot;&gt;&#39;)
+    } else{
+      fn_name &lt;- stringr::str_remove(x, &quot;\\(&quot;)
+    }
+    fn_name &lt;- stringr::str_remove(fn_name, stringr::str_glue(&#39;{pkg_name}::&#39;))
+    # implicitly assuming that a function is not redefined in another file
+    def_file &lt;- where_defined[all_function_names == fn_name]
+    return(stringr::str_glue(&quot;{pkg_name}::&lt;a href=&#39;{def_file}#{fn_name}&#39;&gt;{fn_name}&lt;/a&gt;(&quot;))
+    
+  }
+  <span id='regular_replace_fn'>regular_replace_fn</span> &lt;- function(x){
+    if(remove_span){
+      fn_name &lt;- stringr::str_remove(x, &#39;&lt;/span&gt;\\(&#39;)
+      fn_name &lt;- stringr::str_remove(fn_name, &#39;&lt;span class=&quot;fu&quot;&gt;&#39;)  
+    } else {
+      fn_name &lt;- stringr::str_remove(x, &quot;\\(&quot;)
+    }
+    # implicitly assuming that a function is not redefined in another file
+    def_file &lt;- where_defined[all_function_names == fn_name]
+    stringr::str_glue(&quot;&lt;a href=&#39;{def_file}#{fn_name}&#39;&gt;{fn_name}&lt;/a&gt;(&quot;)
+  }  
+  
+  colon_prefix_function_pattern &lt;- paste0(stringr::str_glue(&quot;{pkg_name}::&quot;),all_function_names, &quot;\\(&quot;, collapse = &quot;|&quot;)
+  colon_prefix_refs &lt;- stringr::str_replace_all(
+    txt[has_pkg_colon_prefix],
+    colon_prefix_function_pattern,
+    colon_pref_replace_fn
+  )
+  
+  regular_refs &lt;- stringr::str_replace_all(
+    txt[has_only_fn_name],
+    function_pattern,
+    regular_replace_fn
+  )
+  # now put back in the changed lines
+  txt[has_pkg_colon_prefix] &lt;- colon_prefix_refs
+  txt[has_only_fn_name] &lt;- regular_refs
+  txt
 }</code></pre>
 <p>In addition to adding hyperlinks to function definitions, we also
 want to add hyperlinks for chunk references of the form
@@ -1615,7 +1667,7 @@ effectively. But for now I will leave it how it is:</p>
     out &lt;- old$<a href='create-litr.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
     html_files &lt;- fs::dir_ls(fs::path_dir(out), regexp = &quot;.html$&quot;)
     # add hyperlinks within html output to make it easier to navigate:
-    <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files)
+    <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files, metadata$params$package_name)
     <a href='create-litr.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)
     out
   }
@@ -1768,7 +1820,7 @@ outputted package can be found.</p>
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, &quot;html$&quot;))) {
     html_file &lt;- stringr::str_subset(out, &quot;html$&quot;)
-    <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_file)
+    <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_file, params$package_name)
     <a href='create-litr.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_file)
   }
   
@@ -2000,6 +2052,7 @@ render_functions &lt;- c(&quot;render&quot;,
                       &quot;litr_html_document&quot;,
                       &quot;litr_gitbook&quot;,
                       &quot;add_function_hyperlinks&quot;,
+                      &quot;insert_hrefs&quot;,
                       &quot;add_chunk_label_hyperlinks&quot;,
                       &quot;get_params_used&quot;,
                       &quot;get_package_directory&quot;,
@@ -2454,6 +2507,7 @@ xfun::Rscript_call(test_litr,
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;litr_html_document&#39;)litr_html_document.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;litr_gitbook&#39;)litr_gitbook.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_function_hyperlinks&#39;)add_function_hyperlinks.Rd]8;;&#39;
+## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;insert_hrefs&#39;)insert_hrefs.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_chunk_label_hyperlinks&#39;)add_chunk_label_hyperlinks.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;get_params_used&#39;)get_params_used.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;get_package_directory&#39;)get_package_directory.Rd]8;;&#39;
@@ -2475,12 +2529,12 @@ xfun::Rscript_call(test_litr,
 ## 5 tests.R   tests   Knuth-style references work  1      0   FALSE FALSE       0
 ## 6 tests.R   tests         templates can be knit 10      0   FALSE FALSE       0
 ##    user system   real passed
-## 1 0.047  0.003  0.052     10
-## 2 0.003  0.000  0.003      2
-## 3 0.036  0.010  2.095     11
-## 4 0.040  0.004  0.044      3
-## 5 0.049  0.007  1.725      1
-## 6 0.076  0.060 54.112     10
+## 1 0.042  0.003  0.046     10
+## 2 0.002  0.000  0.003      2
+## 3 0.037  0.010  2.195     11
+## 4 0.044  0.004  0.049      3
+## 5 0.023  0.003  1.723      1
+## 6 0.075  0.051 49.192     10
 ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   result
 ## 1 , 10, 3, 10, 77, 3, 77, 10, 10, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, fs::file_exists(myfile) is not TRUE\n\n, 16, 3, 16, 48, 3, 48, 16, 16, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, `sometxt` (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 17, 3, 17, 52, 3, 52, 17, 17, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 22, 3, 22, 64, 3, 64, 22, 22, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 25, 3, 25, 62, 3, 62, 25, 25, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 26, 3, 26, 63, 3, 63, 26, 26, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 27, 3, 27, 62, 3, 62, 27, 27, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 32, 3, 32, 74, 3, 74, 32, 32, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 37, 3, 38, 43, 3, 43, 37, 38, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt, moretxt4) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 43, 3, 44, 43, 3, 43, 43, 44, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works
 ## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <a href='create-litr.html#get_package_directory'>get_package_directory</a>(&quot;.&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 50, 3, 53, 3, 3, 3, 50, 53, 45, 47, <a href='create-litr.html#get_package_directory'>get_package_directory</a>() works, <a href='create-litr.html#get_package_directory'>get_package_directory</a>(&quot;..&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 54, 3, 57, 3, 3, 3, 54, 57, 45, 47, <a href='create-litr.html#get_package_directory'>get_package_directory</a>() works
@@ -2637,6 +2691,7 @@ source file <code>source-files/_pkgdown.yml</code>.</p>
 ## Reading &#39;man/get_package_directory.Rd&#39;
 ## Reading &#39;man/get_params_used.Rd&#39;
 ## Reading &#39;man/hash_package_directory.Rd&#39;
+## Reading &#39;man/insert_hrefs.Rd&#39;
 ## Reading &#39;man/litr-package.Rd&#39;
 ## Reading &#39;man/litr_gitbook.Rd&#39;
 ## Reading &#39;man/litr_html_document.Rd&#39;
