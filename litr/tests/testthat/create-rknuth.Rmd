@@ -53,6 +53,17 @@ add_five <- function(x) {
 }
 ```
  
+Now we're going to include some chunks with `include=FALSE` and `echo=FALSE` and make sure that they don't throw off the numbering of the chunks:
+
+```{r, include=FALSE}
+add_five(4)
+```
+
+```{r, echo=FALSE}
+print("my code is hidden!")
+```
+
+ 
 We can try this function:
 
 ```{r some-test-cases}
@@ -66,6 +77,11 @@ And here is another chunk that was referenced above:
 ```{r b, eval=FALSE}
 x <- y / 2
 x <- x - 2
+```
+
+Add an `echo=FALSE` chunk in between here to see if our logic still works
+```{r, echo=FALSE}
+print("my code is also hidden!")
 ```
 
 Something else to try:
