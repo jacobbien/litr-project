@@ -779,7 +779,7 @@ replace <code>cat()</code> in the above with calls to
                          readLines(myfile))
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🎉</code></pre>
+<pre><code>## Test passed 🌈</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level4">
 <h4>Setting up the R package creation</h4>
@@ -907,6 +907,7 @@ define package-level documentation.</li>
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
   
+  
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
   # subdirectory)
@@ -976,7 +977,7 @@ define package-level documentation.</li>
                                                  paste0(&quot;\\1&quot;, to_insert))
     x
   })
-
+  
   # setup package_doc engine
   knitr::knit_engines$set(package_doc = function(options) {
     # create package_doc
@@ -1100,9 +1101,10 @@ puts the hash in the DESCRIPTION file under that special
 #&#39; @param package_dir Path to package
 #&#39; @keywords internal
 <span id='write_hash_to_description'>write_hash_to_description</span> &lt;- function(package_dir) {
+  desc_file &lt;- file.path(package_dir, &quot;DESCRIPTION&quot;)
+  if (!file.exists(desc_file)) file.create(desc_file)
   hash &lt;- <a href='create-litr.html#hash_package_directory'>hash_package_directory</a>(package_dir)
-  desc::desc_set(<a href='create-litr.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>(), hash, 
-                 file = file.path(package_dir, &quot;DESCRIPTION&quot;))
+  desc::desc_set(<a href='create-litr.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>(), hash, file = desc_file)
 }</code></pre>
 <p>Let’s include the <code>desc</code> package, which helps us
 manipulate DESCRIPTION files.</p>
@@ -1280,7 +1282,19 @@ below.</p>
     }
 
     new$<span id='post_processor'>post_processor</span> &lt;- function(metadata, input_file, output_file, ...) {
-      out &lt;- old$<a href='create-litr.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)
+      # typically the post_processor function returns the output file path
+      # if old$post_processor is NULL, as in the case of pdf_document,
+      # then R will throw an error when trying to call old$post_processor
+      # if we only add a check for non null old$post_processor and otherwise
+      # set out &lt;- NULL then R will throw an error later in rmarkdown::render
+      # since output_file is set to the output of the post_processor if 
+      # output_format$post_processor is not null (See line 478 in rmarkdown::render)
+      # Therefore, our solution is to set out to the output_file path if old$post_process is null.
+      if (!is.null(old$post_processor)){
+        out &lt;- old$<a href='create-litr.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)  
+      } else {
+        out &lt;- output_file 
+      }
       package_dir &lt;- <a href='create-litr.html#get_package_directory'>get_package_directory</a>(
         metadata$params$package_parent_dir,
         metadata$params$package_name,
@@ -1312,7 +1326,10 @@ lot of special things will happen, such as code being sent to the R
 package directory.</p></li>
 <li><p>The <code><a href='create-litr.html#post_processor'>post_processor</a>()</code> function is modified so that
 the DESCRIPTION file gets marked with the version of <code>litr</code>
-used and with the <code>litr</code> hash (as already described <a href="#hash">here</a>).</p></li>
+used and with the <code>litr</code> hash (as already described <a href="#hash">here</a>). Some special care is taken for the case that the
+original output format doesn’t have a post processor (e.g., this is the
+case for the <code>pdf_document</code> output format). The particulars
+of this are given in a comment in the code chunk above.</p></li>
 </ol>
 <p>We use the above function to create some <code>litr</code> versions
 of common output formats, as seen in the next few subsections.</p>
@@ -1343,14 +1360,29 @@ here:</p>
     file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) # inputdir/../mypkg
   )
 })</code></pre>
-<pre><code>## Test passed 😀</code></pre>
+<pre><code>## Test passed 🎉</code></pre>
 <div id="pdf-output-format" class="section level5">
 <h5>.pdf output format</h5>
-<p>The next function could have been defined in a single line:
-<code>litr_pdf_document &lt;- <a href='create-litr.html#litrify_output_format'>litrify_output_format</a>(rmarkdown::pdf_document)</code></p>
-<p>However, for <code>litr</code> to recognize this as a function, we
-make it a bit longer with the <code>&lt;- function(</code> format and
-add documentation.</p>
+<p>We want our .pdf documents to accurately display the “logging” output
+from functions in packages such as <code>devtools</code> that use
+special <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI
+escape codes</a> for displaying information in the terminal.
+Unfortunately, these codes use escape characters which cause problems
+when creating .pdf versions of our documents. While it is relatively
+straightforward to map ANSI escape codes to HTML tags, as we will see in
+the <a href="#html-output-format">.html output format section</a>,
+converting these escape codes to Latex commands is more complicated. As
+a result, we define a <code>post_knit</code> function in our
+<code>litr_pdf_document</code> format to avoid this issue by stripping
+out all escape codes in the file before it is converted into a .tex file
+and then compiled into a .pdf document.</p>
+<p>Specifically, the <code>post_knit</code> function modifies the
+intermediate .knit.md file, which contains both the .Rmd file, as well
+as the output of each code chunk. Thus, we can inspect the output text
+of each code chunk and remove any ANSI escape codes before the .knit.md
+is converted to a .tex file and then a .pdf document. We rely upon two
+internal functions from the <code>fansi</code> R package to remove all
+possible escape codes and return a clean character vector.</p>
 <pre class="r"><code>#&#39; litr version of `rmarkdown::pdf_<a href='create-litr.html#document'>document</a>()`
 #&#39; 
 #&#39; This behaves exactly like `rmarkdown::pdf_<a href='create-litr.html#document'>document</a>()` except it creates an 
@@ -1360,8 +1392,29 @@ add documentation.</p>
 #&#39; @export
 <span id='litr_pdf_document'>litr_pdf_document</span> &lt;- function(...) {
   litr_pdf_document_ &lt;- <a href='create-litr.html#litrify_output_format'>litrify_output_format</a>(rmarkdown::pdf_document)
-  litr_pdf_document_(...)
+  old &lt;- litr_pdf_document_(...)
+  new &lt;- old
+
+  # post_knit
+  new$post_knit = function(...){
+    args = list(...)
+    input_filename &lt;- args[[2]]
+    knitted_filename &lt;- fs::path_ext_set(input_filename, &quot;.knit.md&quot;)
+    knitted_output &lt;- readLines(knitted_filename)
+    cleaned_output &lt;- sapply(1:length(knitted_output), function(i){
+      test_str &lt;- knitted_output[i]
+      fansi:::VAL_IN_ENV(x=test_str, ctl=&quot;all&quot;, warn=TRUE, warn.mask=fansi:::get_warn_mangled())
+      .Call(fansi:::FANSI_strip_csi, test_str, CTL.INT, WARN.INT)
+    })
+    writeLines(cleaned_output, knitted_filename)
+  }
+  new
 }</code></pre>
+<p>Since the above section uses the <code>fansi</code> package for
+handling ANSI escape sequences, we include it in our package:</p>
+<pre class="r"><code>usethis::use_package(&quot;fansi&quot;)</code></pre>
+<pre><code>## ✔ Adding &#39;fansi&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `fansi::fun()`</code></pre>
 </div>
 <div id="html-output-format" class="section level5">
 <h5>.html output format</h5>
@@ -1376,7 +1429,10 @@ which makes chunk references into clickable links. In particular, the
 chunk reference <code><a href='create-litr.html#my-chunk'>&lt;&lt;my-chunk&gt;&gt;</a></code> within a code
 chunk would link to a chunk named “my-chunk” that begins with
 <code><span id='my-chunk'>###&quot;my-chunk&quot;###</span></code>. The <code>###&quot;my-chunk&quot;###</code> line is
-added by a document hook defined in <code><a href='create-litr.html#setup'>setup</a>()</code>.</p>
+added by a document hook defined in <code><a href='create-litr.html#setup'>setup</a>()</code>. Finally, we
+replace ANSI sequences with HTML tag equivalents (the need for this is
+explained in the <a href="#pdf-output-format">section on the .pdf output
+format</a>).</p>
 <pre class="r"><code>#&#39; litr version of `rmarkdown::html_<a href='create-litr.html#document'>document</a>()`
 #&#39; 
 #&#39; This behaves like `rmarkdown::html_<a href='create-litr.html#document'>document</a>()` with a few differences:
@@ -1398,6 +1454,8 @@ added by a document hook defined in <code><a href='create-litr.html#setup'>setup
     # add hyperlinks within html output to make it easier to navigate:
     <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files)
     <a href='create-litr.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    <a href='create-litr.html#replace_ansi_sequences'>replace_ansi_sequences</a>(html_files)
     out
   }
   new
@@ -1589,6 +1647,36 @@ want to add hyperlinks for chunk references of the form
     writeLines(txt, con = html_files[i])
   }
 }</code></pre>
+<p>Finally, we want to replace the ANSI escape sequences used by
+packages such as <code>testthat</code> and <code>devtools</code> with
+their HTML equivalents so the output matches what we see in the
+terminal.</p>
+<pre class="r"><code>#&#39; Replace ANSI escape sequences with their HTML equivalents
+#&#39; 
+#&#39; Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package
+#&#39; 
+#&#39; @param html_files Character vector of file names of html files that were created
+#&#39; from Rmd files
+#&#39; @keywords internal
+<span id='replace_ansi_sequences'>replace_ansi_sequences</span> &lt;- function(html_files) {
+  for (i in seq_along(html_files)) {
+    file_lines &lt;- readLines(html_files[i])
+    # look for lines with escape sequences for URLs and remove the URL
+    # escape sequences before we convert to HTML
+    url_code_regex &lt;- &quot;\\033]8;;.*\\a(.*?)\\033]8;;\\a&quot;
+    url_seq_idx &lt;- which(stringr::str_detect(file_lines, url_code_regex))
+    file_lines[url_seq_idx] &lt;- sapply(url_seq_idx, function(idx){
+      line &lt;- file_lines[idx]
+      stringr::str_replace(line, url_code_regex, stringr::str_glue(&quot;\\1&quot;))  
+    })
+    
+    txt &lt;-
+      fansi::sgr_to_html(x = file_lines,
+                         warn = FALSE,
+                         term.cap = &quot;256&quot;)
+    writeLines(txt, con = html_files[i])
+  }
+}</code></pre>
 </div>
 <div id="bookdown-output-format" class="section level5">
 <h5>bookdown output format</h5>
@@ -1617,6 +1705,8 @@ effectively. But for now I will leave it how it is:</p>
     # add hyperlinks within html output to make it easier to navigate:
     <a href='create-litr.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files)
     <a href='create-litr.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    <a href='create-litr.html#replace_ansi_sequences'>replace_ansi_sequences</a>(html_files)
     out
   }
   new
@@ -1999,6 +2089,7 @@ render_functions &lt;- c(&quot;render&quot;,
                       &quot;litr_pdf_document&quot;,
                       &quot;litr_html_document&quot;,
                       &quot;litr_gitbook&quot;,
+                      &quot;replace_ansi_sequences&quot;,
                       &quot;add_function_hyperlinks&quot;,
                       &quot;add_chunk_label_hyperlinks&quot;,
                       &quot;get_params_used&quot;,
@@ -2453,6 +2544,7 @@ xfun::Rscript_call(test_litr,
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;litr_pdf_document&#39;)litr_pdf_document.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;litr_html_document&#39;)litr_html_document.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;litr_gitbook&#39;)litr_gitbook.Rd]8;;&#39;
+## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;replace_ansi_sequences&#39;)replace_ansi_sequences.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_function_hyperlinks&#39;)add_function_hyperlinks.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_chunk_label_hyperlinks&#39;)add_chunk_label_hyperlinks.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;get_params_used&#39;)get_params_used.Rd]8;;&#39;
@@ -2475,12 +2567,12 @@ xfun::Rscript_call(test_litr,
 ## 5 tests.R   tests   Knuth-style references work  1      0   FALSE FALSE       0
 ## 6 tests.R   tests         templates can be knit 10      0   FALSE FALSE       0
 ##    user system   real passed
-## 1 0.047  0.003  0.052     10
-## 2 0.003  0.000  0.003      2
-## 3 0.036  0.010  2.095     11
-## 4 0.040  0.004  0.044      3
-## 5 0.049  0.007  1.725      1
-## 6 0.076  0.060 54.112     10
+## 1 0.047  0.002  0.050     10
+## 2 0.002  0.000  0.002      2
+## 3 0.038  0.011  2.147     11
+## 4 0.043  0.003  0.052      3
+## 5 0.022  0.004  1.744      1
+## 6 0.078  0.060 54.492     10
 ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   result
 ## 1 , 10, 3, 10, 77, 3, 77, 10, 10, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, fs::file_exists(myfile) is not TRUE\n\n, 16, 3, 16, 48, 3, 48, 16, 16, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, `sometxt` (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 17, 3, 17, 52, 3, 52, 17, 17, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 22, 3, 22, 64, 3, 64, 22, 22, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 25, 3, 25, 62, 3, 62, 25, 25, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 26, 3, 26, 63, 3, 63, 26, 26, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 27, 3, 27, 62, 3, 62, 27, 27, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 32, 3, 32, 74, 3, 74, 32, 32, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 37, 3, 38, 43, 3, 43, 37, 38, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt, moretxt4) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 43, 3, 44, 43, 3, 43, 43, 44, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works
 ## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <a href='create-litr.html#get_package_directory'>get_package_directory</a>(&quot;.&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 50, 3, 53, 3, 3, 3, 50, 53, 45, 47, <a href='create-litr.html#get_package_directory'>get_package_directory</a>() works, <a href='create-litr.html#get_package_directory'>get_package_directory</a>(&quot;..&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 54, 3, 57, 3, 3, 3, 54, 57, 45, 47, <a href='create-litr.html#get_package_directory'>get_package_directory</a>() works
@@ -2645,6 +2737,7 @@ source file <code>source-files/_pkgdown.yml</code>.</p>
 ## Reading &#39;man/make_noticeable.Rd&#39;
 ## Reading &#39;man/read_hash_from_description.Rd&#39;
 ## Reading &#39;man/render.Rd&#39;
+## Reading &#39;man/replace_ansi_sequences.Rd&#39;
 ## Reading &#39;man/send_to_package.Rd&#39;
 ## Reading &#39;man/setup.Rd&#39;
 ## Reading &#39;man/test_litr.Rd&#39;
