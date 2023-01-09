@@ -876,7 +876,7 @@ litr_html_document <- function(...) {
 
 We describe these two `add_*_hyperlinks()` functions next.
 
-The function `add_function_hyperlinks()` looks for `foo` followed by `<- function(` and then wraps `foo` in a `span` tag with `id="foo"`; whenever `foo` is found it wraps a `a href="file.html#foo"` tag (where `file.html` is the file where `foo` is defined), so that it will be a hyperlink to `foo`'s definition.
+The function `add_function_hyperlinks()` looks for `foo` followed by `<- function(` and then wraps `foo` in a `span` tag with `id="foo"`; whenever `foo` is found elsewhere in the document, it calls the `insert_hrefs()` function to wrap a `a href="file.html#foo"` tag (where `file.html` is the file where `foo` is defined), so that it will be a hyperlink to `foo`'s definition.
 
 ```{r}
 #' Add hyperlinks to function definitions
@@ -954,12 +954,10 @@ add_function_hyperlinks <- function(html_files, pkg_name) {
 ```
 
 ```{r}
-#' Add hyperlinks to function definitions
+#' Replace a function's name with a link to its definition
 #' 
-#' Finds functions that are defined in the html file(s) by looking for text of the 
-#' form `foo <- function(` and then wraps `foo` in a `span` tag with `id="foo"` 
-#' and then whenever `foo` is found it wraps a `a href="file.html#foo"` tag so 
-#' that it will be a hyperlink to `foo`'s definition.
+#' A helper function for `add_function_hyperlinks` that wraps references to a 
+#' function in an anchor tag with a link to the function's definition.
 #' 
 #' @param txt Character vector where each element is a row of the knitted HTML file.
 #' @param function_pattern Regular Expression passed from `add_function_hyperlinks` that contains all referenced functions in the document.

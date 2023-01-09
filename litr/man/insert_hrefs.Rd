@@ -2,7 +2,7 @@
 % Please edit documentation in create-litr.Rmd.
 \name{insert_hrefs}
 \alias{insert_hrefs}
-\title{Add hyperlinks to function definitions}
+\title{Replace a function's name with a link to its definition}
 \usage{
 insert_hrefs(
   txt,
@@ -27,9 +27,7 @@ insert_hrefs(
 \item{remove_span}{Boolean argument for removing span tags. Used for minimizing code duplication.}
 }
 \description{
-Finds functions that are defined in the html file(s) by looking for text of the
-form \verb{foo <- function(} and then wraps \code{foo} in a \code{span} tag with \code{id="foo"}
-and then whenever \code{foo} is found it wraps a \verb{a href="file.html#foo"} tag so
-that it will be a hyperlink to \code{foo}'s definition.
+A helper function for \code{add_function_hyperlinks} that wraps references to a
+function in an anchor tag with a link to the function's definition.
 }
 \keyword{internal}
