@@ -109,6 +109,9 @@
     <loc>/reference/render.html</loc>
   </url>
   <url>
+    <loc>/reference/replace_ansi_sequences.html</loc>
+  </url>
+  <url>
     <loc>/reference/send_to_package.html</loc>
   </url>
   <url>

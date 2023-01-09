@@ -39,6 +39,7 @@ setup <- function(package_dir) {
   knitr::knit_hooks$set(send_to_package = send_to_package)
   knitr::opts_chunk$set(send_to_package = TRUE)
   
+  
   # change usethis:::challenge_nested_project so that it will not complain
   # about creating a nested project (e.g. if this is called within a git 
   # subdirectory)
@@ -108,7 +109,7 @@ setup <- function(package_dir) {
                                                  paste0("\\1", to_insert))
     x
   })
-
+  
   # setup package_doc engine
   knitr::knit_engines$set(package_doc = function(options) {
     # create package_doc

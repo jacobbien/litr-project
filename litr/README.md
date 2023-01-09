@@ -20,15 +20,15 @@ file.*](man/figures/diagram3.png)
 Using `litr` brings all the benefits of R markdown to package
 development:
 
--   **Record and explain** every step of making your R package so that
-    you and others can understand every detail years later.
--   Present the functions in your package in a logical order that
-    maximizes **human readability**.
--   Include all the derivations in **latex right next to the code** that
-    ends up in your package.
--   Include **figures** alongside code to help in the explanation.
--   Define **unit tests in the relevant context**, i.e. directly after
-    defining the function to be tested.
+- **Record and explain** every step of making your R package so that you
+  and others can understand every detail years later.
+- Present the functions in your package in a logical order that
+  maximizes **human readability**.
+- Include all the derivations in **latex right next to the code** that
+  ends up in your package.
+- Include **figures** alongside code to help in the explanation.
+- Define **unit tests in the relevant context**, i.e. directly after
+  defining the function to be tested.
 
 Furthermore, writing your R package is actually *easier* with `litr`
 than without it. Just choose one of the R package
