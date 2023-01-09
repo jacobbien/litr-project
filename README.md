@@ -56,3 +56,6 @@ devtools::check("litr", document = FALSE)
 The `document = FALSE` prevents `devtools` from running its version of
 `document()` internally, which would overwrite the modifications that
 `litr::document()` has made.
+
+For more notes on contributing to `litr`, please see
+[CONTRIBUTING.md](CONTRIBUTING.md).
