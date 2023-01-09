@@ -953,6 +953,8 @@ add_function_hyperlinks <- function(html_files, pkg_name) {
 }
 ```
 
+We define next the helper function `insert_hrefs()`, which was called in the previous function.  If the function `foo()` is defined in the .Rmd file that defines a package named `pkg`, then whenever `foo()` or `pkg::foo()` appears in the .Rmd, a link will be added; however, if `other_pkg::foo()` appears, then no link will be added.
+
 ```{r}
 #' Replace a function's name with a link to its definition
 #' 
