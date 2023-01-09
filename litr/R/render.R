@@ -114,7 +114,7 @@ render <- function(input, minimal_eval, ...) {
   # add hyperlinks within html output to make it easier to navigate:
   if (any(stringr::str_detect(out, "html$"))) {
     html_file <- stringr::str_subset(out, "html$")
-    add_function_hyperlinks(html_file)
+    add_function_hyperlinks(html_file, params$package_name)
     add_chunk_label_hyperlinks(html_file)
   }
   
@@ -180,7 +180,19 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
     }
 
     new$post_processor <- function(metadata, input_file, output_file, ...) {
-      out <- old$post_processor(metadata, input_file, output_file, ...)
+      # typically the post_processor function returns the output file path
+      # if old$post_processor is NULL, as in the case of pdf_document,
+      # then R will throw an error when trying to call old$post_processor
+      # if we only add a check for non null old$post_processor and otherwise
+      # set out <- NULL then R will throw an error later in rmarkdown::render
+      # since output_file is set to the output of the post_processor if 
+      # output_format$post_processor is not null (See line 478 in rmarkdown::render)
+      # Therefore, our solution is to set out to the output_file path if old$post_process is null.
+      if (!is.null(old$post_processor)){
+        out <- old$post_processor(metadata, input_file, output_file, ...)  
+      } else {
+        out <- output_file 
+      }
       package_dir <- get_package_directory(
         metadata$params$package_parent_dir,
         metadata$params$package_name,
@@ -229,7 +241,23 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
 litr_pdf_document <- function(minimal_eval = FALSE, ...) {
   litr_pdf_document_ <- litrify_output_format(rmarkdown::pdf_document,
                                               minimal_eval = minimal_eval)
-  litr_pdf_document_(...)
+  old <- litr_pdf_document_(...)
+  new <- old
+
+  # post_knit
+  new$post_knit = function(...){
+    args = list(...)
+    input_filename <- args[[2]]
+    knitted_filename <- fs::path_ext_set(input_filename, ".knit.md")
+    knitted_output <- readLines(knitted_filename)
+    cleaned_output <- sapply(1:length(knitted_output), function(i){
+      test_str <- knitted_output[i]
+      fansi:::VAL_IN_ENV(x=test_str, ctl="all", warn=TRUE, warn.mask=fansi:::get_warn_mangled())
+      .Call(fansi:::FANSI_strip_csi, test_str, CTL.INT, WARN.INT)
+    })
+    writeLines(cleaned_output, knitted_filename)
+  }
+  new
 }
 
 #' litr version of `rmarkdown::html_document()`
@@ -256,8 +284,10 @@ litr_html_document <- function(minimal_eval = FALSE, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
     html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files)
+    add_function_hyperlinks(html_files, metadata$params$package_name)
     add_chunk_label_hyperlinks(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    replace_ansi_sequences(html_files)
     out
   }
   new
@@ -287,11 +317,40 @@ litr_gitbook <- function(minimal_eval = FALSE, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
     html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files)
+    add_function_hyperlinks(html_files, metadata$params$package_name)
     add_chunk_label_hyperlinks(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    replace_ansi_sequences(html_files)
     out
   }
   new
+}
+
+#' Replace ANSI escape sequences with their HTML equivalents
+#' 
+#' Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package
+#' 
+#' @param html_files Character vector of file names of html files that were created
+#' from Rmd files
+#' @keywords internal
+replace_ansi_sequences <- function(html_files) {
+  for (i in seq_along(html_files)) {
+    file_lines <- readLines(html_files[i])
+    # look for lines with escape sequences for URLs and remove the URL
+    # escape sequences before we convert to HTML
+    url_code_regex <- "\\033]8;;.*\\a(.*?)\\033]8;;\\a"
+    url_seq_idx <- which(stringr::str_detect(file_lines, url_code_regex))
+    file_lines[url_seq_idx] <- sapply(url_seq_idx, function(idx){
+      line <- file_lines[idx]
+      stringr::str_replace(line, url_code_regex, stringr::str_glue("\\1"))  
+    })
+    
+    txt <-
+      fansi::sgr_to_html(x = file_lines,
+                         warn = FALSE,
+                         term.cap = "256")
+    writeLines(txt, con = html_files[i])
+  }
 }
 
 #' Add hyperlinks to function definitions
@@ -303,8 +362,9 @@ litr_gitbook <- function(minimal_eval = FALSE, ...) {
 #' 
 #' @param html_files Character vector of file names of html files that were created
 #' from Rmd files
+#' @param pkg_name Name of the package created by litr. Taken from YAML front matter
 #' @keywords internal
-add_function_hyperlinks <- function(html_files) {
+add_function_hyperlinks <- function(html_files, pkg_name) {
   find_function_defs <- function(html_file) {
     txt <- readLines(html_file)
     start_line <- which(txt == "<body>")
@@ -349,36 +409,85 @@ add_function_hyperlinks <- function(html_files) {
                                   length(setdiff(lst$function_names, repeated))
                                 }))
   where_defined <- rep(fs::path_file(html_files), times = num_per_file)
-  defined_functions_pattern <- paste0(all_function_names, "\\(", collapse = "|")
+  defined_functions_pattern <- paste0("(::)?",all_function_names, "\\(", collapse = "|")
+  # There's also this case: <span class="fu">myfunction</span>
+  defined_functions_pattern2 <- paste0(
+    '<span class="fu">', all_function_names, '</span>\\(',
+    collapse = "|")
+  
   for (i in seq_along(html_files)) {
     # whenever one of the defined functions is named, link to its definition
     # using the format `file_where_foo_is_defined.html#foo`
-    txt <- stringr::str_replace_all(
-      fdefs[[i]]$txt,
-      defined_functions_pattern,
-      function(x) {
-        fn_name <- stringr::str_remove(x, "\\(")
-        def_file <- where_defined[all_function_names == fn_name]
-        stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
-      }
-    )
-    # There's also this case: <span class="fu">myfunction</span>
-    defined_functions_pattern2 <- paste0(
-      '<span class="fu">', all_function_names, '</span>\\(',
-      collapse = "|")
-    
-    txt <- stringr::str_replace_all(
-      txt,
-      defined_functions_pattern2,
-      function(x) {
-        fn_name <- stringr::str_remove(x, '</span>\\(')
-        fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
-        def_file <- where_defined[all_function_names == fn_name]
-        stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
-      }
-    )
-    writeLines(txt, con = html_files[i])
+    modified_txt <- insert_hrefs(fdefs[[i]]$txt, defined_functions_pattern,
+                                 where_defined, all_function_names, pkg_name)
+    modified_txt <- insert_hrefs(modified_txt, defined_functions_pattern2,
+                                 where_defined, all_function_names, pkg_name, remove_span=TRUE)
+    writeLines(modified_txt, con = html_files[i])
   }
+}
+
+#' Replace a function's name with a link to its definition
+#' 
+#' A helper function for `add_function_hyperlinks` that wraps references to a 
+#' function in an anchor tag with a link to the function's definition.
+#' 
+#' @param txt Character vector where each element is a row of the knitted HTML file.
+#' @param function_pattern Regular Expression passed from `add_function_hyperlinks` that contains all referenced functions in the document.
+#' @param where_defined Character vector that contains the name of the file in which a function was defined.
+#' @param all_function_names Character vector of all referenced functions in the document.
+#' @param pkg_name Name of the package created by litr. Taken from YAML front matter.
+#' @param remove_span Boolean argument for removing span tags. Used for minimizing code duplication.
+#' @keywords internal
+insert_hrefs <- function(txt, function_pattern, where_defined,
+                         all_function_names, pkg_name, remove_span=FALSE){
+  # filter down matches of defined_functions_pattern
+  has_fn_name <- which(stringr::str_detect(txt, function_pattern))
+  has_colon_prefix <- which(stringr::str_detect(txt, paste0("::", all_function_names, "\\(", collapse = "|")))
+  has_only_fn_name <- setdiff(has_fn_name, has_colon_prefix)
+  has_pkg_colon_prefix <- which(stringr::str_detect(txt, paste0(stringr::str_glue("{pkg_name}::"))))
+  
+  # define different replacement functions for colon prefix cases and regular cases
+  colon_pref_replace_fn <- function(x){
+    if(remove_span){
+      fn_name <- stringr::str_remove(x, "</span>\\(")
+      fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
+    } else{
+      fn_name <- stringr::str_remove(x, "\\(")
+    }
+    fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
+    # implicitly assuming that a function is not redefined in another file
+    def_file <- where_defined[all_function_names == fn_name]
+    return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
+    
+  }
+  regular_replace_fn <- function(x){
+    if(remove_span){
+      fn_name <- stringr::str_remove(x, '</span>\\(')
+      fn_name <- stringr::str_remove(fn_name, '<span class="fu">')  
+    } else {
+      fn_name <- stringr::str_remove(x, "\\(")
+    }
+    # implicitly assuming that a function is not redefined in another file
+    def_file <- where_defined[all_function_names == fn_name]
+    stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
+  }  
+  
+  colon_prefix_function_pattern <- paste0(stringr::str_glue("{pkg_name}::"),all_function_names, "\\(", collapse = "|")
+  colon_prefix_refs <- stringr::str_replace_all(
+    txt[has_pkg_colon_prefix],
+    colon_prefix_function_pattern,
+    colon_pref_replace_fn
+  )
+  
+  regular_refs <- stringr::str_replace_all(
+    txt[has_only_fn_name],
+    function_pattern,
+    regular_replace_fn
+  )
+  # now put back in the changed lines
+  txt[has_pkg_colon_prefix] <- colon_prefix_refs
+  txt[has_only_fn_name] <- regular_refs
+  txt
 }
 
 #' Add hyperlinks to embedded chunks

@@ -82,6 +82,9 @@
     <loc>/reference/index.html</loc>
   </url>
   <url>
+    <loc>/reference/insert_hrefs.html</loc>
+  </url>
+  <url>
     <loc>/reference/litr-package.html</loc>
   </url>
   <url>
@@ -110,6 +113,9 @@
   </url>
   <url>
     <loc>/reference/render.html</loc>
+  </url>
+  <url>
+    <loc>/reference/replace_ansi_sequences.html</loc>
   </url>
   <url>
     <loc>/reference/restore_knitr_objects.html</loc>
