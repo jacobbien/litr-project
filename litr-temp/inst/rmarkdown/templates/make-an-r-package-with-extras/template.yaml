@@ -1,4 +1,0 @@
-name: Template To Make an R Package With a README, Vignette, and Pkgdown Site
-description: >
-   Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.
-create_dir: FALSE
