@@ -18,7 +18,7 @@ req_exist is TRUE, in which case an error is thrown)."><meta property="og:image"
     
     <a class="navbar-brand me-2" href="../index.html">litr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,8 @@ If file does not exist, it is created and <code>location</code> is ignored (unle
 <span>  <span class="va">filename</span>,</span>
 <span>  location <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  req_exist <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  pad <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  pad <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  msg <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,6 +99,10 @@ If file does not exist, it is created and <code>location</code> is ignored (unle
 
 <dt>pad</dt>
 <dd><p>If TRUE, then when text is being added to a preexisting file, it adds a newline</p></dd>
+
+
+<dt>msg</dt>
+<dd><p>An optional message to put at top of file if this is a new file</p></dd>
 
 </dl></div>
 
