@@ -6,10 +6,10 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-**Note:** If you are looking to use the `litr` package, please go to the
-`litr` directory [here](litr), where you’ll be able to learn about the
-package. If you are interested in how `litr` is made, you are in the
-right place.
+**Note:** If you are looking to use the `litr` package, please visit the
+`litr` website [here](jacobbien.github.io/litr-project/), where you’ll
+be able to learn about the package. If you are interested in how `litr`
+is made, you are in the right place.
 
 ## Background
 
