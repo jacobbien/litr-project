@@ -7,9 +7,9 @@
 <!-- badges: end -->
 
 **Note:** If you are looking to use the `litr` package, please visit the
-`litr` website [here](jacobbien.github.io/litr-project/), where you’ll
-be able to learn about the package. If you are interested in how `litr`
-is made, you are in the right place.
+`litr` website [here](https://jacobbien.github.io/litr-project/), where
+you’ll be able to learn about the package. If you are interested in how
+`litr` is made, you are in the right place.
 
 ## Background
 
