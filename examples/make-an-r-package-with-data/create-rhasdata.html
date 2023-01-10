@@ -418,8 +418,7 @@ mydata &lt;- data.frame(x = x, y = y)</code></pre>
 <p>We finish by running commands that will document, build, and install
 the package. It may also be a good idea to check the package from within
 this file.</p>
-<pre class="r"><code>rm(list = ls())
-litr::document() # &lt;-- use instead of devtools::document()
+<pre class="r"><code>litr::document() # &lt;-- use instead of devtools::document()
 # devtools::build()
 # devtools::install()
 # devtools::check(document = FALSE)</code></pre>

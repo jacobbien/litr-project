@@ -57,6 +57,21 @@ testthat::test_that("get_package_directory() works", {
   )
 })
 
+testthat::test_that('load_all() works', {
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-pkg.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
+  html_file <- file.path(dir, "create-pkg.html")
+
+  load_all(rmd_file)
+  testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
+  
+  fs::dir_delete(dir)
+})
+
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
@@ -162,6 +177,128 @@ testthat::test_that('Knuth-style references work', {
   fs::file_copy(path = testthat::test_path("create-rknuth.Rmd"), new_path = rmd_file)
   render(rmd_file)
   testthat::expect_true(fs::file_exists(file.path(dir, 'create-rknuth.html')))
+  fs::dir_delete(dir)
+})
+
+testthat::test_that('Rendering in all possible ways works', {
+  
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  # .Rmd without output format in preamble
+  rmd_file1 <- file.path(dir, 'create-pkg1.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file1)
+  # .Rmd without output format in preamble
+  rmd_file2 <- file.path(dir, 'create-pkg2.Rmd')
+  fs::file_copy(rmd_file1, rmd_file2)
+  litr:::add_text_to_file("output: litr::litr_html_document", rmd_file2, 3)
+  # files names
+  rmd_file <- file.path(dir, "create-pkg.Rmd")  
+  html_file <- file.path(dir, "create-pkg.html")
+  html_file_a <- file.path(dir, "a","create-pkg.html")
+  pkg <- file.path(dir, "pkg")
+  pkg_a <- file.path(dir, "a", "pkg")
+  check_outputs_are_same <- function() {
+    # html files should be the same:
+    testthat::expect_equal(readLines(html_file_a), readLines(html_file))
+    # packages should be the same (relying here on litr-hash in DESCRIPTION):
+    testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                           readLines(file.path(pkg_a, "DESCRIPTION")))
+  }
+
+  ## Now test that all the cases give the same outputs:
+  
+  # Case 1: no preamble + litr::render()
+  fs::file_copy(rmd_file1, rmd_file, overwrite = TRUE)
+  render(rmd_file, output_file = html_file)
+  if (fs::file_exists(file.path(dir, "a"))) fs::file_delete(file.path(dir, "a"))
+  fs::dir_create(file.path(dir, "a"))
+  fs::dir_copy(pkg, pkg_a)
+  fs::dir_delete(pkg)
+  fs::file_move(html_file, html_file_a)
+
+  # Case 2: with preamble + litr::render()
+  fs::file_copy(rmd_file2, rmd_file, overwrite = TRUE)
+  render(rmd_file, output_file = html_file)
+  check_outputs_are_same()
+  
+  # Case 3: no preamble + litr::render() with output format argument
+  fs::file_copy(rmd_file1, rmd_file, overwrite = TRUE)
+  render(rmd_file, output_format = litr::litr_html_document(),
+         output_file = html_file)
+  check_outputs_are_same()
+  
+  # Case 4: with preamble + litr::render() with output format argument
+  fs::file_copy(rmd_file2, rmd_file, overwrite = TRUE)
+  render(rmd_file, output_format = litr::litr_html_document(),
+         output_file = html_file)
+  check_outputs_are_same()
+
+  # Case 5: with preamble + rmarkdown::render()
+  fs::file_copy(rmd_file2, rmd_file, overwrite = TRUE)
+  xfun::Rscript_call(rmarkdown::render,
+                     list(input = rmd_file, output_file = html_file)
+                     )
+  check_outputs_are_same()
+
+  # Case 6: no preamble + rmarkdown::render() with output format argument
+  fs::file_copy(rmd_file1, rmd_file, overwrite = TRUE)
+  xfun::Rscript_call(rmarkdown::render,
+                     list(input = rmd_file,
+                          output_format = litr::litr_html_document(),
+                          output_file = html_file)
+                     )
+  check_outputs_are_same()
+
+  # Case 7: with preamble + rmarkdown::render() with output format argument
+  fs::file_copy(rmd_file2, rmd_file, overwrite = TRUE)
+  xfun::Rscript_call(rmarkdown::render,
+                     list(input = rmd_file,
+                          output_format = litr::litr_html_document(),
+                          output_file = html_file)
+                     )
+  check_outputs_are_same()
+  
+  fs::dir_delete(dir)
+})
+
+testthat::test_that('Rendering with minimal_eval=TRUE works', {
+  
+  # setup files for tests:
+  dir <- tempfile()
+  if (fs::file_exists(dir)) fs::file_delete(dir)
+  fs::dir_create(dir)
+  rmd_file <- file.path(dir, 'create-pkg.Rmd')
+  fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
+  # .Rmd without output format in preamble
+  html_file <- file.path(dir, "create-pkg.html")
+  html_file_a <- file.path(dir, "a","create-pkg.html")
+  pkg <- file.path(dir, "pkg")
+  pkg_a <- file.path(dir, "a", "pkg")
+
+  ## Now test that all the cases give the same outputs:
+  
+  # Case 1: minimal_eval = FALSE
+  render(rmd_file, output_file = html_file, minimal_eval = FALSE)
+  if (fs::file_exists(file.path(dir, "a"))) fs::file_delete(file.path(dir, "a"))
+  fs::dir_create(file.path(dir, "a"))
+  fs::dir_copy(pkg, pkg_a)
+  fs::dir_delete(pkg)
+
+  # Case 2: minimal_eval = TRUE passed to render
+  render(rmd_file, output_file = html_file, minimal_eval = TRUE)
+  testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                         readLines(file.path(pkg_a, "DESCRIPTION")))
+
+  # Case 3: minimal_eval = TRUE passed to output format
+  render(rmd_file,
+         output_file = html_file,
+         output_format = litr::litr_html_document(minimal_eval = TRUE)
+         )
+  testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
+                         readLines(file.path(pkg_a, "DESCRIPTION")))
+
   fs::dir_delete(dir)
 })
 

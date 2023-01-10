@@ -147,7 +147,6 @@ We properly handle functions wrapped in a span tag with class "fu": <span class=
 Some documentation.
 
 ```{r}
-rm(list = ls())
 litr::document() # <-- use instead of devtools::document()
 ```
 

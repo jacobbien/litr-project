@@ -4,9 +4,14 @@
 \alias{litr_gitbook}
 \title{litr version of \code{bookdown::gitbook()}}
 \usage{
-litr_gitbook(...)
+litr_gitbook(minimal_eval = FALSE, ...)
 }
 \arguments{
+\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{litr::document()} or
+\code{usethis} commands will be evaluated.  This can be convenient in coding when
+you just want to quickly update the R package without having to wait for long
+evaluations to occur.}
+
 \item{...}{Parameters to be passed to \code{bookdown::gitbook()}}
 }
 \description{

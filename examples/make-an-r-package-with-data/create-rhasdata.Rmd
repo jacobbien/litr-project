@@ -79,7 +79,6 @@ And we'll need to document the dataset as well:
 We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
 
 ```{r}
-rm(list = ls())
 litr::document() # <-- use instead of devtools::document()
 # devtools::build()
 # devtools::install()

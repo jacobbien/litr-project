@@ -4,9 +4,14 @@
 \alias{litr_pdf_document}
 \title{litr version of \code{rmarkdown::pdf_document()}}
 \usage{
-litr_pdf_document(...)
+litr_pdf_document(minimal_eval = FALSE, ...)
 }
 \arguments{
+\item{minimal_eval}{If \code{TRUE}, then only chunks with \code{litr::document()} or
+\code{usethis} commands will be evaluated.  This can be convenient in coding when
+you just want to quickly update the R package without having to wait for long
+evaluations to occur.}
+
 \item{...}{Parameters to be passed to \code{rmarkdown::pdf_document()}}
 }
 \description{

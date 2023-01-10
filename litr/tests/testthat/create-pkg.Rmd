@@ -1,0 +1,68 @@
+---
+title: 'A Test'
+params:
+  package_name: 'pkg' # <-- change this to your package name
+  package_parent_dir: '.' # <-- relative to this file location
+---
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = '.',
+  fields = list(
+    Package = params$package_name,
+    Version = '0.0.0.9000',
+    Title = 'A Package for Rendering Tests',
+    Description = 'This package is for testing rendering.',
+    `Authors@R` = person(
+      given = 'First',
+      family = 'Last',
+      email = 'you@gmail.com',
+      role = c('aut', 'cre')
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = 'F. Last')
+```
+
+
+### Define a function
+
+Let's define a function for our R package:
+
+```{r}
+#' Say hello to someone
+#' 
+#' @param name Name of a person
+#' @param exclamation Whether to include an exclamation mark
+#' @export 
+say_hello <- function(name, exclamation = TRUE) {
+  paste0("Hello ", name, ifelse(exclamation, "!", "."))
+}
+```
+
+We can try running it.
+
+```{r}
+say_hello("Jacob")
+```
+
+Let's test it:
+
+```{r}
+set.seed(123)
+testthat::test_that("say_hello works", {
+  testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
+})
+```
+
+Note that we've set the seed before testing so that we get a consistent "Test passed" icon.
+
+And let's document it:
+
+```{r}
+litr::document()
+```
