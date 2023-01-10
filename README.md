@@ -33,7 +33,7 @@ previous stable version of the operating system.
 ## How to generate a new version of `litr` using the previous release
 
 To create a new version of `litr`, we first install the latest release,
-then download `create-litr.Rmd` as it was at release and then use that
+then make any desired changes to `create-litr.Rmd` and then use the
 installed version’s `litr::render()` to create the new version:
 
 ``` r
