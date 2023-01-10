@@ -9,7 +9,8 @@ add_text_to_file(
   filename,
   location = NULL,
   req_exist = FALSE,
-  pad = FALSE
+  pad = FALSE,
+  msg = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ add_text_to_file(
 \item{req_exist}{If TRUE, then throws an error if file doesn't exist}
 
 \item{pad}{If TRUE, then when text is being added to a preexisting file, it adds a newline}
+
+\item{msg}{An optional message to put at top of file if this is a new file}
 }
 \description{
 The text will be added to the file at a particular line specified by

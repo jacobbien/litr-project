@@ -207,7 +207,7 @@ send_to_package <- function(before, options, envir) {
     # the user has defined an option that indicates where in the package this
     # code should be written
     file <- file.path(package_dir, options$send_to)
-    add_text_to_file(options$code, file, pad = TRUE)
+    add_text_to_file(options$code, file, pad = TRUE, msg = msg)
     return()
   }
   if (stringr::str_detect(options$code[1], "^#' ")) {
@@ -290,11 +290,13 @@ send_to_package <- function(before, options, envir) {
 #' @param location Specifies where text should be added. See description for more.
 #' @param req_exist If TRUE, then throws an error if file doesn't exist
 #' @param pad If TRUE, then when text is being added to a preexisting file, it adds a newline
+#' @param msg An optional message to put at top of file if this is a new file
 #' @keywords internal
 add_text_to_file <- function(txt, filename, location = NULL, req_exist = FALSE,
-                             pad = FALSE) {
+                             pad = FALSE, msg = NULL) {
   if (!file.exists(filename)) {
     if (req_exist) stop(stringr::str_glue("Cannot find file {filename}."))
+    if (!is.null(msg)) txt <- c(msg, "", txt)
     writeLines(txt, con = filename)
     return()
   }
