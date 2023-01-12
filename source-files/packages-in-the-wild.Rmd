@@ -41,9 +41,17 @@ tibble(
                "independencepvalue"),
   description = c("navigate the JSM program from the comfort of an R console",
                   "perform least squares (a package coded in a live demo)",
-                  "Testing independence between groups of Gaussian variables")) %>% 
+                  "Testing independence between groups of Gaussian variables"),
+  website = c("",
+              "",
+              "https://arkajyotisaha.github.io/independencepvalue-project/")
+    
+  ) %>% 
   transmute(
-    `Package name` = pkg_name,
+    `Package name` = if_else(
+      nchar(website) == 0,
+      pkg_name,
+      as.character(str_glue('<a href="{website}">{pkg_name}</a>'))),
     Description = description,
     `Rmd source file` = str_glue(paste0(
         "[create-{shorten(pkg_name)}.Rmd](",
