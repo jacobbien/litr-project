@@ -707,11 +707,11 @@ load_all <- function(input, output_dir = NULL, ...) {
     if (fs::file_exists(output_dir)) fs::file_delete(output_dir)
     fs::dir_create(output_dir)
   }
+  
+  # let's copy over everything from input directory to output directory
   fs::dir_copy(fs::path_dir(input), output_dir, overwrite = TRUE)
   input_path <- fs::path_split(input)[[1]]
   moved_input <- file.path(output_dir, fs::path_file(input))
-  
-  litr::render(moved_input, minimal_eval = TRUE, output_dir = output_dir)
   
   # get package directory
   params <- get_params_used(moved_input, list())
@@ -720,6 +720,14 @@ load_all <- function(input, output_dir = NULL, ...) {
     params$package_name,
     moved_input
   )
+  
+  # but if a package directory was copied here, let's remove it before
+  # calling render to avoid a potential error
+  if (fs::dir_exists(package_dir)) fs::dir_delete(package_dir)
+  
+  litr::render(moved_input, minimal_eval = TRUE, output_dir = output_dir,
+               quiet = TRUE)
+  
   new_package_dir <- file.path(fs::path_dir(input), params$package_name)
   fs::dir_copy(package_dir, new_package_dir, overwrite = TRUE)
   if (no_output) fs::dir_delete(output_dir)
