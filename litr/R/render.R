@@ -535,11 +535,19 @@ add_chunk_label_hyperlinks <- function(html_files,
   defined_chunks_pattern <- paste0(reference_start, all_chunk_names, reference_end, 
                                    collapse = "|")
   ref_start <- '<span class="sc">&lt;</span><span class="er">&lt;</span>'
-  ref_end <- '<span class="sc">&gt;</span><span class="er">&gt;</span></span>'
+  ref_start_alt <- '<span class=\"er\">&lt;&lt;</span>'
+  ref_end <- '<span class="sc">&gt;</span><span class="er">&gt;</span>'
   hyphen_with_extras <- '<span class="sc">-</span>'
   all_chunk_names2 <- stringr::str_replace_all(all_chunk_names, "-", hyphen_with_extras)
-  defined_chunks_pattern2 <- paste0(ref_start, all_chunk_names2, ref_end, 
-                                   collapse = "|")
+  defined_chunks_pattern2 <- paste0(
+    ref_start, all_chunk_names2, ref_end, collapse = "|"
+    )
+  defined_chunks_pattern2_alt <- paste0(
+    ref_start_alt, all_chunk_names2, ref_end, collapse = "|"
+    )
+  defined_chunks_pattern2 <- paste(
+    defined_chunks_pattern2, defined_chunks_pattern2_alt, sep = "|"
+    )
 
   for (i in seq_along(html_files)) {
     # whenever one of these named chunks is referenced, link to its definition
@@ -564,7 +572,7 @@ add_chunk_label_hyperlinks <- function(html_files,
       function(x) {
         cname <- stringr::str_remove_all(
           x,
-          paste(ref_start, ref_end, sep = "|")
+          paste(ref_start, ref_start_alt, ref_end, sep = "|")
         )
         def_file <- where_defined[all_chunk_names2 == cname]
         cname <- stringr::str_replace_all(cname, hyphen_with_extras, "-")
