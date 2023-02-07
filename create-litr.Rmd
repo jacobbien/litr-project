@@ -507,6 +507,12 @@ setup <- function(package_dir, minimal_eval) {
     refs <- unique(refs)
     adj_labels <- labels[!labels %in% names(skipped_chunks)]
     ref_id <- match(refs, adj_labels)
+    if (any(is.na(ref_id))) {
+      stop(make_noticeable(paste(
+        stringr::str_glue("The chunk reference <<{refs[is.na(ref_id)][1]}>> ",
+        "is used, but there is no chunk with that label.", 
+        sep = "\n"))))
+      }
     to_insert <- paste0('###"', adj_labels[ref_id], '"###\n')
     x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
                                                  chunk_start,
