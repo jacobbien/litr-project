@@ -1,0 +1,9 @@
+# Conclusion {#conclude}
+
+When you are done defining the package, it remains to convert the Roxygen to documentation.
+
+```{r}
+litr::document() # <-- use instead of devtools::document()
+```
+
+You can also add some extra things to your package here if you like, such as a README, some vignettes, a [pkgdown](https://pkgdown.r-lib.org/) site, etc.  See [here](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras) for an example of how to do this with `litr`.

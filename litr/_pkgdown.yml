@@ -1,0 +1,55 @@
+destination: ../docs/
+
+url: ~
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
+repo:
+  url:
+    home: https://github.com/jacobbien/litr-project/tree/main/litr/   
+    source: https://github.com/jacobbien/litr-project/tree/main/litr/
+    issue: https://github.com/jacobbien/litr-project/issues/
+    user: https://github.com/
+
+authors:
+  Jacob Bien:
+    href: http://faculty.marshall.usc.edu/jacob-bien/
+  Patrick Vossler:
+    href: https://www.patvoss.me/
+
+navbar:
+  structure:
+    left:  [reference, articles]
+    right: [github]
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/jacobbien/litr-project/tree/main/litr/
+
+reference:
+- title: Primary functions
+  desc: >
+    These are the functions you'll use the most.
+  contents:
+    - render
+    - document
+    - load_all
+
+- title: Functions for adding "extras" to your package
+  desc: >
+    These functions can help you add a README, vignettes, a pkgdown site, and a hex sticker to your package.
+  contents:
+    - add_readme
+    - add_vignettes
+    - add_pkgdown
+    - add_hex_sticker
+
+- title: Custom output formats
+  desc: >
+    These are the functions for producing different output formats.
+  contents:
+    - litr_html_document
+    - litr_pdf_document
+    - litr_gitbook
+    - litrify_output_format

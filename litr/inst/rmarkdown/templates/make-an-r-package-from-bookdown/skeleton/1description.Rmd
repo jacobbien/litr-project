@@ -1,0 +1,32 @@
+# Package setup
+
+Every R package needs a DESCRIPTION file, so we start by specifying this information:
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = params$package_name,
+    Version = "0.0.0.9000",
+    Title = "A Package Defined in a Bookdown",
+    Description = "This package uses litr to define an R package through writing a bookdown.",
+    `Authors@R` = person(
+      given = "First",
+      family = "Last",
+      email = "you@gmail.com",
+      role = c("aut", "cre")
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = "F. Last")
+```
+
+Although it's not required, it can be nice to add some package-level documentation.  This is what will show up when someone types `package?<your-package-name>` in the console.
+
+```{package_doc}
+#' A Package Defined in a Bookdown
+#'
+#' This package uses `litr` to define an R package through writing a `bookdown`.
+#' 
+#' @docType package
+```

@@ -1,0 +1,37 @@
+Package: litr
+Title: Literate Programming for Writing R Packages
+Version: 0.8.0
+Authors@R: c(
+    person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre")),
+    person("Patrick Vossler", role = "aut")
+  )
+Description: Allows one to fully create an R package in a single .Rmd
+    file.  Includes functionality and .Rmd templates for a literate
+    programming approach to R package development.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    bookdown,
+    desc,
+    devtools,
+    digest,
+    fansi,
+    fs,
+    knitr,
+    pkgdown,
+    rmarkdown,
+    stringr,
+    usethis,
+    xfun,
+    yaml
+Suggests: 
+    dplyr,
+    Rcpp,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+URL: https://github.com/jacobbien/litr-project/tree/main/litr
+LitrVersionUsed: 0.7.0
+LitrId: 6f9bc22b237aa728581f6e2b2cd10bbe
