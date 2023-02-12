@@ -1131,7 +1131,7 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
 ```
 
 
-In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form `<<chunk-name>>` by wrapping comments of the form `###"chunk-name"###` in a `span` tag with `id="chunk-name"`.
+In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form `<<chunk-name>>` that link to user-defined chunk names that take the form `###chunk-name###`. We want these user-defined chunk names to stand out to readers and in their original form as code comments they might be harder to notice. To solve this issue, we modify the formatting of these chunks to add a border with the name of the chunk set into the border, mimicking the look of a `<fieldset>` tag. The additional formatting requires inserting additional HTML tags as well as css into the knitted HTML file so we use the `xml2` package to parse and manipulate the knitted HTML file. 
 
 ```{r}
 #' Add hyperlinks to embedded chunks
