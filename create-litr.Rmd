@@ -1260,13 +1260,11 @@ add_chunk_label_hyperlinks <- function(html_files,
 }
 ```
 
+Since we rely on the `xml2` package to add in the extra label formatting, let's  import it:
 ```{r}
-format_reference_labels <- function(html_files){
-  for(i in seq_along(html_files)){
-    parsed_html <- xml2::read_html(html_files[i])
-  }
-}
+usethis::use_package("xml2")
 ```
+
 
 
 Finally, we want to replace the ANSI escape sequences used by packages such as `testthat` and `devtools` with their HTML equivalents so the output matches what we see in the terminal.
