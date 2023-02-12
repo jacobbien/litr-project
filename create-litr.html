@@ -499,7 +499,10 @@ if (install_version_of_litr != version_of_latest_release)
   stop(stringr::str_glue(
     &quot;You should be using the version of litr from the latest release (version&quot;,
     &quot; {version_of_latest_release}),\n but you are using version&quot;,
-    &quot; {install_version_of_litr}.&quot;
+    &quot; {install_version_of_litr}.\n&quot;,
+    &quot;You can install the release version of litr from GitHub by running the&quot;,
+    &quot; the following command:\n&quot;,
+    &quot;remotes::install_github(repo=&#39;jacobbien/litr-project@*release&#39;, subdir = &#39;litr&#39;)&quot;
   ))</code></pre>
 </div>
 <div id="now-to-the-package-itself" class="section level2">
@@ -775,7 +778,7 @@ replace <code>cat()</code> in the above with calls to
                          readLines(myfile))
   fs::dir_delete(dir)
 })</code></pre>
-<pre><code>## Test passed 🌈</code></pre>
+<pre><code>## Test passed 😸</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level4">
 <h4>Setting up the R package creation</h4>
@@ -1428,7 +1431,7 @@ here:</p>
     file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) # inputdir/../mypkg
   )
 })</code></pre>
-<pre><code>## Test passed 😸</code></pre>
+<pre><code>## Test passed 😀</code></pre>
 <div id="pdf-output-format" class="section level5">
 <h5>.pdf output format</h5>
 <p>We want our .pdf documents to accurately display the “logging” output
@@ -1686,9 +1689,16 @@ added.</p>
 }</code></pre>
 <p>In addition to adding hyperlinks to function definitions, we also
 want to add hyperlinks for chunk references of the form
-<code><a href='create-litr.html#chunk-name'>&lt;&lt;chunk-name&gt;&gt;</a></code> by wrapping comments of the form
-<code><span id='chunk-name'>###&quot;chunk-name&quot;###</span></code> in a <code>span</code> tag with
-<code>id=&quot;chunk-name&quot;</code>.</p>
+<code>&lt;&lt;chunk-name&gt;&gt;</code> that link to user-defined chunk
+names that take the form <code>###chunk-name###</code>. We want these
+user-defined chunk names to stand out to readers and in their original
+form as code comments they might be harder to notice. To solve this
+issue, we modify the formatting of these chunks to add a border with the
+name of the chunk set into the border, mimicking the look of a
+<code>&lt;fieldset&gt;</code> tag. The additional formatting requires
+inserting additional HTML tags as well as css into the knitted HTML file
+so we use the <code>xml2</code> package to parse and manipulate the
+knitted HTML file.</p>
 <pre class="r"><code>#&#39; Add hyperlinks to embedded chunks
 #&#39; 
 #&#39; Finds chunks that are referenced in the html file(s) by looking for comments
@@ -1780,10 +1790,49 @@ want to add hyperlinks for chunk references of the form
           )
       }
     )
-
-    writeLines(txt, con = html_files[i])
+    
+    parsed_html &lt;- xml2::read_html(paste(txt,collapse=&quot;\n&quot;))
+    span_nodes &lt;- xml2::xml_find_all(parsed_html, &quot;.//span[contains(., &#39;###&#39;)]&quot;)
+    for(j in seq_along(span_nodes)){
+      span_node &lt;- span_nodes[[j]]
+      span_id &lt;- xml2::xml_attr(span_node, &quot;id&quot;)
+      span_node_path &lt;- stringr::str_split(xml2::xml_path(span_node),&quot;/&quot;)
+      pre_path &lt;- paste(span_node_path[[1]][1:(length(span_node_path[[1]])-2)],collapse=&quot;/&quot;)
+      pre_parent &lt;- xml2::xml_find_first(parsed_html, pre_path)
+      # add parent nodes to pre_parent
+      xml2::xml_add_parent(pre_parent,xml2::read_xml(&#39;&lt;div class=&quot;custom-field&quot;&gt; &lt;/div&gt;&#39;))
+      outer_div &lt;- xml2::xml_parent(pre_parent)
+      xml2::xml_add_child(outer_div, xml2::read_xml(stringr::str_glue(&#39;&lt;h1&gt;&lt;span id=&quot;{span_id}&quot;&gt;{span_id}&lt;/span&gt;&lt;/h1&gt;&#39;)),.where = 0)
+      xml2::xml_add_parent(pre_parent,xml2::read_xml(&#39;&lt;div&gt; &lt;/div&gt;&#39;))
+      # remove span with id in comment form last
+      xml2::xml_remove(span_node)
+      # remove the extra line break that is left over from removing the span
+      code_node &lt;- xml2::xml_child(pre_parent)
+      # remove the first line break
+      if(length(xml2::xml_contents(code_node)) &gt; 1){
+        xml2::xml_remove(xml2::xml_contents(code_node)[1])
+      } else {
+        changed_txt &lt;- stringr::str_remove(paste(as.character(xml2::xml_contents(code_node)),collapse=&quot;&quot;), &quot;\n&quot;)
+        xml2::xml_replace(code_node, xml2::read_xml(stringr::str_glue(&#39;&lt;code&gt;{changed_txt}&lt;/code&gt;&#39;)))  
+      }
+    }
+    
+    # last thing is to insert an additional style node in the head with our CSS
+    css_string &lt;- &quot;.custom-field {border: 4px solid;border-top: none;padding: 8px; padding-bottom: 0px; margin-bottom: 10px; margin-top: 10px}
+.custom-field h1 {font: 16px normal;margin: -16px -8px 0;font-family:inherit;font-weight:500;line-height:1.1;color:inherit}
+.custom-field h1 span {float: left;}
+.custom-field h1:before {border-top: 4px solid;content: &#39; &#39;;float: left;margin: 8px 2px 0 -1px;width: 12px;}
+.custom-field h1:after {border-top: 4px solid;content: &#39; &#39;;display: block;height: 24px;left: 2px;margin: 0 1px 0 0;overflow: hidden;position: relative;top: 8px;}&quot;
+    head_node &lt;- xml2::xml_find_first(parsed_html, &quot;.//head&quot;)
+    xml2::xml_add_child(head_node, xml2::read_xml(stringr::str_glue(&quot;&lt;style type=&#39;text/css&#39;&gt;{css_string}&lt;/style&gt;&quot;)))
+    txt &lt;- xml2::write_html(parsed_html, html_files[i])
   }
 }</code></pre>
+<p>Since we rely on the <code>xml2</code> package to add in the extra
+label formatting, let’s import it:</p>
+<pre class="r"><code>usethis::use_package(&quot;xml2&quot;)</code></pre>
+<pre><code>## ✔ Adding &#39;xml2&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `xml2::fun()`</code></pre>
 <p>Finally, we want to replace the ANSI escape sequences used by
 packages such as <code>testthat</code> and <code>devtools</code> with
 their HTML equivalents so the output matches what we see in the
@@ -2968,7 +3017,7 @@ xfun::Rscript_call(test_litr,
                    list(install_old = install_old, location_of_new = &quot;.&quot;))</code></pre>
 <pre><code>## ℹ Updating litr documentation
 ## ℹ Loading litr
-## Writing &#39;]8;;file:///Users/jacobbien/Documents/GitHub/litr-project/litr/NAMESPACENAMESPACE]8;;&#39;
+## Writing &#39;]8;;file:///Users/vossler/litr-project/litr/NAMESPACENAMESPACE]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_readme&#39;)add_readme.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_hex_sticker&#39;)add_hex_sticker.Rd]8;;&#39;
 ## Writing &#39;]8;;ide:run:pkgload::dev_help(&#39;add_vignettes&#39;)add_vignettes.Rd]8;;&#39;
@@ -3015,15 +3064,15 @@ xfun::Rscript_call(test_litr,
 ## 8 tests.R   tests Rendering with minimal_eval=TRUE works  2      0   FALSE
 ## 9 tests.R   tests                  templates can be knit 10      0   FALSE
 ##   error warning  user system   real passed
-## 1 FALSE       0 0.098  0.003  0.102     10
-## 2 FALSE       0 0.002  0.000  0.002      2
-## 3 FALSE       0 0.139  0.016  1.397      1
-## 4 FALSE       0 0.048  0.006  1.107     11
-## 5 FALSE       0 0.005  0.001  0.005      3
-## 6 FALSE       0 0.015  0.002  1.125      1
-## 7 FALSE       0 0.293  0.022  7.917     12
-## 8 FALSE       0 0.120  0.015  3.390      2
-## 9 FALSE       0 0.084  0.015 44.489     10
+## 1 FALSE       0 0.046  0.004  0.053     10
+## 2 FALSE       0 0.003  0.000  0.003      2
+## 3 FALSE       0 0.227  0.018  2.163      1
+## 4 FALSE       0 0.057  0.009  1.729     11
+## 5 FALSE       0 0.005  0.001  0.007      3
+## 6 FALSE       0 0.018  0.003  1.761      1
+## 7 FALSE       0 0.431  0.041 12.274     12
+## 8 FALSE       0 0.222  0.020  5.007      2
+## 9 FALSE       0 0.100  0.037 50.975     10
 ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   result
 ## 1 , 10, 3, 10, 77, 3, 77, 10, 10, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, req_exist = TRUE), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, fs::file_exists(myfile) is not TRUE\n\n, 16, 3, 16, 48, 3, 48, 16, 16, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, `sometxt` (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 17, 3, 17, 52, 3, 52, 17, 17, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 22, 3, 22, 64, 3, 64, 22, 22, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 25, 3, 25, 62, 3, 62, 25, 25, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 0), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 26, 3, 26, 63, 3, 63, 26, 26, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, -1), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, , 27, 3, 27, 62, 3, 62, 27, 27, testthat::expect_error(<a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5)), expect_condition_matching(&quot;error&quot;, {,     {,         object,     }, }, regexp = regexp, class = class, ..., inherit = inherit, info = info, ,     label = label), quasi_capture(enquo(object), label, capture_matching_condition, ,     matches = matcher), .capture(act$val &lt;- eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), ,     ...), withCallingHandlers(expr, condition = function(cnd) {,     if (!is.null(matched) || !matches(cnd)) {,         return(),     },     if (can_entrace(cnd)) {,         cnd &lt;- cnd_entrace(cnd),     },     matched &lt;&lt;- cnd,     if (inherits(cnd, &quot;message&quot;) || inherits(cnd, &quot;warning&quot;)) {,         cnd_muffle(cnd),     },     else if (inherits(cnd, &quot;error&quot;) || inherits(cnd, &quot;skip&quot;)) {,         return_from(tl, cnd),     }, }), eval_bare(quo_get_expr(.quo), quo_get_env(.quo)), <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, 5), 0, 1, 2, 3, 4, 3, 0, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, testthat, testthat, testthat, testthat, base, rlang, litr, ::, :::, :::, local, ::, ::, :::, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 32, 3, 32, 74, 3, 74, 32, 32, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 37, 3, 38, 43, 3, 43, 37, 38, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works, c(moretxt2, moretxt3, sometxt, moretxt, moretxt4) (`actual`) not equal to readLines(myfile) (`expected`).\n\n, 43, 3, 44, 43, 3, 43, 43, 44, 45, 47, <a href='create-litr.html#add_text_to_file'>add_text_to_file</a>() works
 ## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <a href='create-litr.html#get_package_directory'>get_package_directory</a>(&quot;.&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 50, 3, 53, 3, 3, 3, 50, 53, 45, 47, <a href='create-litr.html#get_package_directory'>get_package_directory</a>() works, <a href='create-litr.html#get_package_directory'>get_package_directory</a>(&quot;..&quot;, &quot;mypkg&quot;, input) (`actual`) not equal to file.path(&quot;inputdir&quot;, &quot;..&quot;, &quot;mypkg&quot;) (`expected`).\n\n, 54, 3, 57, 3, 3, 3, 54, 57, 45, 47, <a href='create-litr.html#get_package_directory'>get_package_directory</a>() works
@@ -3150,8 +3199,8 @@ source file <code>source-files/_pkgdown.yml</code>.</p>
 <pre><code>## ✔ Adding &#39;^_pkgdown\\.yml$&#39;, &#39;^docs$&#39;, &#39;^pkgdown$&#39; to &#39;.Rbuildignore&#39;</code></pre>
 <pre><code>## -- Installing package into temporary library -----------------------------------
 ## == Building pkgdown site =======================================================
-## Reading from: &#39;/Users/jacobbien/Documents/GitHub/litr-project/litr&#39;
-## Writing to:   &#39;/Users/jacobbien/Documents/GitHub/litr-project/docs&#39;
+## Reading from: &#39;/Users/vossler/litr-project/litr&#39;
+## Writing to:   &#39;/Users/vossler/litr-project/docs&#39;
 ## -- Initialising site -----------------------------------------------------------
 ## -- Building favicons -----------------------------------------------------------
 ## Building favicons with realfavicongenerator.net...
