@@ -29,22 +29,28 @@ shorten <- function(pkgname, max_char = 13, extra = 5) {
 tibble(
   user = c("jacobbien",
            "jacobbien",
-           "ArkajyotiSaha"),
+           "ArkajyotiSaha",
+           "gregfaletto"),
   repo = c("jsm2022-project",
            "rleastsquares-project",
-           "independencepvalue-project"),
+           "independencepvalue-project",
+           "cssr-project"),
   branch = c("main",
+             "main",
              "main",
              "main"),
   pkg_name = c("jsm2022",
                "rleastsquares",
-               "independencepvalue"),
-  description = c("navigate the JSM program from the comfort of an R console",
-                  "perform least squares (a package coded in a live demo)",
-                  "Testing independence between groups of Gaussian variables"),
+               "independencepvalue",
+               "cssr"),
+  description = c("Navigate the JSM program from the comfort of an R console",
+                  "Perform least squares (a package coded in a live demo)",
+                  "Test independence between groups of Gaussian variables",
+                  "Cluster stability selection"),
   website = c("",
               "",
-              "https://arkajyotisaha.github.io/independencepvalue-project/")
+              "https://arkajyotisaha.github.io/independencepvalue-project/",
+              "https://gregfaletto.github.io/cssr-project/")
     
   ) %>% 
   transmute(
@@ -53,20 +59,26 @@ tibble(
       pkg_name,
       as.character(str_glue('<a href="{website}">{pkg_name}</a>'))),
     Description = description,
-    `Rmd source file` = str_glue(paste0(
+    `Rmd source file` = as.character(str_glue(paste0(
         "[create-{shorten(pkg_name)}.Rmd](",
         path,
         "create-{pkg_name}.Rmd)"
-    )),
-    `Generated html` = str_glue(paste0(
+    ))),
+    `Generated html` = as.character(str_glue(paste0(
       "[create-{shorten(pkg_name)}.html](https://htmlpreview.github.io/?",
       path,
       "create-{pkg_name}.html)"
-    )),
+    ))),
     `Generated R package` = str_glue(paste0(
       "[{pkg_name}/](", path, "{pkg_name})"
     ))
   ) %>% 
+  mutate(`Rmd source file` = if_else(str_detect(`Rmd source file`, "create-cssr.Rmd"),
+                                    "[index.html](https://github.com/gregfaletto/cssr-project/blob/main/index.Rmd)",
+                                    `Rmd source file`)) %>%
+  mutate(`Generated html` = if_else(str_detect(`Generated html`, "create-cssr.html"),
+                                    "[bookdown](https://gregfaletto.github.io/cssr-project/create/)",
+                                    `Generated html`)) %>%
 knitr::kable()
 ```
 
