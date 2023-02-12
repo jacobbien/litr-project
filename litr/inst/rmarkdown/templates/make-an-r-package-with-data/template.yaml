@@ -1,4 +1,0 @@
-name: Template To Make an R Package With a Dataset
-description: >
-   Template for an Rmd file for writing an R package with a dataset using literate programming.
-create_dir: FALSE
