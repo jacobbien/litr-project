@@ -1243,8 +1243,13 @@ add_chunk_label_hyperlinks <- function(html_files,
       xml2::xml_remove(span_node)
       # remove the extra line break that is left over from removing the span
       code_node <- xml2::xml_child(pre_parent)
-      changed_txt <- stringr::str_remove(paste(as.character(xml2::xml_contents(code_node)),collapse=""), "\n")
-      xml2::xml_replace(code_node, xml2::read_xml(stringr::str_glue('<code>{changed_txt}</code>')))
+      # remove the first line break
+      if(length(xml2::xml_contents(code_node)) > 1){
+        xml2::xml_remove(xml2::xml_contents(code_node)[1])
+      } else {
+        changed_txt <- stringr::str_remove(paste(as.character(xml2::xml_contents(code_node)),collapse=""), "\n")
+        xml2::xml_replace(code_node, xml2::read_xml(stringr::str_glue('<code>{changed_txt}</code>')))  
+      }
     }
     
     # last thing is to insert an additional style node in the head with our CSS
