@@ -16,4 +16,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.8.0
-LitrId: 3116dab48f782eaa74203ed8f486a7ea
+LitrId: fd50ce2b62c0f8e84ae4f16ca0343da6

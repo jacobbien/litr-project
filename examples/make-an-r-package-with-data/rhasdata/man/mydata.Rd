@@ -10,6 +10,7 @@ A data frame with 100 rows and 2 variables:
 \item{x}{a predictor variable}
 \item{y}{a response variable}
 }
+}
 \source{
 This data was simulated.  But usually we might cite a source here.
 }
