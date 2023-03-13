@@ -282,12 +282,11 @@ litr_html_document <- function(minimal_eval = FALSE, ...) {
   # modify post_processor
   new$post_processor = function(metadata, input_file, output_file, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
-    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files, metadata$params$package_name)
-    add_chunk_label_hyperlinks(html_files)
+    add_function_hyperlinks(output_file, metadata$params$package_name)
+    add_chunk_label_hyperlinks(output_file)
     # replace ANSI sequences with HTML tag equivalents
-    replace_ansi_sequences(html_files)
+    replace_ansi_sequences(output_file)
     out
   }
   new
@@ -315,7 +314,10 @@ litr_gitbook <- function(minimal_eval = FALSE, ...) {
   # modify post_processor
   new$post_processor = function(metadata, input_file, output_file, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
-    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
+    out_dir <- fs::path_dir(out)
+    file_stems <- readLines(file.path(out_dir, "reference-keys.txt"))
+    html_files <- file.path(out_dir, paste0(file_stems, ".html"))
+    html_files <- unique(intersect(c(out, html_files), fs::dir_ls(out_dir)))
     # add hyperlinks within html output to make it easier to navigate:
     add_function_hyperlinks(html_files, metadata$params$package_name)
     add_chunk_label_hyperlinks(html_files)
