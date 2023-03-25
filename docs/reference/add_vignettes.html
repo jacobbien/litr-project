@@ -57,7 +57,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_vignettes</span><span class="op">(</span><span class="va">rmd_files</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_vignettes</span><span class="op">(</span><span class="va">rmd_files</span>, other_files <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +65,11 @@
     <dl><dt>rmd_files</dt>
 <dd><p>A character vector of .Rmd files, each corresponding to
 a vignette</p></dd>
+
+
+<dt>other_files</dt>
+<dd><p>A character vector of any other files needed in the
+vignettes directory (.bib file, images, etc.)</p></dd>
 
 </dl></div>
 

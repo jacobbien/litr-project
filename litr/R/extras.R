@@ -43,10 +43,12 @@ add_hex_sticker <- function(hex_png_file) {
 #' 
 #' @param rmd_files A character vector of .Rmd files, each corresponding to 
 #' a vignette
+#' @param other_files A character vector of any other files needed in the 
+#' vignettes directory (.bib file, images, etc.)
 #' @export
-add_vignettes <- function(rmd_files) {
+add_vignettes <- function(rmd_files, other_files = NULL) {
   fs::dir_create("vignettes")
-  for (fn in rmd_files) fs::file_copy(fn, "vignettes")
+  for (fn in c(rmd_files, other_files)) fs::file_copy(fn, "vignettes")
   
   # update DESCRIPTION file:
   deps <- desc::desc_get_deps()$package

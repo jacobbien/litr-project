@@ -4,11 +4,14 @@
 \alias{add_vignettes}
 \title{Add one or more vignettes to package}
 \usage{
-add_vignettes(rmd_files)
+add_vignettes(rmd_files, other_files = NULL)
 }
 \arguments{
 \item{rmd_files}{A character vector of .Rmd files, each corresponding to
 a vignette}
+
+\item{other_files}{A character vector of any other files needed in the
+vignettes directory (.bib file, images, etc.)}
 }
 \description{
 Add one or more vignettes to package
