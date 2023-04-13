@@ -94,9 +94,9 @@ package templates available. Click on the “Generated html” and
 <table class="table">
 <colgroup>
 <col width="17%">
-<col width="39%">
+<col width="38%">
 <col width="18%">
-<col width="13%">
+<col width="14%">
 <col width="10%">
 </colgroup>
 <thead><tr class="header">
@@ -147,6 +147,14 @@ etc.</td>
 <td align="left"><a href="https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-from-bookdown/_book/index.html" class="external-link">_book/index.html</a></td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-from-bookdown/frombookdown" class="external-link">frombookdown/</a></td>
 </tr>
+<tr class="even">
+<td align="left">make-an-r-package-with-armadillo</td>
+<td align="left">a package using <code>RcppArmadillo</code>
+</td>
+<td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-armadillo/create-witharmadillo.Rmd" class="external-link">create-witharmadillo.Rmd</a></td>
+<td align="left"><a href="https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-armadillo/create-witharmadillo.html" class="external-link">create-witharmadillo.html</a></td>
+<td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-armadillo/witharmadillo" class="external-link">witharmadillo/</a></td>
+</tr>
 </tbody>
 </table>
 <p>Once you’ve chosen a template, you can get started as follows:</p>
@@ -155,6 +163,21 @@ etc.</td>
 <span>                 template <span class="op">=</span> <span class="st">"[name-of-template]"</span>,</span>
 <span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
 <span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-[name-of-your-package].Rmd"</span><span class="op">)</span></span></code></pre></div>
+<p>Here, <code>"[name-of-template]"</code> would be chosen from the
+first column of the table above. For example, for the most basic
+template, you would do the following:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-rhello.Rmd"</span>,</span>
+<span>                 template <span class="op">=</span> <span class="st">"make-an-r-package"</span>,</span>
+<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
+<span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-rhello.Rmd"</span><span class="op">)</span></span></code></pre></div>
+<p>And to make an R package that uses <code>Rcpp</code>, you would start
+with the following:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-withrcpp.Rmd"</span>,</span>
+<span>                 template <span class="op">=</span> <span class="st">"make-an-r-package-with-rcpp"</span>,</span>
+<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
+<span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-withrcpp.Rmd"</span><span class="op">)</span></span></code></pre></div>
   </main>
 </div>
 

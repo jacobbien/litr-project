@@ -21,13 +21,16 @@ tbl <- tibble(
                "make-an-r-package-with-data",
                "make-an-r-package-with-rcpp",
                "make-an-r-package-with-extras",
-               "make-an-r-package-from-bookdown"),
-  pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown", "frombookdown"),
+               "make-an-r-package-from-bookdown",
+                              "make-an-r-package-with-armadillo"),
+  pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown", "frombookdown",
+               "witharmadillo"),
   description = c("the most basic package: a function and a test",
                   "a package with a data set in it",
                   "a package using `Rcpp`",
                   "a package with a README, vignette(s), a pkgdown site, and a hex sticker",
-                  "a package defined in a bookdown")) %>% 
+                  "a package defined in a bookdown",
+                  "a package using `RcppArmadillo`")) %>% 
   transmute(
     `Template name` = template,
     Description = description,
@@ -58,4 +61,22 @@ rmarkdown::draft("create-[name-of-your-package].Rmd",
                  template = "[name-of-template]",
                  package = "litr")
 litr::render("create-[name-of-your-package].Rmd")
+```
+
+Here, `"[name-of-template]"` would be chosen from the first column of the table above.  For example, for the most basic template, you would do the following:
+
+```{r, eval=FALSE}
+rmarkdown::draft("create-rhello.Rmd",
+                 template = "make-an-r-package",
+                 package = "litr")
+litr::render("create-rhello.Rmd")
+```
+
+And to make an R package that uses `Rcpp`, you would start with the following:
+
+```{r, eval=FALSE}
+rmarkdown::draft("create-withrcpp.Rmd",
+                 template = "make-an-r-package-with-rcpp",
+                 package = "litr")
+litr::render("create-withrcpp.Rmd")
 ```

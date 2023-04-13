@@ -15,4 +15,4 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown
 LitrVersionUsed: 0.8.0
-LitrId: adba8bf345f863eb93a5dbe477bf5c9a
+LitrId: 41fbd95c91d8431a398e7018bbf3c2e7
