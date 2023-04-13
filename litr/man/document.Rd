@@ -2,7 +2,7 @@
 % Please edit documentation in create-litr.Rmd.
 \name{document}
 \alias{document}
-\title{Use roxygen to document a package}
+\title{Use roxygen to document a package from within a Rmd file}
 \usage{
 document(...)
 }
@@ -11,8 +11,11 @@ document(...)
 }
 \description{
 This is a wrapper for the \code{devtools::document()} function, which in turn is a
-wrapper for the \code{roxygen2::roxygenize()} function.  The purpose for \code{litr}
-having this wrapper is to make one modification.  In particular, the line
+wrapper for the \code{roxygen2::roxygenize()} function.  It is written assuming that
+it is being called from within a generating Rmd file.  The purpose for \code{litr}
+having this wrapper is two-fold.  First, it ensures that the first line
 in the outputted \code{Rd} files should not say "Please edit documentation in
 R/file.R" but instead should refer to the Rmd file that generates everything.
+Second, in the case that Rcpp is being used, it makes some adjustments to ensure
+that the compiling of the C++ code should be successful.
 }

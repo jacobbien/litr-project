@@ -675,17 +675,33 @@ write_version_to_description <- function(package_dir) {
     )
 }
 
-#' Use roxygen to document a package
+#' Use roxygen to document a package from within a Rmd file
 #' 
 #' This is a wrapper for the `devtools::document()` function, which in turn is a
-#' wrapper for the `roxygen2::roxygenize()` function.  The purpose for `litr` 
-#' having this wrapper is to make one modification.  In particular, the line
+#' wrapper for the `roxygen2::roxygenize()` function.  It is written assuming that
+#' it is being called from within a generating Rmd file.  The purpose for `litr` 
+#' having this wrapper is two-fold.  First, it ensures that the first line
 #' in the outputted `Rd` files should not say "Please edit documentation in 
 #' R/file.R" but instead should refer to the Rmd file that generates everything. 
+#' Second, in the case that Rcpp is being used, it makes some adjustments to ensure
+#' that the compiling of the C++ code should be successful.
 #' 
 #' @param ... Arguments to be passed to `devtools::document()`
 #' @export
 document <- function(...) {
+  # prepare Rcpp code for compiling
+  if (fs::file_exists("src/code.cpp")) {
+    # make sure that #include <RcppArmadillo.h> if it exists
+    # comes *before* (or instead of) <Rcpp.h>
+    txt <- readLines("src/code.cpp")
+    loc <- stringr::str_which(txt, r"(#include <RcppArmadillo.h>)")
+    if (length(loc) > 0) {
+      include_arma_line <- txt[loc[1]]
+      txt <- c(include_arma_line, txt[-loc])
+      writeLines(txt, "src/code.cpp")
+    }
+  }
+  
   devtools::document(...)
   # remove the line of the following form in each man/*.Rd file:
   pattern <- "% Please edit documentation in .*$"

@@ -1,0 +1,96 @@
+---
+title: "Creating the ``r params$package_name`` R package"
+author: "Your Name"
+date: "The Date"
+knit: litr::render
+output: litr::litr_html_document
+params:
+  package_name: "witharmadillo" # <-- change this to your package name
+  package_parent_dir: "." # <-- relative to this file's location
+---
+
+<!-- This Rmd file contains all the code needed to define an R package.  Press "Knit" in RStudio or more generally run `litr::render("name-of-this-file.Rmd")` to generate the R package.  Remember that when you want to modify anything about the R package, you should modify this document rather than the package that is outputted.
+-->
+
+## Package setup
+
+We start by specifying the information needed in the DESCRIPTION file of the R package.
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = params$package_name,
+    Version = "0.0.0.9000",
+    Title = "A Package That Uses RcppArmadillo Code",
+    Description = "This package uses RcppArmadillo.",
+    `Authors@R` = person(
+      given = "First",
+      family = "Last",
+      email = "you@gmail.com",
+      role = c("aut", "cre")
+      )
+  )
+)
+usethis::use_mit_license(copyright_holder = "F. Last")
+```
+
+
+## Now to the package itself
+
+To add a C++ function to our R package that uses `RcppArmadillo`, it's the same idea as for regular `Rcpp` (see the `withrcpp` template for more).  The only difference is that the first three lines of the code chunk are specific to `RcppArmadillo`.  Here's an example:
+
+```{Rcpp}
+// [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
+using namespace arma;
+
+//' Cholesky decomposition
+//' 
+//' @param X A positive definite matrix
+//' @export
+// [[Rcpp::export]]
+arma::mat my_chol(arma::mat& X) {
+  return arma::chol(X);
+}
+```
+
+After at least one `Rcpp` code chunk,^[If we had included a `package_doc` code chunk, then the location of this command would not actually matter.] we next call the following `usethis` command:
+
+```{r}
+usethis::use_rcpp_armadillo()
+```
+
+And that's it.  If we like, we may call the function that we defined within the Rmarkdown file:
+
+```{r}
+x <- matrix(0, 3, 3)
+x[upper.tri(x, diag = TRUE)] <- 1:6
+my_chol(crossprod(x))
+```
+
+However, if we don't need to call the function within the Rmd file, we can set `eval=FALSE`.  This will speed up the knitting process a bit (and the code will still be included in the package).
+
+Let's write some tests to make sure the function behaves as desired:
+
+```{r}
+testthat::test_that("my_chol works", {
+  x <- matrix(0, 3, 3)
+  x[upper.tri(x, diag = TRUE)] <- 1:6
+  xchol <- my_chol(crossprod(x))
+  testthat::expect_equal(crossprod(xchol), crossprod(x))
+  testthat::expect_true(all(xchol[lower.tri(xchol)] == 0))
+})
+```
+
+Recall that code chunks that have one or more lines starting with `test_that(` (or `testthat::test_that(`) are added to the package as tests.
+
+## Documenting the package and building
+
+We finish by running commands that will document, build, and install the package.  It may also be a good idea to check the package from within this file.
+
+```{r, results='hide'}
+litr::document() # <-- use instead of devtools::document()
+```
+
+
