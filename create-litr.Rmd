@@ -29,7 +29,7 @@ usethis::create_package(
   path = ".",
   fields = list(
     Package = params$package_name,
-    Version = "0.8.0",
+    Version = "0.9.0",
     Title = "Literate Programming for Writing R Packages",
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
