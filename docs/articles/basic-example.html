@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">litr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -292,9 +292,9 @@ There’s a <a href="package-templates.html">template</a> for that.</p>
 <div class="section level2">
 <h2 id="documenting-the-package">Documenting the package<a class="anchor" aria-label="anchor" href="#documenting-the-package"></a>
 </h2>
-<p>We finish by running a commands that will turn the
-<code>royxgen2</code> into traditional documentation files in our R
-package.</p>
+<p>At the end of a <code>litr</code> document, it is important to call
+<code><a href="../reference/document.html">litr::document()</a></code>, which turns the <code>royxgen2</code>
+into traditional documentation files in our R package.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/document.html">document</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># &lt;-- use instead of devtools::document()</span></span></code></pre></div>
 </div>

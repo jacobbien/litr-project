@@ -14,5 +14,5 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown
-LitrVersionUsed: 0.8.0
-LitrId: 41fbd95c91d8431a398e7018bbf3c2e7
+LitrVersionUsed: 0.9.0
+LitrId: 8d5b1ac9448ee47f81add20e1bd02b0c

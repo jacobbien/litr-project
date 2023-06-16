@@ -74,7 +74,7 @@ tibble(
     ))
   ) %>% 
   mutate(`Rmd source file` = if_else(str_detect(`Rmd source file`, "create-cssr.Rmd"),
-                                    "[index.html](https://github.com/gregfaletto/cssr-project/blob/main/index.Rmd)",
+                                    "[index.Rmd](https://github.com/gregfaletto/cssr-project/blob/main/index.Rmd)",
                                     `Rmd source file`)) %>%
   mutate(`Generated html` = if_else(str_detect(`Generated html`, "create-cssr.html"),
                                     "[bookdown](https://gregfaletto.github.io/cssr-project/create/)",
