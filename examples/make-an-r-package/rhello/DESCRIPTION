@@ -12,5 +12,5 @@ RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-LitrVersionUsed: 0.9.0
-LitrId: 9906fbaa63fbc76423cb027546a1287d
+LitrVersionUsed: 0.9.1
+LitrId: 47b0b99c913917ce7a1af0812ff7d97d
