@@ -79,13 +79,7 @@ setup <- function(package_dir, minimal_eval) {
   # about creating a nested project (e.g. if this is called within a git 
   # subdirectory)
   utils::assignInNamespace("challenge_nested_project", function(...) NULL, ns = "usethis")
-  # change usethis:::use_src_example_script so that it will not cause an error
-  utils::assignInNamespace("use_src_example_script", 
-                           function(...) {
-                             usethis::use_template("code.cpp",
-                                                   fs::path("src", "code.cpp"))
-                           }, ns = "usethis")
-  
+
   # define document hook to handle chunk references:
   knitr::knit_hooks$set(document = function(x) {
     # get the indices of x corresponding to code chunks
@@ -264,7 +258,14 @@ send_to_package <- function(before, options, envir) {
     cpp_file <- file.path(package_dir, "src", "code.cpp")
     if (!file.exists(cpp_file)) {
       # set up package for Rcpp
-      usethis::use_rcpp(name = "code")
+      # these next few lines are taken from usethis::use_rcpp()
+      # it approximates a call to usethis::use_rcpp(name = "code")
+      usethis:::use_dependency("Rcpp", "LinkingTo")
+      usethis:::use_dependency("Rcpp", "Imports")
+      usethis:::roxygen_ns_append("@importFrom Rcpp sourceCpp")
+      usethis:::use_src()
+      usethis::use_template("code.cpp", save_as = "src/code.cpp")
+
       msg <- do_not_edit_message(knitr::current_input(), type = "c")
       cat(msg, file = cpp_file, append = TRUE)
     }
