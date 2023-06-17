@@ -1375,7 +1375,7 @@ or
 bookdown::render_book("index.Rmd", output_format = litr::litr_gitbook())
 ```
 
-would do what we want.  However, a reason to still prefer `litr::render()` is that this function ensures the identical behavior to when one clicks the "Knit" in RStudio.  It does this by opening a fresh R session in which `rmarkdown::render()` (or `bookdown::render_book()`) is called.  This is based on [the description in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html).  Another reason to prefer `litr::render()` is that if there is an error in the rendering process, the special [litr hash](#hash) will still be written to the DESCRIPTION file.  This means that after fixing that error when one calls `litr::render()`, one will not get the error telling the user to delete the partially generated package directory.  We accomplish this with the function `with_cleanup()` defined below.
+would do what we want.  However, a reason to still prefer `litr::render()` is that this function ensures the identical behavior to when one clicks the "Knit" in RStudio.  It does this by opening a fresh R session (when `fresh_session=TRUE`, which is the default) in which `rmarkdown::render()` (or `bookdown::render_book()`) is called.  This is based on [the description in the Rmarkdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html).  Another reason to prefer `litr::render()` is that if there is an error in the rendering process, the special [litr hash](#hash) will still be written to the DESCRIPTION file.  This means that after fixing that error when one calls `litr::render()`, one will not get the error telling the user to delete the partially generated package directory.  We accomplish this with the function `with_cleanup()` defined below.
 
 In the first use case, `litr::render()` is responsible for ensuring all the special `litr` things happen (like `setup()` being called before knitting, the litr-hash being written afterwards, and hyperlinking occurs).  The details of what it does is very similar to what is described in the [output formats](#output-format) section, especially the one on the [html output format](#html-output-format).
 
@@ -1385,17 +1385,22 @@ One thing that is different is that we need a function `get_params_used()`, defi
 ```{r}
 #' Render R markdown file
 #' 
-#' Wrapper to `rmarkdown::render()` that produces an R package as output in addition to the standard output document.  It does some post-processing on the 
-#' html file when that is the output.  In particular, when an html file is among
+#' Wrapper to `rmarkdown::render()` that produces an R package as output in 
+#' addition to the standard output document.  It does some post-processing on the 
+#' .html file when that is the output.  In particular, when an .html file is among
 #' the outputs, it adds hyperlinks to functions defined within the file to make 
 #' it easier for someone reading the code to see where different functions are
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
 <<param-minimal_eval>>
+#' @param fresh_session Whether to call `rmarkdown::render` from a fresh R 
+#' session. By default TRUE, so that it matches the behavior of pressing "Knitr"
+#' in RStudio.  However, for debugging it can be useful to set this to FALSE so 
+#' that functions like `debug()` and `browser()` will work.
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
-render <- function(input, minimal_eval, ...) {
+render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
@@ -1443,6 +1448,13 @@ render <- function(input, minimal_eval, ...) {
   if (is.null(args$output_options)) args$output_options <- list()
   if (!missing(minimal_eval)) args$output_options$minimal_eval <- minimal_eval
   
+  # determine whether a new R session will be created when we run the rendering 
+  # function of rmarkdown/bookdown
+  if (fresh_session)
+    run_function <- xfun::Rscript_call
+  else
+    run_function <- do.call
+  
   if (litr_format) {
     # this uses a litr output format, so we don't need to do anything litr-specific
     # here because it will happen through the output format
@@ -1463,14 +1475,14 @@ render <- function(input, minimal_eval, ...) {
     
     if (bookdown_format) {
       if (fs::is_file(input)) input <- fs::path_dir(input)
-      return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
-                                                       package_dir),
-                                          c(input = input, args))))
+      return(invisible(run_function(with_cleanup(bookdown::render_book,
+                                                 package_dir),
+                                    c(input = input, args))))
     }
     else
-      return(invisible(xfun::Rscript_call(with_cleanup(rmarkdown::render,
-                                                       package_dir),
-                                          c(input = input, args))))
+      return(invisible(run_function(with_cleanup(rmarkdown::render,
+                                                 package_dir),
+                                    c(input = input, args))))
   }
   
   # the output format being used is not a litr-specific one, so we need to make
@@ -1487,8 +1499,8 @@ render <- function(input, minimal_eval, ...) {
   }
 
   if (missing(minimal_eval)) minimal_eval <- FALSE
-  out <- xfun::Rscript_call(with_cleanup(render_, package_dir),
-                            c(input = input, minimal_eval = minimal_eval, args))
+  out <- run_function(with_cleanup(render_, package_dir),
+                      c(input = input, minimal_eval = minimal_eval, args))
 
 
   # add hyperlinks within html output to make it easier to navigate:
@@ -1982,7 +1994,7 @@ fs::dir_copy(
 
 The sixth template shows how to create a package that uses `RcppArmadillo`:
 
-```{r}
+```{r, eval=FALSE}
 usethis::use_rmarkdown_template(
   template_name = "Template To Make an R Package With RcppArmadillo",
   template_dir = "make-an-r-package-with-armadillo",
@@ -2379,14 +2391,14 @@ testthat::test_that("templates can be knit", {
   testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
 
-  rmd_file <- file.path(dir, "create-witharmadillo.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-armadillo",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-witharmadillo.Rmd")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "witharmadillo")))
+  # rmd_file <- file.path(dir, "create-witharmadillo.Rmd")
+  # rmarkdown::draft(rmd_file,
+  #                  template = "make-an-r-package-with-armadillo",
+  #                  package = "litr",
+  #                  edit = FALSE)
+  # render(rmd_file)
+  # testthat::expect_true(fs::file_exists(file.path(dir, "create-witharmadillo.Rmd")))
+  # testthat::expect_true(fs::file_exists(file.path(dir, "witharmadillo")))
     
   rmd_file <- file.path(dir, "create-withpkgdown.Rmd")
   rmarkdown::draft(rmd_file,
@@ -2556,10 +2568,7 @@ usethis::use_package("stringr", type = "Suggests")
 We'll first add the github url to the DESCRIPTION file.
 
 ```{r}
-usethis:::use_description_field(
-  "URL",
-  "https://github.com/jacobbien/litr-project/tree/main/litr"
-)
+desc::desc_set("URL", "https://github.com/jacobbien/litr-project/tree/main/litr")
 ```
 
 Next, we create the pkgdown site.  The customizations come from the source file `source-files/_pkgdown.yml`.

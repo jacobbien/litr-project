@@ -4,7 +4,7 @@
 \alias{render}
 \title{Render R markdown file}
 \usage{
-render(input, minimal_eval, ...)
+render(input, minimal_eval, fresh_session = TRUE, ...)
 }
 \arguments{
 \item{input}{The input file to be rendered (see \code{rmarkdown::render})}
@@ -14,11 +14,17 @@ render(input, minimal_eval, ...)
 you just want to quickly update the R package without having to wait for long
 evaluations to occur.}
 
+\item{fresh_session}{Whether to call \code{rmarkdown::render} from a fresh R
+session. By default TRUE, so that it matches the behavior of pressing "Knitr"
+in RStudio.  However, for debugging it can be useful to set this to FALSE so
+that functions like \code{debug()} and \code{browser()} will work.}
+
 \item{...}{Additional parameters to pass to \code{rmarkdown::render}}
 }
 \description{
-Wrapper to \code{rmarkdown::render()} that produces an R package as output in addition to the standard output document.  It does some post-processing on the
-html file when that is the output.  In particular, when an html file is among
+Wrapper to \code{rmarkdown::render()} that produces an R package as output in
+addition to the standard output document.  It does some post-processing on the
+.html file when that is the output.  In particular, when an .html file is among
 the outputs, it adds hyperlinks to functions defined within the file to make
 it easier for someone reading the code to see where different functions are
 defined.

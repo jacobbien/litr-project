@@ -2,8 +2,9 @@
 
 #' Render R markdown file
 #' 
-#' Wrapper to `rmarkdown::render()` that produces an R package as output in addition to the standard output document.  It does some post-processing on the 
-#' html file when that is the output.  In particular, when an html file is among
+#' Wrapper to `rmarkdown::render()` that produces an R package as output in 
+#' addition to the standard output document.  It does some post-processing on the 
+#' .html file when that is the output.  In particular, when an .html file is among
 #' the outputs, it adds hyperlinks to functions defined within the file to make 
 #' it easier for someone reading the code to see where different functions are
 #' defined.
@@ -13,9 +14,13 @@
 #' `usethis` commands will be evaluated.  This can be convenient in coding when 
 #' you just want to quickly update the R package without having to wait for long
 #' evaluations to occur.
+#' @param fresh_session Whether to call `rmarkdown::render` from a fresh R 
+#' session. By default TRUE, so that it matches the behavior of pressing "Knitr"
+#' in RStudio.  However, for debugging it can be useful to set this to FALSE so 
+#' that functions like `debug()` and `browser()` will work.
 #' @param ... Additional parameters to pass to `rmarkdown::render`
 #' @export
-render <- function(input, minimal_eval, ...) {
+render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
   # call rmarkdown::render in a new environment so it behaves the same as 
   # pressing the knit button in RStudio:
   # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
@@ -63,6 +68,13 @@ render <- function(input, minimal_eval, ...) {
   if (is.null(args$output_options)) args$output_options <- list()
   if (!missing(minimal_eval)) args$output_options$minimal_eval <- minimal_eval
   
+  # determine whether a new R session will be created when we run the rendering 
+  # function of rmarkdown/bookdown
+  if (fresh_session)
+    run_function <- xfun::Rscript_call
+  else
+    run_function <- do.call
+  
   if (litr_format) {
     # this uses a litr output format, so we don't need to do anything litr-specific
     # here because it will happen through the output format
@@ -83,14 +95,14 @@ render <- function(input, minimal_eval, ...) {
     
     if (bookdown_format) {
       if (fs::is_file(input)) input <- fs::path_dir(input)
-      return(invisible(xfun::Rscript_call(with_cleanup(bookdown::render_book,
-                                                       package_dir),
-                                          c(input = input, args))))
+      return(invisible(run_function(with_cleanup(bookdown::render_book,
+                                                 package_dir),
+                                    c(input = input, args))))
     }
     else
-      return(invisible(xfun::Rscript_call(with_cleanup(rmarkdown::render,
-                                                       package_dir),
-                                          c(input = input, args))))
+      return(invisible(run_function(with_cleanup(rmarkdown::render,
+                                                 package_dir),
+                                    c(input = input, args))))
   }
   
   # the output format being used is not a litr-specific one, so we need to make
@@ -107,8 +119,8 @@ render <- function(input, minimal_eval, ...) {
   }
 
   if (missing(minimal_eval)) minimal_eval <- FALSE
-  out <- xfun::Rscript_call(with_cleanup(render_, package_dir),
-                            c(input = input, minimal_eval = minimal_eval, args))
+  out <- run_function(with_cleanup(render_, package_dir),
+                      c(input = input, minimal_eval = minimal_eval, args))
 
 
   # add hyperlinks within html output to make it easier to navigate:

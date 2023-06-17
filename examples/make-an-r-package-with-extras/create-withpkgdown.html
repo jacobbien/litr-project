@@ -459,12 +459,28 @@ level-one header at the top of the README:</p>
 <h3>Add a pkgdown site</h3>
 <p>First, let’s include the github link of our package as the URL so
 that we can have a link to it on our pkgdown site.</p>
-<pre class="r"><code>usethis:::use_description_field(
+<pre class="r"><code>desc::desc_set(
   &quot;URL&quot;,
   &quot;https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown&quot;
-)</code></pre>
-<pre><code>## ✔ Setting URL field in DESCRIPTION to
-## &#39;https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown&#39;</code></pre>
+  )</code></pre>
+<pre><code>## Package: withpkgdown
+## Title: A Package With a README, Vignette, and Pkgdown Site
+## Version: 0.0.0.9000
+## Authors@R (parsed):
+##     * First Last &lt;you@gmail.com&gt; [aut, cre]
+## Description: This package&#39;s purpose is to show how to have a README,
+##     vignette, and a pkgdown website using litr.
+## License: MIT + file LICENSE
+## URL:
+##     https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown
+## Suggests:
+##     knitr,
+##     rmarkdown
+## VignetteBuilder:
+##     knitr
+## Encoding: UTF-8
+## Roxygen: list(markdown = TRUE)
+## RoxygenNote: 7.2.3</code></pre>
 <p>Be sure that this next command appears after
 <code>litr::document()</code> has been called in this file.</p>
 <pre class="r"><code>litr::add_pkgdown(&quot;../source-files/_pkgdown.yml&quot;)</code></pre>

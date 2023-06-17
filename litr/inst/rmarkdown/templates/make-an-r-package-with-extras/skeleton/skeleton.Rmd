@@ -105,10 +105,10 @@ litr::add_vignettes("../source-files/using-package.Rmd")
 First, let's include the github link of our package as the URL so that we can have a link to it on our pkgdown site.
 
 ```{r}
-usethis:::use_description_field(
+desc::desc_set(
   "URL",
   "https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown"
-)
+  )
 ```
 
 Be sure that this next command appears after `litr::document()` has been called in this file.
