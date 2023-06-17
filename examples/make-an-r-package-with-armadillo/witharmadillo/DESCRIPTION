@@ -1,0 +1,20 @@
+Package: witharmadillo
+Title: A Package That Uses RcppArmadillo Code
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "you@gmail.com", role = c("aut", "cre"))
+Description: This package uses RcppArmadillo.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+Imports: 
+    Rcpp
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LitrVersionUsed: 0.9.0
+LitrId: 358729e1c9f6dba97d8a9e75a1f7a6c5

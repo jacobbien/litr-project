@@ -334,14 +334,14 @@ testthat::test_that("templates can be knit", {
   testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
 
-  # rmd_file <- file.path(dir, "create-witharmadillo.Rmd")
-  # rmarkdown::draft(rmd_file,
-  #                  template = "make-an-r-package-with-armadillo",
-  #                  package = "litr",
-  #                  edit = FALSE)
-  # render(rmd_file)
-  # testthat::expect_true(fs::file_exists(file.path(dir, "create-witharmadillo.Rmd")))
-  # testthat::expect_true(fs::file_exists(file.path(dir, "witharmadillo")))
+  rmd_file <- file.path(dir, "create-witharmadillo.Rmd")
+  rmarkdown::draft(rmd_file,
+                   template = "make-an-r-package-with-armadillo",
+                   package = "litr",
+                   edit = FALSE)
+  render(rmd_file)
+  testthat::expect_true(fs::file_exists(file.path(dir, "create-witharmadillo.Rmd")))
+  testthat::expect_true(fs::file_exists(file.path(dir, "witharmadillo")))
     
   rmd_file <- file.path(dir, "create-withpkgdown.Rmd")
   rmarkdown::draft(rmd_file,
