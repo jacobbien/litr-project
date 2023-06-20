@@ -42,4 +42,4 @@ Almost, but not quite.  Donald Knuth was personally thanked in an Academy Award 
 
 ## Did you use `litr` to write `litr`?
 
-Yes! Version 0.0.1 of `litr` was written in the traditional way (since `litr` didn't yet exist...).  But thereafter, version n+1 of `litr` was written using version n of `litr`.  For more on the creation of `litr`, see [here](https://github.com/jacobbien/litr-project).  Or if you're really interested, have a look at [`create-litr.Rmd`](https://github.com/jacobbien/litr-project/blob/main/create-litr.Rmd).
+Yes! Version 0.0.1 of `litr` was written in the traditional way (since `litr` didn't yet exist...).  But thereafter, version n+1 of `litr` was written using version n of `litr`.  For more on the creation of `litr`, see [here](https://github.com/jacobbien/litr-project).  Or if you're really interested, have a look at [the literate programming bookdown that defines the `litr`](https://jacobbien.github.io/litr-project/create/).
