@@ -38,16 +38,17 @@ installed version’s `litr::render()` to create the new version:
 
 ``` r
 remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
-litr::render("create-litr.Rmd")
+litr::render("create-litr/index.Rmd")
 ```
 
 In the above code, `@*release` stands for the latest release. For
 example, at the time of creating version `0.0.2`, this would be
 `v0.0.1`.
 
-This will generate the new version of `litr`. From there, you can
-build/install as you would for any other package. For checking the
-package, use
+This will generate the new version of `litr` along with [this
+bookdown](https://jacobbien.github.io/litr-project/create/). From there,
+you can build/install as you would for any other package. For checking
+the package, use
 
 ``` r
 devtools::check("litr", document = FALSE)
