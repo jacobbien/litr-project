@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 Package setup | Creating the litr R package</title>
+  <meta name="description" content="3 Package setup | Creating the litr R package" />
+  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 Package setup | Creating the litr R package" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 Package setup | Creating the litr R package" />
+  
+  
+  
+
+<meta name="author" content="Jacob Bien" />
+
+
+<meta name="date" content="2022-05-27" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="overview.html"/>
+<link rel="next" href="generating-package.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preamble</a></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a></li>
+<li class="chapter" data-level="3" data-path="package-setup.html"><a href="package-setup.html"><i class="fa fa-check"></i><b>3</b> Package setup</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="package-setup.html"><a href="package-setup.html#a-note-on-circularity"><i class="fa fa-check"></i><b>3.1</b> A note on circularity</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="generating-package.html"><a href="generating-package.html"><i class="fa fa-check"></i><b>4</b> Generating the R package</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="generating-package.html"><a href="generating-package.html#sending-code-chunks-to-the-package"><i class="fa fa-check"></i><b>4.1</b> Sending code chunks to the package</a></li>
+<li class="chapter" data-level="4.2" data-path="generating-package.html"><a href="generating-package.html#setting-up-the-r-package-creation"><i class="fa fa-check"></i><b>4.2</b> Setting up the R package creation</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="hash.html"><a href="hash.html"><i class="fa fa-check"></i><b>5</b> Not overwriting a manually edited R package</a></li>
+<li class="chapter" data-level="6" data-path="document.html"><a href="document.html"><i class="fa fa-check"></i><b>6</b> Wrapper to <code>devtools::document()</code></a></li>
+<li class="chapter" data-level="7" data-path="rendering.html"><a href="rendering.html"><i class="fa fa-check"></i><b>7</b> Altering the rendering process</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="hash.html"><a href="hash.html#output-format"><i class="fa fa-check"></i><b>7.1</b> Defining <code>litr</code> output formats</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="rendering.html"><a href="rendering.html#pdf-output-format"><i class="fa fa-check"></i><b>7.1.1</b> .pdf output format</a></li>
+<li class="chapter" data-level="7.1.2" data-path="rendering.html"><a href="rendering.html#html-output-format"><i class="fa fa-check"></i><b>7.1.2</b> .html output format</a></li>
+<li class="chapter" data-level="7.1.3" data-path="rendering.html"><a href="rendering.html#bookdown-output-format"><i class="fa fa-check"></i><b>7.1.3</b> bookdown output format</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href='rendering.html#render'>render</a>()</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a></li>
+<li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-readme"><i class="fa fa-check"></i><b>9.1</b> Adding a README</a></li>
+<li class="chapter" data-level="9.2" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-hex-sticker"><i class="fa fa-check"></i><b>9.2</b> Adding a hex sticker</a></li>
+<li class="chapter" data-level="9.3" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-vignettes"><i class="fa fa-check"></i><b>9.3</b> Adding vignettes</a></li>
+<li class="chapter" data-level="9.4" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site"><i class="fa fa-check"></i><b>9.4</b> Add a pkgdown site</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="combining-.r-files.html"><a href="combining-.r-files.html"><i class="fa fa-check"></i><b>10</b> Combining .R files</a></li>
+<li class="chapter" data-level="11" data-path="including-templates.html"><a href="including-templates.html"><i class="fa fa-check"></i><b>11</b> Including templates</a></li>
+<li class="chapter" data-level="12" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
+<li class="chapter" data-level="12.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>12.3</b> Testing chunk referencing</a></li>
+<li class="chapter" data-level="12.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>12.4</b> Testing different ways of rendering</a></li>
+<li class="chapter" data-level="12.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>12.5</b> Testing other templates</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>13.1</b> Add examples folder with the output of knitting each example</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>14.1</b> README with hex sticker</a></li>
+<li class="chapter" data-level="14.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>14.2</b> Vignettes</a></li>
+<li class="chapter" data-level="14.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>14.3</b> A pkgdown site</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Creating the <code>litr</code> R package</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="package-setup" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">3</span> Package setup<a href="package-setup.html#package-setup" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>We start by specifying the information needed in the DESCRIPTION file of the R package. We mostly follow <a href="https://r-pkgs.org/lifecycle.html#sec-release-version">the R Packages book</a>’s description of version numbering. Releases 0.0.1, 0.0.2, and 0.0.3 should really have been 0.1.0, 0.2.0, and 0.3.0, because these were not just patches. Rather, each added quite substantial new functionality. For this reason, we have gone straight from 0.0.3 to 0.4.0. We will keep the leftmost number (“major release”) at 0 until we feel like the package is complete with all the intended features.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
+<span id="cb2-2"><a href="package-setup.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;.&quot;</span>,</span>
+<span id="cb2-3"><a href="package-setup.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
+<span id="cb2-4"><a href="package-setup.html#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
+<span id="cb2-5"><a href="package-setup.html#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">&quot;0.9.1&quot;</span>,</span>
+<span id="cb2-6"><a href="package-setup.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">&quot;Literate Programming for Writing R Packages&quot;</span>,</span>
+<span id="cb2-7"><a href="package-setup.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">&quot;Allows one to fully create an R package in a single .Rmd </span></span>
+<span id="cb2-8"><a href="package-setup.html#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="st">    file.  Includes functionality and .Rmd templates for a literate programming</span></span>
+<span id="cb2-9"><a href="package-setup.html#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">    approach to R package development.&quot;</span>,</span>
+<span id="cb2-10"><a href="package-setup.html#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb2-11"><a href="package-setup.html#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">person</span>(<span class="st">&quot;Jacob&quot;</span>, <span class="st">&quot;Bien&quot;</span>, <span class="at">email =</span> <span class="st">&quot;jbien@usc.edu&quot;</span>, <span class="at">role =</span> <span class="fu">c</span>(<span class="st">&quot;aut&quot;</span>, <span class="st">&quot;cre&quot;</span>)),</span>
+<span id="cb2-12"><a href="package-setup.html#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">person</span>(<span class="st">&quot;Patrick Vossler&quot;</span>, <span class="at">role =</span> <span class="st">&quot;aut&quot;</span>)</span>
+<span id="cb2-13"><a href="package-setup.html#cb2-13" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb2-14"><a href="package-setup.html#cb2-14" aria-hidden="true" tabindex="-1"></a>   )</span>
+<span id="cb2-15"><a href="package-setup.html#cb2-15" aria-hidden="true" tabindex="-1"></a> )</span>
+<span id="cb2-16"><a href="package-setup.html#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="package-setup.html#cb2-17" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">&quot;J. Bien&quot;</span>)</span></code></pre></div>
+<p>Let’s add some package-level documentation. This is what will show up when someone types <code>package?litr</code> in the console.</p>
+<pre class="package_doc"><code>#&#39; Literate Programming for Writing R Packages
+#&#39;
+#&#39; Allows one to fully create an R package in a single .Rmd file.  Includes
+#&#39; functionality and .Rmd templates for a literate programming approach to R
+#&#39; package development.
+#&#39; 
+#&#39; @examples
+#&#39; # Make a file create-rhello.Rmd based on a template
+#&#39; \dontrun{
+#&#39; rmarkdown::draft(&quot;create-rhello.Rmd&quot;, 
+#&#39;                  template = &quot;make-an-r-package&quot;,
+#&#39;                  package = &quot;litr&quot;,
+#&#39;                  edit = FALSE)
+#&#39; # Now call litr::render (or press Knit if in RStudio) to generate not just
+#&#39; # create-rhello.html, but also an R package called `rhello`.
+#&#39; litr::<a href='rendering.html#render'>render</a>(&quot;create-rhello.Rmd&quot;)
+#&#39; }
+#&#39; @docType package
+#&#39; @seealso \code{\link{render}}</code></pre>
+<div id="a-note-on-circularity" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> A note on circularity<a href="package-setup.html#a-note-on-circularity" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Keeping track of the version of <code>litr</code> used is particularly important when using <code>litr</code> to develop <code>litr</code>. There is a tendency to want to use the new functionality that we are creating in <code>create-litr.Rmd</code> itself as soon as we have defined it. However, this is circular and thus must be avoided. To see why we need to be careful, let’s consider an actual example that arose when working on <code>litr</code> version <code>0.0.3</code>. After release <code>v0.0.2</code>, one of the new features we added is a new language engine called <code>package_doc</code> that allows us to have a special kind of code block defining the package documentation. In trying out this feature and making sure it works on <code>skeleton.Rmd</code>, we would most likely install version <code>0.0.3</code>. Now that version <code>0.0.3</code> is installed, there will be a tendency to want to add a <code>package_doc</code> block to <code>create-litr.Rmd</code>, and it will appear to work. However, this is circular, because we have used version <code>0.0.3</code> to create version <code>0.0.3</code>! In particular, if we remove <code>litr</code> and re-install it from github, we will get version <code>0.0.2</code> so that when we attempt to create the package using <code>litr::<a href='rendering.html#render'>render</a>("create-litr.Rmd")</code>, we will get an error telling us that it doesn’t have a language engine named <code>package_doc</code>.</p>
+<p>The code chunk in this section is for preventing this from happening.</p>
+<p>For more on circularity, see the section on <a href="tests.html#tests">testing litr</a>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="package-setup.html#cb4-1" aria-hidden="true" tabindex="-1"></a>install_version_of_litr <span class="ot">&lt;-</span> utils<span class="sc">::</span><span class="fu">packageVersion</span>(<span class="st">&quot;litr&quot;</span>)</span>
+<span id="cb4-2"><a href="package-setup.html#cb4-2" aria-hidden="true" tabindex="-1"></a>remote <span class="ot">&lt;-</span> remotes<span class="sc">::</span><span class="fu">github_remote</span>(</span>
+<span id="cb4-3"><a href="package-setup.html#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">repo =</span> <span class="st">&quot;jacobbien/litr-project@*release&quot;</span>,</span>
+<span id="cb4-4"><a href="package-setup.html#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">subdir =</span> <span class="st">&quot;litr&quot;</span></span>
+<span id="cb4-5"><a href="package-setup.html#cb4-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-6"><a href="package-setup.html#cb4-6" aria-hidden="true" tabindex="-1"></a>version_of_latest_release <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(remote<span class="sc">$</span>ref, <span class="st">&quot;v&quot;</span>)</span>
+<span id="cb4-7"><a href="package-setup.html#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (install_version_of_litr <span class="sc">!=</span> version_of_latest_release)</span>
+<span id="cb4-8"><a href="package-setup.html#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
+<span id="cb4-9"><a href="package-setup.html#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;You should be using the version of litr from the latest release (version&quot;</span>,</span>
+<span id="cb4-10"><a href="package-setup.html#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot; {version_of_latest_release}),</span><span class="sc">\n</span><span class="st"> but you are using version&quot;</span>,</span>
+<span id="cb4-11"><a href="package-setup.html#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot; {install_version_of_litr}.&quot;</span></span>
+<span id="cb4-12"><a href="package-setup.html#cb4-12" aria-hidden="true" tabindex="-1"></a>  ))</span></code></pre></div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="overview.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="generating-package.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

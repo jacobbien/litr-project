@@ -28,6 +28,51 @@
     <loc>/authors.html</loc>
   </url>
   <url>
+    <loc>/create/404.html</loc>
+  </url>
+  <url>
+    <loc>/create/adding-extras-to-an-r-package.html</loc>
+  </url>
+  <url>
+    <loc>/create/combining-.r-files.html</loc>
+  </url>
+  <url>
+    <loc>/create/document.html</loc>
+  </url>
+  <url>
+    <loc>/create/documenting-the-package-and-testing.html</loc>
+  </url>
+  <url>
+    <loc>/create/functionality-to-facilitate-workflow.html</loc>
+  </url>
+  <url>
+    <loc>/create/generating-package.html</loc>
+  </url>
+  <url>
+    <loc>/create/hash.html</loc>
+  </url>
+  <url>
+    <loc>/create/including-extras-for-litr.html</loc>
+  </url>
+  <url>
+    <loc>/create/including-templates.html</loc>
+  </url>
+  <url>
+    <loc>/create/index.html</loc>
+  </url>
+  <url>
+    <loc>/create/overview.html</loc>
+  </url>
+  <url>
+    <loc>/create/package-setup.html</loc>
+  </url>
+  <url>
+    <loc>/create/rendering.html</loc>
+  </url>
+  <url>
+    <loc>/create/tests.html</loc>
+  </url>
+  <url>
     <loc>/index.html</loc>
   </url>
   <url>

@@ -402,9 +402,8 @@ arma::mat my_chol(arma::mat&amp; X) {
 <p>After at least one <code>Rcpp</code> code chunk,<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> we next call the
 following <code>usethis</code> command:</p>
 <pre class="r"><code>usethis::use_rcpp_armadillo(name = &quot;code&quot;)</code></pre>
-<pre><code>## ✔ Adding &#39;Rcpp&#39; to LinkingTo field in DESCRIPTION
-## ✔ Adding &#39;Rcpp&#39; to Imports field in DESCRIPTION
-## ✔ Leaving &#39;src/code.cpp&#39; unchanged
+<pre><code>## ✔ Leaving &#39;src/code.cpp&#39; unchanged
+## • Edit &#39;src/code.cpp&#39;
 ## ✔ Adding &#39;RcppArmadillo&#39; to LinkingTo field in DESCRIPTION
 ## ✔ Created &#39;src/Makevars&#39; and &#39;src/Makevars.win&#39; with requested compilation settings.</code></pre>
 <p>And that’s it. If we like, we may call the function that we defined
@@ -428,7 +427,7 @@ desired:</p>
   testthat::expect_equal(crossprod(xchol), crossprod(x))
   testthat::expect_true(all(xchol[lower.tri(xchol)] == 0))
 })</code></pre>
-<pre><code>## Test passed 🥇</code></pre>
+<pre><code>## Test passed</code></pre>
 <p>Recall that code chunks that have one or more lines starting with
 <code>test_that(</code> (or <code>testthat::test_that(</code>) are added
 to the package as tests.</p>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>12 Defining some tests | Creating the litr R package</title>
+  <meta name="description" content="12 Defining some tests | Creating the litr R package" />
+  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="12 Defining some tests | Creating the litr R package" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="12 Defining some tests | Creating the litr R package" />
+  
+  
+  
+
+<meta name="author" content="Jacob Bien" />
+
+
+<meta name="date" content="2022-05-27" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="including-templates.html"/>
+<link rel="next" href="documenting-the-package-and-testing.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preamble</a></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a></li>
+<li class="chapter" data-level="3" data-path="package-setup.html"><a href="package-setup.html"><i class="fa fa-check"></i><b>3</b> Package setup</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="package-setup.html"><a href="package-setup.html#a-note-on-circularity"><i class="fa fa-check"></i><b>3.1</b> A note on circularity</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="generating-package.html"><a href="generating-package.html"><i class="fa fa-check"></i><b>4</b> Generating the R package</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="generating-package.html"><a href="generating-package.html#sending-code-chunks-to-the-package"><i class="fa fa-check"></i><b>4.1</b> Sending code chunks to the package</a></li>
+<li class="chapter" data-level="4.2" data-path="generating-package.html"><a href="generating-package.html#setting-up-the-r-package-creation"><i class="fa fa-check"></i><b>4.2</b> Setting up the R package creation</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="hash.html"><a href="hash.html"><i class="fa fa-check"></i><b>5</b> Not overwriting a manually edited R package</a></li>
+<li class="chapter" data-level="6" data-path="document.html"><a href="document.html"><i class="fa fa-check"></i><b>6</b> Wrapper to <code>devtools::document()</code></a></li>
+<li class="chapter" data-level="7" data-path="rendering.html"><a href="rendering.html"><i class="fa fa-check"></i><b>7</b> Altering the rendering process</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="hash.html"><a href="hash.html#output-format"><i class="fa fa-check"></i><b>7.1</b> Defining <code>litr</code> output formats</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="rendering.html"><a href="rendering.html#pdf-output-format"><i class="fa fa-check"></i><b>7.1.1</b> .pdf output format</a></li>
+<li class="chapter" data-level="7.1.2" data-path="rendering.html"><a href="rendering.html#html-output-format"><i class="fa fa-check"></i><b>7.1.2</b> .html output format</a></li>
+<li class="chapter" data-level="7.1.3" data-path="rendering.html"><a href="rendering.html#bookdown-output-format"><i class="fa fa-check"></i><b>7.1.3</b> bookdown output format</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href='rendering.html#render'>render</a>()</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a></li>
+<li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-readme"><i class="fa fa-check"></i><b>9.1</b> Adding a README</a></li>
+<li class="chapter" data-level="9.2" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-hex-sticker"><i class="fa fa-check"></i><b>9.2</b> Adding a hex sticker</a></li>
+<li class="chapter" data-level="9.3" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-vignettes"><i class="fa fa-check"></i><b>9.3</b> Adding vignettes</a></li>
+<li class="chapter" data-level="9.4" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site"><i class="fa fa-check"></i><b>9.4</b> Add a pkgdown site</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="combining-.r-files.html"><a href="combining-.r-files.html"><i class="fa fa-check"></i><b>10</b> Combining .R files</a></li>
+<li class="chapter" data-level="11" data-path="including-templates.html"><a href="including-templates.html"><i class="fa fa-check"></i><b>11</b> Including templates</a></li>
+<li class="chapter" data-level="12" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
+<li class="chapter" data-level="12.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>12.3</b> Testing chunk referencing</a></li>
+<li class="chapter" data-level="12.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>12.4</b> Testing different ways of rendering</a></li>
+<li class="chapter" data-level="12.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>12.5</b> Testing other templates</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>13.1</b> Add examples folder with the output of knitting each example</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>14.1</b> README with hex sticker</a></li>
+<li class="chapter" data-level="14.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>14.2</b> Vignettes</a></li>
+<li class="chapter" data-level="14.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>14.3</b> A pkgdown site</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Creating the <code>litr</code> R package</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="tests" class="section level1 hasAnchor" number="12">
+<h1><span class="header-section-number">12</span> Defining some tests<a href="tests.html#tests" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>When using <code>litr</code> to create packages that are not <code>litr</code>, one should be able to run tests along the way as we did above in testing the function <code>add_text_to_file()</code>. However, creating <code>litr</code> is a special case so we need to do something different for the tests that involve creating a .Rmd from template and then calling <code>litr::<a href='rendering.html#render'>render</a>()</code> on them (such as the tests in this section). In particular, we use <code>eval=FALSE</code> for these code blocks and then at the end of this document we will install the newly created version of <code>litr</code> and then call <code>devtools::test()</code>. Doing it this way is important for ensuring that the version of <code>litr</code> we are testing is the newest version, i.e. the version defined in this document.</p>
+<p>To understand the reason we are doing it this way, imagine what would happen if instead we left <code>eval=TRUE</code> in the test in the <a href="tests.html#test-check-unedited">next section</a>. When we use <code>rmarkdown::draft()</code> to create a .Rmd file from template, the file it will give us will be an old version (namely the installed version of <code>litr</code>’s template) rather than the latest version.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> Furthermore, consider what happens when we call <code>render()</code> in the test below. This will start the knitting process on <code>my-package.Rmd</code>. However, inside <code>my-package.Rmd</code>, we have <code>litr::<a href='generating-package.html#setup'>setup</a>()</code> and <code>litr::<a href='document.html#document'>document</a>()</code>. When these are called in the knitting process, it will be the versions of the functions from the currently installed <code>litr</code> rather than the versions defined in this document.</p>
+<p>Once we are done testing the new version of the package, we’d like to restore the state of <code>litr</code> to what it was previously. If we don’t do this, then this can lead to inadvertent circularity in which the next time we call <code>litr::<a href='rendering.html#render'>render</a>("create-litr.Rmd")</code>, we are using the version currently under development, which is bad because ultimately we need this version to be rendered by the previous version of <code>litr</code>. The following function implements this approach to testing <code>litr</code>:</p>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="tests.html#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Run tests for `litr` itself</span></span>
+<span id="cb89-2"><a href="tests.html#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb89-3"><a href="tests.html#cb89-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Special function for testing `litr`.  The trick is to temporarily install</span></span>
+<span id="cb89-4"><a href="tests.html#cb89-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; the new version of `litr`, run the test, and then put things back how it was</span></span>
+<span id="cb89-5"><a href="tests.html#cb89-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; before.</span></span>
+<span id="cb89-6"><a href="tests.html#cb89-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb89-7"><a href="tests.html#cb89-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Typical values for `install_old` could be</span></span>
+<span id="cb89-8"><a href="tests.html#cb89-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; - `function() devtools::install(&quot;[location of old version]&quot;)`</span></span>
+<span id="cb89-9"><a href="tests.html#cb89-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; - `function() remotes::install_github(&quot;jacobbien/litr-project@*release&quot;, subdir = &quot;litr&quot;)`.</span></span>
+<span id="cb89-10"><a href="tests.html#cb89-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb89-11"><a href="tests.html#cb89-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param install_old A function that when run will install the old version</span></span>
+<span id="cb89-12"><a href="tests.html#cb89-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param location_of_new Path to the new package directory</span></span>
+<span id="cb89-13"><a href="tests.html#cb89-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb89-14"><a href="tests.html#cb89-14" aria-hidden="true" tabindex="-1"></a><span id='test_litr'>test_litr</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(install_old, location_of_new) {</span>
+<span id="cb89-15"><a href="tests.html#cb89-15" aria-hidden="true" tabindex="-1"></a>  devtools<span class="sc">::</span><span class="fu">unload</span>(params<span class="sc">$</span>package_name)</span>
+<span id="cb89-16"><a href="tests.html#cb89-16" aria-hidden="true" tabindex="-1"></a>  devtools<span class="sc">::</span><span class="fu">install</span>(location_of_new)</span>
+<span id="cb89-17"><a href="tests.html#cb89-17" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> devtools<span class="sc">::</span><span class="fu">test</span>(location_of_new)</span>
+<span id="cb89-18"><a href="tests.html#cb89-18" aria-hidden="true" tabindex="-1"></a>  <a href='documenting-the-package-and-testing.html#install_old'>install_old</a>()</span>
+<span id="cb89-19"><a href="tests.html#cb89-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(out)</span>
+<span id="cb89-20"><a href="tests.html#cb89-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Note: The call to <code>devtools::unload()</code> is to address an issue discussed <a href="https://github.com/jacobbien/litr-project/issues/30">here</a>.</p>
+<div id="test-check-unedited" class="section level2 hasAnchor" number="12.1">
+<h2><span class="header-section-number">12.1</span> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code><a href="tests.html#test-check-unedited" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>For our tests, we create a temporary directory (which we delete at the end). In this directory, we create a generating .Rmd file from one of the templates. We make repeated modifications to the package and each time verify that <code><a href='hash.html#check_unedited'>check_unedited</a>()</code> is <code>FALSE</code> with the modification and returns to <code>TRUE</code> when we put things back how they were. The modifications we try are the following:</p>
+<ul>
+<li><p>Adding a file</p></li>
+<li><p>Removing a file</p></li>
+<li><p>Making a change to a file (in particular, adding a comment to an R file)</p></li>
+<li><p>Changing something in the DESCRIPTION file (but not on the special <code>litr</code> line)</p></li>
+<li><p>Changing the <code>litr</code> hash line itself</p></li>
+</ul>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="tests.html#cb90-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;check_unedited works&quot;</span>, {</span>
+<span id="cb90-2"><a href="tests.html#cb90-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Including this next line seems to be necessary for R CMD check on the cmd line:</span></span>
+<span id="cb90-3"><a href="tests.html#cb90-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Sys.setenv(RSTUDIO_PANDOC = &quot;/Applications/RStudio.app/Contents/MacOS/pandoc&quot;)</span></span>
+<span id="cb90-4"><a href="tests.html#cb90-4" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb90-5"><a href="tests.html#cb90-5" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb90-6"><a href="tests.html#cb90-6" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;my-package.Rmd&quot;</span>)</span>
+<span id="cb90-7"><a href="tests.html#cb90-7" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb90-8"><a href="tests.html#cb90-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
+<span id="cb90-9"><a href="tests.html#cb90-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb90-10"><a href="tests.html#cb90-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb90-11"><a href="tests.html#cb90-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create R package (named &quot;rhello&quot;) from the Rmd template:</span></span>
+<span id="cb90-12"><a href="tests.html#cb90-12" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb90-13"><a href="tests.html#cb90-13" aria-hidden="true" tabindex="-1"></a>  package_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;rhello&quot;</span>)</span>
+<span id="cb90-14"><a href="tests.html#cb90-14" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-15"><a href="tests.html#cb90-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-16"><a href="tests.html#cb90-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what if a file has been added?</span></span>
+<span id="cb90-17"><a href="tests.html#cb90-17" aria-hidden="true" tabindex="-1"></a>  added_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;say_hello2.R&quot;</span>)</span>
+<span id="cb90-18"><a href="tests.html#cb90-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(<span class="st">&quot;# Added something here.&quot;</span>, added_file)</span>
+<span id="cb90-19"><a href="tests.html#cb90-19" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-20"><a href="tests.html#cb90-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-21"><a href="tests.html#cb90-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what if we now remove it?</span></span>
+<span id="cb90-22"><a href="tests.html#cb90-22" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(added_file)</span>
+<span id="cb90-23"><a href="tests.html#cb90-23" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-24"><a href="tests.html#cb90-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-25"><a href="tests.html#cb90-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what if a file is removed from package?</span></span>
+<span id="cb90-26"><a href="tests.html#cb90-26" aria-hidden="true" tabindex="-1"></a>  rfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;say_hello.R&quot;</span>)</span>
+<span id="cb90-27"><a href="tests.html#cb90-27" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(rfile, dir)</span>
+<span id="cb90-28"><a href="tests.html#cb90-28" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-29"><a href="tests.html#cb90-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb90-30"><a href="tests.html#cb90-30" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;say_hello.R&quot;</span>), <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>))</span>
+<span id="cb90-31"><a href="tests.html#cb90-31" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-32"><a href="tests.html#cb90-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-33"><a href="tests.html#cb90-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what if something is changed in a file?</span></span>
+<span id="cb90-34"><a href="tests.html#cb90-34" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(rfile)</span>
+<span id="cb90-35"><a href="tests.html#cb90-35" aria-hidden="true" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
+<span id="cb90-36"><a href="tests.html#cb90-36" aria-hidden="true" tabindex="-1"></a>  txt_mod[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(txt[<span class="dv">3</span>], <span class="st">&quot; # added a comment!!&quot;</span>)</span>
+<span id="cb90-37"><a href="tests.html#cb90-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, rfile)</span>
+<span id="cb90-38"><a href="tests.html#cb90-38" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-39"><a href="tests.html#cb90-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb90-40"><a href="tests.html#cb90-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, rfile)</span>
+<span id="cb90-41"><a href="tests.html#cb90-41" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-42"><a href="tests.html#cb90-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-43"><a href="tests.html#cb90-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what if something is changed in the DESCRIPTION file?</span></span>
+<span id="cb90-44"><a href="tests.html#cb90-44" aria-hidden="true" tabindex="-1"></a>  descfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
+<span id="cb90-45"><a href="tests.html#cb90-45" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(descfile)</span>
+<span id="cb90-46"><a href="tests.html#cb90-46" aria-hidden="true" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
+<span id="cb90-47"><a href="tests.html#cb90-47" aria-hidden="true" tabindex="-1"></a>  txt_mod[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;Package: newname&quot;</span></span>
+<span id="cb90-48"><a href="tests.html#cb90-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, descfile)</span>
+<span id="cb90-49"><a href="tests.html#cb90-49" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-50"><a href="tests.html#cb90-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb90-51"><a href="tests.html#cb90-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, descfile)</span>
+<span id="cb90-52"><a href="tests.html#cb90-52" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-53"><a href="tests.html#cb90-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-54"><a href="tests.html#cb90-54" aria-hidden="true" tabindex="-1"></a>  <span class="co"># what if the special litr hash field is changed in the DESCRIPTION file?</span></span>
+<span id="cb90-55"><a href="tests.html#cb90-55" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(descfile)</span>
+<span id="cb90-56"><a href="tests.html#cb90-56" aria-hidden="true" tabindex="-1"></a>  i_litr <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(txt, <a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>())</span>
+<span id="cb90-57"><a href="tests.html#cb90-57" aria-hidden="true" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
+<span id="cb90-58"><a href="tests.html#cb90-58" aria-hidden="true" tabindex="-1"></a>  txt_mod[i_litr] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(txt_mod[i_litr], <span class="st">&quot;a&quot;</span>)</span>
+<span id="cb90-59"><a href="tests.html#cb90-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, descfile)</span>
+<span id="cb90-60"><a href="tests.html#cb90-60" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-61"><a href="tests.html#cb90-61" aria-hidden="true" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb90-62"><a href="tests.html#cb90-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, descfile)</span>
+<span id="cb90-63"><a href="tests.html#cb90-63" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb90-64"><a href="tests.html#cb90-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-65"><a href="tests.html#cb90-65" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb90-66"><a href="tests.html#cb90-66" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+</div>
+<div id="testing-get_params_used" class="section level2 hasAnchor" number="12.2">
+<h2><span class="header-section-number">12.2</span> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code><a href="tests.html#testing-get_params_used" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Let’s now test the <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code> function, making sure it behaves how we expect it to:</p>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="tests.html#cb91-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;get_params_used works&quot;</span>, {</span>
+<span id="cb91-2"><a href="tests.html#cb91-2" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb91-3"><a href="tests.html#cb91-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb91-4"><a href="tests.html#cb91-4" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb91-5"><a href="tests.html#cb91-5" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;my-package.Rmd&quot;</span>)</span>
+<span id="cb91-6"><a href="tests.html#cb91-6" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file, <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>, <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb91-7"><a href="tests.html#cb91-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb91-8"><a href="tests.html#cb91-8" aria-hidden="true" tabindex="-1"></a>  default_params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file, <span class="at">passed_params =</span> <span class="fu">list</span>())</span>
+<span id="cb91-9"><a href="tests.html#cb91-9" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
+<span id="cb91-10"><a href="tests.html#cb91-10" aria-hidden="true" tabindex="-1"></a>    default_params,</span>
+<span id="cb91-11"><a href="tests.html#cb91-11" aria-hidden="true" tabindex="-1"></a>    rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(rmd_file)<span class="sc">$</span>params</span>
+<span id="cb91-12"><a href="tests.html#cb91-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb91-13"><a href="tests.html#cb91-13" aria-hidden="true" tabindex="-1"></a>  params1 <span class="ot">&lt;-</span> default_params</span>
+<span id="cb91-14"><a href="tests.html#cb91-14" aria-hidden="true" tabindex="-1"></a>  params1<span class="sc">$</span>package_parent_dir <span class="ot">&lt;-</span> <span class="st">&quot;dir&quot;</span></span>
+<span id="cb91-15"><a href="tests.html#cb91-15" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
+<span id="cb91-16"><a href="tests.html#cb91-16" aria-hidden="true" tabindex="-1"></a>    <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file, <span class="at">passed_params =</span> <span class="fu">list</span>(<span class="at">package_parent_dir =</span> <span class="st">&quot;dir&quot;</span>)),</span>
+<span id="cb91-17"><a href="tests.html#cb91-17" aria-hidden="true" tabindex="-1"></a>    params1</span>
+<span id="cb91-18"><a href="tests.html#cb91-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb91-19"><a href="tests.html#cb91-19" aria-hidden="true" tabindex="-1"></a>  params2 <span class="ot">&lt;-</span> default_params</span>
+<span id="cb91-20"><a href="tests.html#cb91-20" aria-hidden="true" tabindex="-1"></a>  params2<span class="sc">$</span>package_name <span class="ot">&lt;-</span> <span class="st">&quot;pkg&quot;</span></span>
+<span id="cb91-21"><a href="tests.html#cb91-21" aria-hidden="true" tabindex="-1"></a>  params2<span class="sc">$</span>package_parent_dir <span class="ot">&lt;-</span> <span class="st">&quot;dir&quot;</span></span>
+<span id="cb91-22"><a href="tests.html#cb91-22" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
+<span id="cb91-23"><a href="tests.html#cb91-23" aria-hidden="true" tabindex="-1"></a>    <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file,</span>
+<span id="cb91-24"><a href="tests.html#cb91-24" aria-hidden="true" tabindex="-1"></a>                    <span class="at">passed_params =</span> <span class="fu">list</span>(<span class="at">package_parent_dir =</span> <span class="st">&quot;dir&quot;</span>,</span>
+<span id="cb91-25"><a href="tests.html#cb91-25" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">package_name =</span> <span class="st">&quot;pkg&quot;</span>)),</span>
+<span id="cb91-26"><a href="tests.html#cb91-26" aria-hidden="true" tabindex="-1"></a>    params2</span>
+<span id="cb91-27"><a href="tests.html#cb91-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb91-28"><a href="tests.html#cb91-28" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb91-29"><a href="tests.html#cb91-29" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+</div>
+<div id="testing-chunk-referencing" class="section level2 hasAnchor" number="12.3">
+<h2><span class="header-section-number">12.3</span> Testing chunk referencing<a href="tests.html#testing-chunk-referencing" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Here we test the handling of chunk references (as implemented in the document output hook set within <code><a href='generating-package.html#setup'>setup</a>()</code>). In particular, we use a .Rmd that uses chunk references in several different ways. Within the .Rmd itself, we have tests that ensure that the code can still be run as expected.</p>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="tests.html#cb92-1" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb92-2"><a href="tests.html#cb92-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb92-3"><a href="tests.html#cb92-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;test-example-files&quot;</span>, <span class="st">&quot;create-rknuth.Rmd&quot;</span></span>
+<span id="cb92-4"><a href="tests.html#cb92-4" aria-hidden="true" tabindex="-1"></a>    ), </span>
+<span id="cb92-5"><a href="tests.html#cb92-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(<span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>), </span>
+<span id="cb92-6"><a href="tests.html#cb92-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb92-7"><a href="tests.html#cb92-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="tests.html#cb93-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Knuth-style references work&#39;</span>, {</span>
+<span id="cb93-2"><a href="tests.html#cb93-2" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb93-3"><a href="tests.html#cb93-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb93-4"><a href="tests.html#cb93-4" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb93-5"><a href="tests.html#cb93-5" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-rknuth.Rmd&#39;</span>)</span>
+<span id="cb93-6"><a href="tests.html#cb93-6" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="at">path =</span> testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-rknuth.Rmd&quot;</span>), <span class="at">new_path =</span> rmd_file)</span>
+<span id="cb93-7"><a href="tests.html#cb93-7" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb93-8"><a href="tests.html#cb93-8" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&#39;create-rknuth.html&#39;</span>)))</span>
+<span id="cb93-9"><a href="tests.html#cb93-9" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb93-10"><a href="tests.html#cb93-10" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+</div>
+<div id="testing-different-ways-of-rendering" class="section level2 hasAnchor" number="12.4">
+<h2><span class="header-section-number">12.4</span> Testing different ways of rendering<a href="tests.html#testing-different-ways-of-rendering" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The mechanism by which rendering occurs depends on several factors:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Whether <code>litr::<a href='rendering.html#render'>render</a>()</code> or <code>rmarkdown::render()</code> is being called.</p></li>
+<li><p>Whether there is a litr output format specified in the preamble of the .Rmd.</p></li>
+<li><p>Whether there is a litr output format being passed an argument to the render function.</p></li>
+</ol>
+<p>In this section, we will test that one gets the same result regardless of how rendering was invoked.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> We will use variations on a base .Rmd file whose preamble is simply the following:</p>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="tests.html#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="sc">---</span></span>
+<span id="cb94-2"><a href="tests.html#cb94-2" aria-hidden="true" tabindex="-1"></a>title<span class="sc">:</span> <span class="st">&#39;A Test&#39;</span></span>
+<span id="cb94-3"><a href="tests.html#cb94-3" aria-hidden="true" tabindex="-1"></a>params<span class="sc">:</span></span>
+<span id="cb94-4"><a href="tests.html#cb94-4" aria-hidden="true" tabindex="-1"></a>  package_name<span class="sc">:</span> <span class="st">&#39;pkg&#39;</span> <span class="co"># &lt;-- change this to your package name</span></span>
+<span id="cb94-5"><a href="tests.html#cb94-5" aria-hidden="true" tabindex="-1"></a>  package_parent_dir<span class="sc">:</span> <span class="st">&#39;.&#39;</span> <span class="co"># &lt;-- relative to this file location</span></span>
+<span id="cb94-6"><a href="tests.html#cb94-6" aria-hidden="true" tabindex="-1"></a><span class="sc">---</span></span></code></pre></div>
+<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="tests.html#cb95-1" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb95-2"><a href="tests.html#cb95-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb95-3"><a href="tests.html#cb95-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;test-example-files&quot;</span>, <span class="st">&quot;create-pkg.Rmd&quot;</span></span>
+<span id="cb95-4"><a href="tests.html#cb95-4" aria-hidden="true" tabindex="-1"></a>    ), </span>
+<span id="cb95-5"><a href="tests.html#cb95-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(<span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>), </span>
+<span id="cb95-6"><a href="tests.html#cb95-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb95-7"><a href="tests.html#cb95-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>There are 7 cases to consider (<span class="math inline">\(2^3-1\)</span>, since we exclude the case where <code>rmarkdown::render()</code> is called and no argument or preamble would indicate that this should be a litr-knit).</p>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="tests.html#cb96-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Rendering in all possible ways works&#39;</span>, {</span>
+<span id="cb96-2"><a href="tests.html#cb96-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb96-3"><a href="tests.html#cb96-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
+<span id="cb96-4"><a href="tests.html#cb96-4" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb96-5"><a href="tests.html#cb96-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb96-6"><a href="tests.html#cb96-6" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb96-7"><a href="tests.html#cb96-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
+<span id="cb96-8"><a href="tests.html#cb96-8" aria-hidden="true" tabindex="-1"></a>  rmd_file1 <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg1.Rmd&#39;</span>)</span>
+<span id="cb96-9"><a href="tests.html#cb96-9" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file1)</span>
+<span id="cb96-10"><a href="tests.html#cb96-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
+<span id="cb96-11"><a href="tests.html#cb96-11" aria-hidden="true" tabindex="-1"></a>  rmd_file2 <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg2.Rmd&#39;</span>)</span>
+<span id="cb96-12"><a href="tests.html#cb96-12" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file2)</span>
+<span id="cb96-13"><a href="tests.html#cb96-13" aria-hidden="true" tabindex="-1"></a>  litr<span class="sc">:::</span><a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(<span class="st">&quot;output: litr::litr_html_document&quot;</span>, rmd_file2, <span class="dv">3</span>)</span>
+<span id="cb96-14"><a href="tests.html#cb96-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># files names</span></span>
+<span id="cb96-15"><a href="tests.html#cb96-15" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.Rmd&quot;</span>)  </span>
+<span id="cb96-16"><a href="tests.html#cb96-16" aria-hidden="true" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb96-17"><a href="tests.html#cb96-17" aria-hidden="true" tabindex="-1"></a>  html_file_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>,<span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb96-18"><a href="tests.html#cb96-18" aria-hidden="true" tabindex="-1"></a>  pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb96-19"><a href="tests.html#cb96-19" aria-hidden="true" tabindex="-1"></a>  pkg_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb96-20"><a href="tests.html#cb96-20" aria-hidden="true" tabindex="-1"></a>  <span id='check_outputs_are_same'>check_outputs_are_same</span> <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb96-21"><a href="tests.html#cb96-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># html files should be the same:</span></span>
+<span id="cb96-22"><a href="tests.html#cb96-22" aria-hidden="true" tabindex="-1"></a>    testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(html_file_a), <span class="fu">readLines</span>(html_file))</span>
+<span id="cb96-23"><a href="tests.html#cb96-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># packages should be the same (relying here on litr-hash in DESCRIPTION):</span></span>
+<span id="cb96-24"><a href="tests.html#cb96-24" aria-hidden="true" tabindex="-1"></a>    testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
+<span id="cb96-25"><a href="tests.html#cb96-25" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
+<span id="cb96-26"><a href="tests.html#cb96-26" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb96-27"><a href="tests.html#cb96-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-28"><a href="tests.html#cb96-28" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Now test that all the cases give the same outputs:</span></span>
+<span id="cb96-29"><a href="tests.html#cb96-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb96-30"><a href="tests.html#cb96-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 1: no preamble + litr::<a href='rendering.html#render'>render</a>()</span></span>
+<span id="cb96-31"><a href="tests.html#cb96-31" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-32"><a href="tests.html#cb96-32" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-33"><a href="tests.html#cb96-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))) fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb96-34"><a href="tests.html#cb96-34" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb96-35"><a href="tests.html#cb96-35" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(pkg, pkg_a)</span>
+<span id="cb96-36"><a href="tests.html#cb96-36" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(pkg)</span>
+<span id="cb96-37"><a href="tests.html#cb96-37" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(html_file, html_file_a)</span>
+<span id="cb96-38"><a href="tests.html#cb96-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-39"><a href="tests.html#cb96-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 2: with preamble + litr::<a href='rendering.html#render'>render</a>()</span></span>
+<span id="cb96-40"><a href="tests.html#cb96-40" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-41"><a href="tests.html#cb96-41" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-42"><a href="tests.html#cb96-42" aria-hidden="true" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb96-43"><a href="tests.html#cb96-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb96-44"><a href="tests.html#cb96-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 3: no preamble + litr::<a href='rendering.html#render'>render</a>() with output format argument</span></span>
+<span id="cb96-45"><a href="tests.html#cb96-45" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-46"><a href="tests.html#cb96-46" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb96-47"><a href="tests.html#cb96-47" aria-hidden="true" tabindex="-1"></a>         <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-48"><a href="tests.html#cb96-48" aria-hidden="true" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb96-49"><a href="tests.html#cb96-49" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb96-50"><a href="tests.html#cb96-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 4: with preamble + litr::<a href='rendering.html#render'>render</a>() with output format argument</span></span>
+<span id="cb96-51"><a href="tests.html#cb96-51" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-52"><a href="tests.html#cb96-52" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb96-53"><a href="tests.html#cb96-53" aria-hidden="true" tabindex="-1"></a>         <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-54"><a href="tests.html#cb96-54" aria-hidden="true" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb96-55"><a href="tests.html#cb96-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-56"><a href="tests.html#cb96-56" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 5: with preamble + rmarkdown::render()</span></span>
+<span id="cb96-57"><a href="tests.html#cb96-57" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-58"><a href="tests.html#cb96-58" aria-hidden="true" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb96-59"><a href="tests.html#cb96-59" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file, <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-60"><a href="tests.html#cb96-60" aria-hidden="true" tabindex="-1"></a>                     )</span>
+<span id="cb96-61"><a href="tests.html#cb96-61" aria-hidden="true" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb96-62"><a href="tests.html#cb96-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-63"><a href="tests.html#cb96-63" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 6: no preamble + rmarkdown::render() with output format argument</span></span>
+<span id="cb96-64"><a href="tests.html#cb96-64" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-65"><a href="tests.html#cb96-65" aria-hidden="true" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb96-66"><a href="tests.html#cb96-66" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file,</span>
+<span id="cb96-67"><a href="tests.html#cb96-67" aria-hidden="true" tabindex="-1"></a>                          <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb96-68"><a href="tests.html#cb96-68" aria-hidden="true" tabindex="-1"></a>                          <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-69"><a href="tests.html#cb96-69" aria-hidden="true" tabindex="-1"></a>                     )</span>
+<span id="cb96-70"><a href="tests.html#cb96-70" aria-hidden="true" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb96-71"><a href="tests.html#cb96-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-72"><a href="tests.html#cb96-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 7: with preamble + rmarkdown::render() with output format argument</span></span>
+<span id="cb96-73"><a href="tests.html#cb96-73" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb96-74"><a href="tests.html#cb96-74" aria-hidden="true" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb96-75"><a href="tests.html#cb96-75" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file,</span>
+<span id="cb96-76"><a href="tests.html#cb96-76" aria-hidden="true" tabindex="-1"></a>                          <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb96-77"><a href="tests.html#cb96-77" aria-hidden="true" tabindex="-1"></a>                          <span class="at">output_file =</span> html_file)</span>
+<span id="cb96-78"><a href="tests.html#cb96-78" aria-hidden="true" tabindex="-1"></a>                     )</span>
+<span id="cb96-79"><a href="tests.html#cb96-79" aria-hidden="true" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb96-80"><a href="tests.html#cb96-80" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb96-81"><a href="tests.html#cb96-81" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb96-82"><a href="tests.html#cb96-82" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Let’s also make sure that we get the same R package output when using <code>minimal_eval=TRUE</code> as <code>minimal_eval=TRUE</code>.</p>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="tests.html#cb97-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Rendering with minimal_eval=TRUE works&#39;</span>, {</span>
+<span id="cb97-2"><a href="tests.html#cb97-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb97-3"><a href="tests.html#cb97-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
+<span id="cb97-4"><a href="tests.html#cb97-4" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb97-5"><a href="tests.html#cb97-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb97-6"><a href="tests.html#cb97-6" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb97-7"><a href="tests.html#cb97-7" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
+<span id="cb97-8"><a href="tests.html#cb97-8" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
+<span id="cb97-9"><a href="tests.html#cb97-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
+<span id="cb97-10"><a href="tests.html#cb97-10" aria-hidden="true" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb97-11"><a href="tests.html#cb97-11" aria-hidden="true" tabindex="-1"></a>  html_file_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>,<span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb97-12"><a href="tests.html#cb97-12" aria-hidden="true" tabindex="-1"></a>  pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb97-13"><a href="tests.html#cb97-13" aria-hidden="true" tabindex="-1"></a>  pkg_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb97-14"><a href="tests.html#cb97-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-15"><a href="tests.html#cb97-15" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Now test that all the cases give the same outputs:</span></span>
+<span id="cb97-16"><a href="tests.html#cb97-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb97-17"><a href="tests.html#cb97-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 1: minimal_eval = FALSE</span></span>
+<span id="cb97-18"><a href="tests.html#cb97-18" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file, <span class="at">minimal_eval =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb97-19"><a href="tests.html#cb97-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))) fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb97-20"><a href="tests.html#cb97-20" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb97-21"><a href="tests.html#cb97-21" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(pkg, pkg_a)</span>
+<span id="cb97-22"><a href="tests.html#cb97-22" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(pkg)</span>
+<span id="cb97-23"><a href="tests.html#cb97-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-24"><a href="tests.html#cb97-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 2: minimal_eval = TRUE passed to render</span></span>
+<span id="cb97-25"><a href="tests.html#cb97-25" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb97-26"><a href="tests.html#cb97-26" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
+<span id="cb97-27"><a href="tests.html#cb97-27" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
+<span id="cb97-28"><a href="tests.html#cb97-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-29"><a href="tests.html#cb97-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Case 3: minimal_eval = TRUE passed to output format</span></span>
+<span id="cb97-30"><a href="tests.html#cb97-30" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file,</span>
+<span id="cb97-31"><a href="tests.html#cb97-31" aria-hidden="true" tabindex="-1"></a>         <span class="at">output_file =</span> html_file,</span>
+<span id="cb97-32"><a href="tests.html#cb97-32" aria-hidden="true" tabindex="-1"></a>         <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(<span class="at">minimal_eval =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb97-33"><a href="tests.html#cb97-33" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb97-34"><a href="tests.html#cb97-34" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
+<span id="cb97-35"><a href="tests.html#cb97-35" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
+<span id="cb97-36"><a href="tests.html#cb97-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-37"><a href="tests.html#cb97-37" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb97-38"><a href="tests.html#cb97-38" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+</div>
+<div id="testing-other-templates" class="section level2 hasAnchor" number="12.5">
+<h2><span class="header-section-number">12.5</span> Testing other templates<a href="tests.html#testing-other-templates" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Let’s now make sure that each template can be knit without error.</p>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="tests.html#cb98-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;templates can be knit&quot;</span>, {</span>
+<span id="cb98-2"><a href="tests.html#cb98-2" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb98-3"><a href="tests.html#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb98-4"><a href="tests.html#cb98-4" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb98-5"><a href="tests.html#cb98-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb98-6"><a href="tests.html#cb98-6" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhello.Rmd&quot;</span>)</span>
+<span id="cb98-7"><a href="tests.html#cb98-7" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb98-8"><a href="tests.html#cb98-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
+<span id="cb98-9"><a href="tests.html#cb98-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb98-10"><a href="tests.html#cb98-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb98-11"><a href="tests.html#cb98-11" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb98-12"><a href="tests.html#cb98-12" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhello.html&quot;</span>)))</span>
+<span id="cb98-13"><a href="tests.html#cb98-13" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;rhello&quot;</span>)))</span>
+<span id="cb98-14"><a href="tests.html#cb98-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-15"><a href="tests.html#cb98-15" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhasdata.Rmd&quot;</span>)</span>
+<span id="cb98-16"><a href="tests.html#cb98-16" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb98-17"><a href="tests.html#cb98-17" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-data&quot;</span>,</span>
+<span id="cb98-18"><a href="tests.html#cb98-18" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb98-19"><a href="tests.html#cb98-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb98-20"><a href="tests.html#cb98-20" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb98-21"><a href="tests.html#cb98-21" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhasdata.html&quot;</span>)))</span>
+<span id="cb98-22"><a href="tests.html#cb98-22" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;rhasdata&quot;</span>)))</span>
+<span id="cb98-23"><a href="tests.html#cb98-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-24"><a href="tests.html#cb98-24" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-withrcpp.Rmd&quot;</span>)</span>
+<span id="cb98-25"><a href="tests.html#cb98-25" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb98-26"><a href="tests.html#cb98-26" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>,</span>
+<span id="cb98-27"><a href="tests.html#cb98-27" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb98-28"><a href="tests.html#cb98-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb98-29"><a href="tests.html#cb98-29" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb98-30"><a href="tests.html#cb98-30" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-withrcpp.html&quot;</span>)))</span>
+<span id="cb98-31"><a href="tests.html#cb98-31" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;withrcpp&quot;</span>)))</span>
+<span id="cb98-32"><a href="tests.html#cb98-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-33"><a href="tests.html#cb98-33" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-witharmadillo.Rmd&quot;</span>)</span>
+<span id="cb98-34"><a href="tests.html#cb98-34" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb98-35"><a href="tests.html#cb98-35" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>,</span>
+<span id="cb98-36"><a href="tests.html#cb98-36" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb98-37"><a href="tests.html#cb98-37" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb98-38"><a href="tests.html#cb98-38" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb98-39"><a href="tests.html#cb98-39" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-witharmadillo.Rmd&quot;</span>)))</span>
+<span id="cb98-40"><a href="tests.html#cb98-40" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;witharmadillo&quot;</span>)))</span>
+<span id="cb98-41"><a href="tests.html#cb98-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb98-42"><a href="tests.html#cb98-42" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-withpkgdown.Rmd&quot;</span>)</span>
+<span id="cb98-43"><a href="tests.html#cb98-43" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb98-44"><a href="tests.html#cb98-44" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-extras&quot;</span>,</span>
+<span id="cb98-45"><a href="tests.html#cb98-45" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb98-46"><a href="tests.html#cb98-46" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb98-47"><a href="tests.html#cb98-47" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb98-48"><a href="tests.html#cb98-48" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-withpkgdown.html&quot;</span>)))</span>
+<span id="cb98-49"><a href="tests.html#cb98-49" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;withpkgdown&quot;</span>)))</span>
+<span id="cb98-50"><a href="tests.html#cb98-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-51"><a href="tests.html#cb98-51" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown.Rmd&quot;</span>)</span>
+<span id="cb98-52"><a href="tests.html#cb98-52" aria-hidden="true" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">draft</span>(rmd_file,</span>
+<span id="cb98-53"><a href="tests.html#cb98-53" aria-hidden="true" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
+<span id="cb98-54"><a href="tests.html#cb98-54" aria-hidden="true" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb98-55"><a href="tests.html#cb98-55" aria-hidden="true" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb98-56"><a href="tests.html#cb98-56" aria-hidden="true" tabindex="-1"></a>  prev_dir <span class="ot">&lt;-</span> <span class="fu">getwd</span>()</span>
+<span id="cb98-57"><a href="tests.html#cb98-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setwd</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>))</span>
+<span id="cb98-58"><a href="tests.html#cb98-58" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="st">&quot;create-frombookdown.Rmd&quot;</span>)</span>
+<span id="cb98-59"><a href="tests.html#cb98-59" aria-hidden="true" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(<span class="st">&quot;index.Rmd&quot;</span>)</span>
+<span id="cb98-60"><a href="tests.html#cb98-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setwd</span>(prev_dir)</span>
+<span id="cb98-61"><a href="tests.html#cb98-61" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(</span>
+<span id="cb98-62"><a href="tests.html#cb98-62" aria-hidden="true" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>, <span class="st">&quot;_book&quot;</span>, <span class="st">&quot;index.html&quot;</span>))</span>
+<span id="cb98-63"><a href="tests.html#cb98-63" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb98-64"><a href="tests.html#cb98-64" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(</span>
+<span id="cb98-65"><a href="tests.html#cb98-65" aria-hidden="true" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>, <span class="st">&quot;frombookdown&quot;</span>))</span>
+<span id="cb98-66"><a href="tests.html#cb98-66" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb98-67"><a href="tests.html#cb98-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-68"><a href="tests.html#cb98-68" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb98-69"><a href="tests.html#cb98-69" aria-hidden="true" tabindex="-1"></a> })</span></code></pre></div>
+<p>Even though <code>litr</code> doesn’t directly use <code>Rcpp</code>, we’ll add it as a “Suggests” package since it would be required for running the above test.</p>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="tests.html#cb99-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;Rcpp&#39; to Suggests field in DESCRIPTION
+## • Use `requireNamespace(&quot;Rcpp&quot;, quietly = TRUE)` to test if package is installed
+## • Then directly refer to functions with `Rcpp::fun()`</code></pre>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="2">
+<li id="fn2"><p>If this were the only problem, we could get around this by using <code>pkgload::package_file()</code> to get the proper file; however, the next problem discussed was something that seemed quite hard to resolve.<a href="tests.html#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Note: When we call <code>rmarkdown::render()</code>, we call it in a fresh, non-interactive R session.<a href="tests.html#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="including-templates.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="documenting-the-package-and-testing.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

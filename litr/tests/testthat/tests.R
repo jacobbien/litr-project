@@ -1,4 +1,4 @@
-# Generated from create-litr.Rmd: do not edit by hand  
+# Generated from _main.Rmd: do not edit by hand  
 testthat::test_that("add_text_to_file() works", {
   dir <- tempfile()
   if (fs::file_exists(dir)) fs::file_delete(dir)

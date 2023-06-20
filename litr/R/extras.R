@@ -1,4 +1,4 @@
-# Generated from create-litr.Rmd: do not edit by hand
+# Generated from _main.Rmd: do not edit by hand
 
 #' Add README to package
 #' 
