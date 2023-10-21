@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>4 Generating the R package | Creating the litr R package</title>
   <meta name="description" content="4 Generating the R package | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
 
   <meta property="og:title" content="4 Generating the R package | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -220,221 +220,221 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre class="rcpp"><code>#include &lt;Rcpp.h&gt;
 using namespace Rcpp;</code></pre>
 <p>and we only want this to appear once in <code>code.cpp</code>, so we do a bit of work to remove that if it appears in the code chunk.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="generating-package.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; A knitr chunk hook for writing R code and tests</span></span>
-<span id="cb6-2"><a href="generating-package.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb6-3"><a href="generating-package.html#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; This chunk hook detects whether a chunk is defining a function or dataset</span></span>
-<span id="cb6-4"><a href="generating-package.html#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; to be included in the R package (looks for the `roxygen2` comment format `#&#39; `).</span></span>
-<span id="cb6-5"><a href="generating-package.html#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; If so, then it is written to the `R/` directory.  It also looks for chunks </span></span>
-<span id="cb6-6"><a href="generating-package.html#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; that have one or more lines that start with `test_that(` or </span></span>
-<span id="cb6-7"><a href="generating-package.html#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; `testthat::test_that(` (potentially with some leading whitespace).  These </span></span>
-<span id="cb6-8"><a href="generating-package.html#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; chunks are then written to the `tests` directory of the R package.</span></span>
-<span id="cb6-9"><a href="generating-package.html#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb6-10"><a href="generating-package.html#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; When the `send_to` option is used, this chunk hook instead simply writes the</span></span>
-<span id="cb6-11"><a href="generating-package.html#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; code chunk to the file specified.</span></span>
-<span id="cb6-12"><a href="generating-package.html#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb6-13"><a href="generating-package.html#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param before Indicates whether this is being called before or after the </span></span>
-<span id="cb6-14"><a href="generating-package.html#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; chunk code is executed</span></span>
-<span id="cb6-15"><a href="generating-package.html#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param options Has information from the chunk</span></span>
-<span id="cb6-16"><a href="generating-package.html#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param envir Environment</span></span>
-<span id="cb6-17"><a href="generating-package.html#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb6-18"><a href="generating-package.html#cb6-18" aria-hidden="true" tabindex="-1"></a><span id='send_to_package'>send_to_package</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(before, options, envir) {</span>
-<span id="cb6-19"><a href="generating-package.html#cb6-19" aria-hidden="true" tabindex="-1"></a>  msg <span class="ot">&lt;-</span> <a href='generating-package.html#do_not_edit_message'>do_not_edit_message</a>(knitr<span class="sc">::</span><span class="fu">current_input</span>(), <span class="at">type =</span> <span class="st">&quot;R&quot;</span>)</span>
-<span id="cb6-20"><a href="generating-package.html#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (before <span class="sc">==</span> <span class="cn">FALSE</span>) {</span>
-<span id="cb6-21"><a href="generating-package.html#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Don&#39;t do anything after the code chunk has been executed.</span></span>
-<span id="cb6-22"><a href="generating-package.html#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>()</span>
-<span id="cb6-23"><a href="generating-package.html#cb6-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-24"><a href="generating-package.html#cb6-24" aria-hidden="true" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;root.dir&quot;</span>)</span>
-<span id="cb6-25"><a href="generating-package.html#cb6-25" aria-hidden="true" tabindex="-1"></a>  package_name <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_file</span>(package_dir)</span>
-<span id="cb6-26"><a href="generating-package.html#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(options<span class="sc">$</span>send_to)) {</span>
-<span id="cb6-27"><a href="generating-package.html#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the user has defined an option that indicates where in the package this</span></span>
-<span id="cb6-28"><a href="generating-package.html#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># code should be written</span></span>
-<span id="cb6-29"><a href="generating-package.html#cb6-29" aria-hidden="true" tabindex="-1"></a>    file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, options<span class="sc">$</span>send_to)</span>
-<span id="cb6-30"><a href="generating-package.html#cb6-30" aria-hidden="true" tabindex="-1"></a>    <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(options<span class="sc">$</span>code, file, <span class="at">pad =</span> <span class="cn">TRUE</span>, <span class="at">msg =</span> msg)</span>
-<span id="cb6-31"><a href="generating-package.html#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>()</span>
-<span id="cb6-32"><a href="generating-package.html#cb6-32" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-33"><a href="generating-package.html#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (stringr<span class="sc">::</span><span class="fu">str_detect</span>(options<span class="sc">$</span>code[<span class="dv">1</span>], <span class="st">&quot;^#&#39; &quot;</span>)) {</span>
-<span id="cb6-34"><a href="generating-package.html#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># starts with roxygen2, so let&#39;s assume this chunk is defining an R function</span></span>
-<span id="cb6-35"><a href="generating-package.html#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># or dataset that belongs in the package</span></span>
-<span id="cb6-36"><a href="generating-package.html#cb6-36" aria-hidden="true" tabindex="-1"></a>    non_comment <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(options<span class="sc">$</span>code, <span class="st">&quot;^#&quot;</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-37"><a href="generating-package.html#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(non_comment) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb6-38"><a href="generating-package.html#cb6-38" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (stringr<span class="sc">::</span><span class="fu">str_detect</span>(non_comment[<span class="dv">1</span>], <span class="st">&quot;&lt;-&quot;</span>)) {</span>
-<span id="cb6-39"><a href="generating-package.html#cb6-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a function is being defined</span></span>
-<span id="cb6-40"><a href="generating-package.html#cb6-40" aria-hidden="true" tabindex="-1"></a>        objname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_match</span>(non_comment[<span class="dv">1</span>], <span class="st">&quot;^(.*)</span><span class="sc">\\</span><span class="st">s*&lt;-</span><span class="sc">\\</span><span class="st">s*function&quot;</span>)[, <span class="dv">2</span>]</span>
-<span id="cb6-41"><a href="generating-package.html#cb6-41" aria-hidden="true" tabindex="-1"></a>        objname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_trim</span>(objname)</span>
-<span id="cb6-42"><a href="generating-package.html#cb6-42" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (stringr<span class="sc">::</span><span class="fu">str_detect</span>(non_comment[<span class="dv">1</span>], <span class="st">&#39;^&quot;.+&quot;$&#39;</span>)) {</span>
-<span id="cb6-43"><a href="generating-package.html#cb6-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a dataset is being documented</span></span>
-<span id="cb6-44"><a href="generating-package.html#cb6-44" aria-hidden="true" tabindex="-1"></a>        objname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_sub</span>(non_comment[<span class="dv">1</span>], <span class="at">start =</span> <span class="dv">2</span>, <span class="at">end =</span> <span class="sc">-</span><span class="dv">2</span>)</span>
-<span id="cb6-45"><a href="generating-package.html#cb6-45" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
-<span id="cb6-46"><a href="generating-package.html#cb6-46" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Roxygen2 comment wasn&#39;t followed by anything recognized, so do not </span></span>
-<span id="cb6-47"><a href="generating-package.html#cb6-47" aria-hidden="true" tabindex="-1"></a>        <span class="co"># send this to package</span></span>
-<span id="cb6-48"><a href="generating-package.html#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>()</span>
-<span id="cb6-49"><a href="generating-package.html#cb6-49" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb6-50"><a href="generating-package.html#cb6-50" aria-hidden="true" tabindex="-1"></a>      file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;R&quot;</span>, stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;{objname}.R&quot;</span>))</span>
-<span id="cb6-51"><a href="generating-package.html#cb6-51" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="fu">paste</span>(<span class="fu">c</span>(msg, <span class="st">&quot;&quot;</span>, options<span class="sc">$</span>code, <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), <span class="at">file =</span> file)</span>
-<span id="cb6-52"><a href="generating-package.html#cb6-52" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-53"><a href="generating-package.html#cb6-53" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-54"><a href="generating-package.html#cb6-54" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(options<span class="sc">$</span>code,</span>
-<span id="cb6-55"><a href="generating-package.html#cb6-55" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">s*(testthat::)?test_that</span><span class="sc">\\</span><span class="st">(&quot;</span>))) {</span>
-<span id="cb6-56"><a href="generating-package.html#cb6-56" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This chunk is inferred to be a test</span></span>
-<span id="cb6-57"><a href="generating-package.html#cb6-57" aria-hidden="true" tabindex="-1"></a>    test_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>)</span>
-<span id="cb6-58"><a href="generating-package.html#cb6-58" aria-hidden="true" tabindex="-1"></a>    test_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(test_dir, <span class="st">&quot;tests.R&quot;</span>)</span>
-<span id="cb6-59"><a href="generating-package.html#cb6-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(test_file)) {</span>
-<span id="cb6-60"><a href="generating-package.html#cb6-60" aria-hidden="true" tabindex="-1"></a>      <span class="co"># It&#39;s the first chunk with tests</span></span>
-<span id="cb6-61"><a href="generating-package.html#cb6-61" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(test_dir)) usethis<span class="sc">::</span><span class="fu">use_testthat</span>()</span>
-<span id="cb6-62"><a href="generating-package.html#cb6-62" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="fu">c</span>(msg, <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="at">file =</span> test_file)</span>
-<span id="cb6-63"><a href="generating-package.html#cb6-63" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-64"><a href="generating-package.html#cb6-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(</span>
-<span id="cb6-65"><a href="generating-package.html#cb6-65" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="fu">c</span>(options<span class="sc">$</span>code, <span class="st">&quot;&quot;</span>, <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb6-66"><a href="generating-package.html#cb6-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> test_file,</span>
-<span id="cb6-67"><a href="generating-package.html#cb6-67" aria-hidden="true" tabindex="-1"></a>      <span class="at">append =</span> <span class="cn">TRUE</span></span>
-<span id="cb6-68"><a href="generating-package.html#cb6-68" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-69"><a href="generating-package.html#cb6-69" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (options<span class="sc">$</span>engine <span class="sc">==</span> <span class="st">&quot;Rcpp&quot;</span>) {</span>
-<span id="cb6-70"><a href="generating-package.html#cb6-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># To add Rcpp code, we need the package documentation file to exist </span></span>
-<span id="cb6-71"><a href="generating-package.html#cb6-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="fu">file.path</span>(</span>
-<span id="cb6-72"><a href="generating-package.html#cb6-72" aria-hidden="true" tabindex="-1"></a>      package_dir,</span>
-<span id="cb6-73"><a href="generating-package.html#cb6-73" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;R&quot;</span>,</span>
-<span id="cb6-74"><a href="generating-package.html#cb6-74" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste0</span>(package_name, <span class="st">&quot;-package.R&quot;</span>))</span>
-<span id="cb6-75"><a href="generating-package.html#cb6-75" aria-hidden="true" tabindex="-1"></a>      )) {</span>
-<span id="cb6-76"><a href="generating-package.html#cb6-76" aria-hidden="true" tabindex="-1"></a>      usethis<span class="sc">::</span><span class="fu">use_package_doc</span>(<span class="at">open =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb6-77"><a href="generating-package.html#cb6-77" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-78"><a href="generating-package.html#cb6-78" aria-hidden="true" tabindex="-1"></a>    cpp_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;src&quot;</span>, <span class="st">&quot;code.cpp&quot;</span>)</span>
-<span id="cb6-79"><a href="generating-package.html#cb6-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(cpp_file)) {</span>
-<span id="cb6-80"><a href="generating-package.html#cb6-80" aria-hidden="true" tabindex="-1"></a>      <span class="co"># set up package for Rcpp</span></span>
-<span id="cb6-81"><a href="generating-package.html#cb6-81" aria-hidden="true" tabindex="-1"></a>      <span class="co"># these next few lines are taken from usethis::use_rcpp()</span></span>
-<span id="cb6-82"><a href="generating-package.html#cb6-82" aria-hidden="true" tabindex="-1"></a>      <span class="co"># it approximates a call to usethis::use_rcpp(name = &quot;code&quot;)</span></span>
-<span id="cb6-83"><a href="generating-package.html#cb6-83" aria-hidden="true" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">use_dependency</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;LinkingTo&quot;</span>)</span>
-<span id="cb6-84"><a href="generating-package.html#cb6-84" aria-hidden="true" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">use_dependency</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;Imports&quot;</span>)</span>
-<span id="cb6-85"><a href="generating-package.html#cb6-85" aria-hidden="true" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">roxygen_ns_append</span>(<span class="st">&quot;@importFrom Rcpp sourceCpp&quot;</span>)</span>
-<span id="cb6-86"><a href="generating-package.html#cb6-86" aria-hidden="true" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">use_src</span>()</span>
-<span id="cb6-87"><a href="generating-package.html#cb6-87" aria-hidden="true" tabindex="-1"></a>      usethis<span class="sc">::</span><span class="fu">use_template</span>(<span class="st">&quot;code.cpp&quot;</span>, <span class="at">save_as =</span> <span class="st">&quot;src/code.cpp&quot;</span>)</span>
-<span id="cb6-88"><a href="generating-package.html#cb6-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-89"><a href="generating-package.html#cb6-89" aria-hidden="true" tabindex="-1"></a>      msg <span class="ot">&lt;-</span> <a href='generating-package.html#do_not_edit_message'>do_not_edit_message</a>(knitr<span class="sc">::</span><span class="fu">current_input</span>(), <span class="at">type =</span> <span class="st">&quot;c&quot;</span>)</span>
-<span id="cb6-90"><a href="generating-package.html#cb6-90" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cat</span>(msg, <span class="at">file =</span> cpp_file, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-91"><a href="generating-package.html#cb6-91" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-92"><a href="generating-package.html#cb6-92" aria-hidden="true" tabindex="-1"></a>    <span class="co"># append code to code.cpp, but remove lines that are `#include &lt;Rcpp.h&gt;`</span></span>
-<span id="cb6-93"><a href="generating-package.html#cb6-93" aria-hidden="true" tabindex="-1"></a>    <span class="co"># or `using namespace Rcpp;` since this already appears at top of file</span></span>
-<span id="cb6-94"><a href="generating-package.html#cb6-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">paste</span>(<span class="fu">c</span>(</span>
-<span id="cb6-95"><a href="generating-package.html#cb6-95" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;&quot;</span>,</span>
-<span id="cb6-96"><a href="generating-package.html#cb6-96" aria-hidden="true" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_subset</span>(</span>
-<span id="cb6-97"><a href="generating-package.html#cb6-97" aria-hidden="true" tabindex="-1"></a>        options<span class="sc">$</span>code,</span>
-<span id="cb6-98"><a href="generating-package.html#cb6-98" aria-hidden="true" tabindex="-1"></a>        r<span class="st">&quot;(^#include &lt;Rcpp.h&gt;$|^using namespace Rcpp;$)&quot;</span>,</span>
-<span id="cb6-99"><a href="generating-package.html#cb6-99" aria-hidden="true" tabindex="-1"></a>        <span class="at">negate =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb6-100"><a href="generating-package.html#cb6-100" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), </span>
-<span id="cb6-101"><a href="generating-package.html#cb6-101" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> cpp_file,</span>
-<span id="cb6-102"><a href="generating-package.html#cb6-102" aria-hidden="true" tabindex="-1"></a>        <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-103"><a href="generating-package.html#cb6-103" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-104"><a href="generating-package.html#cb6-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>()</span>
-<span id="cb6-105"><a href="generating-package.html#cb6-105" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="generating-package.html#cb6-1" tabindex="-1"></a><span class="co">#&#39; A knitr chunk hook for writing R code and tests</span></span>
+<span id="cb6-2"><a href="generating-package.html#cb6-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb6-3"><a href="generating-package.html#cb6-3" tabindex="-1"></a><span class="co">#&#39; This chunk hook detects whether a chunk is defining a function or dataset</span></span>
+<span id="cb6-4"><a href="generating-package.html#cb6-4" tabindex="-1"></a><span class="co">#&#39; to be included in the R package (looks for the `roxygen2` comment format `#&#39; `).</span></span>
+<span id="cb6-5"><a href="generating-package.html#cb6-5" tabindex="-1"></a><span class="co">#&#39; If so, then it is written to the `R/` directory.  It also looks for chunks </span></span>
+<span id="cb6-6"><a href="generating-package.html#cb6-6" tabindex="-1"></a><span class="co">#&#39; that have one or more lines that start with `test_that(` or </span></span>
+<span id="cb6-7"><a href="generating-package.html#cb6-7" tabindex="-1"></a><span class="co">#&#39; `testthat::test_that(` (potentially with some leading whitespace).  These </span></span>
+<span id="cb6-8"><a href="generating-package.html#cb6-8" tabindex="-1"></a><span class="co">#&#39; chunks are then written to the `tests` directory of the R package.</span></span>
+<span id="cb6-9"><a href="generating-package.html#cb6-9" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb6-10"><a href="generating-package.html#cb6-10" tabindex="-1"></a><span class="co">#&#39; When the `send_to` option is used, this chunk hook instead simply writes the</span></span>
+<span id="cb6-11"><a href="generating-package.html#cb6-11" tabindex="-1"></a><span class="co">#&#39; code chunk to the file specified.</span></span>
+<span id="cb6-12"><a href="generating-package.html#cb6-12" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb6-13"><a href="generating-package.html#cb6-13" tabindex="-1"></a><span class="co">#&#39; @param before Indicates whether this is being called before or after the </span></span>
+<span id="cb6-14"><a href="generating-package.html#cb6-14" tabindex="-1"></a><span class="co">#&#39; chunk code is executed</span></span>
+<span id="cb6-15"><a href="generating-package.html#cb6-15" tabindex="-1"></a><span class="co">#&#39; @param options Has information from the chunk</span></span>
+<span id="cb6-16"><a href="generating-package.html#cb6-16" tabindex="-1"></a><span class="co">#&#39; @param envir Environment</span></span>
+<span id="cb6-17"><a href="generating-package.html#cb6-17" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb6-18"><a href="generating-package.html#cb6-18" tabindex="-1"></a><span id='send_to_package'>send_to_package</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(before, options, envir) {</span>
+<span id="cb6-19"><a href="generating-package.html#cb6-19" tabindex="-1"></a>  msg <span class="ot">&lt;-</span> <a href='generating-package.html#do_not_edit_message'>do_not_edit_message</a>(knitr<span class="sc">::</span><span class="fu">current_input</span>(), <span class="at">type =</span> <span class="st">&quot;R&quot;</span>)</span>
+<span id="cb6-20"><a href="generating-package.html#cb6-20" tabindex="-1"></a>  <span class="cf">if</span> (before <span class="sc">==</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb6-21"><a href="generating-package.html#cb6-21" tabindex="-1"></a>    <span class="co"># Don&#39;t do anything after the code chunk has been executed.</span></span>
+<span id="cb6-22"><a href="generating-package.html#cb6-22" tabindex="-1"></a>    <span class="fu">return</span>()</span>
+<span id="cb6-23"><a href="generating-package.html#cb6-23" tabindex="-1"></a>  }</span>
+<span id="cb6-24"><a href="generating-package.html#cb6-24" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;root.dir&quot;</span>)</span>
+<span id="cb6-25"><a href="generating-package.html#cb6-25" tabindex="-1"></a>  package_name <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_file</span>(package_dir)</span>
+<span id="cb6-26"><a href="generating-package.html#cb6-26" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(options<span class="sc">$</span>send_to)) {</span>
+<span id="cb6-27"><a href="generating-package.html#cb6-27" tabindex="-1"></a>    <span class="co"># the user has defined an option that indicates where in the package this</span></span>
+<span id="cb6-28"><a href="generating-package.html#cb6-28" tabindex="-1"></a>    <span class="co"># code should be written</span></span>
+<span id="cb6-29"><a href="generating-package.html#cb6-29" tabindex="-1"></a>    file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, options<span class="sc">$</span>send_to)</span>
+<span id="cb6-30"><a href="generating-package.html#cb6-30" tabindex="-1"></a>    <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(options<span class="sc">$</span>code, file, <span class="at">pad =</span> <span class="cn">TRUE</span>, <span class="at">msg =</span> msg)</span>
+<span id="cb6-31"><a href="generating-package.html#cb6-31" tabindex="-1"></a>    <span class="fu">return</span>()</span>
+<span id="cb6-32"><a href="generating-package.html#cb6-32" tabindex="-1"></a>  }</span>
+<span id="cb6-33"><a href="generating-package.html#cb6-33" tabindex="-1"></a>  <span class="cf">if</span> (stringr<span class="sc">::</span><span class="fu">str_detect</span>(options<span class="sc">$</span>code[<span class="dv">1</span>], <span class="st">&quot;^#&#39; &quot;</span>)) {</span>
+<span id="cb6-34"><a href="generating-package.html#cb6-34" tabindex="-1"></a>    <span class="co"># starts with roxygen2, so let&#39;s assume this chunk is defining an R function</span></span>
+<span id="cb6-35"><a href="generating-package.html#cb6-35" tabindex="-1"></a>    <span class="co"># or dataset that belongs in the package</span></span>
+<span id="cb6-36"><a href="generating-package.html#cb6-36" tabindex="-1"></a>    non_comment <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(options<span class="sc">$</span>code, <span class="st">&quot;^#&quot;</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-37"><a href="generating-package.html#cb6-37" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(non_comment) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb6-38"><a href="generating-package.html#cb6-38" tabindex="-1"></a>      <span class="cf">if</span> (stringr<span class="sc">::</span><span class="fu">str_detect</span>(non_comment[<span class="dv">1</span>], <span class="st">&quot;&lt;-&quot;</span>)) {</span>
+<span id="cb6-39"><a href="generating-package.html#cb6-39" tabindex="-1"></a>        <span class="co"># a function is being defined</span></span>
+<span id="cb6-40"><a href="generating-package.html#cb6-40" tabindex="-1"></a>        objname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_match</span>(non_comment[<span class="dv">1</span>], <span class="st">&quot;^(.*)</span><span class="sc">\\</span><span class="st">s*&lt;-</span><span class="sc">\\</span><span class="st">s*function&quot;</span>)[, <span class="dv">2</span>]</span>
+<span id="cb6-41"><a href="generating-package.html#cb6-41" tabindex="-1"></a>        objname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_trim</span>(objname)</span>
+<span id="cb6-42"><a href="generating-package.html#cb6-42" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (stringr<span class="sc">::</span><span class="fu">str_detect</span>(non_comment[<span class="dv">1</span>], <span class="st">&#39;^&quot;.+&quot;$&#39;</span>)) {</span>
+<span id="cb6-43"><a href="generating-package.html#cb6-43" tabindex="-1"></a>        <span class="co"># a dataset is being documented</span></span>
+<span id="cb6-44"><a href="generating-package.html#cb6-44" tabindex="-1"></a>        objname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_sub</span>(non_comment[<span class="dv">1</span>], <span class="at">start =</span> <span class="dv">2</span>, <span class="at">end =</span> <span class="sc">-</span><span class="dv">2</span>)</span>
+<span id="cb6-45"><a href="generating-package.html#cb6-45" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb6-46"><a href="generating-package.html#cb6-46" tabindex="-1"></a>        <span class="co"># Roxygen2 comment wasn&#39;t followed by anything recognized, so do not </span></span>
+<span id="cb6-47"><a href="generating-package.html#cb6-47" tabindex="-1"></a>        <span class="co"># send this to package</span></span>
+<span id="cb6-48"><a href="generating-package.html#cb6-48" tabindex="-1"></a>        <span class="fu">return</span>()</span>
+<span id="cb6-49"><a href="generating-package.html#cb6-49" tabindex="-1"></a>      }</span>
+<span id="cb6-50"><a href="generating-package.html#cb6-50" tabindex="-1"></a>      file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;R&quot;</span>, stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;{objname}.R&quot;</span>))</span>
+<span id="cb6-51"><a href="generating-package.html#cb6-51" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="fu">paste</span>(<span class="fu">c</span>(msg, <span class="st">&quot;&quot;</span>, options<span class="sc">$</span>code, <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), <span class="at">file =</span> file)</span>
+<span id="cb6-52"><a href="generating-package.html#cb6-52" tabindex="-1"></a>    }</span>
+<span id="cb6-53"><a href="generating-package.html#cb6-53" tabindex="-1"></a>  }</span>
+<span id="cb6-54"><a href="generating-package.html#cb6-54" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(options<span class="sc">$</span>code,</span>
+<span id="cb6-55"><a href="generating-package.html#cb6-55" tabindex="-1"></a>                                   <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">s*(testthat::)?test_that</span><span class="sc">\\</span><span class="st">(&quot;</span>))) {</span>
+<span id="cb6-56"><a href="generating-package.html#cb6-56" tabindex="-1"></a>    <span class="co"># This chunk is inferred to be a test</span></span>
+<span id="cb6-57"><a href="generating-package.html#cb6-57" tabindex="-1"></a>    test_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>)</span>
+<span id="cb6-58"><a href="generating-package.html#cb6-58" tabindex="-1"></a>    test_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(test_dir, <span class="st">&quot;tests.R&quot;</span>)</span>
+<span id="cb6-59"><a href="generating-package.html#cb6-59" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(test_file)) {</span>
+<span id="cb6-60"><a href="generating-package.html#cb6-60" tabindex="-1"></a>      <span class="co"># It&#39;s the first chunk with tests</span></span>
+<span id="cb6-61"><a href="generating-package.html#cb6-61" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(test_dir)) usethis<span class="sc">::</span><span class="fu">use_testthat</span>()</span>
+<span id="cb6-62"><a href="generating-package.html#cb6-62" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="fu">c</span>(msg, <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="at">file =</span> test_file)</span>
+<span id="cb6-63"><a href="generating-package.html#cb6-63" tabindex="-1"></a>    }</span>
+<span id="cb6-64"><a href="generating-package.html#cb6-64" tabindex="-1"></a>    <span class="fu">cat</span>(</span>
+<span id="cb6-65"><a href="generating-package.html#cb6-65" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="fu">c</span>(options<span class="sc">$</span>code, <span class="st">&quot;&quot;</span>, <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb6-66"><a href="generating-package.html#cb6-66" tabindex="-1"></a>      <span class="at">file =</span> test_file,</span>
+<span id="cb6-67"><a href="generating-package.html#cb6-67" tabindex="-1"></a>      <span class="at">append =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-68"><a href="generating-package.html#cb6-68" tabindex="-1"></a>    )</span>
+<span id="cb6-69"><a href="generating-package.html#cb6-69" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (options<span class="sc">$</span>engine <span class="sc">==</span> <span class="st">&quot;Rcpp&quot;</span>) {</span>
+<span id="cb6-70"><a href="generating-package.html#cb6-70" tabindex="-1"></a>    <span class="co"># To add Rcpp code, we need the package documentation file to exist </span></span>
+<span id="cb6-71"><a href="generating-package.html#cb6-71" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="fu">file.path</span>(</span>
+<span id="cb6-72"><a href="generating-package.html#cb6-72" tabindex="-1"></a>      package_dir,</span>
+<span id="cb6-73"><a href="generating-package.html#cb6-73" tabindex="-1"></a>      <span class="st">&quot;R&quot;</span>,</span>
+<span id="cb6-74"><a href="generating-package.html#cb6-74" tabindex="-1"></a>      <span class="fu">paste0</span>(package_name, <span class="st">&quot;-package.R&quot;</span>))</span>
+<span id="cb6-75"><a href="generating-package.html#cb6-75" tabindex="-1"></a>      )) {</span>
+<span id="cb6-76"><a href="generating-package.html#cb6-76" tabindex="-1"></a>      usethis<span class="sc">::</span><span class="fu">use_package_doc</span>(<span class="at">open =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-77"><a href="generating-package.html#cb6-77" tabindex="-1"></a>    }</span>
+<span id="cb6-78"><a href="generating-package.html#cb6-78" tabindex="-1"></a>    cpp_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;src&quot;</span>, <span class="st">&quot;code.cpp&quot;</span>)</span>
+<span id="cb6-79"><a href="generating-package.html#cb6-79" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(cpp_file)) {</span>
+<span id="cb6-80"><a href="generating-package.html#cb6-80" tabindex="-1"></a>      <span class="co"># set up package for Rcpp</span></span>
+<span id="cb6-81"><a href="generating-package.html#cb6-81" tabindex="-1"></a>      <span class="co"># these next few lines are taken from usethis::use_rcpp()</span></span>
+<span id="cb6-82"><a href="generating-package.html#cb6-82" tabindex="-1"></a>      <span class="co"># it approximates a call to usethis::use_rcpp(name = &quot;code&quot;)</span></span>
+<span id="cb6-83"><a href="generating-package.html#cb6-83" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">use_dependency</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;LinkingTo&quot;</span>)</span>
+<span id="cb6-84"><a href="generating-package.html#cb6-84" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">use_dependency</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;Imports&quot;</span>)</span>
+<span id="cb6-85"><a href="generating-package.html#cb6-85" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">roxygen_ns_append</span>(<span class="st">&quot;@importFrom Rcpp sourceCpp&quot;</span>)</span>
+<span id="cb6-86"><a href="generating-package.html#cb6-86" tabindex="-1"></a>      usethis<span class="sc">:::</span><span class="fu">use_src</span>()</span>
+<span id="cb6-87"><a href="generating-package.html#cb6-87" tabindex="-1"></a>      usethis<span class="sc">::</span><span class="fu">use_template</span>(<span class="st">&quot;code.cpp&quot;</span>, <span class="at">save_as =</span> <span class="st">&quot;src/code.cpp&quot;</span>)</span>
+<span id="cb6-88"><a href="generating-package.html#cb6-88" tabindex="-1"></a></span>
+<span id="cb6-89"><a href="generating-package.html#cb6-89" tabindex="-1"></a>      msg <span class="ot">&lt;-</span> <a href='generating-package.html#do_not_edit_message'>do_not_edit_message</a>(knitr<span class="sc">::</span><span class="fu">current_input</span>(), <span class="at">type =</span> <span class="st">&quot;c&quot;</span>)</span>
+<span id="cb6-90"><a href="generating-package.html#cb6-90" tabindex="-1"></a>      <span class="fu">cat</span>(msg, <span class="at">file =</span> cpp_file, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-91"><a href="generating-package.html#cb6-91" tabindex="-1"></a>    }</span>
+<span id="cb6-92"><a href="generating-package.html#cb6-92" tabindex="-1"></a>    <span class="co"># append code to code.cpp, but remove lines that are `#include &lt;Rcpp.h&gt;`</span></span>
+<span id="cb6-93"><a href="generating-package.html#cb6-93" tabindex="-1"></a>    <span class="co"># or `using namespace Rcpp;` since this already appears at top of file</span></span>
+<span id="cb6-94"><a href="generating-package.html#cb6-94" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">paste</span>(<span class="fu">c</span>(</span>
+<span id="cb6-95"><a href="generating-package.html#cb6-95" tabindex="-1"></a>      <span class="st">&quot;&quot;</span>,</span>
+<span id="cb6-96"><a href="generating-package.html#cb6-96" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_subset</span>(</span>
+<span id="cb6-97"><a href="generating-package.html#cb6-97" tabindex="-1"></a>        options<span class="sc">$</span>code,</span>
+<span id="cb6-98"><a href="generating-package.html#cb6-98" tabindex="-1"></a>        r<span class="st">&quot;(^#include &lt;Rcpp.h&gt;$|^using namespace Rcpp;$)&quot;</span>,</span>
+<span id="cb6-99"><a href="generating-package.html#cb6-99" tabindex="-1"></a>        <span class="at">negate =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-100"><a href="generating-package.html#cb6-100" tabindex="-1"></a>      <span class="st">&quot;&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), </span>
+<span id="cb6-101"><a href="generating-package.html#cb6-101" tabindex="-1"></a>        <span class="at">file =</span> cpp_file,</span>
+<span id="cb6-102"><a href="generating-package.html#cb6-102" tabindex="-1"></a>        <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-103"><a href="generating-package.html#cb6-103" tabindex="-1"></a>  }</span>
+<span id="cb6-104"><a href="generating-package.html#cb6-104" tabindex="-1"></a>  <span class="fu">return</span>()</span>
+<span id="cb6-105"><a href="generating-package.html#cb6-105" tabindex="-1"></a>}</span></code></pre></div>
 <p>The above code makes use of a number of functions from the <code>stringr</code> and <code>usethis</code> packages, so we’ll need to add those packages to the <code>Imports</code> section of the <code>DESCRIPTION</code> file:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="generating-package.html#cb7-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;stringr&quot;</span>)</span>
-<span id="cb7-2"><a href="generating-package.html#cb7-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;usethis&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="generating-package.html#cb7-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;stringr&quot;</span>)</span>
+<span id="cb7-2"><a href="generating-package.html#cb7-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;usethis&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;stringr&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `stringr::fun()`</code></pre>
 <pre><code>## ✔ Adding &#39;usethis&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `usethis::fun()`</code></pre>
 <p>The code also calls the function <code><a href='generating-package.html#do_not_edit_message'>do_not_edit_message</a>()</code>, which adds a line at the top of the files sent to the R package reminding the user that these are not source files to be edited but rather output of the generating .Rmd file. There are two variations on this message.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="generating-package.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Generate do-not-edit message to put at top of file</span></span>
-<span id="cb10-2"><a href="generating-package.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb10-3"><a href="generating-package.html#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param rmd_file Name of the Rmd file to mention</span></span>
-<span id="cb10-4"><a href="generating-package.html#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param type Whether this is a R/ file, man/ file, or a c file</span></span>
-<span id="cb10-5"><a href="generating-package.html#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb10-6"><a href="generating-package.html#cb10-6" aria-hidden="true" tabindex="-1"></a><span id='do_not_edit_message'>do_not_edit_message</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(rmd_file, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;R&quot;</span>, <span class="st">&quot;man&quot;</span>, <span class="st">&quot;c&quot;</span>)) {</span>
-<span id="cb10-7"><a href="generating-package.html#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (type[<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;R&quot;</span>)</span>
-<span id="cb10-8"><a href="generating-package.html#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;# Generated from {rmd_file}: do not edit by hand&quot;</span>))</span>
-<span id="cb10-9"><a href="generating-package.html#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (type[<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;man&quot;</span>)</span>
-<span id="cb10-10"><a href="generating-package.html#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;% Please edit documentation in {rmd_file}.&quot;</span>))</span>
-<span id="cb10-11"><a href="generating-package.html#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (type[<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;c&quot;</span>)</span>
-<span id="cb10-12"><a href="generating-package.html#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;// Generated from {rmd_file}: do not edit by hand&quot;</span>))</span>
-<span id="cb10-13"><a href="generating-package.html#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
-<span id="cb10-14"><a href="generating-package.html#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;type must be either &#39;R&#39;, &#39;man&#39;, or &#39;c&#39;.&quot;</span>)</span>
-<span id="cb10-15"><a href="generating-package.html#cb10-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="generating-package.html#cb10-1" tabindex="-1"></a><span class="co">#&#39; Generate do-not-edit message to put at top of file</span></span>
+<span id="cb10-2"><a href="generating-package.html#cb10-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb10-3"><a href="generating-package.html#cb10-3" tabindex="-1"></a><span class="co">#&#39; @param rmd_file Name of the Rmd file to mention</span></span>
+<span id="cb10-4"><a href="generating-package.html#cb10-4" tabindex="-1"></a><span class="co">#&#39; @param type Whether this is a R/ file, man/ file, or a c file</span></span>
+<span id="cb10-5"><a href="generating-package.html#cb10-5" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb10-6"><a href="generating-package.html#cb10-6" tabindex="-1"></a><span id='do_not_edit_message'>do_not_edit_message</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(rmd_file, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;R&quot;</span>, <span class="st">&quot;man&quot;</span>, <span class="st">&quot;c&quot;</span>)) {</span>
+<span id="cb10-7"><a href="generating-package.html#cb10-7" tabindex="-1"></a>  <span class="cf">if</span> (type[<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;R&quot;</span>)</span>
+<span id="cb10-8"><a href="generating-package.html#cb10-8" tabindex="-1"></a>    <span class="fu">return</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;# Generated from {rmd_file}: do not edit by hand&quot;</span>))</span>
+<span id="cb10-9"><a href="generating-package.html#cb10-9" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (type[<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;man&quot;</span>)</span>
+<span id="cb10-10"><a href="generating-package.html#cb10-10" tabindex="-1"></a>    <span class="fu">return</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;% Please edit documentation in {rmd_file}.&quot;</span>))</span>
+<span id="cb10-11"><a href="generating-package.html#cb10-11" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (type[<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;c&quot;</span>)</span>
+<span id="cb10-12"><a href="generating-package.html#cb10-12" tabindex="-1"></a>    <span class="fu">return</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;// Generated from {rmd_file}: do not edit by hand&quot;</span>))</span>
+<span id="cb10-13"><a href="generating-package.html#cb10-13" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb10-14"><a href="generating-package.html#cb10-14" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;type must be either &#39;R&#39;, &#39;man&#39;, or &#39;c&#39;.&quot;</span>)</span>
+<span id="cb10-15"><a href="generating-package.html#cb10-15" tabindex="-1"></a>}</span></code></pre></div>
 <p>This function will also be used with <code>type = "man"</code> by <code>litr::<a href='document.html#document'>document</a>()</code>.</p>
 <p>The above also makes use of a simple helper function that inserts text into a specified location of a file (or creates that file if it doesn’t exist). <strong>Actually currently it doesn’t, but we can replace <code>cat()</code> in the above with calls to <code><a href='generating-package.html#add_text_to_file'>add_text_to_file</a>()</code>.</strong></p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generating-package.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Add Some Text to a File</span></span>
-<span id="cb11-2"><a href="generating-package.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb11-3"><a href="generating-package.html#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; The text will be added to the file at a particular line specified by</span></span>
-<span id="cb11-4"><a href="generating-package.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; `location`.  The first line of `txt` will be on line `location` of the</span></span>
-<span id="cb11-5"><a href="generating-package.html#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; modified file.  If `location` is NULL, then text is added to end of file.</span></span>
-<span id="cb11-6"><a href="generating-package.html#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; If file does not exist, it is created and `location` is ignored (unless </span></span>
-<span id="cb11-7"><a href="generating-package.html#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; `req_exist` is `TRUE`, in which case an error is thrown).</span></span>
-<span id="cb11-8"><a href="generating-package.html#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb11-9"><a href="generating-package.html#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param txt Character vector to add to file</span></span>
-<span id="cb11-10"><a href="generating-package.html#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param filename Name of file</span></span>
-<span id="cb11-11"><a href="generating-package.html#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param location Specifies where text should be added. See description for more.</span></span>
-<span id="cb11-12"><a href="generating-package.html#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param req_exist If TRUE, then throws an error if file doesn&#39;t exist</span></span>
-<span id="cb11-13"><a href="generating-package.html#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param pad If TRUE, then when text is being added to a preexisting file, it adds a newline</span></span>
-<span id="cb11-14"><a href="generating-package.html#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param msg An optional message to put at top of file if this is a new file</span></span>
-<span id="cb11-15"><a href="generating-package.html#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb11-16"><a href="generating-package.html#cb11-16" aria-hidden="true" tabindex="-1"></a><span id='add_text_to_file'>add_text_to_file</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(txt, filename, <span class="at">location =</span> <span class="cn">NULL</span>, <span class="at">req_exist =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-17"><a href="generating-package.html#cb11-17" aria-hidden="true" tabindex="-1"></a>                             <span class="at">pad =</span> <span class="cn">FALSE</span>, <span class="at">msg =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb11-18"><a href="generating-package.html#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(filename)) {</span>
-<span id="cb11-19"><a href="generating-package.html#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (req_exist) <span class="fu">stop</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;Cannot find file {filename}.&quot;</span>))</span>
-<span id="cb11-20"><a href="generating-package.html#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(msg)) txt <span class="ot">&lt;-</span> <span class="fu">c</span>(msg, <span class="st">&quot;&quot;</span>, txt)</span>
-<span id="cb11-21"><a href="generating-package.html#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">writeLines</span>(txt, <span class="at">con =</span> filename)</span>
-<span id="cb11-22"><a href="generating-package.html#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>()</span>
-<span id="cb11-23"><a href="generating-package.html#cb11-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-24"><a href="generating-package.html#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (pad) txt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, txt)</span>
-<span id="cb11-25"><a href="generating-package.html#cb11-25" aria-hidden="true" tabindex="-1"></a>  filetxt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(filename)</span>
-<span id="cb11-26"><a href="generating-package.html#cb11-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(location) <span class="sc">||</span> location <span class="sc">==</span> <span class="fu">length</span>(filetxt) <span class="sc">+</span> <span class="dv">1</span>) {</span>
-<span id="cb11-27"><a href="generating-package.html#cb11-27" aria-hidden="true" tabindex="-1"></a>    filetxt <span class="ot">&lt;-</span> <span class="fu">c</span>(filetxt, txt)</span>
-<span id="cb11-28"><a href="generating-package.html#cb11-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-29"><a href="generating-package.html#cb11-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (location <span class="sc">&gt;</span> <span class="fu">length</span>(filetxt) <span class="sc">+</span> <span class="dv">1</span> <span class="sc">|</span> location <span class="sc">&lt;</span> <span class="dv">1</span>) </span>
-<span id="cb11-30"><a href="generating-package.html#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;Invalid location&quot;</span>)</span>
-<span id="cb11-31"><a href="generating-package.html#cb11-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (location <span class="sc">==</span> <span class="dv">1</span>) {</span>
-<span id="cb11-32"><a href="generating-package.html#cb11-32" aria-hidden="true" tabindex="-1"></a>    filetxt <span class="ot">&lt;-</span> <span class="fu">c</span>(txt, filetxt)</span>
-<span id="cb11-33"><a href="generating-package.html#cb11-33" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb11-34"><a href="generating-package.html#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># location is somewhere in middle</span></span>
-<span id="cb11-35"><a href="generating-package.html#cb11-35" aria-hidden="true" tabindex="-1"></a>    filetxt <span class="ot">&lt;-</span> <span class="fu">c</span>(filetxt[<span class="dv">1</span><span class="sc">:</span>(location <span class="sc">-</span> <span class="dv">1</span>)],</span>
-<span id="cb11-36"><a href="generating-package.html#cb11-36" aria-hidden="true" tabindex="-1"></a>                 txt,</span>
-<span id="cb11-37"><a href="generating-package.html#cb11-37" aria-hidden="true" tabindex="-1"></a>                 filetxt[location<span class="sc">:</span><span class="fu">length</span>(filetxt)])</span>
-<span id="cb11-38"><a href="generating-package.html#cb11-38" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-39"><a href="generating-package.html#cb11-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(filetxt, <span class="at">con =</span> filename)</span>
-<span id="cb11-40"><a href="generating-package.html#cb11-40" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="generating-package.html#cb12-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>() works&quot;</span>, {</span>
-<span id="cb12-2"><a href="generating-package.html#cb12-2" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb12-3"><a href="generating-package.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb12-4"><a href="generating-package.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb12-5"><a href="generating-package.html#cb12-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb12-6"><a href="generating-package.html#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should throw error when file does not exist and req_exist is TRUE:</span></span>
-<span id="cb12-7"><a href="generating-package.html#cb12-7" aria-hidden="true" tabindex="-1"></a>  myfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;file.txt&quot;</span>)</span>
-<span id="cb12-8"><a href="generating-package.html#cb12-8" aria-hidden="true" tabindex="-1"></a>  sometxt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;there&quot;</span>)</span>
-<span id="cb12-9"><a href="generating-package.html#cb12-9" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="at">req_exist =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb12-10"><a href="generating-package.html#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="generating-package.html#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should create a new file where one does not exist:</span></span>
-<span id="cb12-12"><a href="generating-package.html#cb12-12" aria-hidden="true" tabindex="-1"></a>  myfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;file.txt&quot;</span>)</span>
-<span id="cb12-13"><a href="generating-package.html#cb12-13" aria-hidden="true" tabindex="-1"></a>  sometxt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;there&quot;</span>)</span>
-<span id="cb12-14"><a href="generating-package.html#cb12-14" aria-hidden="true" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile)</span>
-<span id="cb12-15"><a href="generating-package.html#cb12-15" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(myfile))</span>
-<span id="cb12-16"><a href="generating-package.html#cb12-16" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(sometxt, <span class="fu">readLines</span>(myfile))</span>
-<span id="cb12-17"><a href="generating-package.html#cb12-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb12-18"><a href="generating-package.html#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should append to end of file by default</span></span>
-<span id="cb12-19"><a href="generating-package.html#cb12-19" aria-hidden="true" tabindex="-1"></a>  moretxt <span class="ot">&lt;-</span> <span class="st">&quot;world&quot;</span></span>
-<span id="cb12-20"><a href="generating-package.html#cb12-20" aria-hidden="true" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt, myfile)</span>
-<span id="cb12-21"><a href="generating-package.html#cb12-21" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(sometxt, moretxt), <span class="fu">readLines</span>(myfile))</span>
-<span id="cb12-22"><a href="generating-package.html#cb12-22" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb12-23"><a href="generating-package.html#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should throw error for invalid locations:</span></span>
-<span id="cb12-24"><a href="generating-package.html#cb12-24" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="dv">0</span>))</span>
-<span id="cb12-25"><a href="generating-package.html#cb12-25" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="sc">-</span><span class="dv">1</span>))</span>
-<span id="cb12-26"><a href="generating-package.html#cb12-26" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="dv">5</span>))</span>
-<span id="cb12-27"><a href="generating-package.html#cb12-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-28"><a href="generating-package.html#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should add to specified line:</span></span>
-<span id="cb12-29"><a href="generating-package.html#cb12-29" aria-hidden="true" tabindex="-1"></a>  moretxt2 <span class="ot">&lt;-</span> <span class="st">&quot;hi&quot;</span></span>
-<span id="cb12-30"><a href="generating-package.html#cb12-30" aria-hidden="true" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt2, myfile, <span class="dv">1</span>)</span>
-<span id="cb12-31"><a href="generating-package.html#cb12-31" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(moretxt2, sometxt, moretxt), <span class="fu">readLines</span>(myfile))</span>
-<span id="cb12-32"><a href="generating-package.html#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-33"><a href="generating-package.html#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should add to specified line:</span></span>
-<span id="cb12-34"><a href="generating-package.html#cb12-34" aria-hidden="true" tabindex="-1"></a>  moretxt3 <span class="ot">&lt;-</span> <span class="st">&quot;hi2&quot;</span></span>
-<span id="cb12-35"><a href="generating-package.html#cb12-35" aria-hidden="true" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt3, myfile, <span class="dv">2</span>)</span>
-<span id="cb12-36"><a href="generating-package.html#cb12-36" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(moretxt2, moretxt3, sometxt, moretxt),</span>
-<span id="cb12-37"><a href="generating-package.html#cb12-37" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">readLines</span>(myfile))</span>
-<span id="cb12-38"><a href="generating-package.html#cb12-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-39"><a href="generating-package.html#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># should add to specified line:</span></span>
-<span id="cb12-40"><a href="generating-package.html#cb12-40" aria-hidden="true" tabindex="-1"></a>  moretxt4 <span class="ot">&lt;-</span> <span class="st">&quot;hi3&quot;</span></span>
-<span id="cb12-41"><a href="generating-package.html#cb12-41" aria-hidden="true" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt4, myfile, <span class="dv">6</span>)</span>
-<span id="cb12-42"><a href="generating-package.html#cb12-42" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(moretxt2, moretxt3, sometxt, moretxt, moretxt4),</span>
-<span id="cb12-43"><a href="generating-package.html#cb12-43" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">readLines</span>(myfile))</span>
-<span id="cb12-44"><a href="generating-package.html#cb12-44" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb12-45"><a href="generating-package.html#cb12-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generating-package.html#cb11-1" tabindex="-1"></a><span class="co">#&#39; Add Some Text to a File</span></span>
+<span id="cb11-2"><a href="generating-package.html#cb11-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb11-3"><a href="generating-package.html#cb11-3" tabindex="-1"></a><span class="co">#&#39; The text will be added to the file at a particular line specified by</span></span>
+<span id="cb11-4"><a href="generating-package.html#cb11-4" tabindex="-1"></a><span class="co">#&#39; `location`.  The first line of `txt` will be on line `location` of the</span></span>
+<span id="cb11-5"><a href="generating-package.html#cb11-5" tabindex="-1"></a><span class="co">#&#39; modified file.  If `location` is NULL, then text is added to end of file.</span></span>
+<span id="cb11-6"><a href="generating-package.html#cb11-6" tabindex="-1"></a><span class="co">#&#39; If file does not exist, it is created and `location` is ignored (unless </span></span>
+<span id="cb11-7"><a href="generating-package.html#cb11-7" tabindex="-1"></a><span class="co">#&#39; `req_exist` is `TRUE`, in which case an error is thrown).</span></span>
+<span id="cb11-8"><a href="generating-package.html#cb11-8" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb11-9"><a href="generating-package.html#cb11-9" tabindex="-1"></a><span class="co">#&#39; @param txt Character vector to add to file</span></span>
+<span id="cb11-10"><a href="generating-package.html#cb11-10" tabindex="-1"></a><span class="co">#&#39; @param filename Name of file</span></span>
+<span id="cb11-11"><a href="generating-package.html#cb11-11" tabindex="-1"></a><span class="co">#&#39; @param location Specifies where text should be added. See description for more.</span></span>
+<span id="cb11-12"><a href="generating-package.html#cb11-12" tabindex="-1"></a><span class="co">#&#39; @param req_exist If TRUE, then throws an error if file doesn&#39;t exist</span></span>
+<span id="cb11-13"><a href="generating-package.html#cb11-13" tabindex="-1"></a><span class="co">#&#39; @param pad If TRUE, then when text is being added to a preexisting file, it adds a newline</span></span>
+<span id="cb11-14"><a href="generating-package.html#cb11-14" tabindex="-1"></a><span class="co">#&#39; @param msg An optional message to put at top of file if this is a new file</span></span>
+<span id="cb11-15"><a href="generating-package.html#cb11-15" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb11-16"><a href="generating-package.html#cb11-16" tabindex="-1"></a><span id='add_text_to_file'>add_text_to_file</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(txt, filename, <span class="at">location =</span> <span class="cn">NULL</span>, <span class="at">req_exist =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb11-17"><a href="generating-package.html#cb11-17" tabindex="-1"></a>                             <span class="at">pad =</span> <span class="cn">FALSE</span>, <span class="at">msg =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb11-18"><a href="generating-package.html#cb11-18" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(filename)) {</span>
+<span id="cb11-19"><a href="generating-package.html#cb11-19" tabindex="-1"></a>    <span class="cf">if</span> (req_exist) <span class="fu">stop</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;Cannot find file {filename}.&quot;</span>))</span>
+<span id="cb11-20"><a href="generating-package.html#cb11-20" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(msg)) txt <span class="ot">&lt;-</span> <span class="fu">c</span>(msg, <span class="st">&quot;&quot;</span>, txt)</span>
+<span id="cb11-21"><a href="generating-package.html#cb11-21" tabindex="-1"></a>    <span class="fu">writeLines</span>(txt, <span class="at">con =</span> filename)</span>
+<span id="cb11-22"><a href="generating-package.html#cb11-22" tabindex="-1"></a>    <span class="fu">return</span>()</span>
+<span id="cb11-23"><a href="generating-package.html#cb11-23" tabindex="-1"></a>  }</span>
+<span id="cb11-24"><a href="generating-package.html#cb11-24" tabindex="-1"></a>  <span class="cf">if</span> (pad) txt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, txt)</span>
+<span id="cb11-25"><a href="generating-package.html#cb11-25" tabindex="-1"></a>  filetxt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(filename)</span>
+<span id="cb11-26"><a href="generating-package.html#cb11-26" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(location) <span class="sc">||</span> location <span class="sc">==</span> <span class="fu">length</span>(filetxt) <span class="sc">+</span> <span class="dv">1</span>) {</span>
+<span id="cb11-27"><a href="generating-package.html#cb11-27" tabindex="-1"></a>    filetxt <span class="ot">&lt;-</span> <span class="fu">c</span>(filetxt, txt)</span>
+<span id="cb11-28"><a href="generating-package.html#cb11-28" tabindex="-1"></a>  }</span>
+<span id="cb11-29"><a href="generating-package.html#cb11-29" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (location <span class="sc">&gt;</span> <span class="fu">length</span>(filetxt) <span class="sc">+</span> <span class="dv">1</span> <span class="sc">|</span> location <span class="sc">&lt;</span> <span class="dv">1</span>) </span>
+<span id="cb11-30"><a href="generating-package.html#cb11-30" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;Invalid location&quot;</span>)</span>
+<span id="cb11-31"><a href="generating-package.html#cb11-31" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> (location <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb11-32"><a href="generating-package.html#cb11-32" tabindex="-1"></a>    filetxt <span class="ot">&lt;-</span> <span class="fu">c</span>(txt, filetxt)</span>
+<span id="cb11-33"><a href="generating-package.html#cb11-33" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb11-34"><a href="generating-package.html#cb11-34" tabindex="-1"></a>    <span class="co"># location is somewhere in middle</span></span>
+<span id="cb11-35"><a href="generating-package.html#cb11-35" tabindex="-1"></a>    filetxt <span class="ot">&lt;-</span> <span class="fu">c</span>(filetxt[<span class="dv">1</span><span class="sc">:</span>(location <span class="sc">-</span> <span class="dv">1</span>)],</span>
+<span id="cb11-36"><a href="generating-package.html#cb11-36" tabindex="-1"></a>                 txt,</span>
+<span id="cb11-37"><a href="generating-package.html#cb11-37" tabindex="-1"></a>                 filetxt[location<span class="sc">:</span><span class="fu">length</span>(filetxt)])</span>
+<span id="cb11-38"><a href="generating-package.html#cb11-38" tabindex="-1"></a>  }</span>
+<span id="cb11-39"><a href="generating-package.html#cb11-39" tabindex="-1"></a>  <span class="fu">writeLines</span>(filetxt, <span class="at">con =</span> filename)</span>
+<span id="cb11-40"><a href="generating-package.html#cb11-40" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="generating-package.html#cb12-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>() works&quot;</span>, {</span>
+<span id="cb12-2"><a href="generating-package.html#cb12-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb12-3"><a href="generating-package.html#cb12-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb12-4"><a href="generating-package.html#cb12-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb12-5"><a href="generating-package.html#cb12-5" tabindex="-1"></a>  </span>
+<span id="cb12-6"><a href="generating-package.html#cb12-6" tabindex="-1"></a>  <span class="co"># should throw error when file does not exist and req_exist is TRUE:</span></span>
+<span id="cb12-7"><a href="generating-package.html#cb12-7" tabindex="-1"></a>  myfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;file.txt&quot;</span>)</span>
+<span id="cb12-8"><a href="generating-package.html#cb12-8" tabindex="-1"></a>  sometxt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;there&quot;</span>)</span>
+<span id="cb12-9"><a href="generating-package.html#cb12-9" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="at">req_exist =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb12-10"><a href="generating-package.html#cb12-10" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="generating-package.html#cb12-11" tabindex="-1"></a>  <span class="co"># should create a new file where one does not exist:</span></span>
+<span id="cb12-12"><a href="generating-package.html#cb12-12" tabindex="-1"></a>  myfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;file.txt&quot;</span>)</span>
+<span id="cb12-13"><a href="generating-package.html#cb12-13" tabindex="-1"></a>  sometxt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;there&quot;</span>)</span>
+<span id="cb12-14"><a href="generating-package.html#cb12-14" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile)</span>
+<span id="cb12-15"><a href="generating-package.html#cb12-15" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(myfile))</span>
+<span id="cb12-16"><a href="generating-package.html#cb12-16" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(sometxt, <span class="fu">readLines</span>(myfile))</span>
+<span id="cb12-17"><a href="generating-package.html#cb12-17" tabindex="-1"></a>  </span>
+<span id="cb12-18"><a href="generating-package.html#cb12-18" tabindex="-1"></a>  <span class="co"># should append to end of file by default</span></span>
+<span id="cb12-19"><a href="generating-package.html#cb12-19" tabindex="-1"></a>  moretxt <span class="ot">&lt;-</span> <span class="st">&quot;world&quot;</span></span>
+<span id="cb12-20"><a href="generating-package.html#cb12-20" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt, myfile)</span>
+<span id="cb12-21"><a href="generating-package.html#cb12-21" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(sometxt, moretxt), <span class="fu">readLines</span>(myfile))</span>
+<span id="cb12-22"><a href="generating-package.html#cb12-22" tabindex="-1"></a>   </span>
+<span id="cb12-23"><a href="generating-package.html#cb12-23" tabindex="-1"></a>  <span class="co"># should throw error for invalid locations:</span></span>
+<span id="cb12-24"><a href="generating-package.html#cb12-24" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="dv">0</span>))</span>
+<span id="cb12-25"><a href="generating-package.html#cb12-25" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="sc">-</span><span class="dv">1</span>))</span>
+<span id="cb12-26"><a href="generating-package.html#cb12-26" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_error</span>(<a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(sometxt, myfile, <span class="dv">5</span>))</span>
+<span id="cb12-27"><a href="generating-package.html#cb12-27" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="generating-package.html#cb12-28" tabindex="-1"></a>  <span class="co"># should add to specified line:</span></span>
+<span id="cb12-29"><a href="generating-package.html#cb12-29" tabindex="-1"></a>  moretxt2 <span class="ot">&lt;-</span> <span class="st">&quot;hi&quot;</span></span>
+<span id="cb12-30"><a href="generating-package.html#cb12-30" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt2, myfile, <span class="dv">1</span>)</span>
+<span id="cb12-31"><a href="generating-package.html#cb12-31" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(moretxt2, sometxt, moretxt), <span class="fu">readLines</span>(myfile))</span>
+<span id="cb12-32"><a href="generating-package.html#cb12-32" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="generating-package.html#cb12-33" tabindex="-1"></a>  <span class="co"># should add to specified line:</span></span>
+<span id="cb12-34"><a href="generating-package.html#cb12-34" tabindex="-1"></a>  moretxt3 <span class="ot">&lt;-</span> <span class="st">&quot;hi2&quot;</span></span>
+<span id="cb12-35"><a href="generating-package.html#cb12-35" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt3, myfile, <span class="dv">2</span>)</span>
+<span id="cb12-36"><a href="generating-package.html#cb12-36" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(moretxt2, moretxt3, sometxt, moretxt),</span>
+<span id="cb12-37"><a href="generating-package.html#cb12-37" tabindex="-1"></a>                         <span class="fu">readLines</span>(myfile))</span>
+<span id="cb12-38"><a href="generating-package.html#cb12-38" tabindex="-1"></a></span>
+<span id="cb12-39"><a href="generating-package.html#cb12-39" tabindex="-1"></a>  <span class="co"># should add to specified line:</span></span>
+<span id="cb12-40"><a href="generating-package.html#cb12-40" tabindex="-1"></a>  moretxt4 <span class="ot">&lt;-</span> <span class="st">&quot;hi3&quot;</span></span>
+<span id="cb12-41"><a href="generating-package.html#cb12-41" tabindex="-1"></a>  <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(moretxt4, myfile, <span class="dv">6</span>)</span>
+<span id="cb12-42"><a href="generating-package.html#cb12-42" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">c</span>(moretxt2, moretxt3, sometxt, moretxt, moretxt4),</span>
+<span id="cb12-43"><a href="generating-package.html#cb12-43" tabindex="-1"></a>                         <span class="fu">readLines</span>(myfile))</span>
+<span id="cb12-44"><a href="generating-package.html#cb12-44" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb12-45"><a href="generating-package.html#cb12-45" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>## Test passed</code></pre>
 </div>
 <div id="setting-up-the-r-package-creation" class="section level2 hasAnchor" number="4.2">
@@ -460,195 +460,195 @@ a</code></pre>
 <ol start="6" style="list-style-type: decimal">
 <li>Define a <code>package_doc</code> engine which allows users to define package-level documentation.</li>
 </ol>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="generating-package.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Code for setup chunk</span></span>
-<span id="cb15-2"><a href="generating-package.html#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb15-3"><a href="generating-package.html#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * Creates directory where package will be. (Deletes what is currently there as </span></span>
-<span id="cb15-4"><a href="generating-package.html#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; long as it appears to have been created by litr and does not have any </span></span>
-<span id="cb15-5"><a href="generating-package.html#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; subsequent manual edits.)</span></span>
-<span id="cb15-6"><a href="generating-package.html#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * Sets the root directory to this directory</span></span>
-<span id="cb15-7"><a href="generating-package.html#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * Sets up the main chunk hook `litr::<a href='generating-package.html#send_to_package'>send_to_package</a>()` that sends code to the </span></span>
-<span id="cb15-8"><a href="generating-package.html#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; R package directory.</span></span>
-<span id="cb15-9"><a href="generating-package.html#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so</span></span>
-<span id="cb15-10"><a href="generating-package.html#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;   chunks are only evaluated if there is a `usethis` or `litr::<a href='document.html#document'>document</a>()`</span></span>
-<span id="cb15-11"><a href="generating-package.html#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;   command</span></span>
-<span id="cb15-12"><a href="generating-package.html#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * Deactivates an internal function of the `usethis` package</span></span>
-<span id="cb15-13"><a href="generating-package.html#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * Redefines the document output hook to handle chunk references differently  </span></span>
-<span id="cb15-14"><a href="generating-package.html#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called</span></span>
-<span id="cb15-15"><a href="generating-package.html#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; `package_doc` that creates a package documentation file and then inserts</span></span>
-<span id="cb15-16"><a href="generating-package.html#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; whatever the user puts in the chunk.</span></span>
-<span id="cb15-17"><a href="generating-package.html#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb15-18"><a href="generating-package.html#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Returns the original state of the knitr objects that have been modified in </span></span>
-<span id="cb15-19"><a href="generating-package.html#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; setup.  This allows us to return things to the previous state after we are</span></span>
-<span id="cb15-20"><a href="generating-package.html#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; finished.  This is relevant in the case where litr-knitting occurs in the </span></span>
-<span id="cb15-21"><a href="generating-package.html#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; current session and we don&#39;t want to leave things in a permanently modified</span></span>
-<span id="cb15-22"><a href="generating-package.html#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; state.</span></span>
-<span id="cb15-23"><a href="generating-package.html#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb15-24"><a href="generating-package.html#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param package_dir Directory where R package will be created</span></span>
-<span id="cb15-25"><a href="generating-package.html#cb15-25" aria-hidden="true" tabindex="-1"></a><a href='rendering.html#param-minimal_eval'>&lt;&lt;param-minimal_eval&gt;&gt;</a></span>
-<span id="cb15-26"><a href="generating-package.html#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb15-27"><a href="generating-package.html#cb15-27" aria-hidden="true" tabindex="-1"></a><span id='setup'>setup</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir, minimal_eval) {</span>
-<span id="cb15-28"><a href="generating-package.html#cb15-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">file.exists</span>(package_dir)) {</span>
-<span id="cb15-29"><a href="generating-package.html#cb15-29" aria-hidden="true" tabindex="-1"></a>    unedited <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_dir),</span>
-<span id="cb15-30"><a href="generating-package.html#cb15-30" aria-hidden="true" tabindex="-1"></a>                         <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
-<span id="cb15-31"><a href="generating-package.html#cb15-31" aria-hidden="true" tabindex="-1"></a>                           <span class="co"># contents of package_dir does not resemble</span></span>
-<span id="cb15-32"><a href="generating-package.html#cb15-32" aria-hidden="true" tabindex="-1"></a>                           <span class="co"># a litr package</span></span>
-<span id="cb15-33"><a href="generating-package.html#cb15-33" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">return</span>(<span class="cn">FALSE</span>)</span>
-<span id="cb15-34"><a href="generating-package.html#cb15-34" aria-hidden="true" tabindex="-1"></a>                         })</span>
-<span id="cb15-35"><a href="generating-package.html#cb15-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>unedited) {</span>
-<span id="cb15-36"><a href="generating-package.html#cb15-36" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<a href='generating-package.html#make_noticeable'>make_noticeable</a>(<span class="fu">paste</span>(</span>
-<span id="cb15-37"><a href="generating-package.html#cb15-37" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;The directory {normalizePath(package_dir)}&quot;</span>),</span>
-<span id="cb15-38"><a href="generating-package.html#cb15-38" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;already exists and either was not created by litr or may have manual&quot;</span>,</span>
-<span id="cb15-39"><a href="generating-package.html#cb15-39" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;edits. In either case, please rename that directory (or delete it)&quot;</span>, </span>
-<span id="cb15-40"><a href="generating-package.html#cb15-40" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;and then try again.&quot;</span>, </span>
-<span id="cb15-41"><a href="generating-package.html#cb15-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)))</span>
-<span id="cb15-42"><a href="generating-package.html#cb15-42" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-43"><a href="generating-package.html#cb15-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlink</span>(package_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-44"><a href="generating-package.html#cb15-44" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb15-45"><a href="generating-package.html#cb15-45" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(package_dir)</span>
-<span id="cb15-46"><a href="generating-package.html#cb15-46" aria-hidden="true" tabindex="-1"></a>  usethis<span class="sc">:::</span><span class="fu">proj_set_</span>(usethis<span class="sc">:::</span><span class="fu">proj_path_prep</span>(package_dir))</span>
-<span id="cb15-47"><a href="generating-package.html#cb15-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-48"><a href="generating-package.html#cb15-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># let&#39;s keep a version of the knitr objects before modifying them:</span></span>
-<span id="cb15-49"><a href="generating-package.html#cb15-49" aria-hidden="true" tabindex="-1"></a>  original_knitr <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">opts_knit =</span> knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">get</span>(),</span>
-<span id="cb15-50"><a href="generating-package.html#cb15-50" aria-hidden="true" tabindex="-1"></a>                         <span class="at">knit_hooks =</span> knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">get</span>(),</span>
-<span id="cb15-51"><a href="generating-package.html#cb15-51" aria-hidden="true" tabindex="-1"></a>                         <span class="at">opts_chunk =</span> knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">get</span>(),</span>
-<span id="cb15-52"><a href="generating-package.html#cb15-52" aria-hidden="true" tabindex="-1"></a>                         <span class="at">opts_hooks =</span> knitr<span class="sc">::</span>opts_hooks<span class="sc">$</span><span class="fu">get</span>(),</span>
-<span id="cb15-53"><a href="generating-package.html#cb15-53" aria-hidden="true" tabindex="-1"></a>                         <span class="at">knit_engines =</span> knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">get</span>()</span>
-<span id="cb15-54"><a href="generating-package.html#cb15-54" aria-hidden="true" tabindex="-1"></a>                         )</span>
-<span id="cb15-55"><a href="generating-package.html#cb15-55" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb15-56"><a href="generating-package.html#cb15-56" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">set</span>(<span class="at">root.dir =</span> package_dir) <span class="co"># sets wd of future chunks</span></span>
-<span id="cb15-57"><a href="generating-package.html#cb15-57" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">set</span>(<span class="at">send_to_package =</span> send_to_package)</span>
-<span id="cb15-58"><a href="generating-package.html#cb15-58" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">send_to_package =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-59"><a href="generating-package.html#cb15-59" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (minimal_eval) {</span>
-<span id="cb15-60"><a href="generating-package.html#cb15-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># only evaluate chunks that appear to include usethis commands or </span></span>
-<span id="cb15-61"><a href="generating-package.html#cb15-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># a call to litr::<a href='document.html#document'>document</a>() but if someone has specifically set eval=FALSE</span></span>
-<span id="cb15-62"><a href="generating-package.html#cb15-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># in a particular chunk, do honor that</span></span>
-<span id="cb15-63"><a href="generating-package.html#cb15-63" aria-hidden="true" tabindex="-1"></a>    usethis_exports <span class="ot">&lt;-</span> <span class="fu">getNamespaceExports</span>(<span class="st">&quot;usethis&quot;</span>)</span>
-<span id="cb15-64"><a href="generating-package.html#cb15-64" aria-hidden="true" tabindex="-1"></a>    patterns <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="st">&quot;usethis::&quot;</span>, usethis_exports, <span class="st">&quot;litr::document</span><span class="sc">\\</span><span class="st">(&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span>)</span>
-<span id="cb15-65"><a href="generating-package.html#cb15-65" aria-hidden="true" tabindex="-1"></a>    knitr<span class="sc">::</span>opts_hooks<span class="sc">$</span><span class="fu">set</span>(<span class="at">eval =</span> <span class="cf">function</span>(options) {</span>
-<span id="cb15-66"><a href="generating-package.html#cb15-66" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (options<span class="sc">$</span>eval)</span>
-<span id="cb15-67"><a href="generating-package.html#cb15-67" aria-hidden="true" tabindex="-1"></a>        options<span class="sc">$</span>eval <span class="ot">&lt;-</span> <span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(options<span class="sc">$</span>code, patterns))</span>
-<span id="cb15-68"><a href="generating-package.html#cb15-68" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(options)</span>
-<span id="cb15-69"><a href="generating-package.html#cb15-69" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb15-70"><a href="generating-package.html#cb15-70" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb15-71"><a href="generating-package.html#cb15-71" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb15-72"><a href="generating-package.html#cb15-72" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb15-73"><a href="generating-package.html#cb15-73" aria-hidden="true" tabindex="-1"></a>  <span class="co"># change usethis:::challenge_nested_project so that it will not complain</span></span>
-<span id="cb15-74"><a href="generating-package.html#cb15-74" aria-hidden="true" tabindex="-1"></a>  <span class="co"># about creating a nested project (e.g. if this is called within a git </span></span>
-<span id="cb15-75"><a href="generating-package.html#cb15-75" aria-hidden="true" tabindex="-1"></a>  <span class="co"># subdirectory)</span></span>
-<span id="cb15-76"><a href="generating-package.html#cb15-76" aria-hidden="true" tabindex="-1"></a>  utils<span class="sc">::</span><span class="fu">assignInNamespace</span>(<span class="st">&quot;challenge_nested_project&quot;</span>, <span class="cf">function</span>(...) <span class="cn">NULL</span>, <span class="at">ns =</span> <span class="st">&quot;usethis&quot;</span>)</span>
-<span id="cb15-77"><a href="generating-package.html#cb15-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-78"><a href="generating-package.html#cb15-78" aria-hidden="true" tabindex="-1"></a>  <span class="co"># define document hook to handle chunk references:</span></span>
-<span id="cb15-79"><a href="generating-package.html#cb15-79" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">set</span>(<span class="at">document =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb15-80"><a href="generating-package.html#cb15-80" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get the indices of x corresponding to code chunks</span></span>
-<span id="cb15-81"><a href="generating-package.html#cb15-81" aria-hidden="true" tabindex="-1"></a>    chunk_start <span class="ot">&lt;-</span> <span class="st">&quot;^(</span><span class="sc">\n</span><span class="st">```+[a-zA-Z0-9_]+</span><span class="sc">\n</span><span class="st">)&quot;</span></span>
-<span id="cb15-82"><a href="generating-package.html#cb15-82" aria-hidden="true" tabindex="-1"></a>    idx_block <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(x, chunk_start)</span>
-<span id="cb15-83"><a href="generating-package.html#cb15-83" aria-hidden="true" tabindex="-1"></a>    original_code <span class="ot">&lt;-</span> knitr<span class="sc">::</span>knit_code<span class="sc">$</span><span class="fu">get</span>()</span>
-<span id="cb15-84"><a href="generating-package.html#cb15-84" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We first get indices of skipped chunks in original_code list</span></span>
-<span id="cb15-85"><a href="generating-package.html#cb15-85" aria-hidden="true" tabindex="-1"></a>    skipped_chunks <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">sapply</span>(original_code, <span class="cf">function</span>(x){</span>
-<span id="cb15-86"><a href="generating-package.html#cb15-86" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">isFALSE</span>(<span class="fu">attr</span>(x, <span class="st">&quot;chunk_opts&quot;</span>)<span class="sc">$</span>echo) <span class="sc">||</span> <span class="fu">isFALSE</span>(<span class="fu">attr</span>(x, <span class="st">&quot;chunk_opts&quot;</span>)<span class="sc">$</span>include))</span>
-<span id="cb15-87"><a href="generating-package.html#cb15-87" aria-hidden="true" tabindex="-1"></a>    }))</span>
-<span id="cb15-88"><a href="generating-package.html#cb15-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-89"><a href="generating-package.html#cb15-89" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Next we remove the indices of skipped chunks</span></span>
-<span id="cb15-90"><a href="generating-package.html#cb15-90" aria-hidden="true" tabindex="-1"></a>    original_code_idx_fixed <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">seq</span>(<span class="fu">length</span>(original_code)), skipped_chunks)</span>
-<span id="cb15-91"><a href="generating-package.html#cb15-91" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-92"><a href="generating-package.html#cb15-92" aria-hidden="true" tabindex="-1"></a>    labels <span class="ot">&lt;-</span> <span class="fu">names</span>(original_code)</span>
-<span id="cb15-93"><a href="generating-package.html#cb15-93" aria-hidden="true" tabindex="-1"></a>    <span class="co"># replace each x[i] that has code in it with the original code</span></span>
-<span id="cb15-94"><a href="generating-package.html#cb15-94" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(idx_block)) {</span>
-<span id="cb15-95"><a href="generating-package.html#cb15-95" aria-hidden="true" tabindex="-1"></a>      <span class="co"># break code into multiple lines:</span></span>
-<span id="cb15-96"><a href="generating-package.html#cb15-96" aria-hidden="true" tabindex="-1"></a>      chunk <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(x[idx_block[i]], <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)[[<span class="dv">1</span>]]</span>
-<span id="cb15-97"><a href="generating-package.html#cb15-97" aria-hidden="true" tabindex="-1"></a>      <span class="co"># get the fence used (in case it&#39;s more than three ticks):</span></span>
-<span id="cb15-98"><a href="generating-package.html#cb15-98" aria-hidden="true" tabindex="-1"></a>      i_start <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(chunk, <span class="st">&quot;^```+[a-zA-Z0-9_]+&quot;</span>)</span>
-<span id="cb15-99"><a href="generating-package.html#cb15-99" aria-hidden="true" tabindex="-1"></a>      fence <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(chunk[i_start[<span class="dv">1</span>]],</span>
-<span id="cb15-100"><a href="generating-package.html#cb15-100" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;^(```+)[a-zA-Z0-9_]+&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>)</span>
-<span id="cb15-101"><a href="generating-package.html#cb15-101" aria-hidden="true" tabindex="-1"></a>      i_fences <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(chunk, <span class="fu">paste0</span>(<span class="st">&quot;^&quot;</span>, fence))</span>
-<span id="cb15-102"><a href="generating-package.html#cb15-102" aria-hidden="true" tabindex="-1"></a>      <span class="co"># there can be multiple code and output chunks strung together </span></span>
-<span id="cb15-103"><a href="generating-package.html#cb15-103" aria-hidden="true" tabindex="-1"></a>      <span class="co"># within a single x[i] if results are not held to end</span></span>
-<span id="cb15-104"><a href="generating-package.html#cb15-104" aria-hidden="true" tabindex="-1"></a>      i_all_code <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb15-105"><a href="generating-package.html#cb15-105" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(i_start)) {</span>
-<span id="cb15-106"><a href="generating-package.html#cb15-106" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get the elements corresponding the j-th code chunk within chunk</span></span>
-<span id="cb15-107"><a href="generating-package.html#cb15-107" aria-hidden="true" tabindex="-1"></a>        i_code_end <span class="ot">&lt;-</span> i_fences[<span class="fu">which</span>(i_fences <span class="sc">==</span> i_start[j]) <span class="sc">+</span> <span class="dv">1</span>]</span>
-<span id="cb15-108"><a href="generating-package.html#cb15-108" aria-hidden="true" tabindex="-1"></a>        i_all_code <span class="ot">&lt;-</span> <span class="fu">c</span>(i_all_code, i_start[j]<span class="sc">:</span>i_code_end)</span>
-<span id="cb15-109"><a href="generating-package.html#cb15-109" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb15-110"><a href="generating-package.html#cb15-110" aria-hidden="true" tabindex="-1"></a>      i_all_code <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(i_all_code, i_start[<span class="dv">1</span>])</span>
-<span id="cb15-111"><a href="generating-package.html#cb15-111" aria-hidden="true" tabindex="-1"></a>      chunk_no_code <span class="ot">&lt;-</span> chunk[<span class="sc">-</span>i_all_code]</span>
-<span id="cb15-112"><a href="generating-package.html#cb15-112" aria-hidden="true" tabindex="-1"></a>      chunk <span class="ot">&lt;-</span> <span class="fu">c</span>(chunk_no_code[<span class="dv">1</span><span class="sc">:</span>i_start[<span class="dv">1</span>]],</span>
-<span id="cb15-113"><a href="generating-package.html#cb15-113" aria-hidden="true" tabindex="-1"></a>                 original_code[original_code_idx_fixed[i]][[<span class="dv">1</span>]],</span>
-<span id="cb15-114"><a href="generating-package.html#cb15-114" aria-hidden="true" tabindex="-1"></a>                 <span class="co"># insert the original version, accounting for skipped chunks</span></span>
-<span id="cb15-115"><a href="generating-package.html#cb15-115" aria-hidden="true" tabindex="-1"></a>                 fence)</span>
-<span id="cb15-116"><a href="generating-package.html#cb15-116" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i_start[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="fu">length</span>(chunk_no_code))</span>
-<span id="cb15-117"><a href="generating-package.html#cb15-117" aria-hidden="true" tabindex="-1"></a>        chunk <span class="ot">&lt;-</span> <span class="fu">c</span>(chunk, chunk_no_code[(i_start[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span><span class="fu">length</span>(chunk_no_code)])</span>
-<span id="cb15-118"><a href="generating-package.html#cb15-118" aria-hidden="true" tabindex="-1"></a>        x[idx_block[i]] <span class="ot">&lt;-</span> <span class="fu">paste</span>(chunk, <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb15-119"><a href="generating-package.html#cb15-119" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-120"><a href="generating-package.html#cb15-120" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-121"><a href="generating-package.html#cb15-121" aria-hidden="true" tabindex="-1"></a>    <span class="co"># replace code chunks with the original code</span></span>
-<span id="cb15-122"><a href="generating-package.html#cb15-122" aria-hidden="true" tabindex="-1"></a>    <span class="co"># (so we&#39;ll still have &lt;&lt;label&gt;&gt; chunk references)</span></span>
-<span id="cb15-123"><a href="generating-package.html#cb15-123" aria-hidden="true" tabindex="-1"></a>    refs <span class="ot">&lt;-</span> <span class="fu">c</span>() <span class="co"># labels that get referred to</span></span>
-<span id="cb15-124"><a href="generating-package.html#cb15-124" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (label <span class="cf">in</span> labels) {</span>
-<span id="cb15-125"><a href="generating-package.html#cb15-125" aria-hidden="true" tabindex="-1"></a>      refs <span class="ot">&lt;-</span> <span class="fu">c</span>(refs, <a href='generating-package.html#find_labels'>find_labels</a>(original_code[[label]])<span class="sc">$</span>chunk_ids)</span>
-<span id="cb15-126"><a href="generating-package.html#cb15-126" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-127"><a href="generating-package.html#cb15-127" aria-hidden="true" tabindex="-1"></a>    refs <span class="ot">&lt;-</span> <span class="fu">unique</span>(refs)</span>
-<span id="cb15-128"><a href="generating-package.html#cb15-128" aria-hidden="true" tabindex="-1"></a>    adj_labels <span class="ot">&lt;-</span> labels[<span class="sc">!</span>labels <span class="sc">%in%</span> <span class="fu">names</span>(skipped_chunks)]</span>
-<span id="cb15-129"><a href="generating-package.html#cb15-129" aria-hidden="true" tabindex="-1"></a>    ref_id <span class="ot">&lt;-</span> <span class="fu">match</span>(refs, adj_labels)</span>
-<span id="cb15-130"><a href="generating-package.html#cb15-130" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.na</span>(ref_id))) {</span>
-<span id="cb15-131"><a href="generating-package.html#cb15-131" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<a href='generating-package.html#make_noticeable'>make_noticeable</a>(<span class="fu">paste</span>(</span>
-<span id="cb15-132"><a href="generating-package.html#cb15-132" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;The chunk reference &lt;&lt;{refs[is.na(ref_id)][1]}&gt;&gt; &quot;</span>,</span>
-<span id="cb15-133"><a href="generating-package.html#cb15-133" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;is used, but there is no chunk with that label.&quot;</span>, </span>
-<span id="cb15-134"><a href="generating-package.html#cb15-134" aria-hidden="true" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))))</span>
-<span id="cb15-135"><a href="generating-package.html#cb15-135" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb15-136"><a href="generating-package.html#cb15-136" aria-hidden="true" tabindex="-1"></a>    to_insert <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&#39;###&quot;&#39;</span>, adj_labels[ref_id], <span class="st">&#39;&quot;###</span><span class="sc">\n</span><span class="st">&#39;</span>)</span>
-<span id="cb15-137"><a href="generating-package.html#cb15-137" aria-hidden="true" tabindex="-1"></a>    x[idx_block[ref_id]] <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(x[idx_block[ref_id]],</span>
-<span id="cb15-138"><a href="generating-package.html#cb15-138" aria-hidden="true" tabindex="-1"></a>                                                 chunk_start,</span>
-<span id="cb15-139"><a href="generating-package.html#cb15-139" aria-hidden="true" tabindex="-1"></a>                                                 <span class="fu">paste0</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>, to_insert))</span>
-<span id="cb15-140"><a href="generating-package.html#cb15-140" aria-hidden="true" tabindex="-1"></a>    x</span>
-<span id="cb15-141"><a href="generating-package.html#cb15-141" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb15-142"><a href="generating-package.html#cb15-142" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb15-143"><a href="generating-package.html#cb15-143" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup package_doc engine</span></span>
-<span id="cb15-144"><a href="generating-package.html#cb15-144" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">set</span>(<span class="at">package_doc =</span> <span class="cf">function</span>(options) {</span>
-<span id="cb15-145"><a href="generating-package.html#cb15-145" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create package_doc</span></span>
-<span id="cb15-146"><a href="generating-package.html#cb15-146" aria-hidden="true" tabindex="-1"></a>    usethis<span class="sc">::</span><span class="fu">use_package_doc</span>(<span class="at">open =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb15-147"><a href="generating-package.html#cb15-147" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-148"><a href="generating-package.html#cb15-148" aria-hidden="true" tabindex="-1"></a>    <span class="co"># insert the contents of the code chunk into the package_doc</span></span>
-<span id="cb15-149"><a href="generating-package.html#cb15-149" aria-hidden="true" tabindex="-1"></a>    pkgdoc <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;R&quot;</span>, <span class="fu">paste0</span>(fs<span class="sc">::</span><span class="fu">path_file</span>(package_dir), <span class="st">&quot;-package.R&quot;</span>))</span>
-<span id="cb15-150"><a href="generating-package.html#cb15-150" aria-hidden="true" tabindex="-1"></a>    <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(options<span class="sc">$</span>code, <span class="at">filename =</span> pkgdoc, <span class="at">location =</span> <span class="dv">1</span>)</span>
-<span id="cb15-151"><a href="generating-package.html#cb15-151" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-152"><a href="generating-package.html#cb15-152" aria-hidden="true" tabindex="-1"></a>    <span class="co"># now treat this as if it were standard R code with eval=FALSE</span></span>
-<span id="cb15-153"><a href="generating-package.html#cb15-153" aria-hidden="true" tabindex="-1"></a>    r_engine <span class="ot">&lt;-</span> knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;R&quot;</span>)</span>
-<span id="cb15-154"><a href="generating-package.html#cb15-154" aria-hidden="true" tabindex="-1"></a>    options[[<span class="st">&quot;eval&quot;</span>]] <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb15-155"><a href="generating-package.html#cb15-155" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">r_engine</span>(options))</span>
-<span id="cb15-156"><a href="generating-package.html#cb15-156" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb15-157"><a href="generating-package.html#cb15-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(original_knitr)</span>
-<span id="cb15-158"><a href="generating-package.html#cb15-158" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="generating-package.html#cb15-1" tabindex="-1"></a><span class="co">#&#39; Code for setup chunk</span></span>
+<span id="cb15-2"><a href="generating-package.html#cb15-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb15-3"><a href="generating-package.html#cb15-3" tabindex="-1"></a><span class="co">#&#39; * Creates directory where package will be. (Deletes what is currently there as </span></span>
+<span id="cb15-4"><a href="generating-package.html#cb15-4" tabindex="-1"></a><span class="co">#&#39; long as it appears to have been created by litr and does not have any </span></span>
+<span id="cb15-5"><a href="generating-package.html#cb15-5" tabindex="-1"></a><span class="co">#&#39; subsequent manual edits.)</span></span>
+<span id="cb15-6"><a href="generating-package.html#cb15-6" tabindex="-1"></a><span class="co">#&#39; * Sets the root directory to this directory</span></span>
+<span id="cb15-7"><a href="generating-package.html#cb15-7" tabindex="-1"></a><span class="co">#&#39; * Sets up the main chunk hook `litr::<a href='generating-package.html#send_to_package'>send_to_package</a>()` that sends code to the </span></span>
+<span id="cb15-8"><a href="generating-package.html#cb15-8" tabindex="-1"></a><span class="co">#&#39; R package directory.</span></span>
+<span id="cb15-9"><a href="generating-package.html#cb15-9" tabindex="-1"></a><span class="co">#&#39; * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so</span></span>
+<span id="cb15-10"><a href="generating-package.html#cb15-10" tabindex="-1"></a><span class="co">#&#39;   chunks are only evaluated if there is a `usethis` or `litr::<a href='document.html#document'>document</a>()`</span></span>
+<span id="cb15-11"><a href="generating-package.html#cb15-11" tabindex="-1"></a><span class="co">#&#39;   command</span></span>
+<span id="cb15-12"><a href="generating-package.html#cb15-12" tabindex="-1"></a><span class="co">#&#39; * Deactivates an internal function of the `usethis` package</span></span>
+<span id="cb15-13"><a href="generating-package.html#cb15-13" tabindex="-1"></a><span class="co">#&#39; * Redefines the document output hook to handle chunk references differently  </span></span>
+<span id="cb15-14"><a href="generating-package.html#cb15-14" tabindex="-1"></a><span class="co">#&#39; * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called</span></span>
+<span id="cb15-15"><a href="generating-package.html#cb15-15" tabindex="-1"></a><span class="co">#&#39; `package_doc` that creates a package documentation file and then inserts</span></span>
+<span id="cb15-16"><a href="generating-package.html#cb15-16" tabindex="-1"></a><span class="co">#&#39; whatever the user puts in the chunk.</span></span>
+<span id="cb15-17"><a href="generating-package.html#cb15-17" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb15-18"><a href="generating-package.html#cb15-18" tabindex="-1"></a><span class="co">#&#39; Returns the original state of the knitr objects that have been modified in </span></span>
+<span id="cb15-19"><a href="generating-package.html#cb15-19" tabindex="-1"></a><span class="co">#&#39; setup.  This allows us to return things to the previous state after we are</span></span>
+<span id="cb15-20"><a href="generating-package.html#cb15-20" tabindex="-1"></a><span class="co">#&#39; finished.  This is relevant in the case where litr-knitting occurs in the </span></span>
+<span id="cb15-21"><a href="generating-package.html#cb15-21" tabindex="-1"></a><span class="co">#&#39; current session and we don&#39;t want to leave things in a permanently modified</span></span>
+<span id="cb15-22"><a href="generating-package.html#cb15-22" tabindex="-1"></a><span class="co">#&#39; state.</span></span>
+<span id="cb15-23"><a href="generating-package.html#cb15-23" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb15-24"><a href="generating-package.html#cb15-24" tabindex="-1"></a><span class="co">#&#39; @param package_dir Directory where R package will be created</span></span>
+<span id="cb15-25"><a href="generating-package.html#cb15-25" tabindex="-1"></a><a href='rendering.html#param-minimal_eval'>&lt;&lt;param-minimal_eval&gt;&gt;</a></span>
+<span id="cb15-26"><a href="generating-package.html#cb15-26" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb15-27"><a href="generating-package.html#cb15-27" tabindex="-1"></a><span id='setup'>setup</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir, minimal_eval) {</span>
+<span id="cb15-28"><a href="generating-package.html#cb15-28" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">file.exists</span>(package_dir)) {</span>
+<span id="cb15-29"><a href="generating-package.html#cb15-29" tabindex="-1"></a>    unedited <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_dir),</span>
+<span id="cb15-30"><a href="generating-package.html#cb15-30" tabindex="-1"></a>                         <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb15-31"><a href="generating-package.html#cb15-31" tabindex="-1"></a>                           <span class="co"># contents of package_dir does not resemble</span></span>
+<span id="cb15-32"><a href="generating-package.html#cb15-32" tabindex="-1"></a>                           <span class="co"># a litr package</span></span>
+<span id="cb15-33"><a href="generating-package.html#cb15-33" tabindex="-1"></a>                           <span class="fu">return</span>(<span class="cn">FALSE</span>)</span>
+<span id="cb15-34"><a href="generating-package.html#cb15-34" tabindex="-1"></a>                         })</span>
+<span id="cb15-35"><a href="generating-package.html#cb15-35" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>unedited) {</span>
+<span id="cb15-36"><a href="generating-package.html#cb15-36" tabindex="-1"></a>      <span class="fu">stop</span>(<a href='generating-package.html#make_noticeable'>make_noticeable</a>(<span class="fu">paste</span>(</span>
+<span id="cb15-37"><a href="generating-package.html#cb15-37" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;The directory {normalizePath(package_dir)}&quot;</span>),</span>
+<span id="cb15-38"><a href="generating-package.html#cb15-38" tabindex="-1"></a>        <span class="st">&quot;already exists and either was not created by litr or may have manual&quot;</span>,</span>
+<span id="cb15-39"><a href="generating-package.html#cb15-39" tabindex="-1"></a>        <span class="st">&quot;edits. In either case, please rename that directory (or delete it)&quot;</span>, </span>
+<span id="cb15-40"><a href="generating-package.html#cb15-40" tabindex="-1"></a>        <span class="st">&quot;and then try again.&quot;</span>, </span>
+<span id="cb15-41"><a href="generating-package.html#cb15-41" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)))</span>
+<span id="cb15-42"><a href="generating-package.html#cb15-42" tabindex="-1"></a>    }</span>
+<span id="cb15-43"><a href="generating-package.html#cb15-43" tabindex="-1"></a>    <span class="fu">unlink</span>(package_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-44"><a href="generating-package.html#cb15-44" tabindex="-1"></a>  }</span>
+<span id="cb15-45"><a href="generating-package.html#cb15-45" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(package_dir)</span>
+<span id="cb15-46"><a href="generating-package.html#cb15-46" tabindex="-1"></a>  usethis<span class="sc">:::</span><span class="fu">proj_set_</span>(usethis<span class="sc">:::</span><span class="fu">proj_path_prep</span>(package_dir))</span>
+<span id="cb15-47"><a href="generating-package.html#cb15-47" tabindex="-1"></a></span>
+<span id="cb15-48"><a href="generating-package.html#cb15-48" tabindex="-1"></a>  <span class="co"># let&#39;s keep a version of the knitr objects before modifying them:</span></span>
+<span id="cb15-49"><a href="generating-package.html#cb15-49" tabindex="-1"></a>  original_knitr <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">opts_knit =</span> knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">get</span>(),</span>
+<span id="cb15-50"><a href="generating-package.html#cb15-50" tabindex="-1"></a>                         <span class="at">knit_hooks =</span> knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">get</span>(),</span>
+<span id="cb15-51"><a href="generating-package.html#cb15-51" tabindex="-1"></a>                         <span class="at">opts_chunk =</span> knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">get</span>(),</span>
+<span id="cb15-52"><a href="generating-package.html#cb15-52" tabindex="-1"></a>                         <span class="at">opts_hooks =</span> knitr<span class="sc">::</span>opts_hooks<span class="sc">$</span><span class="fu">get</span>(),</span>
+<span id="cb15-53"><a href="generating-package.html#cb15-53" tabindex="-1"></a>                         <span class="at">knit_engines =</span> knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">get</span>()</span>
+<span id="cb15-54"><a href="generating-package.html#cb15-54" tabindex="-1"></a>                         )</span>
+<span id="cb15-55"><a href="generating-package.html#cb15-55" tabindex="-1"></a>  </span>
+<span id="cb15-56"><a href="generating-package.html#cb15-56" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">set</span>(<span class="at">root.dir =</span> package_dir) <span class="co"># sets wd of future chunks</span></span>
+<span id="cb15-57"><a href="generating-package.html#cb15-57" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">set</span>(<span class="at">send_to_package =</span> send_to_package)</span>
+<span id="cb15-58"><a href="generating-package.html#cb15-58" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">send_to_package =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-59"><a href="generating-package.html#cb15-59" tabindex="-1"></a>  <span class="cf">if</span> (minimal_eval) {</span>
+<span id="cb15-60"><a href="generating-package.html#cb15-60" tabindex="-1"></a>    <span class="co"># only evaluate chunks that appear to include usethis commands or </span></span>
+<span id="cb15-61"><a href="generating-package.html#cb15-61" tabindex="-1"></a>    <span class="co"># a call to litr::<a href='document.html#document'>document</a>() but if someone has specifically set eval=FALSE</span></span>
+<span id="cb15-62"><a href="generating-package.html#cb15-62" tabindex="-1"></a>    <span class="co"># in a particular chunk, do honor that</span></span>
+<span id="cb15-63"><a href="generating-package.html#cb15-63" tabindex="-1"></a>    usethis_exports <span class="ot">&lt;-</span> <span class="fu">getNamespaceExports</span>(<span class="st">&quot;usethis&quot;</span>)</span>
+<span id="cb15-64"><a href="generating-package.html#cb15-64" tabindex="-1"></a>    patterns <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="st">&quot;usethis::&quot;</span>, usethis_exports, <span class="st">&quot;litr::document</span><span class="sc">\\</span><span class="st">(&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span>)</span>
+<span id="cb15-65"><a href="generating-package.html#cb15-65" tabindex="-1"></a>    knitr<span class="sc">::</span>opts_hooks<span class="sc">$</span><span class="fu">set</span>(<span class="at">eval =</span> <span class="cf">function</span>(options) {</span>
+<span id="cb15-66"><a href="generating-package.html#cb15-66" tabindex="-1"></a>      <span class="cf">if</span> (options<span class="sc">$</span>eval)</span>
+<span id="cb15-67"><a href="generating-package.html#cb15-67" tabindex="-1"></a>        options<span class="sc">$</span>eval <span class="ot">&lt;-</span> <span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(options<span class="sc">$</span>code, patterns))</span>
+<span id="cb15-68"><a href="generating-package.html#cb15-68" tabindex="-1"></a>      <span class="fu">return</span>(options)</span>
+<span id="cb15-69"><a href="generating-package.html#cb15-69" tabindex="-1"></a>    })</span>
+<span id="cb15-70"><a href="generating-package.html#cb15-70" tabindex="-1"></a>  }</span>
+<span id="cb15-71"><a href="generating-package.html#cb15-71" tabindex="-1"></a>  </span>
+<span id="cb15-72"><a href="generating-package.html#cb15-72" tabindex="-1"></a>  </span>
+<span id="cb15-73"><a href="generating-package.html#cb15-73" tabindex="-1"></a>  <span class="co"># change usethis:::challenge_nested_project so that it will not complain</span></span>
+<span id="cb15-74"><a href="generating-package.html#cb15-74" tabindex="-1"></a>  <span class="co"># about creating a nested project (e.g. if this is called within a git </span></span>
+<span id="cb15-75"><a href="generating-package.html#cb15-75" tabindex="-1"></a>  <span class="co"># subdirectory)</span></span>
+<span id="cb15-76"><a href="generating-package.html#cb15-76" tabindex="-1"></a>  utils<span class="sc">::</span><span class="fu">assignInNamespace</span>(<span class="st">&quot;challenge_nested_project&quot;</span>, <span class="cf">function</span>(...) <span class="cn">NULL</span>, <span class="at">ns =</span> <span class="st">&quot;usethis&quot;</span>)</span>
+<span id="cb15-77"><a href="generating-package.html#cb15-77" tabindex="-1"></a></span>
+<span id="cb15-78"><a href="generating-package.html#cb15-78" tabindex="-1"></a>  <span class="co"># define document hook to handle chunk references:</span></span>
+<span id="cb15-79"><a href="generating-package.html#cb15-79" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">set</span>(<span class="at">document =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb15-80"><a href="generating-package.html#cb15-80" tabindex="-1"></a>    <span class="co"># get the indices of x corresponding to code chunks</span></span>
+<span id="cb15-81"><a href="generating-package.html#cb15-81" tabindex="-1"></a>    chunk_start <span class="ot">&lt;-</span> <span class="st">&quot;^(</span><span class="sc">\n</span><span class="st">```+[a-zA-Z0-9_]+</span><span class="sc">\n</span><span class="st">)&quot;</span></span>
+<span id="cb15-82"><a href="generating-package.html#cb15-82" tabindex="-1"></a>    idx_block <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(x, chunk_start)</span>
+<span id="cb15-83"><a href="generating-package.html#cb15-83" tabindex="-1"></a>    original_code <span class="ot">&lt;-</span> knitr<span class="sc">::</span>knit_code<span class="sc">$</span><span class="fu">get</span>()</span>
+<span id="cb15-84"><a href="generating-package.html#cb15-84" tabindex="-1"></a>    <span class="co"># We first get indices of skipped chunks in original_code list</span></span>
+<span id="cb15-85"><a href="generating-package.html#cb15-85" tabindex="-1"></a>    skipped_chunks <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">sapply</span>(original_code, <span class="cf">function</span>(x){</span>
+<span id="cb15-86"><a href="generating-package.html#cb15-86" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">isFALSE</span>(<span class="fu">attr</span>(x, <span class="st">&quot;chunk_opts&quot;</span>)<span class="sc">$</span>echo) <span class="sc">||</span> <span class="fu">isFALSE</span>(<span class="fu">attr</span>(x, <span class="st">&quot;chunk_opts&quot;</span>)<span class="sc">$</span>include))</span>
+<span id="cb15-87"><a href="generating-package.html#cb15-87" tabindex="-1"></a>    }))</span>
+<span id="cb15-88"><a href="generating-package.html#cb15-88" tabindex="-1"></a></span>
+<span id="cb15-89"><a href="generating-package.html#cb15-89" tabindex="-1"></a>    <span class="co"># Next we remove the indices of skipped chunks</span></span>
+<span id="cb15-90"><a href="generating-package.html#cb15-90" tabindex="-1"></a>    original_code_idx_fixed <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">seq</span>(<span class="fu">length</span>(original_code)), skipped_chunks)</span>
+<span id="cb15-91"><a href="generating-package.html#cb15-91" tabindex="-1"></a>    </span>
+<span id="cb15-92"><a href="generating-package.html#cb15-92" tabindex="-1"></a>    labels <span class="ot">&lt;-</span> <span class="fu">names</span>(original_code)</span>
+<span id="cb15-93"><a href="generating-package.html#cb15-93" tabindex="-1"></a>    <span class="co"># replace each x[i] that has code in it with the original code</span></span>
+<span id="cb15-94"><a href="generating-package.html#cb15-94" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(idx_block)) {</span>
+<span id="cb15-95"><a href="generating-package.html#cb15-95" tabindex="-1"></a>      <span class="co"># break code into multiple lines:</span></span>
+<span id="cb15-96"><a href="generating-package.html#cb15-96" tabindex="-1"></a>      chunk <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(x[idx_block[i]], <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb15-97"><a href="generating-package.html#cb15-97" tabindex="-1"></a>      <span class="co"># get the fence used (in case it&#39;s more than three ticks):</span></span>
+<span id="cb15-98"><a href="generating-package.html#cb15-98" tabindex="-1"></a>      i_start <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(chunk, <span class="st">&quot;^```+[a-zA-Z0-9_]+&quot;</span>)</span>
+<span id="cb15-99"><a href="generating-package.html#cb15-99" tabindex="-1"></a>      fence <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(chunk[i_start[<span class="dv">1</span>]],</span>
+<span id="cb15-100"><a href="generating-package.html#cb15-100" tabindex="-1"></a>                                    <span class="st">&quot;^(```+)[a-zA-Z0-9_]+&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>)</span>
+<span id="cb15-101"><a href="generating-package.html#cb15-101" tabindex="-1"></a>      i_fences <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(chunk, <span class="fu">paste0</span>(<span class="st">&quot;^&quot;</span>, fence))</span>
+<span id="cb15-102"><a href="generating-package.html#cb15-102" tabindex="-1"></a>      <span class="co"># there can be multiple code and output chunks strung together </span></span>
+<span id="cb15-103"><a href="generating-package.html#cb15-103" tabindex="-1"></a>      <span class="co"># within a single x[i] if results are not held to end</span></span>
+<span id="cb15-104"><a href="generating-package.html#cb15-104" tabindex="-1"></a>      i_all_code <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb15-105"><a href="generating-package.html#cb15-105" tabindex="-1"></a>      <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(i_start)) {</span>
+<span id="cb15-106"><a href="generating-package.html#cb15-106" tabindex="-1"></a>        <span class="co"># get the elements corresponding the j-th code chunk within chunk</span></span>
+<span id="cb15-107"><a href="generating-package.html#cb15-107" tabindex="-1"></a>        i_code_end <span class="ot">&lt;-</span> i_fences[<span class="fu">which</span>(i_fences <span class="sc">==</span> i_start[j]) <span class="sc">+</span> <span class="dv">1</span>]</span>
+<span id="cb15-108"><a href="generating-package.html#cb15-108" tabindex="-1"></a>        i_all_code <span class="ot">&lt;-</span> <span class="fu">c</span>(i_all_code, i_start[j]<span class="sc">:</span>i_code_end)</span>
+<span id="cb15-109"><a href="generating-package.html#cb15-109" tabindex="-1"></a>      }</span>
+<span id="cb15-110"><a href="generating-package.html#cb15-110" tabindex="-1"></a>      i_all_code <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(i_all_code, i_start[<span class="dv">1</span>])</span>
+<span id="cb15-111"><a href="generating-package.html#cb15-111" tabindex="-1"></a>      chunk_no_code <span class="ot">&lt;-</span> chunk[<span class="sc">-</span>i_all_code]</span>
+<span id="cb15-112"><a href="generating-package.html#cb15-112" tabindex="-1"></a>      chunk <span class="ot">&lt;-</span> <span class="fu">c</span>(chunk_no_code[<span class="dv">1</span><span class="sc">:</span>i_start[<span class="dv">1</span>]],</span>
+<span id="cb15-113"><a href="generating-package.html#cb15-113" tabindex="-1"></a>                 original_code[original_code_idx_fixed[i]][[<span class="dv">1</span>]],</span>
+<span id="cb15-114"><a href="generating-package.html#cb15-114" tabindex="-1"></a>                 <span class="co"># insert the original version, accounting for skipped chunks</span></span>
+<span id="cb15-115"><a href="generating-package.html#cb15-115" tabindex="-1"></a>                 fence)</span>
+<span id="cb15-116"><a href="generating-package.html#cb15-116" tabindex="-1"></a>      <span class="cf">if</span> (i_start[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="fu">length</span>(chunk_no_code))</span>
+<span id="cb15-117"><a href="generating-package.html#cb15-117" tabindex="-1"></a>        chunk <span class="ot">&lt;-</span> <span class="fu">c</span>(chunk, chunk_no_code[(i_start[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span><span class="fu">length</span>(chunk_no_code)])</span>
+<span id="cb15-118"><a href="generating-package.html#cb15-118" tabindex="-1"></a>        x[idx_block[i]] <span class="ot">&lt;-</span> <span class="fu">paste</span>(chunk, <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb15-119"><a href="generating-package.html#cb15-119" tabindex="-1"></a>    }</span>
+<span id="cb15-120"><a href="generating-package.html#cb15-120" tabindex="-1"></a>    </span>
+<span id="cb15-121"><a href="generating-package.html#cb15-121" tabindex="-1"></a>    <span class="co"># replace code chunks with the original code</span></span>
+<span id="cb15-122"><a href="generating-package.html#cb15-122" tabindex="-1"></a>    <span class="co"># (so we&#39;ll still have &lt;&lt;label&gt;&gt; chunk references)</span></span>
+<span id="cb15-123"><a href="generating-package.html#cb15-123" tabindex="-1"></a>    refs <span class="ot">&lt;-</span> <span class="fu">c</span>() <span class="co"># labels that get referred to</span></span>
+<span id="cb15-124"><a href="generating-package.html#cb15-124" tabindex="-1"></a>    <span class="cf">for</span> (label <span class="cf">in</span> labels) {</span>
+<span id="cb15-125"><a href="generating-package.html#cb15-125" tabindex="-1"></a>      refs <span class="ot">&lt;-</span> <span class="fu">c</span>(refs, <a href='generating-package.html#find_labels'>find_labels</a>(original_code[[label]])<span class="sc">$</span>chunk_ids)</span>
+<span id="cb15-126"><a href="generating-package.html#cb15-126" tabindex="-1"></a>    }</span>
+<span id="cb15-127"><a href="generating-package.html#cb15-127" tabindex="-1"></a>    refs <span class="ot">&lt;-</span> <span class="fu">unique</span>(refs)</span>
+<span id="cb15-128"><a href="generating-package.html#cb15-128" tabindex="-1"></a>    adj_labels <span class="ot">&lt;-</span> labels[<span class="sc">!</span>labels <span class="sc">%in%</span> <span class="fu">names</span>(skipped_chunks)]</span>
+<span id="cb15-129"><a href="generating-package.html#cb15-129" tabindex="-1"></a>    ref_id <span class="ot">&lt;-</span> <span class="fu">match</span>(refs, adj_labels)</span>
+<span id="cb15-130"><a href="generating-package.html#cb15-130" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.na</span>(ref_id))) {</span>
+<span id="cb15-131"><a href="generating-package.html#cb15-131" tabindex="-1"></a>      <span class="fu">stop</span>(<a href='generating-package.html#make_noticeable'>make_noticeable</a>(<span class="fu">paste</span>(</span>
+<span id="cb15-132"><a href="generating-package.html#cb15-132" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;The chunk reference &lt;&lt;{refs[is.na(ref_id)][1]}&gt;&gt; &quot;</span>,</span>
+<span id="cb15-133"><a href="generating-package.html#cb15-133" tabindex="-1"></a>        <span class="st">&quot;is used, but there is no chunk with that label.&quot;</span>, </span>
+<span id="cb15-134"><a href="generating-package.html#cb15-134" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))))</span>
+<span id="cb15-135"><a href="generating-package.html#cb15-135" tabindex="-1"></a>      }</span>
+<span id="cb15-136"><a href="generating-package.html#cb15-136" tabindex="-1"></a>    to_insert <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&#39;###&quot;&#39;</span>, adj_labels[ref_id], <span class="st">&#39;&quot;###</span><span class="sc">\n</span><span class="st">&#39;</span>)</span>
+<span id="cb15-137"><a href="generating-package.html#cb15-137" tabindex="-1"></a>    x[idx_block[ref_id]] <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(x[idx_block[ref_id]],</span>
+<span id="cb15-138"><a href="generating-package.html#cb15-138" tabindex="-1"></a>                                                 chunk_start,</span>
+<span id="cb15-139"><a href="generating-package.html#cb15-139" tabindex="-1"></a>                                                 <span class="fu">paste0</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>, to_insert))</span>
+<span id="cb15-140"><a href="generating-package.html#cb15-140" tabindex="-1"></a>    x</span>
+<span id="cb15-141"><a href="generating-package.html#cb15-141" tabindex="-1"></a>  })</span>
+<span id="cb15-142"><a href="generating-package.html#cb15-142" tabindex="-1"></a>  </span>
+<span id="cb15-143"><a href="generating-package.html#cb15-143" tabindex="-1"></a>  <span class="co"># setup package_doc engine</span></span>
+<span id="cb15-144"><a href="generating-package.html#cb15-144" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">set</span>(<span class="at">package_doc =</span> <span class="cf">function</span>(options) {</span>
+<span id="cb15-145"><a href="generating-package.html#cb15-145" tabindex="-1"></a>    <span class="co"># create package_doc</span></span>
+<span id="cb15-146"><a href="generating-package.html#cb15-146" tabindex="-1"></a>    usethis<span class="sc">::</span><span class="fu">use_package_doc</span>(<span class="at">open =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-147"><a href="generating-package.html#cb15-147" tabindex="-1"></a>    </span>
+<span id="cb15-148"><a href="generating-package.html#cb15-148" tabindex="-1"></a>    <span class="co"># insert the contents of the code chunk into the package_doc</span></span>
+<span id="cb15-149"><a href="generating-package.html#cb15-149" tabindex="-1"></a>    pkgdoc <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;R&quot;</span>, <span class="fu">paste0</span>(fs<span class="sc">::</span><span class="fu">path_file</span>(package_dir), <span class="st">&quot;-package.R&quot;</span>))</span>
+<span id="cb15-150"><a href="generating-package.html#cb15-150" tabindex="-1"></a>    <a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(options<span class="sc">$</span>code, <span class="at">filename =</span> pkgdoc, <span class="at">location =</span> <span class="dv">1</span>)</span>
+<span id="cb15-151"><a href="generating-package.html#cb15-151" tabindex="-1"></a>    </span>
+<span id="cb15-152"><a href="generating-package.html#cb15-152" tabindex="-1"></a>    <span class="co"># now treat this as if it were standard R code with eval=FALSE</span></span>
+<span id="cb15-153"><a href="generating-package.html#cb15-153" tabindex="-1"></a>    r_engine <span class="ot">&lt;-</span> knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">get</span>(<span class="st">&quot;R&quot;</span>)</span>
+<span id="cb15-154"><a href="generating-package.html#cb15-154" tabindex="-1"></a>    options[[<span class="st">&quot;eval&quot;</span>]] <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb15-155"><a href="generating-package.html#cb15-155" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">r_engine</span>(options))</span>
+<span id="cb15-156"><a href="generating-package.html#cb15-156" tabindex="-1"></a>  })</span>
+<span id="cb15-157"><a href="generating-package.html#cb15-157" tabindex="-1"></a>  <span class="fu">return</span>(original_knitr)</span>
+<span id="cb15-158"><a href="generating-package.html#cb15-158" tabindex="-1"></a>}</span></code></pre></div>
 <p>In our new <code>document</code> output hook defined above, we call a function <code><a href='generating-package.html#find_labels'>find_labels</a>()</code>. It takes a block of code and returns both a logical vector of which lines contained chunk labels and another vector containing the labels of those referenced chunks. We define it here:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="generating-package.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Find a .Rmd chunk label in a code chunk</span></span>
-<span id="cb16-2"><a href="generating-package.html#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb16-3"><a href="generating-package.html#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param chunk_code Character vector of code from a .Rmd code chunk. Each element is a line of the code chunk.</span></span>
-<span id="cb16-4"><a href="generating-package.html#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `&lt;&lt;label&gt;&gt;` was found and chunk_ids is a character vector of chunk label was found in that chunk.</span></span>
-<span id="cb16-5"><a href="generating-package.html#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb16-6"><a href="generating-package.html#cb16-6" aria-hidden="true" tabindex="-1"></a><span id='find_labels'>find_labels</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(chunk_code) {</span>
-<span id="cb16-7"><a href="generating-package.html#cb16-7" aria-hidden="true" tabindex="-1"></a>  rc <span class="ot">&lt;-</span> knitr<span class="sc">::</span>all_patterns<span class="sc">$</span>md<span class="sc">$</span>ref.chunk</span>
-<span id="cb16-8"><a href="generating-package.html#cb16-8" aria-hidden="true" tabindex="-1"></a>  chunk_idx <span class="ot">&lt;-</span> <span class="fu">any</span>(<span class="at">idx =</span> <span class="fu">grepl</span>(rc, chunk_code))</span>
-<span id="cb16-9"><a href="generating-package.html#cb16-9" aria-hidden="true" tabindex="-1"></a>  chunk_ids <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_trim</span>(<span class="fu">sub</span>(rc, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>, chunk_code[<span class="fu">grepl</span>(rc, chunk_code)]))</span>
-<span id="cb16-10"><a href="generating-package.html#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">chunk_idx =</span> chunk_idx, <span class="at">chunk_ids =</span> chunk_ids))</span>
-<span id="cb16-11"><a href="generating-package.html#cb16-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="generating-package.html#cb16-1" tabindex="-1"></a><span class="co">#&#39; Find a .Rmd chunk label in a code chunk</span></span>
+<span id="cb16-2"><a href="generating-package.html#cb16-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb16-3"><a href="generating-package.html#cb16-3" tabindex="-1"></a><span class="co">#&#39; @param chunk_code Character vector of code from a .Rmd code chunk. Each element is a line of the code chunk.</span></span>
+<span id="cb16-4"><a href="generating-package.html#cb16-4" tabindex="-1"></a><span class="co">#&#39; @return List where chunk_idx is a logical vector for each line of the chunk corresponding to whether a chunk label of the form `&lt;&lt;label&gt;&gt;` was found and chunk_ids is a character vector of chunk label was found in that chunk.</span></span>
+<span id="cb16-5"><a href="generating-package.html#cb16-5" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb16-6"><a href="generating-package.html#cb16-6" tabindex="-1"></a><span id='find_labels'>find_labels</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(chunk_code) {</span>
+<span id="cb16-7"><a href="generating-package.html#cb16-7" tabindex="-1"></a>  rc <span class="ot">&lt;-</span> knitr<span class="sc">::</span>all_patterns<span class="sc">$</span>md<span class="sc">$</span>ref.chunk</span>
+<span id="cb16-8"><a href="generating-package.html#cb16-8" tabindex="-1"></a>  chunk_idx <span class="ot">&lt;-</span> <span class="fu">any</span>(<span class="at">idx =</span> <span class="fu">grepl</span>(rc, chunk_code))</span>
+<span id="cb16-9"><a href="generating-package.html#cb16-9" tabindex="-1"></a>  chunk_ids <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_trim</span>(<span class="fu">sub</span>(rc, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>, chunk_code[<span class="fu">grepl</span>(rc, chunk_code)]))</span>
+<span id="cb16-10"><a href="generating-package.html#cb16-10" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">chunk_idx =</span> chunk_idx, <span class="at">chunk_ids =</span> chunk_ids))</span>
+<span id="cb16-11"><a href="generating-package.html#cb16-11" tabindex="-1"></a>}</span></code></pre></div>
 <p>The <code><a href='generating-package.html#setup'>setup</a>()</code> function also uses a small function, <code><a href='generating-package.html#make_noticeable'>make_noticeable</a>()</code>, which we define here:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="generating-package.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Make error messages noticeable</span></span>
-<span id="cb17-2"><a href="generating-package.html#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb17-3"><a href="generating-package.html#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Since litr error messages are amid a lot of output from knitting, we&#39;d like </span></span>
-<span id="cb17-4"><a href="generating-package.html#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; the litr ones to be eye-catching.</span></span>
-<span id="cb17-5"><a href="generating-package.html#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb17-6"><a href="generating-package.html#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param msg Error message</span></span>
-<span id="cb17-7"><a href="generating-package.html#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb17-8"><a href="generating-package.html#cb17-8" aria-hidden="true" tabindex="-1"></a><span id='make_noticeable'>make_noticeable</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(msg) {</span>
-<span id="cb17-9"><a href="generating-package.html#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="st">&quot;&quot;</span>,</span>
-<span id="cb17-10"><a href="generating-package.html#cb17-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;======&quot;</span>,</span>
-<span id="cb17-11"><a href="generating-package.html#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Please read your friendly litr error message here:&quot;</span>,</span>
-<span id="cb17-12"><a href="generating-package.html#cb17-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste</span>(<span class="st">&quot;&gt; &quot;</span>, msg),</span>
-<span id="cb17-13"><a href="generating-package.html#cb17-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;======&quot;</span>,</span>
-<span id="cb17-14"><a href="generating-package.html#cb17-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb17-15"><a href="generating-package.html#cb17-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="generating-package.html#cb17-1" tabindex="-1"></a><span class="co">#&#39; Make error messages noticeable</span></span>
+<span id="cb17-2"><a href="generating-package.html#cb17-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb17-3"><a href="generating-package.html#cb17-3" tabindex="-1"></a><span class="co">#&#39; Since litr error messages are amid a lot of output from knitting, we&#39;d like </span></span>
+<span id="cb17-4"><a href="generating-package.html#cb17-4" tabindex="-1"></a><span class="co">#&#39; the litr ones to be eye-catching.</span></span>
+<span id="cb17-5"><a href="generating-package.html#cb17-5" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb17-6"><a href="generating-package.html#cb17-6" tabindex="-1"></a><span class="co">#&#39; @param msg Error message</span></span>
+<span id="cb17-7"><a href="generating-package.html#cb17-7" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb17-8"><a href="generating-package.html#cb17-8" tabindex="-1"></a><span id='make_noticeable'>make_noticeable</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(msg) {</span>
+<span id="cb17-9"><a href="generating-package.html#cb17-9" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="st">&quot;&quot;</span>,</span>
+<span id="cb17-10"><a href="generating-package.html#cb17-10" tabindex="-1"></a>        <span class="st">&quot;======&quot;</span>,</span>
+<span id="cb17-11"><a href="generating-package.html#cb17-11" tabindex="-1"></a>        <span class="st">&quot;Please read your friendly litr error message here:&quot;</span>,</span>
+<span id="cb17-12"><a href="generating-package.html#cb17-12" tabindex="-1"></a>        <span class="fu">paste</span>(<span class="st">&quot;&gt; &quot;</span>, msg),</span>
+<span id="cb17-13"><a href="generating-package.html#cb17-13" tabindex="-1"></a>        <span class="st">&quot;======&quot;</span>,</span>
+<span id="cb17-14"><a href="generating-package.html#cb17-14" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb17-15"><a href="generating-package.html#cb17-15" tabindex="-1"></a>}</span></code></pre></div>
 <p>The code in this section used the <code>fs</code> and <code>knitr</code> packages, so we import those:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="generating-package.html#cb18-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;fs&quot;</span>)</span>
-<span id="cb18-2"><a href="generating-package.html#cb18-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;knitr&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="generating-package.html#cb18-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;fs&quot;</span>)</span>
+<span id="cb18-2"><a href="generating-package.html#cb18-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;knitr&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;fs&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `fs::fun()`</code></pre>
 <pre><code>## ✔ Adding &#39;knitr&#39; to Imports field in DESCRIPTION

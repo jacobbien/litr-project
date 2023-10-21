@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>3 The basics of saying hello | Creating the frombookdown R package</title>
   <meta name="description" content="3 The basics of saying hello | Creating the frombookdown R package" />
-  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
 
   <meta property="og:title" content="3 The basics of saying hello | Creating the frombookdown R package" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Jacob Bien" />
 
 
-<meta name="date" content="2023-06-19" />
+<meta name="date" content="2023-10-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -161,24 +161,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="the-basics-of-saying-hello" class="section level1 hasAnchor" number="3">
 <h1><span class="header-section-number">3</span> The basics of saying hello<a href="the-basics-of-saying-hello.html#the-basics-of-saying-hello" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Let’s define a function for our R package:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="the-basics-of-saying-hello.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Say hello to someone</span></span>
-<span id="cb4-2"><a href="the-basics-of-saying-hello.html#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb4-3"><a href="the-basics-of-saying-hello.html#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param name Name of a person</span></span>
-<span id="cb4-4"><a href="the-basics-of-saying-hello.html#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param exclamation Whether to include an exclamation mark</span></span>
-<span id="cb4-5"><a href="the-basics-of-saying-hello.html#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @export </span></span>
-<span id="cb4-6"><a href="the-basics-of-saying-hello.html#cb4-6" aria-hidden="true" tabindex="-1"></a><span id='say_hello'>say_hello</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(name, <span class="at">exclamation =</span> <span class="cn">TRUE</span>) {</span>
-<span id="cb4-7"><a href="the-basics-of-saying-hello.html#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Hello &quot;</span>, name, <span class="fu">ifelse</span>(exclamation, <span class="st">&quot;!&quot;</span>, <span class="st">&quot;.&quot;</span>))</span>
-<span id="cb4-8"><a href="the-basics-of-saying-hello.html#cb4-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="the-basics-of-saying-hello.html#cb4-1" tabindex="-1"></a><span class="co">#&#39; Say hello to someone</span></span>
+<span id="cb4-2"><a href="the-basics-of-saying-hello.html#cb4-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb4-3"><a href="the-basics-of-saying-hello.html#cb4-3" tabindex="-1"></a><span class="co">#&#39; @param name Name of a person</span></span>
+<span id="cb4-4"><a href="the-basics-of-saying-hello.html#cb4-4" tabindex="-1"></a><span class="co">#&#39; @param exclamation Whether to include an exclamation mark</span></span>
+<span id="cb4-5"><a href="the-basics-of-saying-hello.html#cb4-5" tabindex="-1"></a><span class="co">#&#39; @export </span></span>
+<span id="cb4-6"><a href="the-basics-of-saying-hello.html#cb4-6" tabindex="-1"></a><span id='say_hello'>say_hello</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(name, <span class="at">exclamation =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb4-7"><a href="the-basics-of-saying-hello.html#cb4-7" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Hello &quot;</span>, name, <span class="fu">ifelse</span>(exclamation, <span class="st">&quot;!&quot;</span>, <span class="st">&quot;.&quot;</span>))</span>
+<span id="cb4-8"><a href="the-basics-of-saying-hello.html#cb4-8" tabindex="-1"></a>}</span></code></pre></div>
 <p>Code chunks whose first line starts with <code>#'</code> are added to the package.</p>
 <p>We can try running it.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="the-basics-of-saying-hello.html#cb5-1" aria-hidden="true" tabindex="-1"></a><a href='the-basics-of-saying-hello.html#say_hello'>say_hello</a>(<span class="st">&quot;Jacob&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="the-basics-of-saying-hello.html#cb5-1" tabindex="-1"></a><a href='the-basics-of-saying-hello.html#say_hello'>say_hello</a>(<span class="st">&quot;Jacob&quot;</span>)</span></code></pre></div>
 <pre><code>## [1] &quot;Hello Jacob!&quot;</code></pre>
 <p>That code chunk does not start with <code>#'</code>, so it is not added to the package.</p>
 <p>Let’s write some tests to make sure the function behaves as desired:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="the-basics-of-saying-hello.html#cb7-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;say_hello works&quot;</span>, {</span>
-<span id="cb7-2"><a href="the-basics-of-saying-hello.html#cb7-2" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<a href='the-basics-of-saying-hello.html#say_hello'>say_hello</a>(<span class="st">&quot;Jacob&quot;</span>), <span class="st">&quot;Hello Jacob!&quot;</span>)</span>
-<span id="cb7-3"><a href="the-basics-of-saying-hello.html#cb7-3" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<a href='the-basics-of-saying-hello.html#say_hello'>say_hello</a>(<span class="st">&quot;Jacob&quot;</span>, <span class="at">exclamation =</span> <span class="cn">FALSE</span>), <span class="st">&quot;Hello Jacob.&quot;</span>)</span>
-<span id="cb7-4"><a href="the-basics-of-saying-hello.html#cb7-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="the-basics-of-saying-hello.html#cb7-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;say_hello works&quot;</span>, {</span>
+<span id="cb7-2"><a href="the-basics-of-saying-hello.html#cb7-2" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<a href='the-basics-of-saying-hello.html#say_hello'>say_hello</a>(<span class="st">&quot;Jacob&quot;</span>), <span class="st">&quot;Hello Jacob!&quot;</span>)</span>
+<span id="cb7-3"><a href="the-basics-of-saying-hello.html#cb7-3" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<a href='the-basics-of-saying-hello.html#say_hello'>say_hello</a>(<span class="st">&quot;Jacob&quot;</span>, <span class="at">exclamation =</span> <span class="cn">FALSE</span>), <span class="st">&quot;Hello Jacob.&quot;</span>)</span>
+<span id="cb7-4"><a href="the-basics-of-saying-hello.html#cb7-4" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>## Test passed</code></pre>
 <p>Code chunks that have one or more lines starting with <code>test_that(</code> (or <code>testthat::test_that(</code>) are added to the package as tests.</p>
 

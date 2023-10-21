@@ -32,6 +32,8 @@ To create a new version of `litr`, we first install the latest release, then mak
 ```{r}
 remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 litr::render("create-litr/index.Rmd")
+fs::dir_copy("create-litr/_book", "docs/create", overwrite = TRUE)
+fs::dir_delete("create-litr/_book")
 ```
 
 In the above code, `@*release` stands for the latest release.  For example, at the time of creating version `0.0.2`, this would be `v0.0.1`.

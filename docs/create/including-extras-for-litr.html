@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>14 Including extras for litr | Creating the litr R package</title>
   <meta name="description" content="14 Including extras for litr | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
 
   <meta property="og:title" content="14 Including extras for litr | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -209,26 +209,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="readme-with-hex-sticker" class="section level2 hasAnchor" number="14.1">
 <h2><span class="header-section-number">14.1</span> README with hex sticker<a href="including-extras-for-litr.html#readme-with-hex-sticker" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We include a <code>README.Rmd</code> and then generate the <code>README.md</code> based on it:</p>
-<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="including-extras-for-litr.html#cb107-1" aria-hidden="true" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_readme'>add_readme</a>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;README.Rmd&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="including-extras-for-litr.html#cb107-1" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_readme'>add_readme</a>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;README.Rmd&quot;</span>))</span></code></pre></div>
 <pre><code>## ✔ Writing &#39;README.Rmd&#39;
 ## ✔ Adding &#39;^README\\.Rmd$&#39; to &#39;.Rbuildignore&#39;
 ## ✔ Creating &#39;.git/hooks/&#39;
 ## ✔ Writing &#39;.git/hooks/pre-commit&#39;</code></pre>
 <p>Let’s add the <code>litr</code> hex sticker too (which is referred to in the README).</p>
-<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="including-extras-for-litr.html#cb109-1" aria-hidden="true" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_hex_sticker'>add_hex_sticker</a>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;litr-hex.png&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="including-extras-for-litr.html#cb109-1" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_hex_sticker'>add_hex_sticker</a>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;litr-hex.png&quot;</span>))</span></code></pre></div>
 <p>Let’s also add a figure we include in the README.</p>
-<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="including-extras-for-litr.html#cb110-1" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;diagram3.png&quot;</span>),</span>
-<span id="cb110-2"><a href="including-extras-for-litr.html#cb110-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">file.path</span>(<span class="st">&quot;man&quot;</span>, <span class="st">&quot;figures&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="including-extras-for-litr.html#cb110-1" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;diagram3.png&quot;</span>),</span>
+<span id="cb110-2"><a href="including-extras-for-litr.html#cb110-2" tabindex="-1"></a>              <span class="fu">file.path</span>(<span class="st">&quot;man&quot;</span>, <span class="st">&quot;figures&quot;</span>))</span></code></pre></div>
 </div>
 <div id="vignettes" class="section level2 hasAnchor" number="14.2">
 <h2><span class="header-section-number">14.2</span> Vignettes<a href="including-extras-for-litr.html#vignettes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="including-extras-for-litr.html#cb111-1" aria-hidden="true" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_vignettes'>add_vignettes</a>(<span class="fu">c</span>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;package-templates.Rmd&quot;</span>),</span>
-<span id="cb111-2"><a href="including-extras-for-litr.html#cb111-2" aria-hidden="true" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;packages-in-the-wild.Rmd&quot;</span>),</span>
-<span id="cb111-3"><a href="including-extras-for-litr.html#cb111-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;faqs.Rmd&quot;</span>),</span>
-<span id="cb111-4"><a href="including-extras-for-litr.html#cb111-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;basic-example.Rmd&quot;</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="including-extras-for-litr.html#cb111-1" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_vignettes'>add_vignettes</a>(<span class="fu">c</span>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;package-templates.Rmd&quot;</span>),</span>
+<span id="cb111-2"><a href="including-extras-for-litr.html#cb111-2" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;packages-in-the-wild.Rmd&quot;</span>),</span>
+<span id="cb111-3"><a href="including-extras-for-litr.html#cb111-3" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;faqs.Rmd&quot;</span>),</span>
+<span id="cb111-4"><a href="including-extras-for-litr.html#cb111-4" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;basic-example.Rmd&quot;</span>)))</span></code></pre></div>
 <p>The templates vignette uses <code>dplyr</code> and <code>stringr</code>, so we add them as “Suggests” in the DESCRIPTION file:</p>
-<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="including-extras-for-litr.html#cb112-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
-<span id="cb112-2"><a href="including-extras-for-litr.html#cb112-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;stringr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="including-extras-for-litr.html#cb112-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
+<span id="cb112-2"><a href="including-extras-for-litr.html#cb112-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;stringr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;dplyr&#39; to Suggests field in DESCRIPTION
 ## • Use `requireNamespace(&quot;dplyr&quot;, quietly = TRUE)` to test if package is installed
 ## • Then directly refer to functions with `dplyr::fun()`</code></pre>
@@ -238,7 +238,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="a-pkgdown-site" class="section level2 hasAnchor" number="14.3">
 <h2><span class="header-section-number">14.3</span> A pkgdown site<a href="including-extras-for-litr.html#a-pkgdown-site" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We’ll first add the github url to the DESCRIPTION file.</p>
-<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="including-extras-for-litr.html#cb115-1" aria-hidden="true" tabindex="-1"></a>desc<span class="sc">::</span><span class="fu">desc_set</span>(<span class="st">&quot;URL&quot;</span>, <span class="st">&quot;https://github.com/jacobbien/litr-project/tree/main/litr&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="including-extras-for-litr.html#cb115-1" tabindex="-1"></a>desc<span class="sc">::</span><span class="fu">desc_set</span>(<span class="st">&quot;URL&quot;</span>, <span class="st">&quot;https://github.com/jacobbien/litr-project/tree/main/litr&quot;</span>)</span></code></pre></div>
 <pre><code>## Package: litr
 ## Title: Literate Programming for Writing R Packages
 ## Version: 0.9.1
@@ -275,8 +275,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## Roxygen: list(markdown = TRUE)
 ## RoxygenNote: 7.2.3</code></pre>
 <p>Next, we create the pkgdown site. The customizations come from the source file <code>source-files/_pkgdown.yml</code>.</p>
-<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="including-extras-for-litr.html#cb117-1" aria-hidden="true" tabindex="-1"></a>pkgdown_yml <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;_pkgdown.yml&quot;</span>)</span>
-<span id="cb117-2"><a href="including-extras-for-litr.html#cb117-2" aria-hidden="true" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_pkgdown'>add_pkgdown</a>(pkgdown_yml)</span></code></pre></div>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="including-extras-for-litr.html#cb117-1" tabindex="-1"></a>pkgdown_yml <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;_pkgdown.yml&quot;</span>)</span>
+<span id="cb117-2"><a href="including-extras-for-litr.html#cb117-2" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_pkgdown'>add_pkgdown</a>(pkgdown_yml)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;^_pkgdown\\.yml$&#39;, &#39;^docs$&#39;, &#39;^pkgdown$&#39; to &#39;.Rbuildignore&#39;</code></pre>
 <pre><code>## -- Installing package into temporary library -----------------------------------
 ## == Building pkgdown site =======================================================
@@ -341,7 +341,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## -- Building search index -------------------------------------------------------
 ## == DONE ========================================================================</code></pre>
 <p>We follow <a href="https://pkgdown.r-lib.org/articles/customise.html">this <code>pkgdown</code> vignette</a> in our customizations. Here is the contents of the <code>_pkgdown.yml</code> that was used:</p>
-<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="including-extras-for-litr.html#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">readLines</span>(<span class="st">&quot;../source-files/_pkgdown.yml&quot;</span>), <span class="at">sep =</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="including-extras-for-litr.html#cb120-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">readLines</span>(<span class="st">&quot;../source-files/_pkgdown.yml&quot;</span>), <span class="at">sep =</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)</span></code></pre></div>
 <pre><code>destination: ../docs/
 
 url: ~
