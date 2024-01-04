@@ -12,12 +12,8 @@ The `litr` R package lets you write a complete R package in a single R
 markdown document. This enables a workflow for writing R packages that
 is probably very different from what you are used to.
 
-<figure>
-<img src="man/figures/diagram3.png"
-alt="With litr, knitting creates an R package in addition to the .html file." />
-<figcaption aria-hidden="true"><em>With litr, knitting creates an R
-package in addition to the .html file.</em></figcaption>
-</figure>
+![*With litr, knitting creates an R package in addition to the .html
+file.*](man/figures/diagram3.png)
 
 ## Why write R packages in this way?
 

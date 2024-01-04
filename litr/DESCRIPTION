@@ -25,6 +25,7 @@ Imports:
     stringr,
     usethis,
     xfun,
+    xml2,
     yaml
 Suggests: 
     dplyr,
@@ -34,4 +35,4 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
 LitrVersionUsed: 0.9.1
-LitrId: 1883c8af5554c5f6c61b6f9ca3a8c8b3
+LitrId: 35636597ca8bb590fd7b0088c6865899

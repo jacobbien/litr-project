@@ -1,60 +1,33 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
 <head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2 Package setup | Creating the frombookdown R package</title>
-  <meta name="description" content="2 Package setup | Creating the frombookdown R package" />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="2 Package setup | Creating the frombookdown R package" />
-  <meta property="og:type" content="book" />
-  
-  
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 Package setup | Creating the frombookdown R package" />
-  
-  
-  
-
-<meta name="author" content="Jacob Bien" />
-
-
-<meta name="date" content="2023-10-21" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  
-  
-<link rel="prev" href="index.html"/>
-<link rel="next" href="the-basics-of-saying-hello.html"/>
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>2 Package setup | Creating the frombookdown R package</title>
+<meta name="description" content="2 Package setup | Creating the frombookdown R package">
+<meta name="generator" content="bookdown 0.37 and GitBook 2.6.7">
+<meta property="og:title" content="2 Package setup | Creating the frombookdown R package">
+<meta property="og:type" content="book">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2 Package setup | Creating the frombookdown R package">
+<meta name="author" content="Jacob Bien">
+<meta name="date" content="2024-01-04">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="prev" href="index.html">
+<link rel="next" href="the-basics-of-saying-hello.html">
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script><link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet">
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script><style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -118,14 +91,14 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
-
 <style type="text/css">
   
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
-
+<style type="text/css">fieldset.chunkfield {border:4px solid black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;font-size:21px;width:auto;border:0; border-bottom: none; margin-bottom:0}
+    </style>
 </head>
-
 <body>
 
 
@@ -133,18 +106,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
 
     <div class="book-summary">
-      <nav role="navigation">
-
-<ul class="summary">
+      <nav role="navigation"><ul class="summary">
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
 <li class="chapter" data-level="2" data-path="package-setup.html"><a href="package-setup.html"><i class="fa fa-check"></i><b>2</b> Package setup</a></li>
 <li class="chapter" data-level="3" data-path="the-basics-of-saying-hello.html"><a href="the-basics-of-saying-hello.html"><i class="fa fa-check"></i><b>3</b> The basics of saying hello</a></li>
 <li class="chapter" data-level="4" data-path="generalization-to-other-greetings.html"><a href="generalization-to-other-greetings.html"><i class="fa fa-check"></i><b>4</b> Generalization to other greetings</a></li>
 <li class="chapter" data-level="5" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>5</b> Conclusion</a></li>
-</ul>
-
-      </nav>
-    </div>
+</ul></nav>
+</div>
 
     <div class="book-body">
       <div class="body-inner">
@@ -157,52 +126,44 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <div class="page-wrapper" tabindex="-1" role="main">
           <div class="page-inner">
 
-            <section class="normal" id="section-">
-<div id="package-setup" class="section level1 hasAnchor" number="2">
-<h1><span class="header-section-number">2</span> Package setup<a href="package-setup.html#package-setup" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+            <section class="normal" id="section-"><div id="package-setup" class="section level1 hasAnchor" number="2">
+<h1>
+<span class="header-section-number">2</span> Package setup<a href="package-setup.html#package-setup" class="anchor-section" aria-label="Anchor link to header"></a>
+</h1>
 <p>Every R package needs a DESCRIPTION file, so we start by specifying this information:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
-<span id="cb2-2"><a href="package-setup.html#cb2-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;.&quot;</span>,</span>
-<span id="cb2-3"><a href="package-setup.html#cb2-3" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
-<span id="cb2-4"><a href="package-setup.html#cb2-4" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
-<span id="cb2-5"><a href="package-setup.html#cb2-5" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">&quot;0.0.0.9000&quot;</span>,</span>
-<span id="cb2-6"><a href="package-setup.html#cb2-6" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">&quot;A Package Defined in a Bookdown&quot;</span>,</span>
-<span id="cb2-7"><a href="package-setup.html#cb2-7" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">&quot;This package uses litr to define an R package through writing a bookdown.&quot;</span>,</span>
-<span id="cb2-8"><a href="package-setup.html#cb2-8" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
-<span id="cb2-9"><a href="package-setup.html#cb2-9" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">&quot;First&quot;</span>,</span>
-<span id="cb2-10"><a href="package-setup.html#cb2-10" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;Last&quot;</span>,</span>
-<span id="cb2-11"><a href="package-setup.html#cb2-11" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">&quot;you@gmail.com&quot;</span>,</span>
-<span id="cb2-12"><a href="package-setup.html#cb2-12" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">&quot;aut&quot;</span>, <span class="st">&quot;cre&quot;</span>)</span>
-<span id="cb2-13"><a href="package-setup.html#cb2-13" tabindex="-1"></a>      )</span>
-<span id="cb2-14"><a href="package-setup.html#cb2-14" tabindex="-1"></a>  )</span>
-<span id="cb2-15"><a href="package-setup.html#cb2-15" tabindex="-1"></a>)</span>
-<span id="cb2-16"><a href="package-setup.html#cb2-16" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">&quot;F. Last&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
+<span id="cb2-2"><a href="package-setup.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">"."</span>,</span>
+<span id="cb2-3"><a href="package-setup.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
+<span id="cb2-4"><a href="package-setup.html#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
+<span id="cb2-5"><a href="package-setup.html#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">"0.0.0.9000"</span>,</span>
+<span id="cb2-6"><a href="package-setup.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">"A Package Defined in a Bookdown"</span>,</span>
+<span id="cb2-7"><a href="package-setup.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">"This package uses litr to define an R package through writing a bookdown."</span>,</span>
+<span id="cb2-8"><a href="package-setup.html#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
+<span id="cb2-9"><a href="package-setup.html#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">"First"</span>,</span>
+<span id="cb2-10"><a href="package-setup.html#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">"Last"</span>,</span>
+<span id="cb2-11"><a href="package-setup.html#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"you@gmail.com"</span>,</span>
+<span id="cb2-12"><a href="package-setup.html#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
+<span id="cb2-13"><a href="package-setup.html#cb2-13" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb2-14"><a href="package-setup.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-15"><a href="package-setup.html#cb2-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-16"><a href="package-setup.html#cb2-16" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">"F. Last"</span>)</span></code></pre></div>
 <p>Although it’s not required, it can be nice to add some package-level documentation. This is what will show up when someone types <code>package?&lt;your-package-name&gt;</code> in the console.</p>
-<pre class="package_doc"><code>#&#39; A Package Defined in a Bookdown
-#&#39;
-#&#39; This package uses `litr` to define an R package through writing a `bookdown`.
-#&#39; 
-#&#39; @docType package</code></pre>
+<pre class="package_doc"><code>#' A Package Defined in a Bookdown
+#'
+#' This package uses `litr` to define an R package through writing a `bookdown`.
+#' 
+#' @docType package</code></pre>
 
 </div>
             </section>
-
-          </div>
+</div>
         </div>
       </div>
 <a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 <a href="the-basics-of-saying-hello.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script><script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script><script src="libs/gitbook-2.6.7/js/plugin-search.js"></script><script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script><script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script><script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script><script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script><script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script><script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
@@ -244,7 +205,5 @@ gitbook.start({
 });
 });
 </script>
-
 </body>
-
 </html>
