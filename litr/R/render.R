@@ -619,7 +619,6 @@ add_chunk_label_hyperlinks <- function(html_files,
         xml2::xml_add_parent(pre_parent
                              , xml2::read_xml(stringr::str_glue('<fieldset id="{chunk_names[j]}" class="chunkfield"> </fieldset>')))
         xml2::xml_add_sibling(pre_parent, xml2::read_xml(stringr::str_glue('<legend class="chunklegend">{chunk_names[j]}</legend>')), where="before")
-        # xml2::xml_add_parent(pre_parent, xml2::read_xml(stringr::str_glue('<fieldset id="{chunk_names[j]}" style="border:4px solid black"> <legend>{chunk_names[j]}</legend> </div>')))
         xml2::xml_remove(span_node)
         # remove the extra line break that is left over from removing the span
         code_node <- xml2::xml_child(pre_parent)
@@ -628,8 +627,8 @@ add_chunk_label_hyperlinks <- function(html_files,
       }
     }
     # last thing is to insert an additional style node in the head with our CSS so we have a standard style whether we are using bookdown or Rmarkdown
-    css_string <- "fieldset.chunkfield {border:4px solid black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
-    legend.chunklegend {padding:0;font-size:21px;width:auto;border:0; border-bottom: none; margin-bottom:0}
+    css_string <- "fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
     "
     head_node <- xml2::xml_find_first(parsed_html, ".//head")
     xml2::xml_add_child(head_node, xml2::read_xml(stringr::str_glue("<style type='text/css'>{css_string}</style>")))

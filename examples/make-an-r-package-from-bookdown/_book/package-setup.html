@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2 Package setup | Creating the frombookdown R package">
 <meta name="author" content="Jacob Bien">
-<meta name="date" content="2024-01-04">
+<meta name="date" content="2024-01-13">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -95,8 +95,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
-<style type="text/css">fieldset.chunkfield {border:4px solid black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
-    legend.chunklegend {padding:0;font-size:21px;width:auto;border:0; border-bottom: none; margin-bottom:0}
+<style type="text/css">fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
     </style>
 </head>
 <body>
@@ -131,22 +131,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span class="header-section-number">2</span> Package setup<a href="package-setup.html#package-setup" class="anchor-section" aria-label="Anchor link to header"></a>
 </h1>
 <p>Every R package needs a DESCRIPTION file, so we start by specifying this information:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
-<span id="cb2-2"><a href="package-setup.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">"."</span>,</span>
-<span id="cb2-3"><a href="package-setup.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
-<span id="cb2-4"><a href="package-setup.html#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
-<span id="cb2-5"><a href="package-setup.html#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">"0.0.0.9000"</span>,</span>
-<span id="cb2-6"><a href="package-setup.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">"A Package Defined in a Bookdown"</span>,</span>
-<span id="cb2-7"><a href="package-setup.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">"This package uses litr to define an R package through writing a bookdown."</span>,</span>
-<span id="cb2-8"><a href="package-setup.html#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
-<span id="cb2-9"><a href="package-setup.html#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">"First"</span>,</span>
-<span id="cb2-10"><a href="package-setup.html#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">"Last"</span>,</span>
-<span id="cb2-11"><a href="package-setup.html#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"you@gmail.com"</span>,</span>
-<span id="cb2-12"><a href="package-setup.html#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
-<span id="cb2-13"><a href="package-setup.html#cb2-13" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb2-14"><a href="package-setup.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-15"><a href="package-setup.html#cb2-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-16"><a href="package-setup.html#cb2-16" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">"F. Last"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
+<span id="cb2-2"><a href="package-setup.html#cb2-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">"."</span>,</span>
+<span id="cb2-3"><a href="package-setup.html#cb2-3" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
+<span id="cb2-4"><a href="package-setup.html#cb2-4" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
+<span id="cb2-5"><a href="package-setup.html#cb2-5" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">"0.0.0.9000"</span>,</span>
+<span id="cb2-6"><a href="package-setup.html#cb2-6" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">"A Package Defined in a Bookdown"</span>,</span>
+<span id="cb2-7"><a href="package-setup.html#cb2-7" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">"This package uses litr to define an R package through writing a bookdown."</span>,</span>
+<span id="cb2-8"><a href="package-setup.html#cb2-8" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
+<span id="cb2-9"><a href="package-setup.html#cb2-9" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">"First"</span>,</span>
+<span id="cb2-10"><a href="package-setup.html#cb2-10" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">"Last"</span>,</span>
+<span id="cb2-11"><a href="package-setup.html#cb2-11" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"you@gmail.com"</span>,</span>
+<span id="cb2-12"><a href="package-setup.html#cb2-12" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
+<span id="cb2-13"><a href="package-setup.html#cb2-13" tabindex="-1"></a>      )</span>
+<span id="cb2-14"><a href="package-setup.html#cb2-14" tabindex="-1"></a>  )</span>
+<span id="cb2-15"><a href="package-setup.html#cb2-15" tabindex="-1"></a>)</span>
+<span id="cb2-16"><a href="package-setup.html#cb2-16" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">"F. Last"</span>)</span></code></pre></div>
 <p>Although it’s not required, it can be nice to add some package-level documentation. This is what will show up when someone types <code>package?&lt;your-package-name&gt;</code> in the console.</p>
 <pre class="package_doc"><code>#' A Package Defined in a Bookdown
 #'

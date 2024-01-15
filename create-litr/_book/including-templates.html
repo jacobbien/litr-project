@@ -208,124 +208,124 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">11</span> Including templates<a href="including-templates.html#including-templates" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>We now add the .Rmd templates to the package. We have the <code>skeleton.Rmd</code> defined in <code>source-files</code>. Note that paths are relative to the outputted package’s location.</p>
 <p>The first template is the simplest imaginable package with a single function:</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="including-templates.html#cb79-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
-<span id="cb79-2"><a href="including-templates.html#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package&quot;</span>,</span>
-<span id="cb79-3"><a href="including-templates.html#cb79-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
-<span id="cb79-4"><a href="including-templates.html#cb79-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package using literate programming.&quot;</span>,</span>
-<span id="cb79-5"><a href="including-templates.html#cb79-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
-<span id="cb79-6"><a href="including-templates.html#cb79-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb79-7"><a href="including-templates.html#cb79-7" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb79-8"><a href="including-templates.html#cb79-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb79-9"><a href="including-templates.html#cb79-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
-<span id="cb79-10"><a href="including-templates.html#cb79-10" aria-hidden="true" tabindex="-1"></a>    ), </span>
-<span id="cb79-11"><a href="including-templates.html#cb79-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb79-12"><a href="including-templates.html#cb79-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
-<span id="cb79-13"><a href="including-templates.html#cb79-13" aria-hidden="true" tabindex="-1"></a>    ), </span>
-<span id="cb79-14"><a href="including-templates.html#cb79-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb79-15"><a href="including-templates.html#cb79-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="including-templates.html#cb79-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb79-2"><a href="including-templates.html#cb79-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package&quot;</span>,</span>
+<span id="cb79-3"><a href="including-templates.html#cb79-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
+<span id="cb79-4"><a href="including-templates.html#cb79-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package using literate programming.&quot;</span>,</span>
+<span id="cb79-5"><a href="including-templates.html#cb79-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb79-6"><a href="including-templates.html#cb79-6" tabindex="-1"></a>)</span>
+<span id="cb79-7"><a href="including-templates.html#cb79-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb79-8"><a href="including-templates.html#cb79-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb79-9"><a href="including-templates.html#cb79-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb79-10"><a href="including-templates.html#cb79-10" tabindex="-1"></a>    ), </span>
+<span id="cb79-11"><a href="including-templates.html#cb79-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb79-12"><a href="including-templates.html#cb79-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb79-13"><a href="including-templates.html#cb79-13" tabindex="-1"></a>    ), </span>
+<span id="cb79-14"><a href="including-templates.html#cb79-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb79-15"><a href="including-templates.html#cb79-15" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package/skeleton/skeleton.Rmd&#39;</code></pre>
 <p>The second template shows how to create a package with a dataset:</p>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="including-templates.html#cb81-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
-<span id="cb81-2"><a href="including-templates.html#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With a Dataset&quot;</span>,</span>
-<span id="cb81-3"><a href="including-templates.html#cb81-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-data&quot;</span>,</span>
-<span id="cb81-4"><a href="including-templates.html#cb81-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package with a dataset using literate programming.&quot;</span>,</span>
-<span id="cb81-5"><a href="including-templates.html#cb81-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
-<span id="cb81-6"><a href="including-templates.html#cb81-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb81-7"><a href="including-templates.html#cb81-7" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb81-8"><a href="including-templates.html#cb81-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb81-9"><a href="including-templates.html#cb81-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-data&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
-<span id="cb81-10"><a href="including-templates.html#cb81-10" aria-hidden="true" tabindex="-1"></a>    ), </span>
-<span id="cb81-11"><a href="including-templates.html#cb81-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb81-12"><a href="including-templates.html#cb81-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-data&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
-<span id="cb81-13"><a href="including-templates.html#cb81-13" aria-hidden="true" tabindex="-1"></a>    ), </span>
-<span id="cb81-14"><a href="including-templates.html#cb81-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb81-15"><a href="including-templates.html#cb81-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="including-templates.html#cb81-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb81-2"><a href="including-templates.html#cb81-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With a Dataset&quot;</span>,</span>
+<span id="cb81-3"><a href="including-templates.html#cb81-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-data&quot;</span>,</span>
+<span id="cb81-4"><a href="including-templates.html#cb81-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package with a dataset using literate programming.&quot;</span>,</span>
+<span id="cb81-5"><a href="including-templates.html#cb81-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb81-6"><a href="including-templates.html#cb81-6" tabindex="-1"></a>)</span>
+<span id="cb81-7"><a href="including-templates.html#cb81-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb81-8"><a href="including-templates.html#cb81-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb81-9"><a href="including-templates.html#cb81-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-data&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb81-10"><a href="including-templates.html#cb81-10" tabindex="-1"></a>    ), </span>
+<span id="cb81-11"><a href="including-templates.html#cb81-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb81-12"><a href="including-templates.html#cb81-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-data&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb81-13"><a href="including-templates.html#cb81-13" tabindex="-1"></a>    ), </span>
+<span id="cb81-14"><a href="including-templates.html#cb81-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb81-15"><a href="including-templates.html#cb81-15" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-data/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-data/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-data/skeleton/skeleton.Rmd&#39;</code></pre>
 <p>The third template shows how to create a package that uses <code>Rcpp</code>:</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="including-templates.html#cb83-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
-<span id="cb83-2"><a href="including-templates.html#cb83-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With Rcpp&quot;</span>,</span>
-<span id="cb83-3"><a href="including-templates.html#cb83-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>,</span>
-<span id="cb83-4"><a href="including-templates.html#cb83-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.&quot;</span>,</span>
-<span id="cb83-5"><a href="including-templates.html#cb83-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
-<span id="cb83-6"><a href="including-templates.html#cb83-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb83-7"><a href="including-templates.html#cb83-7" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb83-8"><a href="including-templates.html#cb83-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb83-9"><a href="including-templates.html#cb83-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
-<span id="cb83-10"><a href="including-templates.html#cb83-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb83-11"><a href="including-templates.html#cb83-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb83-12"><a href="including-templates.html#cb83-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
-<span id="cb83-13"><a href="including-templates.html#cb83-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb83-14"><a href="including-templates.html#cb83-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb83-15"><a href="including-templates.html#cb83-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="including-templates.html#cb83-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb83-2"><a href="including-templates.html#cb83-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With Rcpp&quot;</span>,</span>
+<span id="cb83-3"><a href="including-templates.html#cb83-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>,</span>
+<span id="cb83-4"><a href="including-templates.html#cb83-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.&quot;</span>,</span>
+<span id="cb83-5"><a href="including-templates.html#cb83-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb83-6"><a href="including-templates.html#cb83-6" tabindex="-1"></a>)</span>
+<span id="cb83-7"><a href="including-templates.html#cb83-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb83-8"><a href="including-templates.html#cb83-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb83-9"><a href="including-templates.html#cb83-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb83-10"><a href="including-templates.html#cb83-10" tabindex="-1"></a>    ),</span>
+<span id="cb83-11"><a href="including-templates.html#cb83-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb83-12"><a href="including-templates.html#cb83-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb83-13"><a href="including-templates.html#cb83-13" tabindex="-1"></a>    ),</span>
+<span id="cb83-14"><a href="including-templates.html#cb83-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb83-15"><a href="including-templates.html#cb83-15" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/skeleton/skeleton.Rmd&#39;</code></pre>
 <p>The fourth template shows how to create a package with “extras” such as a README, a vignette, and a pkgdown site:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="including-templates.html#cb85-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
-<span id="cb85-2"><a href="including-templates.html#cb85-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With a README, Vignette, and Pkgdown Site&quot;</span>,</span>
-<span id="cb85-3"><a href="including-templates.html#cb85-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-extras&quot;</span>,</span>
-<span id="cb85-4"><a href="including-templates.html#cb85-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.&quot;</span>,</span>
-<span id="cb85-5"><a href="including-templates.html#cb85-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
-<span id="cb85-6"><a href="including-templates.html#cb85-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb85-7"><a href="including-templates.html#cb85-7" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb85-8"><a href="including-templates.html#cb85-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb85-9"><a href="including-templates.html#cb85-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
-<span id="cb85-10"><a href="including-templates.html#cb85-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb85-11"><a href="including-templates.html#cb85-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb85-12"><a href="including-templates.html#cb85-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
-<span id="cb85-13"><a href="including-templates.html#cb85-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb85-14"><a href="including-templates.html#cb85-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb85-15"><a href="including-templates.html#cb85-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb85-16"><a href="including-templates.html#cb85-16" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(</span>
-<span id="cb85-17"><a href="including-templates.html#cb85-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb85-18"><a href="including-templates.html#cb85-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;source-files&quot;</span></span>
-<span id="cb85-19"><a href="including-templates.html#cb85-19" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb85-20"><a href="including-templates.html#cb85-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb85-21"><a href="including-templates.html#cb85-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton&quot;</span>,</span>
-<span id="cb85-22"><a href="including-templates.html#cb85-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;source-files&quot;</span></span>
-<span id="cb85-23"><a href="including-templates.html#cb85-23" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb85-24"><a href="including-templates.html#cb85-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb85-25"><a href="including-templates.html#cb85-25" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="including-templates.html#cb85-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb85-2"><a href="including-templates.html#cb85-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With a README, Vignette, and Pkgdown Site&quot;</span>,</span>
+<span id="cb85-3"><a href="including-templates.html#cb85-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-extras&quot;</span>,</span>
+<span id="cb85-4"><a href="including-templates.html#cb85-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.&quot;</span>,</span>
+<span id="cb85-5"><a href="including-templates.html#cb85-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb85-6"><a href="including-templates.html#cb85-6" tabindex="-1"></a>)</span>
+<span id="cb85-7"><a href="including-templates.html#cb85-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb85-8"><a href="including-templates.html#cb85-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb85-9"><a href="including-templates.html#cb85-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb85-10"><a href="including-templates.html#cb85-10" tabindex="-1"></a>    ),</span>
+<span id="cb85-11"><a href="including-templates.html#cb85-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb85-12"><a href="including-templates.html#cb85-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb85-13"><a href="including-templates.html#cb85-13" tabindex="-1"></a>    ),</span>
+<span id="cb85-14"><a href="including-templates.html#cb85-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb85-15"><a href="including-templates.html#cb85-15" tabindex="-1"></a>)</span>
+<span id="cb85-16"><a href="including-templates.html#cb85-16" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(</span>
+<span id="cb85-17"><a href="including-templates.html#cb85-17" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb85-18"><a href="including-templates.html#cb85-18" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;source-files&quot;</span></span>
+<span id="cb85-19"><a href="including-templates.html#cb85-19" tabindex="-1"></a>    ),</span>
+<span id="cb85-20"><a href="including-templates.html#cb85-20" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb85-21"><a href="including-templates.html#cb85-21" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton&quot;</span>,</span>
+<span id="cb85-22"><a href="including-templates.html#cb85-22" tabindex="-1"></a>    <span class="st">&quot;source-files&quot;</span></span>
+<span id="cb85-23"><a href="including-templates.html#cb85-23" tabindex="-1"></a>    ),</span>
+<span id="cb85-24"><a href="including-templates.html#cb85-24" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb85-25"><a href="including-templates.html#cb85-25" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/skeleton/skeleton.Rmd&#39;</code></pre>
 <p>The fifth template shows how to create a package from a bookdown site, i.e. instead of having just a single <code>create-pkg.Rmd</code>, we can have a series of .Rmd files that together create a bookdown:</p>
-<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="including-templates.html#cb87-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
-<span id="cb87-2"><a href="including-templates.html#cb87-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package From a Bookdown&quot;</span>,</span>
-<span id="cb87-3"><a href="including-templates.html#cb87-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
-<span id="cb87-4"><a href="including-templates.html#cb87-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for a bookdown that defines an R package using literate programming.&quot;</span>,</span>
-<span id="cb87-5"><a href="including-templates.html#cb87-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">TRUE</span></span>
-<span id="cb87-6"><a href="including-templates.html#cb87-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb87-7"><a href="including-templates.html#cb87-7" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(</span>
-<span id="cb87-8"><a href="including-templates.html#cb87-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>),</span>
-<span id="cb87-9"><a href="including-templates.html#cb87-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb87-10"><a href="including-templates.html#cb87-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
-<span id="cb87-11"><a href="including-templates.html#cb87-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb87-12"><a href="including-templates.html#cb87-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb87-13"><a href="including-templates.html#cb87-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="including-templates.html#cb87-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb87-2"><a href="including-templates.html#cb87-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package From a Bookdown&quot;</span>,</span>
+<span id="cb87-3"><a href="including-templates.html#cb87-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
+<span id="cb87-4"><a href="including-templates.html#cb87-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for a bookdown that defines an R package using literate programming.&quot;</span>,</span>
+<span id="cb87-5"><a href="including-templates.html#cb87-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">TRUE</span></span>
+<span id="cb87-6"><a href="including-templates.html#cb87-6" tabindex="-1"></a>)</span>
+<span id="cb87-7"><a href="including-templates.html#cb87-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(</span>
+<span id="cb87-8"><a href="including-templates.html#cb87-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>),</span>
+<span id="cb87-9"><a href="including-templates.html#cb87-9" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb87-10"><a href="including-templates.html#cb87-10" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb87-11"><a href="including-templates.html#cb87-11" tabindex="-1"></a>    ),</span>
+<span id="cb87-12"><a href="including-templates.html#cb87-12" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb87-13"><a href="including-templates.html#cb87-13" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/skeleton/skeleton.Rmd&#39;</code></pre>
 <p>The sixth template shows how to create a package that uses <code>RcppArmadillo</code>:</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="including-templates.html#cb89-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
-<span id="cb89-2"><a href="including-templates.html#cb89-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With RcppArmadillo&quot;</span>,</span>
-<span id="cb89-3"><a href="including-templates.html#cb89-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>,</span>
-<span id="cb89-4"><a href="including-templates.html#cb89-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that makes use of RcppArmadillo while using literate programming.&quot;</span>,</span>
-<span id="cb89-5"><a href="including-templates.html#cb89-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
-<span id="cb89-6"><a href="including-templates.html#cb89-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb89-7"><a href="including-templates.html#cb89-7" aria-hidden="true" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb89-8"><a href="including-templates.html#cb89-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb89-9"><a href="including-templates.html#cb89-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
-<span id="cb89-10"><a href="including-templates.html#cb89-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb89-11"><a href="including-templates.html#cb89-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb89-12"><a href="including-templates.html#cb89-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
-<span id="cb89-13"><a href="including-templates.html#cb89-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb89-14"><a href="including-templates.html#cb89-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb89-15"><a href="including-templates.html#cb89-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="including-templates.html#cb89-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb89-2"><a href="including-templates.html#cb89-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With RcppArmadillo&quot;</span>,</span>
+<span id="cb89-3"><a href="including-templates.html#cb89-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>,</span>
+<span id="cb89-4"><a href="including-templates.html#cb89-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that makes use of RcppArmadillo while using literate programming.&quot;</span>,</span>
+<span id="cb89-5"><a href="including-templates.html#cb89-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb89-6"><a href="including-templates.html#cb89-6" tabindex="-1"></a>)</span>
+<span id="cb89-7"><a href="including-templates.html#cb89-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb89-8"><a href="including-templates.html#cb89-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb89-9"><a href="including-templates.html#cb89-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb89-10"><a href="including-templates.html#cb89-10" tabindex="-1"></a>    ),</span>
+<span id="cb89-11"><a href="including-templates.html#cb89-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb89-12"><a href="including-templates.html#cb89-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb89-13"><a href="including-templates.html#cb89-13" tabindex="-1"></a>    ),</span>
+<span id="cb89-14"><a href="including-templates.html#cb89-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb89-15"><a href="including-templates.html#cb89-15" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-armadillo/skeleton/&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-armadillo/template.yaml&#39;
 ## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-armadillo/skeleton/skeleton.Rmd&#39;</code></pre>

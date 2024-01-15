@@ -211,67 +211,67 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><p>Litr-knit the .Rmd file with <code>minimal_eval=TRUE</code> to some temporary location (since the idea of <code><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>()</code> is to leave the .html file alone) and then delete the .html file.</p></li>
 <li><p>Run <code>devtools::load_all()</code> on the output.</p></li>
 </ol>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="functionality-to-facilitate-workflow.html#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Load complete package</span></span>
-<span id="cb67-2"><a href="functionality-to-facilitate-workflow.html#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb67-3"><a href="functionality-to-facilitate-workflow.html#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; This is a litr wrapper to `devtools::load_all()`.  It first calls</span></span>
-<span id="cb67-4"><a href="functionality-to-facilitate-workflow.html#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='rendering.html#render'>render</a>()` with `minimal_eval=TRUE`, then it calls</span></span>
-<span id="cb67-5"><a href="functionality-to-facilitate-workflow.html#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; `devtools::load_all()` on the generated package.</span></span>
-<span id="cb67-6"><a href="functionality-to-facilitate-workflow.html#cb67-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb67-7"><a href="functionality-to-facilitate-workflow.html#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
-<span id="cb67-8"><a href="functionality-to-facilitate-workflow.html#cb67-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param output_dir By default (and in typical usage) this is NULL, meaning</span></span>
-<span id="cb67-9"><a href="functionality-to-facilitate-workflow.html#cb67-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; that no .html/bookdown/.pdf will result.  However, when a directory is given,</span></span>
-<span id="cb67-10"><a href="functionality-to-facilitate-workflow.html#cb67-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; the result of the litr-knitting will be saved to this location.</span></span>
-<span id="cb67-11"><a href="functionality-to-facilitate-workflow.html#cb67-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param ... Additional parameters to be passed to `devtools::load_all()`</span></span>
-<span id="cb67-12"><a href="functionality-to-facilitate-workflow.html#cb67-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb67-13"><a href="functionality-to-facilitate-workflow.html#cb67-13" aria-hidden="true" tabindex="-1"></a><span id='load_all'>load_all</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_dir =</span> <span class="cn">NULL</span>, ...) {</span>
-<span id="cb67-14"><a href="functionality-to-facilitate-workflow.html#cb67-14" aria-hidden="true" tabindex="-1"></a>  no_output <span class="ot">&lt;-</span> <span class="fu">is.null</span>(output_dir)</span>
-<span id="cb67-15"><a href="functionality-to-facilitate-workflow.html#cb67-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (no_output) {</span>
-<span id="cb67-16"><a href="functionality-to-facilitate-workflow.html#cb67-16" aria-hidden="true" tabindex="-1"></a>    output_dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb67-17"><a href="functionality-to-facilitate-workflow.html#cb67-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(output_dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(output_dir)</span>
-<span id="cb67-18"><a href="functionality-to-facilitate-workflow.html#cb67-18" aria-hidden="true" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">dir_create</span>(output_dir)</span>
-<span id="cb67-19"><a href="functionality-to-facilitate-workflow.html#cb67-19" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb67-20"><a href="functionality-to-facilitate-workflow.html#cb67-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-21"><a href="functionality-to-facilitate-workflow.html#cb67-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># let&#39;s copy over everything from input directory to output directory</span></span>
-<span id="cb67-22"><a href="functionality-to-facilitate-workflow.html#cb67-22" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), output_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb67-23"><a href="functionality-to-facilitate-workflow.html#cb67-23" aria-hidden="true" tabindex="-1"></a>  input_path <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_split</span>(input)[[<span class="dv">1</span>]]</span>
-<span id="cb67-24"><a href="functionality-to-facilitate-workflow.html#cb67-24" aria-hidden="true" tabindex="-1"></a>  moved_input <span class="ot">&lt;-</span> <span class="fu">file.path</span>(output_dir, fs<span class="sc">::</span><span class="fu">path_file</span>(input))</span>
-<span id="cb67-25"><a href="functionality-to-facilitate-workflow.html#cb67-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-26"><a href="functionality-to-facilitate-workflow.html#cb67-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get package directory</span></span>
-<span id="cb67-27"><a href="functionality-to-facilitate-workflow.html#cb67-27" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(moved_input, <span class="fu">list</span>())</span>
-<span id="cb67-28"><a href="functionality-to-facilitate-workflow.html#cb67-28" aria-hidden="true" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> <a href='rendering.html#get_package_directory'>get_package_directory</a>(</span>
-<span id="cb67-29"><a href="functionality-to-facilitate-workflow.html#cb67-29" aria-hidden="true" tabindex="-1"></a>    params<span class="sc">$</span>package_parent_dir,</span>
-<span id="cb67-30"><a href="functionality-to-facilitate-workflow.html#cb67-30" aria-hidden="true" tabindex="-1"></a>    params<span class="sc">$</span>package_name,</span>
-<span id="cb67-31"><a href="functionality-to-facilitate-workflow.html#cb67-31" aria-hidden="true" tabindex="-1"></a>    moved_input</span>
-<span id="cb67-32"><a href="functionality-to-facilitate-workflow.html#cb67-32" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb67-33"><a href="functionality-to-facilitate-workflow.html#cb67-33" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-34"><a href="functionality-to-facilitate-workflow.html#cb67-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># but if a package directory was copied here, let&#39;s remove it before</span></span>
-<span id="cb67-35"><a href="functionality-to-facilitate-workflow.html#cb67-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calling render to avoid a potential error</span></span>
-<span id="cb67-36"><a href="functionality-to-facilitate-workflow.html#cb67-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">dir_exists</span>(package_dir)) fs<span class="sc">::</span><span class="fu">dir_delete</span>(package_dir)</span>
-<span id="cb67-37"><a href="functionality-to-facilitate-workflow.html#cb67-37" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-38"><a href="functionality-to-facilitate-workflow.html#cb67-38" aria-hidden="true" tabindex="-1"></a>  litr<span class="sc">::</span><a href='rendering.html#render'>render</a>(moved_input, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>, <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb67-39"><a href="functionality-to-facilitate-workflow.html#cb67-39" aria-hidden="true" tabindex="-1"></a>               <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb67-40"><a href="functionality-to-facilitate-workflow.html#cb67-40" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-41"><a href="functionality-to-facilitate-workflow.html#cb67-41" aria-hidden="true" tabindex="-1"></a>  new_package_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), params<span class="sc">$</span>package_name)</span>
-<span id="cb67-42"><a href="functionality-to-facilitate-workflow.html#cb67-42" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(package_dir, new_package_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb67-43"><a href="functionality-to-facilitate-workflow.html#cb67-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (no_output) fs<span class="sc">::</span><span class="fu">dir_delete</span>(output_dir)</span>
-<span id="cb67-44"><a href="functionality-to-facilitate-workflow.html#cb67-44" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-45"><a href="functionality-to-facilitate-workflow.html#cb67-45" aria-hidden="true" tabindex="-1"></a>  devtools<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(new_package_dir)</span>
-<span id="cb67-46"><a href="functionality-to-facilitate-workflow.html#cb67-46" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="functionality-to-facilitate-workflow.html#cb67-1" tabindex="-1"></a><span class="co">#&#39; Load complete package</span></span>
+<span id="cb67-2"><a href="functionality-to-facilitate-workflow.html#cb67-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb67-3"><a href="functionality-to-facilitate-workflow.html#cb67-3" tabindex="-1"></a><span class="co">#&#39; This is a litr wrapper to `devtools::load_all()`.  It first calls</span></span>
+<span id="cb67-4"><a href="functionality-to-facilitate-workflow.html#cb67-4" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='rendering.html#render'>render</a>()` with `minimal_eval=TRUE`, then it calls</span></span>
+<span id="cb67-5"><a href="functionality-to-facilitate-workflow.html#cb67-5" tabindex="-1"></a><span class="co">#&#39; `devtools::load_all()` on the generated package.</span></span>
+<span id="cb67-6"><a href="functionality-to-facilitate-workflow.html#cb67-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb67-7"><a href="functionality-to-facilitate-workflow.html#cb67-7" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
+<span id="cb67-8"><a href="functionality-to-facilitate-workflow.html#cb67-8" tabindex="-1"></a><span class="co">#&#39; @param output_dir By default (and in typical usage) this is NULL, meaning</span></span>
+<span id="cb67-9"><a href="functionality-to-facilitate-workflow.html#cb67-9" tabindex="-1"></a><span class="co">#&#39; that no .html/bookdown/.pdf will result.  However, when a directory is given,</span></span>
+<span id="cb67-10"><a href="functionality-to-facilitate-workflow.html#cb67-10" tabindex="-1"></a><span class="co">#&#39; the result of the litr-knitting will be saved to this location.</span></span>
+<span id="cb67-11"><a href="functionality-to-facilitate-workflow.html#cb67-11" tabindex="-1"></a><span class="co">#&#39; @param ... Additional parameters to be passed to `devtools::load_all()`</span></span>
+<span id="cb67-12"><a href="functionality-to-facilitate-workflow.html#cb67-12" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb67-13"><a href="functionality-to-facilitate-workflow.html#cb67-13" tabindex="-1"></a><span id='load_all'>load_all</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_dir =</span> <span class="cn">NULL</span>, ...) {</span>
+<span id="cb67-14"><a href="functionality-to-facilitate-workflow.html#cb67-14" tabindex="-1"></a>  no_output <span class="ot">&lt;-</span> <span class="fu">is.null</span>(output_dir)</span>
+<span id="cb67-15"><a href="functionality-to-facilitate-workflow.html#cb67-15" tabindex="-1"></a>  <span class="cf">if</span> (no_output) {</span>
+<span id="cb67-16"><a href="functionality-to-facilitate-workflow.html#cb67-16" tabindex="-1"></a>    output_dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb67-17"><a href="functionality-to-facilitate-workflow.html#cb67-17" tabindex="-1"></a>    <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(output_dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(output_dir)</span>
+<span id="cb67-18"><a href="functionality-to-facilitate-workflow.html#cb67-18" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">dir_create</span>(output_dir)</span>
+<span id="cb67-19"><a href="functionality-to-facilitate-workflow.html#cb67-19" tabindex="-1"></a>  }</span>
+<span id="cb67-20"><a href="functionality-to-facilitate-workflow.html#cb67-20" tabindex="-1"></a>  </span>
+<span id="cb67-21"><a href="functionality-to-facilitate-workflow.html#cb67-21" tabindex="-1"></a>  <span class="co"># let&#39;s copy over everything from input directory to output directory</span></span>
+<span id="cb67-22"><a href="functionality-to-facilitate-workflow.html#cb67-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), output_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-23"><a href="functionality-to-facilitate-workflow.html#cb67-23" tabindex="-1"></a>  input_path <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_split</span>(input)[[<span class="dv">1</span>]]</span>
+<span id="cb67-24"><a href="functionality-to-facilitate-workflow.html#cb67-24" tabindex="-1"></a>  moved_input <span class="ot">&lt;-</span> <span class="fu">file.path</span>(output_dir, fs<span class="sc">::</span><span class="fu">path_file</span>(input))</span>
+<span id="cb67-25"><a href="functionality-to-facilitate-workflow.html#cb67-25" tabindex="-1"></a>  </span>
+<span id="cb67-26"><a href="functionality-to-facilitate-workflow.html#cb67-26" tabindex="-1"></a>  <span class="co"># get package directory</span></span>
+<span id="cb67-27"><a href="functionality-to-facilitate-workflow.html#cb67-27" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(moved_input, <span class="fu">list</span>())</span>
+<span id="cb67-28"><a href="functionality-to-facilitate-workflow.html#cb67-28" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> <a href='rendering.html#get_package_directory'>get_package_directory</a>(</span>
+<span id="cb67-29"><a href="functionality-to-facilitate-workflow.html#cb67-29" tabindex="-1"></a>    params<span class="sc">$</span>package_parent_dir,</span>
+<span id="cb67-30"><a href="functionality-to-facilitate-workflow.html#cb67-30" tabindex="-1"></a>    params<span class="sc">$</span>package_name,</span>
+<span id="cb67-31"><a href="functionality-to-facilitate-workflow.html#cb67-31" tabindex="-1"></a>    moved_input</span>
+<span id="cb67-32"><a href="functionality-to-facilitate-workflow.html#cb67-32" tabindex="-1"></a>  )</span>
+<span id="cb67-33"><a href="functionality-to-facilitate-workflow.html#cb67-33" tabindex="-1"></a>  </span>
+<span id="cb67-34"><a href="functionality-to-facilitate-workflow.html#cb67-34" tabindex="-1"></a>  <span class="co"># but if a package directory was copied here, let&#39;s remove it before</span></span>
+<span id="cb67-35"><a href="functionality-to-facilitate-workflow.html#cb67-35" tabindex="-1"></a>  <span class="co"># calling render to avoid a potential error</span></span>
+<span id="cb67-36"><a href="functionality-to-facilitate-workflow.html#cb67-36" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">dir_exists</span>(package_dir)) fs<span class="sc">::</span><span class="fu">dir_delete</span>(package_dir)</span>
+<span id="cb67-37"><a href="functionality-to-facilitate-workflow.html#cb67-37" tabindex="-1"></a>  </span>
+<span id="cb67-38"><a href="functionality-to-facilitate-workflow.html#cb67-38" tabindex="-1"></a>  litr<span class="sc">::</span><a href='rendering.html#render'>render</a>(moved_input, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>, <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb67-39"><a href="functionality-to-facilitate-workflow.html#cb67-39" tabindex="-1"></a>               <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-40"><a href="functionality-to-facilitate-workflow.html#cb67-40" tabindex="-1"></a>  </span>
+<span id="cb67-41"><a href="functionality-to-facilitate-workflow.html#cb67-41" tabindex="-1"></a>  new_package_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), params<span class="sc">$</span>package_name)</span>
+<span id="cb67-42"><a href="functionality-to-facilitate-workflow.html#cb67-42" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(package_dir, new_package_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-43"><a href="functionality-to-facilitate-workflow.html#cb67-43" tabindex="-1"></a>  <span class="cf">if</span> (no_output) fs<span class="sc">::</span><span class="fu">dir_delete</span>(output_dir)</span>
+<span id="cb67-44"><a href="functionality-to-facilitate-workflow.html#cb67-44" tabindex="-1"></a>  </span>
+<span id="cb67-45"><a href="functionality-to-facilitate-workflow.html#cb67-45" tabindex="-1"></a>  devtools<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(new_package_dir)</span>
+<span id="cb67-46"><a href="functionality-to-facilitate-workflow.html#cb67-46" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s test that this works. In particular, we’ll call <code><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>()</code> and then try to use one of the functions from the package.</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="functionality-to-facilitate-workflow.html#cb68-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;<a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>() works&#39;</span>, {</span>
-<span id="cb68-2"><a href="functionality-to-facilitate-workflow.html#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
-<span id="cb68-3"><a href="functionality-to-facilitate-workflow.html#cb68-3" aria-hidden="true" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb68-4"><a href="functionality-to-facilitate-workflow.html#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb68-5"><a href="functionality-to-facilitate-workflow.html#cb68-5" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb68-6"><a href="functionality-to-facilitate-workflow.html#cb68-6" aria-hidden="true" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
-<span id="cb68-7"><a href="functionality-to-facilitate-workflow.html#cb68-7" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
-<span id="cb68-8"><a href="functionality-to-facilitate-workflow.html#cb68-8" aria-hidden="true" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
-<span id="cb68-9"><a href="functionality-to-facilitate-workflow.html#cb68-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb68-10"><a href="functionality-to-facilitate-workflow.html#cb68-10" aria-hidden="true" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(rmd_file)</span>
-<span id="cb68-11"><a href="functionality-to-facilitate-workflow.html#cb68-11" aria-hidden="true" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">say_hello</span>(<span class="st">&quot;Jacob&quot;</span>), <span class="st">&quot;Hello Jacob!&quot;</span>)</span>
-<span id="cb68-12"><a href="functionality-to-facilitate-workflow.html#cb68-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb68-13"><a href="functionality-to-facilitate-workflow.html#cb68-13" aria-hidden="true" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb68-14"><a href="functionality-to-facilitate-workflow.html#cb68-14" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="functionality-to-facilitate-workflow.html#cb68-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;<a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>() works&#39;</span>, {</span>
+<span id="cb68-2"><a href="functionality-to-facilitate-workflow.html#cb68-2" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
+<span id="cb68-3"><a href="functionality-to-facilitate-workflow.html#cb68-3" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb68-4"><a href="functionality-to-facilitate-workflow.html#cb68-4" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb68-5"><a href="functionality-to-facilitate-workflow.html#cb68-5" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb68-6"><a href="functionality-to-facilitate-workflow.html#cb68-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
+<span id="cb68-7"><a href="functionality-to-facilitate-workflow.html#cb68-7" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
+<span id="cb68-8"><a href="functionality-to-facilitate-workflow.html#cb68-8" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb68-9"><a href="functionality-to-facilitate-workflow.html#cb68-9" tabindex="-1"></a></span>
+<span id="cb68-10"><a href="functionality-to-facilitate-workflow.html#cb68-10" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(rmd_file)</span>
+<span id="cb68-11"><a href="functionality-to-facilitate-workflow.html#cb68-11" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">say_hello</span>(<span class="st">&quot;Jacob&quot;</span>), <span class="st">&quot;Hello Jacob!&quot;</span>)</span>
+<span id="cb68-12"><a href="functionality-to-facilitate-workflow.html#cb68-12" tabindex="-1"></a>  </span>
+<span id="cb68-13"><a href="functionality-to-facilitate-workflow.html#cb68-13" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb68-14"><a href="functionality-to-facilitate-workflow.html#cb68-14" tabindex="-1"></a>})</span></code></pre></div>
 </div>
             </section>
 

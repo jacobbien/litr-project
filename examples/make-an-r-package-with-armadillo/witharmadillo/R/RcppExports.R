@@ -6,6 +6,6 @@
 #' @param X A positive definite matrix
 #' @export
 my_chol <- function(X) {
-    .Call('_witharmadillo_my_chol', PACKAGE = 'witharmadillo', X)
+    .Call(`_witharmadillo_my_chol`, X)
 }
 

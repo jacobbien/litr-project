@@ -207,23 +207,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="package-setup" class="section level1 hasAnchor" number="3">
 <h1><span class="header-section-number">3</span> Package setup<a href="package-setup.html#package-setup" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>We start by specifying the information needed in the DESCRIPTION file of the R package. We mostly follow <a href="https://r-pkgs.org/lifecycle.html#sec-release-version">the R Packages book</a>’s description of version numbering. Releases 0.0.1, 0.0.2, and 0.0.3 should really have been 0.1.0, 0.2.0, and 0.3.0, because these were not just patches. Rather, each added quite substantial new functionality. For this reason, we have gone straight from 0.0.3 to 0.4.0. We will keep the leftmost number (“major release”) at 0 until we feel like the package is complete with all the intended features.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
-<span id="cb2-2"><a href="package-setup.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;.&quot;</span>,</span>
-<span id="cb2-3"><a href="package-setup.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
-<span id="cb2-4"><a href="package-setup.html#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
-<span id="cb2-5"><a href="package-setup.html#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">&quot;0.9.1&quot;</span>,</span>
-<span id="cb2-6"><a href="package-setup.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">&quot;Literate Programming for Writing R Packages&quot;</span>,</span>
-<span id="cb2-7"><a href="package-setup.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">&quot;Allows one to fully create an R package in a single .Rmd </span></span>
-<span id="cb2-8"><a href="package-setup.html#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="st">    file.  Includes functionality and .Rmd templates for a literate programming</span></span>
-<span id="cb2-9"><a href="package-setup.html#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">    approach to R package development.&quot;</span>,</span>
-<span id="cb2-10"><a href="package-setup.html#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-11"><a href="package-setup.html#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">person</span>(<span class="st">&quot;Jacob&quot;</span>, <span class="st">&quot;Bien&quot;</span>, <span class="at">email =</span> <span class="st">&quot;jbien@usc.edu&quot;</span>, <span class="at">role =</span> <span class="fu">c</span>(<span class="st">&quot;aut&quot;</span>, <span class="st">&quot;cre&quot;</span>)),</span>
-<span id="cb2-12"><a href="package-setup.html#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">person</span>(<span class="st">&quot;Patrick Vossler&quot;</span>, <span class="at">role =</span> <span class="st">&quot;aut&quot;</span>)</span>
-<span id="cb2-13"><a href="package-setup.html#cb2-13" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb2-14"><a href="package-setup.html#cb2-14" aria-hidden="true" tabindex="-1"></a>   )</span>
-<span id="cb2-15"><a href="package-setup.html#cb2-15" aria-hidden="true" tabindex="-1"></a> )</span>
-<span id="cb2-16"><a href="package-setup.html#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="package-setup.html#cb2-17" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">&quot;J. Bien&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="package-setup.html#cb2-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
+<span id="cb2-2"><a href="package-setup.html#cb2-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;.&quot;</span>,</span>
+<span id="cb2-3"><a href="package-setup.html#cb2-3" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
+<span id="cb2-4"><a href="package-setup.html#cb2-4" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
+<span id="cb2-5"><a href="package-setup.html#cb2-5" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">&quot;0.9.1&quot;</span>,</span>
+<span id="cb2-6"><a href="package-setup.html#cb2-6" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">&quot;Literate Programming for Writing R Packages&quot;</span>,</span>
+<span id="cb2-7"><a href="package-setup.html#cb2-7" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">&quot;Allows one to fully create an R package in a single .Rmd </span></span>
+<span id="cb2-8"><a href="package-setup.html#cb2-8" tabindex="-1"></a><span class="st">    file.  Includes functionality and .Rmd templates for a literate programming</span></span>
+<span id="cb2-9"><a href="package-setup.html#cb2-9" tabindex="-1"></a><span class="st">    approach to R package development.&quot;</span>,</span>
+<span id="cb2-10"><a href="package-setup.html#cb2-10" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb2-11"><a href="package-setup.html#cb2-11" tabindex="-1"></a>      <span class="fu">person</span>(<span class="st">&quot;Jacob&quot;</span>, <span class="st">&quot;Bien&quot;</span>, <span class="at">email =</span> <span class="st">&quot;jbien@usc.edu&quot;</span>, <span class="at">role =</span> <span class="fu">c</span>(<span class="st">&quot;aut&quot;</span>, <span class="st">&quot;cre&quot;</span>)),</span>
+<span id="cb2-12"><a href="package-setup.html#cb2-12" tabindex="-1"></a>      <span class="fu">person</span>(<span class="st">&quot;Patrick Vossler&quot;</span>, <span class="at">role =</span> <span class="st">&quot;aut&quot;</span>)</span>
+<span id="cb2-13"><a href="package-setup.html#cb2-13" tabindex="-1"></a>      )</span>
+<span id="cb2-14"><a href="package-setup.html#cb2-14" tabindex="-1"></a>   )</span>
+<span id="cb2-15"><a href="package-setup.html#cb2-15" tabindex="-1"></a> )</span>
+<span id="cb2-16"><a href="package-setup.html#cb2-16" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="package-setup.html#cb2-17" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">&quot;J. Bien&quot;</span>)</span></code></pre></div>
 <p>Let’s add some package-level documentation. This is what will show up when someone types <code>package?litr</code> in the console.</p>
 <pre class="package_doc"><code>#&#39; Literate Programming for Writing R Packages
 #&#39;
@@ -249,21 +249,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Keeping track of the version of <code>litr</code> used is particularly important when using <code>litr</code> to develop <code>litr</code>. There is a tendency to want to use the new functionality that we are creating in <code>create-litr.Rmd</code> itself as soon as we have defined it. However, this is circular and thus must be avoided. To see why we need to be careful, let’s consider an actual example that arose when working on <code>litr</code> version <code>0.0.3</code>. After release <code>v0.0.2</code>, one of the new features we added is a new language engine called <code>package_doc</code> that allows us to have a special kind of code block defining the package documentation. In trying out this feature and making sure it works on <code>skeleton.Rmd</code>, we would most likely install version <code>0.0.3</code>. Now that version <code>0.0.3</code> is installed, there will be a tendency to want to add a <code>package_doc</code> block to <code>create-litr.Rmd</code>, and it will appear to work. However, this is circular, because we have used version <code>0.0.3</code> to create version <code>0.0.3</code>! In particular, if we remove <code>litr</code> and re-install it from github, we will get version <code>0.0.2</code> so that when we attempt to create the package using <code>litr::<a href='rendering.html#render'>render</a>("create-litr.Rmd")</code>, we will get an error telling us that it doesn’t have a language engine named <code>package_doc</code>.</p>
 <p>The code chunk in this section is for preventing this from happening.</p>
 <p>For more on circularity, see the section on <a href="tests.html#tests">testing litr</a>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="package-setup.html#cb4-1" aria-hidden="true" tabindex="-1"></a>install_version_of_litr <span class="ot">&lt;-</span> utils<span class="sc">::</span><span class="fu">packageVersion</span>(<span class="st">&quot;litr&quot;</span>)</span>
-<span id="cb4-2"><a href="package-setup.html#cb4-2" aria-hidden="true" tabindex="-1"></a>remote <span class="ot">&lt;-</span> remotes<span class="sc">::</span><span class="fu">github_remote</span>(</span>
-<span id="cb4-3"><a href="package-setup.html#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">repo =</span> <span class="st">&quot;jacobbien/litr-project@*release&quot;</span>,</span>
-<span id="cb4-4"><a href="package-setup.html#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">subdir =</span> <span class="st">&quot;litr&quot;</span></span>
-<span id="cb4-5"><a href="package-setup.html#cb4-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-6"><a href="package-setup.html#cb4-6" aria-hidden="true" tabindex="-1"></a>version_of_latest_release <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(remote<span class="sc">$</span>ref, <span class="st">&quot;v&quot;</span>)</span>
-<span id="cb4-7"><a href="package-setup.html#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (install_version_of_litr <span class="sc">!=</span> version_of_latest_release)</span>
-<span id="cb4-8"><a href="package-setup.html#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
-<span id="cb4-9"><a href="package-setup.html#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;You should be using the version of litr from the latest release (version&quot;</span>,</span>
-<span id="cb4-10"><a href="package-setup.html#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot; {version_of_latest_release}),</span><span class="sc">\n</span><span class="st"> but you are using version&quot;</span>,</span>
-<span id="cb4-11"><a href="package-setup.html#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot; {install_version_of_litr}.</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
-<span id="cb4-12"><a href="package-setup.html#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;You can install the release version of litr from GitHub by running the&quot;</span>,</span>
-<span id="cb4-13"><a href="package-setup.html#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot; the following command:</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
-<span id="cb4-14"><a href="package-setup.html#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;remotes::install_github(repo=&#39;jacobbien/litr-project@*release&#39;, subdir = &#39;litr&#39;)&quot;</span></span>
-<span id="cb4-15"><a href="package-setup.html#cb4-15" aria-hidden="true" tabindex="-1"></a>  ))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="package-setup.html#cb4-1" tabindex="-1"></a>install_version_of_litr <span class="ot">&lt;-</span> utils<span class="sc">::</span><span class="fu">packageVersion</span>(<span class="st">&quot;litr&quot;</span>)</span>
+<span id="cb4-2"><a href="package-setup.html#cb4-2" tabindex="-1"></a>remote <span class="ot">&lt;-</span> remotes<span class="sc">::</span><span class="fu">github_remote</span>(</span>
+<span id="cb4-3"><a href="package-setup.html#cb4-3" tabindex="-1"></a>  <span class="at">repo =</span> <span class="st">&quot;jacobbien/litr-project@*release&quot;</span>,</span>
+<span id="cb4-4"><a href="package-setup.html#cb4-4" tabindex="-1"></a>  <span class="at">subdir =</span> <span class="st">&quot;litr&quot;</span></span>
+<span id="cb4-5"><a href="package-setup.html#cb4-5" tabindex="-1"></a>  )</span>
+<span id="cb4-6"><a href="package-setup.html#cb4-6" tabindex="-1"></a>version_of_latest_release <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(remote<span class="sc">$</span>ref, <span class="st">&quot;v&quot;</span>)</span>
+<span id="cb4-7"><a href="package-setup.html#cb4-7" tabindex="-1"></a><span class="cf">if</span> (install_version_of_litr <span class="sc">!=</span> version_of_latest_release)</span>
+<span id="cb4-8"><a href="package-setup.html#cb4-8" tabindex="-1"></a>  <span class="fu">stop</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
+<span id="cb4-9"><a href="package-setup.html#cb4-9" tabindex="-1"></a>    <span class="st">&quot;You should be using the version of litr from the latest release (version&quot;</span>,</span>
+<span id="cb4-10"><a href="package-setup.html#cb4-10" tabindex="-1"></a>    <span class="st">&quot; {version_of_latest_release}),</span><span class="sc">\n</span><span class="st"> but you are using version&quot;</span>,</span>
+<span id="cb4-11"><a href="package-setup.html#cb4-11" tabindex="-1"></a>    <span class="st">&quot; {install_version_of_litr}.</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb4-12"><a href="package-setup.html#cb4-12" tabindex="-1"></a>    <span class="st">&quot;You can install the release version of litr from GitHub by running the&quot;</span>,</span>
+<span id="cb4-13"><a href="package-setup.html#cb4-13" tabindex="-1"></a>    <span class="st">&quot; the following command:</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb4-14"><a href="package-setup.html#cb4-14" tabindex="-1"></a>    <span class="st">&quot;remotes::install_github(repo=&#39;jacobbien/litr-project@*release&#39;, subdir = &#39;litr&#39;)&quot;</span></span>
+<span id="cb4-15"><a href="package-setup.html#cb4-15" tabindex="-1"></a>  ))</span></code></pre></div>
 </div>
 </div>
             </section>
