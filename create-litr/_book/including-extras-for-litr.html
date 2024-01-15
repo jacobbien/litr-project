@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>14 Including extras for litr | Creating the litr R package</title>
+  <meta name="description" content="14 Including extras for litr | Creating the litr R package" />
+  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="14 Including extras for litr | Creating the litr R package" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="14 Including extras for litr | Creating the litr R package" />
+  
+  
+  
+
+<meta name="author" content="Jacob Bien" />
+
+
+<meta name="date" content="2022-05-27" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="documenting-the-package-and-testing.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preamble</a></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a></li>
+<li class="chapter" data-level="3" data-path="package-setup.html"><a href="package-setup.html"><i class="fa fa-check"></i><b>3</b> Package setup</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="package-setup.html"><a href="package-setup.html#a-note-on-circularity"><i class="fa fa-check"></i><b>3.1</b> A note on circularity</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="generating-package.html"><a href="generating-package.html"><i class="fa fa-check"></i><b>4</b> Generating the R package</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="generating-package.html"><a href="generating-package.html#sending-code-chunks-to-the-package"><i class="fa fa-check"></i><b>4.1</b> Sending code chunks to the package</a></li>
+<li class="chapter" data-level="4.2" data-path="generating-package.html"><a href="generating-package.html#setting-up-the-r-package-creation"><i class="fa fa-check"></i><b>4.2</b> Setting up the R package creation</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="hash.html"><a href="hash.html"><i class="fa fa-check"></i><b>5</b> Not overwriting a manually edited R package</a></li>
+<li class="chapter" data-level="6" data-path="document.html"><a href="document.html"><i class="fa fa-check"></i><b>6</b> Wrapper to <code>devtools::document()</code></a></li>
+<li class="chapter" data-level="7" data-path="rendering.html"><a href="rendering.html"><i class="fa fa-check"></i><b>7</b> Altering the rendering process</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="hash.html"><a href="hash.html#output-format"><i class="fa fa-check"></i><b>7.1</b> Defining <code>litr</code> output formats</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="rendering.html"><a href="rendering.html#pdf-output-format"><i class="fa fa-check"></i><b>7.1.1</b> .pdf output format</a></li>
+<li class="chapter" data-level="7.1.2" data-path="rendering.html"><a href="rendering.html#html-output-format"><i class="fa fa-check"></i><b>7.1.2</b> .html output format</a></li>
+<li class="chapter" data-level="7.1.3" data-path="rendering.html"><a href="rendering.html#bookdown-output-format"><i class="fa fa-check"></i><b>7.1.3</b> bookdown output format</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href='rendering.html#render'>render</a>()</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a></li>
+<li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-readme"><i class="fa fa-check"></i><b>9.1</b> Adding a README</a></li>
+<li class="chapter" data-level="9.2" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-hex-sticker"><i class="fa fa-check"></i><b>9.2</b> Adding a hex sticker</a></li>
+<li class="chapter" data-level="9.3" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-vignettes"><i class="fa fa-check"></i><b>9.3</b> Adding vignettes</a></li>
+<li class="chapter" data-level="9.4" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site"><i class="fa fa-check"></i><b>9.4</b> Add a pkgdown site</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="combining-.r-files.html"><a href="combining-.r-files.html"><i class="fa fa-check"></i><b>10</b> Combining .R files</a></li>
+<li class="chapter" data-level="11" data-path="including-templates.html"><a href="including-templates.html"><i class="fa fa-check"></i><b>11</b> Including templates</a></li>
+<li class="chapter" data-level="12" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
+<li class="chapter" data-level="12.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>12.3</b> Testing chunk referencing</a></li>
+<li class="chapter" data-level="12.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>12.4</b> Testing different ways of rendering</a></li>
+<li class="chapter" data-level="12.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>12.5</b> Testing other templates</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>13.1</b> Add examples folder with the output of knitting each example</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>14.1</b> README with hex sticker</a></li>
+<li class="chapter" data-level="14.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>14.2</b> Vignettes</a></li>
+<li class="chapter" data-level="14.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>14.3</b> A pkgdown site</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Creating the <code>litr</code> R package</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="including-extras-for-litr" class="section level1 hasAnchor" number="14">
+<h1><span class="header-section-number">14</span> Including extras for <code>litr</code><a href="including-extras-for-litr.html#including-extras-for-litr" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="readme-with-hex-sticker" class="section level2 hasAnchor" number="14.1">
+<h2><span class="header-section-number">14.1</span> README with hex sticker<a href="including-extras-for-litr.html#readme-with-hex-sticker" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We include a <code>README.Rmd</code> and then generate the <code>README.md</code> based on it:</p>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="including-extras-for-litr.html#cb109-1" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_readme'>add_readme</a>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;README.Rmd&quot;</span>))</span></code></pre></div>
+<pre><code>## ✔ Writing &#39;README.Rmd&#39;
+## ✔ Adding &#39;^README\\.Rmd$&#39; to &#39;.Rbuildignore&#39;
+## ✔ Creating &#39;.git/hooks/&#39;
+## ✔ Writing &#39;.git/hooks/pre-commit&#39;</code></pre>
+<p>Let’s add the <code>litr</code> hex sticker too (which is referred to in the README).</p>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="including-extras-for-litr.html#cb111-1" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_hex_sticker'>add_hex_sticker</a>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;litr-hex.png&quot;</span>))</span></code></pre></div>
+<p>Let’s also add a figure we include in the README.</p>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="including-extras-for-litr.html#cb112-1" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;diagram3.png&quot;</span>),</span>
+<span id="cb112-2"><a href="including-extras-for-litr.html#cb112-2" tabindex="-1"></a>              <span class="fu">file.path</span>(<span class="st">&quot;man&quot;</span>, <span class="st">&quot;figures&quot;</span>))</span></code></pre></div>
+</div>
+<div id="vignettes" class="section level2 hasAnchor" number="14.2">
+<h2><span class="header-section-number">14.2</span> Vignettes<a href="including-extras-for-litr.html#vignettes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="including-extras-for-litr.html#cb113-1" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_vignettes'>add_vignettes</a>(<span class="fu">c</span>(<span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;package-templates.Rmd&quot;</span>),</span>
+<span id="cb113-2"><a href="including-extras-for-litr.html#cb113-2" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;packages-in-the-wild.Rmd&quot;</span>),</span>
+<span id="cb113-3"><a href="including-extras-for-litr.html#cb113-3" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;faqs.Rmd&quot;</span>),</span>
+<span id="cb113-4"><a href="including-extras-for-litr.html#cb113-4" tabindex="-1"></a>                <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;basic-example.Rmd&quot;</span>)))</span></code></pre></div>
+<p>The templates vignette uses <code>dplyr</code> and <code>stringr</code>, so we add them as “Suggests” in the DESCRIPTION file:</p>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="including-extras-for-litr.html#cb114-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
+<span id="cb114-2"><a href="including-extras-for-litr.html#cb114-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;stringr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;dplyr&#39; to Suggests field in DESCRIPTION
+## • Use `requireNamespace(&quot;dplyr&quot;, quietly = TRUE)` to test if package is installed
+## • Then directly refer to functions with `dplyr::fun()`</code></pre>
+<pre><code>## Warning: Package &#39;stringr&#39; is already listed in &#39;Imports&#39; in DESCRIPTION, no
+## change made.</code></pre>
+</div>
+<div id="a-pkgdown-site" class="section level2 hasAnchor" number="14.3">
+<h2><span class="header-section-number">14.3</span> A pkgdown site<a href="including-extras-for-litr.html#a-pkgdown-site" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We’ll first add the github url to the DESCRIPTION file.</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="including-extras-for-litr.html#cb117-1" tabindex="-1"></a>desc<span class="sc">::</span><span class="fu">desc_set</span>(<span class="st">&quot;URL&quot;</span>, <span class="st">&quot;https://github.com/jacobbien/litr-project/tree/main/litr&quot;</span>)</span></code></pre></div>
+<pre><code>## Package: litr
+## Title: Literate Programming for Writing R Packages
+## Version: 0.9.1
+## Authors@R (parsed):
+##     * Jacob Bien &lt;jbien@usc.edu&gt; [aut, cre]
+##     * Patrick Vossler [aut]
+## Description: Allows one to fully create an R package in a single .Rmd
+##     file.  Includes functionality and .Rmd templates for a literate
+##     programming approach to R package development.
+## License: MIT + file LICENSE
+## URL: https://github.com/jacobbien/litr-project/tree/main/litr
+## Imports:
+##     bookdown,
+##     desc,
+##     devtools,
+##     digest,
+##     fansi,
+##     fs,
+##     knitr,
+##     pkgdown,
+##     rmarkdown,
+##     stringr,
+##     usethis,
+##     xfun,
+##     xml2,
+##     yaml
+## Suggests:
+##     dplyr,
+##     Rcpp,
+##     testthat (&gt;= 3.0.0)
+## VignetteBuilder:
+##     knitr
+## Config/testthat/edition: 3
+## Encoding: UTF-8
+## Roxygen: list(markdown = TRUE)
+## RoxygenNote: 7.3.0</code></pre>
+<p>Next, we create the pkgdown site. The customizations come from the source file <code>source-files/_pkgdown.yml</code>.</p>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="including-extras-for-litr.html#cb119-1" tabindex="-1"></a>pkgdown_yml <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;_pkgdown.yml&quot;</span>)</span>
+<span id="cb119-2"><a href="including-extras-for-litr.html#cb119-2" tabindex="-1"></a><a href='adding-extras-to-an-r-package.html#add_pkgdown'>add_pkgdown</a>(pkgdown_yml)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;^_pkgdown\\.yml$&#39;, &#39;^docs$&#39;, &#39;^pkgdown$&#39; to &#39;.Rbuildignore&#39;</code></pre>
+<pre><code>## -- Installing package into temporary library -----------------------------------
+## == Building pkgdown site =======================================================
+## Reading from: &#39;/Users/jacobbien/Documents/GitHub/litr-project/litr&#39;
+## Writing to:   &#39;/Users/jacobbien/Documents/GitHub/litr-project/docs&#39;
+## -- Initialising site -----------------------------------------------------------
+## -- Building favicons -----------------------------------------------------------
+## Building favicons with realfavicongenerator.net...
+## Copying &#39;pkgdown/favicon/apple-touch-icon-120x120.png&#39; to &#39;apple-touch-icon-120x120.png&#39;
+## Copying &#39;pkgdown/favicon/apple-touch-icon-152x152.png&#39; to &#39;apple-touch-icon-152x152.png&#39;
+## Copying &#39;pkgdown/favicon/apple-touch-icon-180x180.png&#39; to &#39;apple-touch-icon-180x180.png&#39;
+## Copying &#39;pkgdown/favicon/apple-touch-icon-60x60.png&#39; to &#39;apple-touch-icon-60x60.png&#39;
+## Copying &#39;pkgdown/favicon/apple-touch-icon-76x76.png&#39; to &#39;apple-touch-icon-76x76.png&#39;
+## Copying &#39;pkgdown/favicon/apple-touch-icon.png&#39; to &#39;apple-touch-icon.png&#39;
+## Copying &#39;pkgdown/favicon/favicon-16x16.png&#39; to &#39;favicon-16x16.png&#39;
+## Copying &#39;pkgdown/favicon/favicon-32x32.png&#39; to &#39;favicon-32x32.png&#39;
+## -- Building home ---------------------------------------------------------------
+## Reading &#39;LICENSE.md&#39;
+## Writing &#39;404.html&#39;
+## -- Building function reference -------------------------------------------------
+## Reading &#39;man/add_chunk_label_hyperlinks.Rd&#39;
+## Reading &#39;man/add_function_hyperlinks.Rd&#39;
+## Reading &#39;man/add_hex_sticker.Rd&#39;
+## Reading &#39;man/add_pkgdown.Rd&#39;
+## Reading &#39;man/add_readme.Rd&#39;
+## Reading &#39;man/add_text_to_file.Rd&#39;
+## Reading &#39;man/add_vignettes.Rd&#39;
+## Reading &#39;man/check_unedited.Rd&#39;
+## Reading &#39;man/description_litr_hash_field_name.Rd&#39;
+## Reading &#39;man/description_litr_version_field_name.Rd&#39;
+## Reading &#39;man/do_not_edit_message.Rd&#39;
+## Reading &#39;man/document.Rd&#39;
+## Reading &#39;man/find_labels.Rd&#39;
+## Reading &#39;man/get_package_directory.Rd&#39;
+## Reading &#39;man/get_params_used.Rd&#39;
+## Reading &#39;man/hash_package_directory.Rd&#39;
+## Reading &#39;man/insert_hrefs.Rd&#39;
+## Reading &#39;man/litr-package.Rd&#39;
+## Reading &#39;man/litr_gitbook.Rd&#39;
+## Reading &#39;man/litr_html_document.Rd&#39;
+## Reading &#39;man/litr_pdf_document.Rd&#39;
+## Reading &#39;man/litrify_output_format.Rd&#39;
+## Reading &#39;man/load_all.Rd&#39;
+## Reading &#39;man/make_noticeable.Rd&#39;
+## Reading &#39;man/read_hash_from_description.Rd&#39;
+## Reading &#39;man/remove_rstudio_extras.Rd&#39;
+## Reading &#39;man/render.Rd&#39;
+## Reading &#39;man/replace_ansi_sequences.Rd&#39;
+## Reading &#39;man/restore_knitr_objects.Rd&#39;
+## Reading &#39;man/send_to_package.Rd&#39;
+## Reading &#39;man/setup.Rd&#39;
+## Reading &#39;man/test_litr.Rd&#39;
+## Reading &#39;man/with_cleanup.Rd&#39;
+## Reading &#39;man/write_hash_to_description.Rd&#39;
+## Reading &#39;man/write_version_to_description.Rd&#39;
+## -- Building articles -----------------------------------------------------------
+## Reading &#39;vignettes/basic-example.Rmd&#39;
+## Reading &#39;vignettes/faqs.Rmd&#39;
+## Reading &#39;vignettes/package-templates.Rmd&#39;
+## Reading &#39;vignettes/packages-in-the-wild.Rmd&#39;
+## Writing &#39;sitemap.xml&#39;
+## -- Building search index -------------------------------------------------------
+## == DONE ========================================================================</code></pre>
+<p>We follow <a href="https://pkgdown.r-lib.org/articles/customise.html">this <code>pkgdown</code> vignette</a> in our customizations. Here is the contents of the <code>_pkgdown.yml</code> that was used:</p>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb122-1"><a href="including-extras-for-litr.html#cb122-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">readLines</span>(<span class="st">&quot;../source-files/_pkgdown.yml&quot;</span>), <span class="at">sep =</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)</span></code></pre></div>
+<pre><code>destination: ../docs/
+
+url: ~
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
+repo:
+  url:
+    home: https://github.com/jacobbien/litr-project/tree/main/litr/   
+    source: https://github.com/jacobbien/litr-project/tree/main/litr/
+    issue: https://github.com/jacobbien/litr-project/issues/
+    user: https://github.com/
+
+authors:
+  Jacob Bien:
+    href: http://faculty.marshall.usc.edu/jacob-bien/
+  Patrick Vossler:
+    href: https://www.patvoss.me/
+
+navbar:
+  structure:
+    left:  [reference, articles]
+    right: [github]
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/jacobbien/litr-project/tree/main/litr/
+
+reference:
+- title: Primary functions
+  desc: &gt;
+    These are the functions you&#39;ll use the most.
+  contents:
+    - render
+    - document
+    - load_all
+
+- title: Functions for adding &quot;extras&quot; to your package
+  desc: &gt;
+    These functions can help you add a README, vignettes, a pkgdown site, and a hex sticker to your package.
+  contents:
+    - add_readme
+    - add_vignettes
+    - add_pkgdown
+    - add_hex_sticker
+
+- title: Custom output formats
+  desc: &gt;
+    These are the functions for producing different output formats.
+  contents:
+    - litr_html_document
+    - litr_pdf_document
+    - litr_gitbook
+    - litrify_output_format</code></pre>
+<p>After this step, you can locally see the site by opening <code>docs/index.html</code> in the browser. You can then copy the <code>docs</code> directory to your website’s server and you’re done.</p>
+
+</div>
+</div>
+
+
+
+
+
+
+
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="documenting-the-package-and-testing.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

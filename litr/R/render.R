@@ -294,12 +294,12 @@ litr_html_document <- function(minimal_eval = FALSE, ...) {
   # modify post_processor
   new$post_processor = function(metadata, input_file, output_file, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
-    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
+    # html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
     # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files, metadata$params$package_name)
-    add_chunk_label_hyperlinks(html_files)
+    add_function_hyperlinks(output_file, metadata$params$package_name)
+    add_chunk_label_hyperlinks(output_file)
     # replace ANSI sequences with HTML tag equivalents
-    replace_ansi_sequences(html_files)
+    replace_ansi_sequences(output_file)
     out
   }
   new
@@ -327,7 +327,10 @@ litr_gitbook <- function(minimal_eval = FALSE, ...) {
   # modify post_processor
   new$post_processor = function(metadata, input_file, output_file, ...) {
     out <- old$post_processor(metadata, input_file, output_file, ...)
-    html_files <- fs::dir_ls(fs::path_dir(out), regexp = ".html$")
+    out_dir <- fs::path_dir(out)
+    file_stems <- readLines(file.path(out_dir, "reference-keys.txt"))
+    html_files <- file.path(out_dir, paste0(file_stems, ".html"))
+    html_files <- unique(intersect(c(out, html_files), fs::dir_ls(out_dir)))
     # add hyperlinks within html output to make it easier to navigate:
     add_function_hyperlinks(html_files, metadata$params$package_name)
     add_chunk_label_hyperlinks(html_files)
@@ -533,8 +536,10 @@ add_chunk_label_hyperlinks <- function(html_files,
         pattern,
         stringr::str_glue("<span id='{chunk_name}'>###&quot;\\1&quot;###</span>")
       )
-      # and keep track of it for later:
-      chunk_names <- c(chunk_names, chunk_name)
+      # and keep track of it for later.
+      # we're using setNames here to make sure that we keep the name of file
+      # where the chunk name is defined 
+      chunk_names <- setNames(c(chunk_names, chunk_name), c(names(chunk_names), html_file))
     }
     list(chunk_names = chunk_names, txt = txt)
   }
@@ -594,7 +599,40 @@ add_chunk_label_hyperlinks <- function(html_files,
       }
     )
 
-    writeLines(txt, con = html_files[i])
+    parsed_html <- xml2::read_html(paste(txt,collapse="\n"))
+    # get all possible chunk names in this file.
+    chunk_names <- all_chunk_names[which(names(all_chunk_names) == html_files[i])]
+    
+    if(length(chunk_names) > 0){
+      for(j in seq_along(chunk_names)){
+        span_node <- xml2::xml_find_first(parsed_html, stringr::str_glue('(.//span[@id="{chunk_names[j]}"])'))
+        span_node_path <- stringr::str_split(xml2::xml_path(span_node),"/")
+        
+        pre_path <- paste(span_node_path[[1]][1:(max(which(stringr::str_detect(span_node_path[[1]], "pre"))))],collapse="/")
+        if(nchar(pre_path) == 0){
+          next()
+        }
+        pre_parent <- xml2::xml_find_first(parsed_html, pre_path)
+        if(is.na(pre_parent)){
+          next()
+        }
+        xml2::xml_add_parent(pre_parent
+                             , xml2::read_xml(stringr::str_glue('<fieldset id="{chunk_names[j]}" class="chunkfield"> </fieldset>')))
+        xml2::xml_add_sibling(pre_parent, xml2::read_xml(stringr::str_glue('<legend class="chunklegend">{chunk_names[j]}</legend>')), where="before")
+        xml2::xml_remove(span_node)
+        # remove the extra line break that is left over from removing the span
+        code_node <- xml2::xml_child(pre_parent)
+        changed_txt <- stringr::str_remove(paste(as.character(xml2::xml_contents(code_node)),collapse=""), '\n')
+        xml2::xml_replace(code_node, xml2::read_xml(stringr::str_glue('<code>{changed_txt}</code>')))
+      }
+    }
+    # last thing is to insert an additional style node in the head with our CSS so we have a standard style whether we are using bookdown or Rmarkdown
+    css_string <- "fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
+    "
+    head_node <- xml2::xml_find_first(parsed_html, ".//head")
+    xml2::xml_add_child(head_node, xml2::read_xml(stringr::str_glue("<style type='text/css'>{css_string}</style>")))
+    txt <- xml2::write_html(parsed_html, html_files[i])
   }
 }
 

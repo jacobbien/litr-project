@@ -8,9 +8,9 @@ Description: This package uses litr to define an R package through writing
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.9.1
-LitrId: 6644f51747d716dffaea375ff7ee0252
+LitrId: f0407b5f1dad14ffece192fce52a22c8

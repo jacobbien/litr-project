@@ -6,6 +6,6 @@
 #' @param v A numerical vector
 #' @export
 alternate_signs <- function(v) {
-    .Call('_withrcpp_alternate_signs', PACKAGE = 'withrcpp', v)
+    .Call(`_withrcpp_alternate_signs`, v)
 }
 
