@@ -2616,7 +2616,8 @@ fs::file_copy(file.path("..", "source-files", "diagram3.png"),
 add_vignettes(c(file.path("..", "source-files", "package-templates.Rmd"),
                 file.path("..", "source-files", "packages-in-the-wild.Rmd"),
                 file.path("..", "source-files", "faqs.Rmd"),
-                file.path("..", "source-files", "basic-example.Rmd")))
+                file.path("..", "source-files", "basic-example.Rmd"),
+                file.path("..", "source-files", "videos.Rmd")))
 ```
 
 The templates vignette uses `dplyr` and `stringr`, so we add them as "Suggests" in the DESCRIPTION file:

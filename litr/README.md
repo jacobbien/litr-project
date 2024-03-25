@@ -108,7 +108,7 @@ The above motivation is that of [literate
 programming](https://en.wikipedia.org/wiki/Literate_programming),
 introduced by [Donald
 Knuth](https://www-cs-faculty.stanford.edu/~knuth/), and the direct
-inspiration is [fast.ai](https://www.fast.ai/about/)’s
+inspiration is [fast.ai](https://www.fast.ai/about/)‘s
 [`nbdev`](https://nbdev.fast.ai/), which is available in Python. The
 `litr` package relies heavily on a number of great tools in R,
 especially [`knitr`](https://yihui.org/knitr/),
@@ -118,7 +118,12 @@ especially [`knitr`](https://yihui.org/knitr/),
 [`testthat`](https://testthat.r-lib.org/). I should also note that
 [Yihui Xie](https://yihui.org/en/) has [a post](https://yihui.org/rlp/)
 where he demonstrates a similar idea, although his approach appears to
-be more of a proof of concept.
+be more of a proof of concept. We were excited when Yihui in turn
+[blogged](https://yihui.org/en/2023/01/litr-package/) about `litr`! We
+have also learned of two other packages that can be used to turn R
+markdown into R packages: Sebastien Rochette’s
+[`fusen`](https://thinkr-open.github.io/fusen/) and Gina Reynolds’
+[`readme2pkg`](https://github.com/EvaMaeRey/readme2pkg).
 
 You can hear [Jeremy
 Howard](https://www.fast.ai/about.html#jeremy-howard) and [Hugo

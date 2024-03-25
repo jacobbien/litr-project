@@ -1,0 +1,30 @@
+---
+title: "Videos"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Videos}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+For those who prefer to learn from video, here are a sequence of videos for getting started with `litr`:
+
+1. **Quickstart Video.** This video shows how little time it takes to get started with `litr`.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9fVWD3hfKxA?si=QPQyIoL5llk3AiRH" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+2. **A Full Literate Programming Example.** This video walks through the entire process of writing an R package with `litr`.  Our example is an R package that fits least squares.  We show how latex equations and plots can be used to explain code.  We also show how to write a unit test (using the `testthat` R package).
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/T4BcLWZdbcg?si=HqgSUWcfdsDaKiwW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+3. **Using Rcpp in an R Package.** We show how to add `Rcpp` code to an R package using `litr`. We continue the least squares example from our previous video.  We use `RcppArmadillo` and see that it makes our least squares function 3x faster.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ZIxbXHEeAUM?si=OCmmiV17D8IfecG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+4. Next video planned: **Using `litr` with `bookdown`.** If you are interested in this topic, for now you can look at [an example](https://gregfaletto.github.io/cssr-project/create/) where `litr` and `bookdown` are used together (full github repo [here](make-an-r-package-from-bookdown)).  To get started, you can run the following command in an R session:
+
+```{r, eval=FALSE}
+rmarkdown::draft("create-frombookdown.Rmd",
+                 template = "make-an-r-package-from-bookdown",
+                 package = "litr")
+```

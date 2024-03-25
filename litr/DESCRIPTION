@@ -11,7 +11,7 @@ Description: Allows one to fully create an R package in a single .Rmd
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.1
 Imports: 
     bookdown,
     desc,
@@ -35,4 +35,4 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
 LitrVersionUsed: 0.9.1
-LitrId: ac32204662ad3f2cc8837ad60437c283
+LitrId: c11e4436ead75f4357105b1f698ff004
