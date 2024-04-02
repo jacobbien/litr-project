@@ -19,7 +19,6 @@ adding-a-readme
 adding-a-hex-sticker
 adding-vignettes
 add-a-pkgdown-site
-combining-.r-files
 including-templates
 tests
 test-check-unedited

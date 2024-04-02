@@ -142,7 +142,7 @@ using namespace Rcpp;
 and we only want this to appear once in `code.cpp`, so we do a bit of work to remove that if it appears in the code chunk.
 
 
-```{r}
+```{r, send_to = "R/setup.R"}
 #' A knitr chunk hook for writing R code and tests
 #' 
 #' This chunk hook detects whether a chunk is defining a function or dataset
@@ -259,7 +259,7 @@ usethis::use_package("usethis")
 
 The code also calls the function `do_not_edit_message()`, which adds a line at the top of the files sent to the R package reminding the user that these are not source files to be edited but rather output of the generating .Rmd file.  There are two variations on this message.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Generate do-not-edit message to put at top of file
 #' 
 #' @param rmd_file Name of the Rmd file to mention
@@ -281,7 +281,7 @@ This function will also be used with `type = "man"` by `litr::document()`.
 
 The above also makes use of a simple helper function that inserts text into a specified location of a file (or creates that file if it doesn't exist). **Actually currently it doesn't, but we can replace `cat()` in the above with calls to `add_text_to_file()`.**
 
-```{r}
+```{r, send_to = "R/setup.R"}
 #' Add Some Text to a File
 #' 
 #' The text will be added to the file at a particular line specified by
@@ -401,7 +401,7 @@ The way `knitr` handles this, the code chunk would no longer look like this but 
 
 6. Define a `package_doc` engine which allows users to define package-level documentation.
 
-```{r}
+```{r, send_to = "R/setup.R"}
 #' Code for setup chunk
 #' 
 #' * Creates directory where package will be. (Deletes what is currently there as 
@@ -564,7 +564,7 @@ setup <- function(package_dir, minimal_eval) {
 
 In our new `document` output hook defined above, we call a function `find_labels()`.  It takes a block of code and returns both a logical vector of which lines contained chunk labels and another vector containing the labels of those referenced chunks.  We define it here:
 
-```{r}
+```{r, send_to = "R/setup.R"}
 #' Find a .Rmd chunk label in a code chunk
 #' 
 #' @param chunk_code Character vector of code from a .Rmd code chunk. Each element is a line of the code chunk.
@@ -581,7 +581,7 @@ find_labels <- function(chunk_code) {
 
 The `setup()` function also uses a small function, `make_noticeable()`, which we define here:
 
-```{r}
+```{r, send_to = "R/setup.R"}
 #' Make error messages noticeable
 #' 
 #' Since litr error messages are amid a lot of output from knitting, we'd like 
@@ -613,7 +613,7 @@ As described in the previous section, the function `setup()` will only overwrite
 
 Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash*.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
 
-```{r}
+```{r, send_to = "R/hash.R"}
 #' Hash package directory
 #' 
 #' Gets an identifier that can be used to uniquely (whp) identify the current 
@@ -648,7 +648,7 @@ usethis::use_package("digest")
 
 We will store this hash in a special field within the DESCRIPTION file.  Let's call this field `LitrId`.  However, in case we ever decide to change the name of this field, it's better that we only define it in one place.  So we do this with the following function:
 
-```{r}
+```{r, send_to = "R/hash.R"}
 #' Generate litr hash field name for DESCRIPTION file
 #' @keywords internal
 description_litr_hash_field_name <- function() return("LitrId")
@@ -656,7 +656,7 @@ description_litr_hash_field_name <- function() return("LitrId")
 
 Ok, now let's write the function that `litr::render()` will call that will take the generated R package and add a line that puts the hash in the DESCRIPTION file under that special `litr` field:
 
-```{r}
+```{r, send_to = "R/hash.R"}
 #' Write the hash of the package to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -677,7 +677,7 @@ usethis::use_package("desc")
 
 And of course we'll need a function that can read the value of that field as well:
 
-```{r}
+```{r, send_to = "R/hash.R"}
 #' Get the hash of the package from the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -696,7 +696,7 @@ read_hash_from_description <- function(package_dir) {
 
 With all this hash functionality in place, the function `check_unedited()` is actually quite simple to define:
 
-```{r}
+```{r, send_to = "R/hash.R"}
 #' Check if package directory is the unedited output of litr::render()
 #' 
 #' Uses hash stored in a special `litr` field of DESCRIPTION file to check that 
@@ -718,7 +718,7 @@ It simply computes the hash of the current package and checks whether that hash 
 
 This function is nearly identical to `devtools::document()` except that it changes the roxygen2 message that says "Please edit documentation in R/[...].R" to instead mention the generating .Rmd file.  When `Rcpp` is used, it also makes sure that `#include <RcppArmadillo.h>` comes before `#include <Rcpp.h>`.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Use roxygen to document a package from within a Rmd file
 #' 
 #' This is a wrapper for the `devtools::document()` function, which in turn is a
@@ -801,7 +801,7 @@ Given a preexisting output format (e.g. `rmarkdown::html_document`), we would li
 
 We present the function and then describe the details of the new `pre_knit()` and `post_processor()` functions below.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Modify an existing output format to have `litr` behavior
 #' 
 #' This function modifies the `pre_knit()` and `post_processor()` functions of a
@@ -889,13 +889,13 @@ We use the above function to create some `litr` versions of common output format
 
 Before proceeding, we define the function `write_version_to_description()` that is called above.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Generate litr version field name for DESCRIPTION file
 #' @keywords internal
 description_litr_version_field_name <- function() return("LitrVersionUsed")
 ```
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Write the version of litr used to the DESCRIPTION file
 #' 
 #' @param package_dir Path to package
@@ -913,7 +913,7 @@ write_version_to_description <- function(package_dir) {
 
 Also, we made use of a small function for getting the package directory based on the input file's location and the parameters that are being used in the rendering process.  We define it here:
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Get package directory
 #' 
 #' @param package_parent_dir The directory of where the package should go (relative to the input directory)
@@ -950,7 +950,7 @@ We want our .pdf documents to accurately display the "logging" output from funct
 
 Specifically, the `post_knit` function modifies the intermediate .knit.md file, which contains both the .Rmd file, as well as the output of each code chunk. Thus, we can inspect the output text of each code chunk and remove any ANSI escape codes before the .knit.md is converted to a .tex file and then a .pdf document. We rely upon two internal functions from the `fansi` R package to remove all possible escape codes and return a clean character vector.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' litr version of `rmarkdown::pdf_document()`
 #' 
 #' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
@@ -993,7 +993,7 @@ usethis::use_package("fansi")
 
 For .html documents, we'd like to add a bit more in the postprocessing step.  In particular, we include some special function and chunk hyperlinking behavior described below.  The function `add_function_hyperlinks()` processes the outputted .html file(s), making it so that one can easily navigate to function definitions.  (This function is described lower in this section.)  We likewise call a function `add_chunk_label_hyperlinks()`, which makes chunk references into clickable links.  In particular, the chunk reference `<<my-chunk>>` within a code chunk would link to a chunk named "my-chunk" that begins with `###"my-chunk"###`.  The `###"my-chunk"###` line is added by a document hook defined in `setup()`.  Finally, we replace ANSI sequences with HTML tag equivalents (the need for this is explained in the [section on the .pdf output format](#pdf-output-format)).
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' litr version of `rmarkdown::html_document()`
 #' 
 #' This behaves like `rmarkdown::html_document()` with a few differences:
@@ -1029,7 +1029,7 @@ We describe these two `add_*_hyperlinks()` functions next.
 
 The function `add_function_hyperlinks()` looks for `foo` followed by `<- function(` and then wraps `foo` in a `span` tag with `id="foo"`; whenever `foo` is found elsewhere in the document, it calls the `insert_hrefs()` function to wrap a `a href="file.html#foo"` tag (where `file.html` is the file where `foo` is defined), so that it will be a hyperlink to `foo`'s definition.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Add hyperlinks to function definitions
 #' 
 #' Finds functions that are defined in the html file(s) by looking for text of the 
@@ -1106,7 +1106,7 @@ add_function_hyperlinks <- function(html_files, pkg_name) {
 
 We define next the helper function `insert_hrefs()`, which was called in the previous function.  If the function `foo()` is defined in the .Rmd file that defines a package named `pkg`, then whenever `foo()` or `pkg::foo()` appears in the .Rmd, a link will be added; however, if `other_pkg::foo()` appears, then no link will be added.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Replace a function's name with a link to its definition
 #' 
 #' A helper function for `add_function_hyperlinks` that wraps references to a 
@@ -1175,7 +1175,7 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
 
 In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form `<<chunk-name>>` that link to user-defined chunk names that take the form `###chunk-name###`. We want these user-defined chunk names to stand out to readers and in their original form as code comments they might be harder to notice. To solve this issue, we modify the formatting of these chunks to add a border with the name of the chunk set into the border, mimicking the look of a `<fieldset>` tag. The additional formatting requires inserting additional HTML tags as well as css into the knitted HTML file so we use the `xml2` package to parse and manipulate the knitted HTML file. 
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Add hyperlinks to embedded chunks
 #' 
 #' Finds chunks that are referenced in the html file(s) by looking for comments
@@ -1315,7 +1315,7 @@ usethis::use_package("xml2")
 
 Finally, we want to replace the ANSI escape sequences used by packages such as `testthat` and `devtools` with their HTML equivalents so the output matches what we see in the terminal.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Replace ANSI escape sequences with their HTML equivalents
 #' 
 #' Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package
@@ -1349,7 +1349,7 @@ replace_ansi_sequences <- function(html_files) {
 
 It turns out that our modification to the `bookdown::gitbook()` format's postprocessor is identical to the above.  This suggests that we should probably reuse code more effectively.  But for now I will leave it how it is:
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' litr version of `bookdown::gitbook()`
 #' 
 #' This behaves like `bookdown::gitbook()` with a few differences:
@@ -1447,7 +1447,7 @@ In the first use case, `litr::render()` is responsible for ensuring all the spec
 One thing that is different is that we need a function `get_params_used()`, defined at the end of this section, that gets the actual parameters that are used so that the location of the outputted package can be found.
 
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Render R markdown file
 #' 
 #' Wrapper to `rmarkdown::render()` that produces an R package as output in 
@@ -1591,7 +1591,7 @@ usethis::use_package("xfun")
 
 When `litr::render()` encounters an error, it can leave the output directory partially modified.  We want to make sure the `litr` hash still gets written to the DESCRIPTION file.  Otherwise, the next time one calls `litr::render()` it does not allow this directory to be overwritten.  We do this by using `withCallingHandlers()`.  This function, explained [here](http://adv-r.had.co.nz/Exceptions-Debugging.html), is similar to `tryCatch()`, but with the advantage that it lets the function to continue to run normally, meaning that we will still get the error message as it would appear if we hadn't done the condition handling.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Add litr hash to DESCRIPTION file if error encountered
 #' 
 #' This creates a function that calls the passed function within the context of
@@ -1618,7 +1618,7 @@ with_cleanup <- function(fun, package_dir) {
 
 In `setup()`, we modified the knitr objects (e.g., adding hooks, engines, etc.).  We call the function `restore_knitr_objects()` after we're done, to put things back how they were:
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Return the knitr objects to their original state
 #' 
 #' @param original_knitr_objects As returned by `setup()`
@@ -1634,7 +1634,7 @@ restore_knitr_objects <- function(original_knitr_objects) {
 
 Another thing we want to do at the end of the rendering process is to remove two files that might have been created by usethis: .Rproj and .gitignore.  These are created by `usethis::create_package()` when `rstudio = TRUE`.  We don't want these files created since this would suggest to a user that the R package should be worked on from within it rather than from the generating .Rmd file.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Remove extra files added by usethis
 #' 
 #' Remove .Rproj and .gitignore files if they are in the package directory.
@@ -1657,7 +1657,7 @@ remove_rstudio_extras <- function(package_dir) {
 
 As described earlier, the function `get_params_used()` combines the parameters from the YAML but allows for those values to be overridden through arguments passed to `render()`.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Get parameter values used in rendering
 #' 
 #' When the `params` argument of `rmarkdown::render()` is explicitly used, this
@@ -1688,7 +1688,7 @@ When someone is writing an R package with devtools, it is common to use `devtool
 
 2. Run `devtools::load_all()` on the output.
 
-```{r}
+```{r, send_to = "R/render.R"}
 #' Load complete package
 #' 
 #' This is a litr wrapper to `devtools::load_all()`.  It first calls
@@ -1767,7 +1767,7 @@ While a user could choose to generate all these items within the generating .Rmd
 
 We define a helper function that takes an externally defined README.Rmd and puts it into the package, creates a README.md, and makes sure that these will be added to the .Rbuildignore.
 
-```{r}
+```{r, send_to = "R/extras.R"}
 #' Add README to package
 #' 
 #' This function takes a README.Rmd file, copies it into the package, and then
@@ -1793,7 +1793,7 @@ add_readme <- function(rmd_file) {
 
 We define a helper function that takes an externally defined hex sticker (.png file) and puts it into the package under `man/figures`.  The suggestion for storing it in this directory came from [here](https://pkgdown.r-lib.org/reference/build_home.html#images-and-figures).
 
-```{r}
+```{r, send_to = "R/extras.R"}
 #' Add a hex sticker to package
 #' 
 #' In addition to calling this function, you should add to your README.Rmd something like this:
@@ -1818,7 +1818,7 @@ add_hex_sticker <- function(hex_png_file) {
 
 We next define a helper function for adding vignettes to the package.  This mimics `usethis::use_vignette()`.  We couldn't directly use that function because we want the project file to live outside of the package directory, which confuses `usethis`.
 
-```{r}
+```{r, send_to = "R/extras.R"}
 #' Add one or more vignettes to package
 #' 
 #' @param rmd_files A character vector of .Rmd files, each corresponding to 
@@ -1847,7 +1847,7 @@ We define a function based on `usethis::use_pkgdown()`, but with a few differenc
 1. Avoid the parts to do with looking for projects
 2. Allow one to use a custom `_pkgdown.yml` that is stored outside of package
 
-```{r}
+```{r, send_to = "R/extras.R"}
 #' Add a pkgdown site
 #' 
 #' This function creates a website for your package.  You can see it locally by
@@ -1883,64 +1883,6 @@ Since the above function uses `pkgdown` and `yaml`, we include these in our pack
 ```{r}
 usethis::use_package("pkgdown")
 usethis::use_package("yaml")
-```
-
-
-# Combining .R files
-
-**This section should eventually be removed but for now I'm doing this to convince myself that the package generated by this .Rmd file really matches the initial version created without the package.**
-
-```{r}
-library(magrittr)
-library(purrr)
-rfiles <- fs::dir_ls("R")
-code <- rfiles %>% 
-  map(readLines) %>% 
-  set_names(
-    rfiles %>% stringr::str_remove("^.*/") %>% stringr::str_remove(".R$")
-    )
-hash_functions <- c("hash_package_directory",
-                    "description_litr_hash_field_name",
-                    "write_hash_to_description",
-                    "read_hash_from_description",
-                    "check_unedited")
-render_functions <- c("do_not_edit_message",
-                      "document",
-                      "litrify_output_format",
-                      "description_litr_version_field_name",
-                      "write_version_to_description",
-                      "get_package_directory",
-                      "litr_pdf_document",
-                      "litr_html_document",
-                      "add_function_hyperlinks",
-                      "insert_hrefs",
-                      "add_chunk_label_hyperlinks",
-                      "replace_ansi_sequences",
-                      "litr_gitbook",
-                      "render",
-                      "with_cleanup",
-                      "restore_knitr_objects",
-                      "remove_rstudio_extras",
-                      "get_params_used",
-                      "load_all")
-setup_functions <- c("send_to_package",
-                     "add_text_to_file",
-                     "setup",
-                     "find_labels",
-                     "make_noticeable")
-extras_functions <- c("add_readme",
-                      "add_hex_sticker",
-                      "add_vignettes",
-                      "add_pkgdown")
-remove_initial_lines <- function(code_list) {
-  # drop first line of each list element except for the first list element
-  c(code_list[1], map(code_list[-1], ~ .x[-1]))
-}
-fs::file_delete(setdiff(rfiles, "R/litr-package.R"))
-writeLines(unlist(remove_initial_lines(code[hash_functions])), "R/hash.R")
-writeLines(unlist(remove_initial_lines(code[render_functions])), "R/render.R")
-writeLines(unlist(remove_initial_lines(code[setup_functions])), "R/setup.R")
-writeLines(unlist(remove_initial_lines(code[extras_functions])), "R/extras.R")
 ```
 
 
