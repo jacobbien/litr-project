@@ -1,163 +1,56 @@
 # Generated from _main.Rmd: do not edit by hand
 
-#' Render R markdown file
+#' Generate do-not-edit message to put at top of file
 #' 
-#' Wrapper to `rmarkdown::render()` that produces an R package as output in 
-#' addition to the standard output document.  It does some post-processing on the 
-#' .html file when that is the output.  In particular, when an .html file is among
-#' the outputs, it adds hyperlinks to functions defined within the file to make 
-#' it easier for someone reading the code to see where different functions are
-#' defined.
-#' 
-#' @param input The input file to be rendered (see `rmarkdown::render`)
-#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
-#' `usethis` commands will be evaluated.  This can be convenient in coding when 
-#' you just want to quickly update the R package without having to wait for long
-#' evaluations to occur.
-#' @param fresh_session Whether to call `rmarkdown::render` from a fresh R 
-#' session. By default TRUE, so that it matches the behavior of pressing "Knitr"
-#' in RStudio.  However, for debugging it can be useful to set this to FALSE so 
-#' that functions like `debug()` and `browser()` will work.
-#' @param ... Additional parameters to pass to `rmarkdown::render`
-#' @export
-render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
-  # call rmarkdown::render in a new environment so it behaves the same as 
-  # pressing the knit button in RStudio:
-  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
-  args <- list(...)
-
-  # let's determine if the output format being used is a litr format.
-  # If it is, then we'll simply want to call rmarkdown::render() since the 
-  # special litr behavior will be attained through the output format.
-  litr_format <- FALSE
-  bookdown_format <- FALSE
-  output_format_arg <- FALSE
-  if ("output_format" %in% names(args)) {
-    output_format_arg <- TRUE
-    if ("litr_format" %in% names(args$output_format)) {
-      litr_format <- TRUE
-    }
-    if ("bookdown_output_format" %in% names(args$output_format)) {
-      bookdown_format <- TRUE
-    }
-  } else {
-    frontmatter <- rmarkdown::yaml_front_matter(input)
-    if ("output" %in% names(frontmatter)) {
-      formats <- ifelse(is.list(frontmatter$output),
-                        names(frontmatter$output),
-                        frontmatter$output)
-      if (any(stringr::str_detect(formats, "litr::"))) {
-        litr_format <- TRUE
-      }
-      if (any(stringr::str_detect(formats, "litr::litr_gitbook"))) {
-        bookdown_format <- TRUE
-      }
-    }
-  }
-
-  # get package_directory
-  params <- get_params_used(input, args$params)
-  package_dir <- get_package_directory(
-    params$package_parent_dir,
-    params$package_name,
-    input
-    )
-  
-  # if minimal_eval was passed to render, add this to the output_options
-  # argument that will be passed to rmarkdown::render
-  if (is.null(args$output_options)) args$output_options <- list()
-  if (!missing(minimal_eval)) args$output_options$minimal_eval <- minimal_eval
-  
-  # determine whether a new R session will be created when we run the rendering 
-  # function of rmarkdown/bookdown
-  if (fresh_session)
-    run_function <- xfun::Rscript_call
+#' @param rmd_file Name of the Rmd file to mention
+#' @param type Whether this is a R/ file, man/ file, or a c file
+#' @keywords internal
+do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
+  if (type[1] == "R")
+    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
+  else if (type[1] == "man")
+    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
+  else if (type[1] == "c")
+    return(stringr::str_glue("// Generated from {rmd_file}: do not edit by hand"))
   else
-    run_function <- do.call
-  
-  if (litr_format) {
-    # this uses a litr output format, so we don't need to do anything litr-specific
-    # here because it will happen through the output format
-    
-    if (output_format_arg & !missing(minimal_eval)) {
-      # the output format was passed through the output_format argument rather 
-      # than through the metadata
-      if (minimal_eval) {
-        stop(make_noticeable(paste(
-          "When passing a litr output format using the output_format argument,",
-          "you should not pass minimal_eval = TRUE directly to render.",
-          "Instead, pass it to the litr output format function.  For example,",
-          "litr::litr_html_document(minimal_eval = TRUE).",
-          collapse = " "
-          )))
-      }
-    }
-    
-    if (bookdown_format) {
-      if (fs::is_file(input)) input <- fs::path_dir(input)
-      return(invisible(run_function(with_cleanup(bookdown::render_book,
-                                                 package_dir),
-                                    c(input = input, args))))
-    }
-    else
-      return(invisible(run_function(with_cleanup(rmarkdown::render,
-                                                 package_dir),
-                                    c(input = input, args))))
-  }
-  
-  # the output format being used is not a litr-specific one, so we need to make
-  # sure that all the special litr things happen
-  args$package_dir <- package_dir
-
-  render_ <- function(input, package_dir, minimal_eval, ...) {
-    knitr_objects <- litr:::setup(package_dir, minimal_eval)
-    out <- rmarkdown::render(input, ...)
-    restore_knitr_objects(knitr_objects)
-    # remove .Rproj and .gitignore if usethis::create_package() added these
-    remove_rstudio_extras(package_dir)
-    return(out)
-  }
-
-  if (missing(minimal_eval)) minimal_eval <- FALSE
-  out <- run_function(with_cleanup(render_, package_dir),
-                      c(input = input, minimal_eval = minimal_eval, args))
-
-
-  # add hyperlinks within html output to make it easier to navigate:
-  if (any(stringr::str_detect(out, "html$"))) {
-    html_file <- stringr::str_subset(out, "html$")
-    add_function_hyperlinks(html_file, params$package_name)
-    add_chunk_label_hyperlinks(html_file)
-  }
-  
-  # add to DESCRIPTION file the version of litr used to create package:
-  write_version_to_description(package_dir)
-  
-  # add litr hash so we can tell later if package files were manually edited:
-  write_hash_to_description(package_dir)
+    stop("type must be either 'R', 'man', or 'c'.")
 }
 
-#' Add litr hash to DESCRIPTION file if error encountered
+#' Use roxygen to document a package from within a Rmd file
 #' 
-#' This creates a function that calls the passed function within the context of
-#' a try-catch.  If an error is encountered, the litr hash is still added to
-#' the DESCRIPTION file so that future calls to `litr::render()` will recognize
-#' that it can safely overwrite the package directory (i.e., no manual editing
-#' occurred).
+#' This is a wrapper for the `devtools::document()` function, which in turn is a
+#' wrapper for the `roxygen2::roxygenize()` function.  It is written assuming that
+#' it is being called from within a generating Rmd file.  The purpose for `litr` 
+#' having this wrapper is two-fold.  First, it ensures that the first line
+#' in the outputted `Rd` files should not say "Please edit documentation in 
+#' R/file.R" but instead should refer to the Rmd file that generates everything. 
+#' Second, in the case that Rcpp is being used, it makes some adjustments to ensure
+#' that the compiling of the C++ code should be successful.
 #' 
-#' @param fun function being called
-#' @param package_dir directory where package is being written to
-#' @param ... arguments to be passed to `fun`
-#' @keywords internal
-with_cleanup <- function(fun, package_dir) {
-  return(function(...) {
-    withCallingHandlers(
-      fun(...),
-      error = function(e) {
-        # add litr hash so we can tell later if package files were manually edited:
-        write_hash_to_description(package_dir)
-      })
-  })
+#' @param ... Arguments to be passed to `devtools::document()`
+#' @export
+document <- function(...) {
+  # prepare Rcpp code for compiling
+  if (fs::file_exists("src/code.cpp")) {
+    # make sure that #include <RcppArmadillo.h> if it exists
+    # comes *before* (or instead of) <Rcpp.h>
+    txt <- readLines("src/code.cpp")
+    loc <- stringr::str_which(txt, r"(#include <RcppArmadillo.h>)")
+    if (length(loc) > 0) {
+      include_arma_line <- txt[loc[1]]
+      txt <- c(include_arma_line, txt[-loc])
+      writeLines(txt, "src/code.cpp")
+    }
+  }
+  
+  devtools::document(...)
+  # remove the line of the following form in each man/*.Rd file:
+  pattern <- "% Please edit documentation in .*$"
+  msg <- do_not_edit_message(knitr::current_input(), type = "man")
+  for (fname in fs::dir_ls("man")) {
+    txt <- stringr::str_replace(readLines(fname), pattern, msg)
+    cat(paste(txt, collapse = "\n"), file = fname)
+  }
 }
 
 #' Modify an existing output format to have `litr` behavior
@@ -239,6 +132,35 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
   }
 }
 
+#' Generate litr version field name for DESCRIPTION file
+#' @keywords internal
+description_litr_version_field_name <- function() return("LitrVersionUsed")
+
+#' Write the version of litr used to the DESCRIPTION file
+#' 
+#' @param package_dir Path to package
+#' @keywords internal
+write_version_to_description <- function(package_dir) {
+  ver <- as.character(utils::packageVersion("litr"))
+  add_text_to_file(
+    txt = stringr::str_glue("{description_litr_version_field_name()}: {ver}"),
+    filename = file.path(package_dir, "DESCRIPTION"),
+    req_exist = TRUE
+    )
+}
+
+#' Get package directory
+#' 
+#' @param package_parent_dir The directory of where the package should go (relative to the input directory)
+#' @param package_name The name of the package
+#' @param input The file name of the input
+#' @keywords internal
+get_package_directory <- function(package_parent_dir, package_name, input) {
+  if (package_parent_dir == ".")
+    return(file.path(dirname(input), package_name))
+  file.path(dirname(input), package_parent_dir, package_name)
+}
+
 #' litr version of `rmarkdown::pdf_document()`
 #' 
 #' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
@@ -303,69 +225,6 @@ litr_html_document <- function(minimal_eval = FALSE, ...) {
     out
   }
   new
-}
-
-#' litr version of `bookdown::gitbook()`
-#' 
-#' This behaves like `bookdown::gitbook()` with a few differences:
-#' - It creates an R package.
-#' - It adds hyperlinks to function definitions whenever a function is used
-#' elsewhere in the document.
-#' - It does "Knuth-style" chunk referencing with hyperlinks.
-#' 
-#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
-#' `usethis` commands will be evaluated.  This can be convenient in coding when 
-#' you just want to quickly update the R package without having to wait for long
-#' evaluations to occur.
-#' @param ... Parameters to be passed to `bookdown::gitbook()` 
-#' @export
-litr_gitbook <- function(minimal_eval = FALSE, ...) {
-  litr_gitbook_ <- litrify_output_format(bookdown::gitbook,
-                                         minimal_eval = minimal_eval)
-  old <- litr_gitbook_(...)
-  new <- old
-  # modify post_processor
-  new$post_processor = function(metadata, input_file, output_file, ...) {
-    out <- old$post_processor(metadata, input_file, output_file, ...)
-    out_dir <- fs::path_dir(out)
-    file_stems <- readLines(file.path(out_dir, "reference-keys.txt"))
-    html_files <- file.path(out_dir, paste0(file_stems, ".html"))
-    html_files <- unique(intersect(c(out, html_files), fs::dir_ls(out_dir)))
-    # add hyperlinks within html output to make it easier to navigate:
-    add_function_hyperlinks(html_files, metadata$params$package_name)
-    add_chunk_label_hyperlinks(html_files)
-    # replace ANSI sequences with HTML tag equivalents
-    replace_ansi_sequences(html_files)
-    out
-  }
-  new
-}
-
-#' Replace ANSI escape sequences with their HTML equivalents
-#' 
-#' Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package
-#' 
-#' @param html_files Character vector of file names of html files that were created
-#' from Rmd files
-#' @keywords internal
-replace_ansi_sequences <- function(html_files) {
-  for (i in seq_along(html_files)) {
-    file_lines <- readLines(html_files[i])
-    # look for lines with escape sequences for URLs and remove the URL
-    # escape sequences before we convert to HTML
-    url_code_regex <- "\\033]8;;.*\\a(.*?)\\033]8;;\\a"
-    url_seq_idx <- which(stringr::str_detect(file_lines, url_code_regex))
-    file_lines[url_seq_idx] <- sapply(url_seq_idx, function(idx){
-      line <- file_lines[idx]
-      stringr::str_replace(line, url_code_regex, stringr::str_glue("\\1"))  
-    })
-    
-    txt <-
-      fansi::sgr_to_html(x = file_lines,
-                         warn = FALSE,
-                         term.cap = "256")
-    writeLines(txt, con = html_files[i])
-  }
 }
 
 #' Add hyperlinks to function definitions
@@ -636,6 +495,229 @@ add_chunk_label_hyperlinks <- function(html_files,
   }
 }
 
+#' Replace ANSI escape sequences with their HTML equivalents
+#' 
+#' Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package
+#' 
+#' @param html_files Character vector of file names of html files that were created
+#' from Rmd files
+#' @keywords internal
+replace_ansi_sequences <- function(html_files) {
+  for (i in seq_along(html_files)) {
+    file_lines <- readLines(html_files[i])
+    # look for lines with escape sequences for URLs and remove the URL
+    # escape sequences before we convert to HTML
+    url_code_regex <- "\\033]8;;.*\\a(.*?)\\033]8;;\\a"
+    url_seq_idx <- which(stringr::str_detect(file_lines, url_code_regex))
+    file_lines[url_seq_idx] <- sapply(url_seq_idx, function(idx){
+      line <- file_lines[idx]
+      stringr::str_replace(line, url_code_regex, stringr::str_glue("\\1"))  
+    })
+    
+    txt <-
+      fansi::sgr_to_html(x = file_lines,
+                         warn = FALSE,
+                         term.cap = "256")
+    writeLines(txt, con = html_files[i])
+  }
+}
+
+#' litr version of `bookdown::gitbook()`
+#' 
+#' This behaves like `bookdown::gitbook()` with a few differences:
+#' - It creates an R package.
+#' - It adds hyperlinks to function definitions whenever a function is used
+#' elsewhere in the document.
+#' - It does "Knuth-style" chunk referencing with hyperlinks.
+#' 
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
+#' @param ... Parameters to be passed to `bookdown::gitbook()` 
+#' @export
+litr_gitbook <- function(minimal_eval = FALSE, ...) {
+  litr_gitbook_ <- litrify_output_format(bookdown::gitbook,
+                                         minimal_eval = minimal_eval)
+  old <- litr_gitbook_(...)
+  new <- old
+  # modify post_processor
+  new$post_processor = function(metadata, input_file, output_file, ...) {
+    out <- old$post_processor(metadata, input_file, output_file, ...)
+    out_dir <- fs::path_dir(out)
+    file_stems <- readLines(file.path(out_dir, "reference-keys.txt"))
+    html_files <- file.path(out_dir, paste0(file_stems, ".html"))
+    html_files <- unique(intersect(c(out, html_files), fs::dir_ls(out_dir)))
+    # add hyperlinks within html output to make it easier to navigate:
+    add_function_hyperlinks(html_files, metadata$params$package_name)
+    add_chunk_label_hyperlinks(html_files)
+    # replace ANSI sequences with HTML tag equivalents
+    replace_ansi_sequences(html_files)
+    out
+  }
+  new
+}
+
+#' Render R markdown file
+#' 
+#' Wrapper to `rmarkdown::render()` that produces an R package as output in 
+#' addition to the standard output document.  It does some post-processing on the 
+#' .html file when that is the output.  In particular, when an .html file is among
+#' the outputs, it adds hyperlinks to functions defined within the file to make 
+#' it easier for someone reading the code to see where different functions are
+#' defined.
+#' 
+#' @param input The input file to be rendered (see `rmarkdown::render`)
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
+#' @param fresh_session Whether to call `rmarkdown::render` from a fresh R 
+#' session. By default TRUE, so that it matches the behavior of pressing "Knitr"
+#' in RStudio.  However, for debugging it can be useful to set this to FALSE so 
+#' that functions like `debug()` and `browser()` will work.
+#' @param ... Additional parameters to pass to `rmarkdown::render`
+#' @export
+render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
+  # call rmarkdown::render in a new environment so it behaves the same as 
+  # pressing the knit button in RStudio:
+  # https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html
+  args <- list(...)
+
+  # let's determine if the output format being used is a litr format.
+  # If it is, then we'll simply want to call rmarkdown::render() since the 
+  # special litr behavior will be attained through the output format.
+  litr_format <- FALSE
+  bookdown_format <- FALSE
+  output_format_arg <- FALSE
+  if ("output_format" %in% names(args)) {
+    output_format_arg <- TRUE
+    if ("litr_format" %in% names(args$output_format)) {
+      litr_format <- TRUE
+    }
+    if ("bookdown_output_format" %in% names(args$output_format)) {
+      bookdown_format <- TRUE
+    }
+  } else {
+    frontmatter <- rmarkdown::yaml_front_matter(input)
+    if ("output" %in% names(frontmatter)) {
+      formats <- ifelse(is.list(frontmatter$output),
+                        names(frontmatter$output),
+                        frontmatter$output)
+      if (any(stringr::str_detect(formats, "litr::"))) {
+        litr_format <- TRUE
+      }
+      if (any(stringr::str_detect(formats, "litr::litr_gitbook"))) {
+        bookdown_format <- TRUE
+      }
+    }
+  }
+
+  # get package_directory
+  params <- get_params_used(input, args$params)
+  package_dir <- get_package_directory(
+    params$package_parent_dir,
+    params$package_name,
+    input
+    )
+  
+  # if minimal_eval was passed to render, add this to the output_options
+  # argument that will be passed to rmarkdown::render
+  if (is.null(args$output_options)) args$output_options <- list()
+  if (!missing(minimal_eval)) args$output_options$minimal_eval <- minimal_eval
+  
+  # determine whether a new R session will be created when we run the rendering 
+  # function of rmarkdown/bookdown
+  if (fresh_session)
+    run_function <- xfun::Rscript_call
+  else
+    run_function <- do.call
+  
+  if (litr_format) {
+    # this uses a litr output format, so we don't need to do anything litr-specific
+    # here because it will happen through the output format
+    
+    if (output_format_arg & !missing(minimal_eval)) {
+      # the output format was passed through the output_format argument rather 
+      # than through the metadata
+      if (minimal_eval) {
+        stop(make_noticeable(paste(
+          "When passing a litr output format using the output_format argument,",
+          "you should not pass minimal_eval = TRUE directly to render.",
+          "Instead, pass it to the litr output format function.  For example,",
+          "litr::litr_html_document(minimal_eval = TRUE).",
+          collapse = " "
+          )))
+      }
+    }
+    
+    if (bookdown_format) {
+      if (fs::is_file(input)) input <- fs::path_dir(input)
+      return(invisible(run_function(with_cleanup(bookdown::render_book,
+                                                 package_dir),
+                                    c(input = input, args))))
+    }
+    else
+      return(invisible(run_function(with_cleanup(rmarkdown::render,
+                                                 package_dir),
+                                    c(input = input, args))))
+  }
+  
+  # the output format being used is not a litr-specific one, so we need to make
+  # sure that all the special litr things happen
+  args$package_dir <- package_dir
+
+  render_ <- function(input, package_dir, minimal_eval, ...) {
+    knitr_objects <- litr:::setup(package_dir, minimal_eval)
+    out <- rmarkdown::render(input, ...)
+    restore_knitr_objects(knitr_objects)
+    # remove .Rproj and .gitignore if usethis::create_package() added these
+    remove_rstudio_extras(package_dir)
+    return(out)
+  }
+
+  if (missing(minimal_eval)) minimal_eval <- FALSE
+  out <- run_function(with_cleanup(render_, package_dir),
+                      c(input = input, minimal_eval = minimal_eval, args))
+
+
+  # add hyperlinks within html output to make it easier to navigate:
+  if (any(stringr::str_detect(out, "html$"))) {
+    html_file <- stringr::str_subset(out, "html$")
+    add_function_hyperlinks(html_file, params$package_name)
+    add_chunk_label_hyperlinks(html_file)
+  }
+  
+  # add to DESCRIPTION file the version of litr used to create package:
+  write_version_to_description(package_dir)
+  
+  # add litr hash so we can tell later if package files were manually edited:
+  write_hash_to_description(package_dir)
+}
+
+#' Add litr hash to DESCRIPTION file if error encountered
+#' 
+#' This creates a function that calls the passed function within the context of
+#' a try-catch.  If an error is encountered, the litr hash is still added to
+#' the DESCRIPTION file so that future calls to `litr::render()` will recognize
+#' that it can safely overwrite the package directory (i.e., no manual editing
+#' occurred).
+#' 
+#' @param fun function being called
+#' @param package_dir directory where package is being written to
+#' @param ... arguments to be passed to `fun`
+#' @keywords internal
+with_cleanup <- function(fun, package_dir) {
+  return(function(...) {
+    withCallingHandlers(
+      fun(...),
+      error = function(e) {
+        # add litr hash so we can tell later if package files were manually edited:
+        write_hash_to_description(package_dir)
+      })
+  })
+}
+
 #' Return the knitr objects to their original state
 #' 
 #' @param original_knitr_objects As returned by `setup()`
@@ -678,88 +760,6 @@ get_params_used <- function(input, passed_params) {
     params[[param]] <- passed_params[[param]]
   }
   params
-}
-
-#' Get package directory
-#' 
-#' @param package_parent_dir The directory of where the package should go (relative to the input directory)
-#' @param package_name The name of the package
-#' @param input The file name of the input
-#' @keywords internal
-get_package_directory <- function(package_parent_dir, package_name, input) {
-  if (package_parent_dir == ".")
-    return(file.path(dirname(input), package_name))
-  file.path(dirname(input), package_parent_dir, package_name)
-}
-
-#' Generate do-not-edit message to put at top of file
-#' 
-#' @param rmd_file Name of the Rmd file to mention
-#' @param type Whether this is a R/ file, man/ file, or a c file
-#' @keywords internal
-do_not_edit_message <- function(rmd_file, type = c("R", "man", "c")) {
-  if (type[1] == "R")
-    return(stringr::str_glue("# Generated from {rmd_file}: do not edit by hand"))
-  else if (type[1] == "man")
-    return(stringr::str_glue("% Please edit documentation in {rmd_file}."))
-  else if (type[1] == "c")
-    return(stringr::str_glue("// Generated from {rmd_file}: do not edit by hand"))
-  else
-    stop("type must be either 'R', 'man', or 'c'.")
-}
-
-#' Generate litr version field name for DESCRIPTION file
-#' @keywords internal
-description_litr_version_field_name <- function() return("LitrVersionUsed")
-
-#' Write the version of litr used to the DESCRIPTION file
-#' 
-#' @param package_dir Path to package
-#' @keywords internal
-write_version_to_description <- function(package_dir) {
-  ver <- as.character(utils::packageVersion("litr"))
-  add_text_to_file(
-    txt = stringr::str_glue("{description_litr_version_field_name()}: {ver}"),
-    filename = file.path(package_dir, "DESCRIPTION"),
-    req_exist = TRUE
-    )
-}
-
-#' Use roxygen to document a package from within a Rmd file
-#' 
-#' This is a wrapper for the `devtools::document()` function, which in turn is a
-#' wrapper for the `roxygen2::roxygenize()` function.  It is written assuming that
-#' it is being called from within a generating Rmd file.  The purpose for `litr` 
-#' having this wrapper is two-fold.  First, it ensures that the first line
-#' in the outputted `Rd` files should not say "Please edit documentation in 
-#' R/file.R" but instead should refer to the Rmd file that generates everything. 
-#' Second, in the case that Rcpp is being used, it makes some adjustments to ensure
-#' that the compiling of the C++ code should be successful.
-#' 
-#' @param ... Arguments to be passed to `devtools::document()`
-#' @export
-document <- function(...) {
-  # prepare Rcpp code for compiling
-  if (fs::file_exists("src/code.cpp")) {
-    # make sure that #include <RcppArmadillo.h> if it exists
-    # comes *before* (or instead of) <Rcpp.h>
-    txt <- readLines("src/code.cpp")
-    loc <- stringr::str_which(txt, r"(#include <RcppArmadillo.h>)")
-    if (length(loc) > 0) {
-      include_arma_line <- txt[loc[1]]
-      txt <- c(include_arma_line, txt[-loc])
-      writeLines(txt, "src/code.cpp")
-    }
-  }
-  
-  devtools::document(...)
-  # remove the line of the following form in each man/*.Rd file:
-  pattern <- "% Please edit documentation in .*$"
-  msg <- do_not_edit_message(knitr::current_input(), type = "man")
-  for (fname in fs::dir_ls("man")) {
-    txt <- stringr::str_replace(readLines(fname), pattern, msg)
-    cat(paste(txt, collapse = "\n"), file = fname)
-  }
 }
 
 #' Load complete package
