@@ -103,6 +103,9 @@
     <loc>/reference/check_unedited.html</loc>
   </url>
   <url>
+    <loc>/reference/create_from_template.html</loc>
+  </url>
+  <url>
     <loc>/reference/description_litr_hash_field_name.html</loc>
   </url>
   <url>
@@ -113,6 +116,24 @@
   </url>
   <url>
     <loc>/reference/document.html</loc>
+  </url>
+  <url>
+    <loc>/reference/draft.html</loc>
+  </url>
+  <url>
+    <loc>/reference/draft_armadillo.html</loc>
+  </url>
+  <url>
+    <loc>/reference/draft_bookdown.html</loc>
+  </url>
+  <url>
+    <loc>/reference/draft_data.html</loc>
+  </url>
+  <url>
+    <loc>/reference/draft_extras.html</loc>
+  </url>
+  <url>
+    <loc>/reference/draft_rcpp.html</loc>
   </url>
   <url>
     <loc>/reference/find_labels.html</loc>

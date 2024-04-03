@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">litr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,22 +92,19 @@
 example.</p>
 <p>Suppose we want to create a package called <code>rleastsquares</code>
 that does least squares. To do so, we will create a .Rmd file called
-something like <code>create-rleastsquares.Rmd</code>. We recommend
-creating this from a template:</p>
+<code>create-rleastsquares.Rmd</code> from a <code>litr</code>
+template:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-rleastsquares.Rmd"</span>,</span>
-<span>                 template <span class="op">=</span> <span class="st">"make-an-r-package"</span>,</span>
-<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span></code></pre></div>
-<p>When you work from template, you’ll notice some special lines in the
-yaml:</p>
+<code class="sourceCode R"><span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/draft.html">draft</a></span><span class="op">(</span><span class="st">"rleastsquares"</span><span class="op">)</span></span></code></pre></div>
+<p>This generates <code>create-rleastsquares.Rmd</code>, and opening it
+you’ll notice some special lines in the yaml:</p>
 <pre><code><span><span class="va">knit</span><span class="op">:</span> <span class="fu">litr</span><span class="fu">::</span><span class="va"><a href="../reference/render.html">render</a></span></span>
 <span><span class="va">output</span><span class="op">:</span> <span class="fu">litr</span><span class="fu">::</span><span class="va"><a href="../reference/litr_html_document.html">litr_html_document</a></span></span>
 <span><span class="va">params</span><span class="op">:</span></span>
-<span>  <span class="va">package_name</span><span class="op">:</span> <span class="st">"rhello"</span> <span class="co"># &lt;-- change this to your package name</span></span>
+<span>  <span class="va">package_name</span><span class="op">:</span> <span class="st">"rleastsquares"</span> <span class="co"># &lt;-- change this to your package name</span></span>
 <span>  <span class="va">package_parent_dir</span><span class="op">:</span> <span class="st">"."</span> <span class="co"># &lt;-- relative to this file's location</span></span></code></pre>
 <p>This is what will lead to an R package being created when you press
-“Knit”. We’ll replace <code>"rhello"</code> with
-<code>"rleastsquares"</code>.</p>
+“Knit”.</p>
 <div class="section level2">
 <h2 id="package-setup">Package setup<a class="anchor" aria-label="anchor" href="#package-setup"></a>
 </h2>

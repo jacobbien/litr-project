@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">litr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,18 +90,19 @@
     
 <p>Predefined <code>litr</code> templates make it easy to get started
 writing R packages of various kinds. The following table shows the
-package templates available. Click on the “Generated html” and
-“Generated R package” cells to see what each template produces.</p>
+<code>litr::draft*</code> functions that can be used to create a
+<code>litr</code> .Rmd file from template. Click on the “Generated html”
+and “Generated R package” cells to see what each template produces.</p>
 <table class="table">
 <colgroup>
-<col width="17%">
-<col width="37%">
-<col width="22%">
-<col width="13%">
-<col width="10%">
+<col width="11%">
+<col width="39%">
+<col width="23%">
+<col width="14%">
+<col width="11%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Template name</th>
+<th align="left">Function</th>
 <th align="left">Description</th>
 <th align="left">Rmd source file</th>
 <th align="left">Generated html</th>
@@ -109,21 +110,21 @@ package templates available. Click on the “Generated html” and
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">make-an-r-package</td>
+<td align="left"><code><a href="../reference/draft.html">draft()</a></code></td>
 <td align="left">the most basic package: a function and a test</td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd" class="external-link">create-rhello.Rmd</a></td>
 <td align="left"><a href="https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.html" class="external-link">create-rhello.html</a></td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/rhello" class="external-link">rhello/</a></td>
 </tr>
 <tr class="even">
-<td align="left">make-an-r-package-with-data</td>
+<td align="left"><code><a href="../reference/draft_data.html">draft_data()</a></code></td>
 <td align="left">a package with a data set in it</td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/create-rhasdata.Rmd" class="external-link">create-rhasdata.Rmd</a></td>
 <td align="left"><a href="https://htmlpreview.github.io/?https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/create-rhasdata.html" class="external-link">create-rhasdata.html</a></td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-data/rhasdata" class="external-link">rhasdata/</a></td>
 </tr>
 <tr class="odd">
-<td align="left">make-an-r-package-with-rcpp</td>
+<td align="left"><code><a href="../reference/draft_rcpp.html">draft_rcpp()</a></code></td>
 <td align="left">a package using <code>Rcpp</code>
 </td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/create-withrcpp.Rmd" class="external-link">create-withrcpp.Rmd</a></td>
@@ -131,7 +132,7 @@ package templates available. Click on the “Generated html” and
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-rcpp/withrcpp" class="external-link">withrcpp/</a></td>
 </tr>
 <tr class="even">
-<td align="left">make-an-r-package-with-extras</td>
+<td align="left"><code><a href="../reference/draft_extras.html">draft_extras()</a></code></td>
 <td align="left">a package with a README, vignette(s), a pkgdown site,
 and a hex sticker</td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/create-withpkgdown.Rmd" class="external-link">create-withpkgdown.Rmd</a></td>
@@ -139,7 +140,7 @@ and a hex sticker</td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-extras/withpkgdown" class="external-link">withpkgdown/</a></td>
 </tr>
 <tr class="odd">
-<td align="left">make-an-r-package-from-bookdown</td>
+<td align="left"><code><a href="../reference/draft_bookdown.html">draft_bookdown()</a></code></td>
 <td align="left">a package defined in a bookdown</td>
 <td align="left">
 <a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-from-bookdown/index.Rmd" class="external-link">index.Rmd</a>,
@@ -150,7 +151,7 @@ and a hex sticker</td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-from-bookdown/frombookdown" class="external-link">frombookdown/</a></td>
 </tr>
 <tr class="even">
-<td align="left">make-an-r-package-with-armadillo</td>
+<td align="left"><code><a href="../reference/draft_armadillo.html">draft_armadillo()</a></code></td>
 <td align="left">a package using <code>RcppArmadillo</code>
 </td>
 <td align="left"><a href="https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package-with-armadillo/create-witharmadillo.Rmd" class="external-link">create-witharmadillo.Rmd</a></td>
@@ -159,26 +160,18 @@ and a hex sticker</td>
 </tr>
 </tbody>
 </table>
-<p>Once you’ve chosen a template, you can get started as follows:</p>
+<p>Once you’ve chosen a template, you can get started by calling the
+corresponding <code>litr::draft*</code> function from the table
+above.</p>
+<p>For example, for the most basic template, you would do the
+following:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-[name-of-your-package].Rmd"</span>,</span>
-<span>                 template <span class="op">=</span> <span class="st">"[name-of-template]"</span>,</span>
-<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
-<span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-[name-of-your-package].Rmd"</span><span class="op">)</span></span></code></pre></div>
-<p>Here, <code>"[name-of-template]"</code> would be chosen from the
-first column of the table above. For example, for the most basic
-template, you would do the following:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-rhello.Rmd"</span>,</span>
-<span>                 template <span class="op">=</span> <span class="st">"make-an-r-package"</span>,</span>
-<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/draft.html">draft</a></span><span class="op">(</span><span class="st">"rhello"</span><span class="op">)</span></span>
 <span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-rhello.Rmd"</span><span class="op">)</span></span></code></pre></div>
 <p>And to make an R package that uses <code>Rcpp</code>, you would start
 with the following:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/draft.html" class="external-link">draft</a></span><span class="op">(</span><span class="st">"create-withrcpp.Rmd"</span>,</span>
-<span>                 template <span class="op">=</span> <span class="st">"make-an-r-package-with-rcpp"</span>,</span>
-<span>                 package <span class="op">=</span> <span class="st">"litr"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/draft_rcpp.html">draft_rcpp</a></span><span class="op">(</span><span class="st">"withrcpp"</span><span class="op">)</span></span>
 <span><span class="fu">litr</span><span class="fu">::</span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="st">"create-withrcpp.Rmd"</span><span class="op">)</span></span></code></pre></div>
   </main>
 </div>

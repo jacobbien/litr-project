@@ -12,5 +12,5 @@ RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
 LazyData: true
-LitrVersionUsed: 0.9.1
-LitrId: 4008c1839614dbe73355a3e47039c188
+LitrVersionUsed: 0.9.2
+LitrId: 418c322bc8127c214532a171a02bb05c

@@ -57,7 +57,7 @@ above.
 Using a template is the best way to get started:
 
 ``` r
-rmarkdown::draft("create-rhello.Rmd", template = "make-an-r-package", package = "litr")
+litr::draft("rhello")
 ```
 
 This creates an R markdown file called

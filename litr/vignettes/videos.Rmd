@@ -24,7 +24,5 @@ For those who prefer to learn from video, here are a sequence of videos for gett
 4. Next video planned: **Using `litr` with `bookdown`.** If you are interested in this topic, for now you can look at [an example](https://gregfaletto.github.io/cssr-project/create/) where `litr` and `bookdown` are used together (full github repo [here](make-an-r-package-from-bookdown)).  To get started, you can run the following command in an R session:
 
 ```{r, eval=FALSE}
-rmarkdown::draft("create-frombookdown.Rmd",
-                 template = "make-an-r-package-from-bookdown",
-                 package = "litr")
+litr::draft_bookdown("frombookdown")
 ```

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>8 Functionality to facilitate workflow | Creating the litr R package</title>
   <meta name="description" content="8 Functionality to facilitate workflow | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
 
   <meta property="og:title" content="8 Functionality to facilitate workflow | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -159,7 +159,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href='rendering.html#render'>render</a>()</code></a></li>
 </ul></li>
-<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a></li>
+<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#load-all"><i class="fa fa-check"></i><b>8.1</b> Load all</a></li>
+<li class="chapter" data-level="8.2" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#templates"><i class="fa fa-check"></i><b>8.2</b> Templates</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#including-template-files-in-package"><i class="fa fa-check"></i><b>8.2.1</b> Including template files in package</a></li>
+<li class="chapter" data-level="8.2.2" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#draft-functions-for-working-from-template"><i class="fa fa-check"></i><b>8.2.2</b> Draft functions for working from template</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
 <ul>
 <li class="chapter" data-level="9.1" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-readme"><i class="fa fa-check"></i><b>9.1</b> Adding a README</a></li>
@@ -167,25 +175,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="9.3" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-vignettes"><i class="fa fa-check"></i><b>9.3</b> Adding vignettes</a></li>
 <li class="chapter" data-level="9.4" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site"><i class="fa fa-check"></i><b>9.4</b> Add a pkgdown site</a></li>
 </ul></li>
-<li class="chapter" data-level="10" data-path="combining-.r-files.html"><a href="combining-.r-files.html"><i class="fa fa-check"></i><b>10</b> Combining .R files</a></li>
-<li class="chapter" data-level="11" data-path="including-templates.html"><a href="including-templates.html"><i class="fa fa-check"></i><b>11</b> Including templates</a></li>
-<li class="chapter" data-level="12" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
+<li class="chapter" data-level="10" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>10</b> Defining some tests</a>
 <ul>
-<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
-<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
-<li class="chapter" data-level="12.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>12.3</b> Testing chunk referencing</a></li>
-<li class="chapter" data-level="12.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>12.4</b> Testing different ways of rendering</a></li>
-<li class="chapter" data-level="12.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>12.5</b> Testing other templates</a></li>
+<li class="chapter" data-level="10.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>10.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="10.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>10.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
+<li class="chapter" data-level="10.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>10.3</b> Testing chunk referencing</a></li>
+<li class="chapter" data-level="10.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>10.4</b> Testing different ways of rendering</a></li>
+<li class="chapter" data-level="10.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>10.5</b> Testing other templates</a></li>
 </ul></li>
-<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
+<li class="chapter" data-level="11" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>11</b> Documenting the package and testing</a>
 <ul>
-<li class="chapter" data-level="13.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>13.1</b> Add examples folder with the output of knitting each example</a></li>
+<li class="chapter" data-level="11.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>11.1</b> Add examples folder with the output of knitting each example</a></li>
 </ul></li>
-<li class="chapter" data-level="14" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
+<li class="chapter" data-level="12" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>12</b> Including extras for <code>litr</code></a>
 <ul>
-<li class="chapter" data-level="14.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>14.1</b> README with hex sticker</a></li>
-<li class="chapter" data-level="14.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>14.2</b> Vignettes</a></li>
-<li class="chapter" data-level="14.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>14.3</b> A pkgdown site</a></li>
+<li class="chapter" data-level="12.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>12.1</b> README with hex sticker</a></li>
+<li class="chapter" data-level="12.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>12.2</b> Vignettes</a></li>
+<li class="chapter" data-level="12.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>12.3</b> A pkgdown site</a></li>
 </ul></li>
 </ul>
 
@@ -206,72 +212,322 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="functionality-to-facilitate-workflow" class="section level1 hasAnchor" number="8">
 <h1><span class="header-section-number">8</span> Functionality to facilitate workflow<a href="functionality-to-facilitate-workflow.html#functionality-to-facilitate-workflow" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="load-all" class="section level2 hasAnchor" number="8.1">
+<h2><span class="header-section-number">8.1</span> Load all<a href="functionality-to-facilitate-workflow.html#load-all" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>When someone is writing an R package with devtools, it is common to use <code>devtools::load_all()</code> to quickly try out the functions of an R package in the console. We’d like to allow for a similar workflow using litr. We define a litr function called <code>load_all()</code>, which will do the following:</p>
 <ol style="list-style-type: decimal">
 <li><p>Litr-knit the .Rmd file with <code>minimal_eval=TRUE</code> to some temporary location (since the idea of <code><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>()</code> is to leave the .html file alone) and then delete the .html file.</p></li>
 <li><p>Run <code>devtools::load_all()</code> on the output.</p></li>
 </ol>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="functionality-to-facilitate-workflow.html#cb65-1" tabindex="-1"></a><span class="co">#&#39; Load complete package</span></span>
-<span id="cb65-2"><a href="functionality-to-facilitate-workflow.html#cb65-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb65-3"><a href="functionality-to-facilitate-workflow.html#cb65-3" tabindex="-1"></a><span class="co">#&#39; This is a litr wrapper to `devtools::load_all()`.  It first calls</span></span>
-<span id="cb65-4"><a href="functionality-to-facilitate-workflow.html#cb65-4" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='rendering.html#render'>render</a>()` with `minimal_eval=TRUE`, then it calls</span></span>
-<span id="cb65-5"><a href="functionality-to-facilitate-workflow.html#cb65-5" tabindex="-1"></a><span class="co">#&#39; `devtools::load_all()` on the generated package.</span></span>
-<span id="cb65-6"><a href="functionality-to-facilitate-workflow.html#cb65-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb65-7"><a href="functionality-to-facilitate-workflow.html#cb65-7" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
-<span id="cb65-8"><a href="functionality-to-facilitate-workflow.html#cb65-8" tabindex="-1"></a><span class="co">#&#39; @param output_dir By default (and in typical usage) this is NULL, meaning</span></span>
-<span id="cb65-9"><a href="functionality-to-facilitate-workflow.html#cb65-9" tabindex="-1"></a><span class="co">#&#39; that no .html/bookdown/.pdf will result.  However, when a directory is given,</span></span>
-<span id="cb65-10"><a href="functionality-to-facilitate-workflow.html#cb65-10" tabindex="-1"></a><span class="co">#&#39; the result of the litr-knitting will be saved to this location.</span></span>
-<span id="cb65-11"><a href="functionality-to-facilitate-workflow.html#cb65-11" tabindex="-1"></a><span class="co">#&#39; @param ... Additional parameters to be passed to `devtools::load_all()`</span></span>
-<span id="cb65-12"><a href="functionality-to-facilitate-workflow.html#cb65-12" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb65-13"><a href="functionality-to-facilitate-workflow.html#cb65-13" tabindex="-1"></a><span id='load_all'>load_all</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_dir =</span> <span class="cn">NULL</span>, ...) {</span>
-<span id="cb65-14"><a href="functionality-to-facilitate-workflow.html#cb65-14" tabindex="-1"></a>  no_output <span class="ot">&lt;-</span> <span class="fu">is.null</span>(output_dir)</span>
-<span id="cb65-15"><a href="functionality-to-facilitate-workflow.html#cb65-15" tabindex="-1"></a>  <span class="cf">if</span> (no_output) {</span>
-<span id="cb65-16"><a href="functionality-to-facilitate-workflow.html#cb65-16" tabindex="-1"></a>    output_dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb65-17"><a href="functionality-to-facilitate-workflow.html#cb65-17" tabindex="-1"></a>    <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(output_dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(output_dir)</span>
-<span id="cb65-18"><a href="functionality-to-facilitate-workflow.html#cb65-18" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">dir_create</span>(output_dir)</span>
-<span id="cb65-19"><a href="functionality-to-facilitate-workflow.html#cb65-19" tabindex="-1"></a>  }</span>
-<span id="cb65-20"><a href="functionality-to-facilitate-workflow.html#cb65-20" tabindex="-1"></a>  </span>
-<span id="cb65-21"><a href="functionality-to-facilitate-workflow.html#cb65-21" tabindex="-1"></a>  <span class="co"># let&#39;s copy over everything from input directory to output directory</span></span>
-<span id="cb65-22"><a href="functionality-to-facilitate-workflow.html#cb65-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), output_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb65-23"><a href="functionality-to-facilitate-workflow.html#cb65-23" tabindex="-1"></a>  input_path <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_split</span>(input)[[<span class="dv">1</span>]]</span>
-<span id="cb65-24"><a href="functionality-to-facilitate-workflow.html#cb65-24" tabindex="-1"></a>  moved_input <span class="ot">&lt;-</span> <span class="fu">file.path</span>(output_dir, fs<span class="sc">::</span><span class="fu">path_file</span>(input))</span>
-<span id="cb65-25"><a href="functionality-to-facilitate-workflow.html#cb65-25" tabindex="-1"></a>  </span>
-<span id="cb65-26"><a href="functionality-to-facilitate-workflow.html#cb65-26" tabindex="-1"></a>  <span class="co"># get package directory</span></span>
-<span id="cb65-27"><a href="functionality-to-facilitate-workflow.html#cb65-27" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(moved_input, <span class="fu">list</span>())</span>
-<span id="cb65-28"><a href="functionality-to-facilitate-workflow.html#cb65-28" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> <a href='rendering.html#get_package_directory'>get_package_directory</a>(</span>
-<span id="cb65-29"><a href="functionality-to-facilitate-workflow.html#cb65-29" tabindex="-1"></a>    params<span class="sc">$</span>package_parent_dir,</span>
-<span id="cb65-30"><a href="functionality-to-facilitate-workflow.html#cb65-30" tabindex="-1"></a>    params<span class="sc">$</span>package_name,</span>
-<span id="cb65-31"><a href="functionality-to-facilitate-workflow.html#cb65-31" tabindex="-1"></a>    moved_input</span>
-<span id="cb65-32"><a href="functionality-to-facilitate-workflow.html#cb65-32" tabindex="-1"></a>  )</span>
-<span id="cb65-33"><a href="functionality-to-facilitate-workflow.html#cb65-33" tabindex="-1"></a>  </span>
-<span id="cb65-34"><a href="functionality-to-facilitate-workflow.html#cb65-34" tabindex="-1"></a>  <span class="co"># but if a package directory was copied here, let&#39;s remove it before</span></span>
-<span id="cb65-35"><a href="functionality-to-facilitate-workflow.html#cb65-35" tabindex="-1"></a>  <span class="co"># calling render to avoid a potential error</span></span>
-<span id="cb65-36"><a href="functionality-to-facilitate-workflow.html#cb65-36" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">dir_exists</span>(package_dir)) fs<span class="sc">::</span><span class="fu">dir_delete</span>(package_dir)</span>
-<span id="cb65-37"><a href="functionality-to-facilitate-workflow.html#cb65-37" tabindex="-1"></a>  </span>
-<span id="cb65-38"><a href="functionality-to-facilitate-workflow.html#cb65-38" tabindex="-1"></a>  litr<span class="sc">::</span><a href='rendering.html#render'>render</a>(moved_input, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>, <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb65-39"><a href="functionality-to-facilitate-workflow.html#cb65-39" tabindex="-1"></a>               <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb65-40"><a href="functionality-to-facilitate-workflow.html#cb65-40" tabindex="-1"></a>  </span>
-<span id="cb65-41"><a href="functionality-to-facilitate-workflow.html#cb65-41" tabindex="-1"></a>  new_package_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), params<span class="sc">$</span>package_name)</span>
-<span id="cb65-42"><a href="functionality-to-facilitate-workflow.html#cb65-42" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(package_dir, new_package_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb65-43"><a href="functionality-to-facilitate-workflow.html#cb65-43" tabindex="-1"></a>  <span class="cf">if</span> (no_output) fs<span class="sc">::</span><span class="fu">dir_delete</span>(output_dir)</span>
-<span id="cb65-44"><a href="functionality-to-facilitate-workflow.html#cb65-44" tabindex="-1"></a>  </span>
-<span id="cb65-45"><a href="functionality-to-facilitate-workflow.html#cb65-45" tabindex="-1"></a>  devtools<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(new_package_dir)</span>
-<span id="cb65-46"><a href="functionality-to-facilitate-workflow.html#cb65-46" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="functionality-to-facilitate-workflow.html#cb67-1" tabindex="-1"></a><span class="co">#&#39; Load complete package</span></span>
+<span id="cb67-2"><a href="functionality-to-facilitate-workflow.html#cb67-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb67-3"><a href="functionality-to-facilitate-workflow.html#cb67-3" tabindex="-1"></a><span class="co">#&#39; This is a litr wrapper to `devtools::load_all()`.  It first calls</span></span>
+<span id="cb67-4"><a href="functionality-to-facilitate-workflow.html#cb67-4" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='rendering.html#render'>render</a>()` with `minimal_eval=TRUE`, then it calls</span></span>
+<span id="cb67-5"><a href="functionality-to-facilitate-workflow.html#cb67-5" tabindex="-1"></a><span class="co">#&#39; `devtools::load_all()` on the generated package.</span></span>
+<span id="cb67-6"><a href="functionality-to-facilitate-workflow.html#cb67-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb67-7"><a href="functionality-to-facilitate-workflow.html#cb67-7" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
+<span id="cb67-8"><a href="functionality-to-facilitate-workflow.html#cb67-8" tabindex="-1"></a><span class="co">#&#39; @param output_dir By default (and in typical usage) this is NULL, meaning</span></span>
+<span id="cb67-9"><a href="functionality-to-facilitate-workflow.html#cb67-9" tabindex="-1"></a><span class="co">#&#39; that no .html/bookdown/.pdf will result.  However, when a directory is given,</span></span>
+<span id="cb67-10"><a href="functionality-to-facilitate-workflow.html#cb67-10" tabindex="-1"></a><span class="co">#&#39; the result of the litr-knitting will be saved to this location.</span></span>
+<span id="cb67-11"><a href="functionality-to-facilitate-workflow.html#cb67-11" tabindex="-1"></a><span class="co">#&#39; @param ... Additional parameters to be passed to `devtools::load_all()`</span></span>
+<span id="cb67-12"><a href="functionality-to-facilitate-workflow.html#cb67-12" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb67-13"><a href="functionality-to-facilitate-workflow.html#cb67-13" tabindex="-1"></a><span id='load_all'>load_all</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, <span class="at">output_dir =</span> <span class="cn">NULL</span>, ...) {</span>
+<span id="cb67-14"><a href="functionality-to-facilitate-workflow.html#cb67-14" tabindex="-1"></a>  no_output <span class="ot">&lt;-</span> <span class="fu">is.null</span>(output_dir)</span>
+<span id="cb67-15"><a href="functionality-to-facilitate-workflow.html#cb67-15" tabindex="-1"></a>  <span class="cf">if</span> (no_output) {</span>
+<span id="cb67-16"><a href="functionality-to-facilitate-workflow.html#cb67-16" tabindex="-1"></a>    output_dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb67-17"><a href="functionality-to-facilitate-workflow.html#cb67-17" tabindex="-1"></a>    <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(output_dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(output_dir)</span>
+<span id="cb67-18"><a href="functionality-to-facilitate-workflow.html#cb67-18" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">dir_create</span>(output_dir)</span>
+<span id="cb67-19"><a href="functionality-to-facilitate-workflow.html#cb67-19" tabindex="-1"></a>  }</span>
+<span id="cb67-20"><a href="functionality-to-facilitate-workflow.html#cb67-20" tabindex="-1"></a>  </span>
+<span id="cb67-21"><a href="functionality-to-facilitate-workflow.html#cb67-21" tabindex="-1"></a>  <span class="co"># let&#39;s copy over everything from input directory to output directory</span></span>
+<span id="cb67-22"><a href="functionality-to-facilitate-workflow.html#cb67-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), output_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-23"><a href="functionality-to-facilitate-workflow.html#cb67-23" tabindex="-1"></a>  input_path <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_split</span>(input)[[<span class="dv">1</span>]]</span>
+<span id="cb67-24"><a href="functionality-to-facilitate-workflow.html#cb67-24" tabindex="-1"></a>  moved_input <span class="ot">&lt;-</span> <span class="fu">file.path</span>(output_dir, fs<span class="sc">::</span><span class="fu">path_file</span>(input))</span>
+<span id="cb67-25"><a href="functionality-to-facilitate-workflow.html#cb67-25" tabindex="-1"></a>  </span>
+<span id="cb67-26"><a href="functionality-to-facilitate-workflow.html#cb67-26" tabindex="-1"></a>  <span class="co"># get package directory</span></span>
+<span id="cb67-27"><a href="functionality-to-facilitate-workflow.html#cb67-27" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(moved_input, <span class="fu">list</span>())</span>
+<span id="cb67-28"><a href="functionality-to-facilitate-workflow.html#cb67-28" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> <a href='rendering.html#get_package_directory'>get_package_directory</a>(</span>
+<span id="cb67-29"><a href="functionality-to-facilitate-workflow.html#cb67-29" tabindex="-1"></a>    params<span class="sc">$</span>package_parent_dir,</span>
+<span id="cb67-30"><a href="functionality-to-facilitate-workflow.html#cb67-30" tabindex="-1"></a>    params<span class="sc">$</span>package_name,</span>
+<span id="cb67-31"><a href="functionality-to-facilitate-workflow.html#cb67-31" tabindex="-1"></a>    moved_input</span>
+<span id="cb67-32"><a href="functionality-to-facilitate-workflow.html#cb67-32" tabindex="-1"></a>  )</span>
+<span id="cb67-33"><a href="functionality-to-facilitate-workflow.html#cb67-33" tabindex="-1"></a>  </span>
+<span id="cb67-34"><a href="functionality-to-facilitate-workflow.html#cb67-34" tabindex="-1"></a>  <span class="co"># but if a package directory was copied here, let&#39;s remove it before</span></span>
+<span id="cb67-35"><a href="functionality-to-facilitate-workflow.html#cb67-35" tabindex="-1"></a>  <span class="co"># calling render to avoid a potential error</span></span>
+<span id="cb67-36"><a href="functionality-to-facilitate-workflow.html#cb67-36" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">dir_exists</span>(package_dir)) fs<span class="sc">::</span><span class="fu">dir_delete</span>(package_dir)</span>
+<span id="cb67-37"><a href="functionality-to-facilitate-workflow.html#cb67-37" tabindex="-1"></a>  </span>
+<span id="cb67-38"><a href="functionality-to-facilitate-workflow.html#cb67-38" tabindex="-1"></a>  litr<span class="sc">::</span><a href='rendering.html#render'>render</a>(moved_input, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>, <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb67-39"><a href="functionality-to-facilitate-workflow.html#cb67-39" tabindex="-1"></a>               <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-40"><a href="functionality-to-facilitate-workflow.html#cb67-40" tabindex="-1"></a>  </span>
+<span id="cb67-41"><a href="functionality-to-facilitate-workflow.html#cb67-41" tabindex="-1"></a>  new_package_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(input), params<span class="sc">$</span>package_name)</span>
+<span id="cb67-42"><a href="functionality-to-facilitate-workflow.html#cb67-42" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(package_dir, new_package_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-43"><a href="functionality-to-facilitate-workflow.html#cb67-43" tabindex="-1"></a>  <span class="cf">if</span> (no_output) fs<span class="sc">::</span><span class="fu">dir_delete</span>(output_dir)</span>
+<span id="cb67-44"><a href="functionality-to-facilitate-workflow.html#cb67-44" tabindex="-1"></a>  </span>
+<span id="cb67-45"><a href="functionality-to-facilitate-workflow.html#cb67-45" tabindex="-1"></a>  devtools<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(new_package_dir)</span>
+<span id="cb67-46"><a href="functionality-to-facilitate-workflow.html#cb67-46" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s test that this works. In particular, we’ll call <code><a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>()</code> and then try to use one of the functions from the package.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="functionality-to-facilitate-workflow.html#cb66-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;<a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>() works&#39;</span>, {</span>
-<span id="cb66-2"><a href="functionality-to-facilitate-workflow.html#cb66-2" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
-<span id="cb66-3"><a href="functionality-to-facilitate-workflow.html#cb66-3" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb66-4"><a href="functionality-to-facilitate-workflow.html#cb66-4" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb66-5"><a href="functionality-to-facilitate-workflow.html#cb66-5" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb66-6"><a href="functionality-to-facilitate-workflow.html#cb66-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
-<span id="cb66-7"><a href="functionality-to-facilitate-workflow.html#cb66-7" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
-<span id="cb66-8"><a href="functionality-to-facilitate-workflow.html#cb66-8" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
-<span id="cb66-9"><a href="functionality-to-facilitate-workflow.html#cb66-9" tabindex="-1"></a></span>
-<span id="cb66-10"><a href="functionality-to-facilitate-workflow.html#cb66-10" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(rmd_file)</span>
-<span id="cb66-11"><a href="functionality-to-facilitate-workflow.html#cb66-11" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">say_hello</span>(<span class="st">&quot;Jacob&quot;</span>), <span class="st">&quot;Hello Jacob!&quot;</span>)</span>
-<span id="cb66-12"><a href="functionality-to-facilitate-workflow.html#cb66-12" tabindex="-1"></a>  </span>
-<span id="cb66-13"><a href="functionality-to-facilitate-workflow.html#cb66-13" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb66-14"><a href="functionality-to-facilitate-workflow.html#cb66-14" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="functionality-to-facilitate-workflow.html#cb68-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;<a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>() works&#39;</span>, {</span>
+<span id="cb68-2"><a href="functionality-to-facilitate-workflow.html#cb68-2" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
+<span id="cb68-3"><a href="functionality-to-facilitate-workflow.html#cb68-3" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb68-4"><a href="functionality-to-facilitate-workflow.html#cb68-4" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb68-5"><a href="functionality-to-facilitate-workflow.html#cb68-5" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb68-6"><a href="functionality-to-facilitate-workflow.html#cb68-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
+<span id="cb68-7"><a href="functionality-to-facilitate-workflow.html#cb68-7" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
+<span id="cb68-8"><a href="functionality-to-facilitate-workflow.html#cb68-8" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb68-9"><a href="functionality-to-facilitate-workflow.html#cb68-9" tabindex="-1"></a></span>
+<span id="cb68-10"><a href="functionality-to-facilitate-workflow.html#cb68-10" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#load_all'>load_all</a>(rmd_file)</span>
+<span id="cb68-11"><a href="functionality-to-facilitate-workflow.html#cb68-11" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">say_hello</span>(<span class="st">&quot;Jacob&quot;</span>), <span class="st">&quot;Hello Jacob!&quot;</span>)</span>
+<span id="cb68-12"><a href="functionality-to-facilitate-workflow.html#cb68-12" tabindex="-1"></a>  </span>
+<span id="cb68-13"><a href="functionality-to-facilitate-workflow.html#cb68-13" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb68-14"><a href="functionality-to-facilitate-workflow.html#cb68-14" tabindex="-1"></a>})</span></code></pre></div>
+</div>
+<div id="templates" class="section level2 hasAnchor" number="8.2">
+<h2><span class="header-section-number">8.2</span> Templates<a href="functionality-to-facilitate-workflow.html#templates" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="including-template-files-in-package" class="section level3 hasAnchor" number="8.2.1">
+<h3><span class="header-section-number">8.2.1</span> Including template files in package<a href="functionality-to-facilitate-workflow.html#including-template-files-in-package" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We now add the .Rmd templates to the package. We have the <code>skeleton.Rmd</code> for each template defined in <code>source-files</code>. Note that paths are relative to the outputted package’s location.</p>
+<p>The first template is the simplest imaginable package with a single function:</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="functionality-to-facilitate-workflow.html#cb69-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb69-2"><a href="functionality-to-facilitate-workflow.html#cb69-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package&quot;</span>,</span>
+<span id="cb69-3"><a href="functionality-to-facilitate-workflow.html#cb69-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
+<span id="cb69-4"><a href="functionality-to-facilitate-workflow.html#cb69-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package using literate programming.&quot;</span>,</span>
+<span id="cb69-5"><a href="functionality-to-facilitate-workflow.html#cb69-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb69-6"><a href="functionality-to-facilitate-workflow.html#cb69-6" tabindex="-1"></a>)</span>
+<span id="cb69-7"><a href="functionality-to-facilitate-workflow.html#cb69-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb69-8"><a href="functionality-to-facilitate-workflow.html#cb69-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb69-9"><a href="functionality-to-facilitate-workflow.html#cb69-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb69-10"><a href="functionality-to-facilitate-workflow.html#cb69-10" tabindex="-1"></a>    ), </span>
+<span id="cb69-11"><a href="functionality-to-facilitate-workflow.html#cb69-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb69-12"><a href="functionality-to-facilitate-workflow.html#cb69-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb69-13"><a href="functionality-to-facilitate-workflow.html#cb69-13" tabindex="-1"></a>    ), </span>
+<span id="cb69-14"><a href="functionality-to-facilitate-workflow.html#cb69-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb69-15"><a href="functionality-to-facilitate-workflow.html#cb69-15" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package/skeleton/skeleton.Rmd&#39;</code></pre>
+<p>The second template shows how to create a package with a dataset:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="functionality-to-facilitate-workflow.html#cb71-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb71-2"><a href="functionality-to-facilitate-workflow.html#cb71-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With a Dataset&quot;</span>,</span>
+<span id="cb71-3"><a href="functionality-to-facilitate-workflow.html#cb71-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-data&quot;</span>,</span>
+<span id="cb71-4"><a href="functionality-to-facilitate-workflow.html#cb71-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package with a dataset using literate programming.&quot;</span>,</span>
+<span id="cb71-5"><a href="functionality-to-facilitate-workflow.html#cb71-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb71-6"><a href="functionality-to-facilitate-workflow.html#cb71-6" tabindex="-1"></a>)</span>
+<span id="cb71-7"><a href="functionality-to-facilitate-workflow.html#cb71-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb71-8"><a href="functionality-to-facilitate-workflow.html#cb71-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb71-9"><a href="functionality-to-facilitate-workflow.html#cb71-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-data&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb71-10"><a href="functionality-to-facilitate-workflow.html#cb71-10" tabindex="-1"></a>    ), </span>
+<span id="cb71-11"><a href="functionality-to-facilitate-workflow.html#cb71-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb71-12"><a href="functionality-to-facilitate-workflow.html#cb71-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-data&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb71-13"><a href="functionality-to-facilitate-workflow.html#cb71-13" tabindex="-1"></a>    ), </span>
+<span id="cb71-14"><a href="functionality-to-facilitate-workflow.html#cb71-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb71-15"><a href="functionality-to-facilitate-workflow.html#cb71-15" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-data/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-data/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-data/skeleton/skeleton.Rmd&#39;</code></pre>
+<p>The third template shows how to create a package that uses <code>Rcpp</code>:</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="functionality-to-facilitate-workflow.html#cb73-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb73-2"><a href="functionality-to-facilitate-workflow.html#cb73-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With Rcpp&quot;</span>,</span>
+<span id="cb73-3"><a href="functionality-to-facilitate-workflow.html#cb73-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>,</span>
+<span id="cb73-4"><a href="functionality-to-facilitate-workflow.html#cb73-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.&quot;</span>,</span>
+<span id="cb73-5"><a href="functionality-to-facilitate-workflow.html#cb73-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb73-6"><a href="functionality-to-facilitate-workflow.html#cb73-6" tabindex="-1"></a>)</span>
+<span id="cb73-7"><a href="functionality-to-facilitate-workflow.html#cb73-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb73-8"><a href="functionality-to-facilitate-workflow.html#cb73-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb73-9"><a href="functionality-to-facilitate-workflow.html#cb73-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb73-10"><a href="functionality-to-facilitate-workflow.html#cb73-10" tabindex="-1"></a>    ),</span>
+<span id="cb73-11"><a href="functionality-to-facilitate-workflow.html#cb73-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb73-12"><a href="functionality-to-facilitate-workflow.html#cb73-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb73-13"><a href="functionality-to-facilitate-workflow.html#cb73-13" tabindex="-1"></a>    ),</span>
+<span id="cb73-14"><a href="functionality-to-facilitate-workflow.html#cb73-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb73-15"><a href="functionality-to-facilitate-workflow.html#cb73-15" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-rcpp/skeleton/skeleton.Rmd&#39;</code></pre>
+<p>The fourth template shows how to create a package with “extras” such as a README, a vignette, and a pkgdown site:</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="functionality-to-facilitate-workflow.html#cb75-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb75-2"><a href="functionality-to-facilitate-workflow.html#cb75-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With a README, Vignette, and Pkgdown Site&quot;</span>,</span>
+<span id="cb75-3"><a href="functionality-to-facilitate-workflow.html#cb75-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-extras&quot;</span>,</span>
+<span id="cb75-4"><a href="functionality-to-facilitate-workflow.html#cb75-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.&quot;</span>,</span>
+<span id="cb75-5"><a href="functionality-to-facilitate-workflow.html#cb75-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb75-6"><a href="functionality-to-facilitate-workflow.html#cb75-6" tabindex="-1"></a>)</span>
+<span id="cb75-7"><a href="functionality-to-facilitate-workflow.html#cb75-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb75-8"><a href="functionality-to-facilitate-workflow.html#cb75-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb75-9"><a href="functionality-to-facilitate-workflow.html#cb75-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb75-10"><a href="functionality-to-facilitate-workflow.html#cb75-10" tabindex="-1"></a>    ),</span>
+<span id="cb75-11"><a href="functionality-to-facilitate-workflow.html#cb75-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb75-12"><a href="functionality-to-facilitate-workflow.html#cb75-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb75-13"><a href="functionality-to-facilitate-workflow.html#cb75-13" tabindex="-1"></a>    ),</span>
+<span id="cb75-14"><a href="functionality-to-facilitate-workflow.html#cb75-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb75-15"><a href="functionality-to-facilitate-workflow.html#cb75-15" tabindex="-1"></a>)</span>
+<span id="cb75-16"><a href="functionality-to-facilitate-workflow.html#cb75-16" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(</span>
+<span id="cb75-17"><a href="functionality-to-facilitate-workflow.html#cb75-17" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb75-18"><a href="functionality-to-facilitate-workflow.html#cb75-18" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;source-files&quot;</span></span>
+<span id="cb75-19"><a href="functionality-to-facilitate-workflow.html#cb75-19" tabindex="-1"></a>    ),</span>
+<span id="cb75-20"><a href="functionality-to-facilitate-workflow.html#cb75-20" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb75-21"><a href="functionality-to-facilitate-workflow.html#cb75-21" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>, <span class="st">&quot;skeleton&quot;</span>,</span>
+<span id="cb75-22"><a href="functionality-to-facilitate-workflow.html#cb75-22" tabindex="-1"></a>    <span class="st">&quot;source-files&quot;</span></span>
+<span id="cb75-23"><a href="functionality-to-facilitate-workflow.html#cb75-23" tabindex="-1"></a>    ),</span>
+<span id="cb75-24"><a href="functionality-to-facilitate-workflow.html#cb75-24" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb75-25"><a href="functionality-to-facilitate-workflow.html#cb75-25" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-extras/skeleton/skeleton.Rmd&#39;</code></pre>
+<p>The fifth template shows how to create a package from a bookdown site, i.e. instead of having just a single <code>create-pkg.Rmd</code>, we can have a series of .Rmd files that together create a bookdown:</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="functionality-to-facilitate-workflow.html#cb77-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb77-2"><a href="functionality-to-facilitate-workflow.html#cb77-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package From a Bookdown&quot;</span>,</span>
+<span id="cb77-3"><a href="functionality-to-facilitate-workflow.html#cb77-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
+<span id="cb77-4"><a href="functionality-to-facilitate-workflow.html#cb77-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for a bookdown that defines an R package using literate programming.&quot;</span>,</span>
+<span id="cb77-5"><a href="functionality-to-facilitate-workflow.html#cb77-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">TRUE</span></span>
+<span id="cb77-6"><a href="functionality-to-facilitate-workflow.html#cb77-6" tabindex="-1"></a>)</span>
+<span id="cb77-7"><a href="functionality-to-facilitate-workflow.html#cb77-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(</span>
+<span id="cb77-8"><a href="functionality-to-facilitate-workflow.html#cb77-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>),</span>
+<span id="cb77-9"><a href="functionality-to-facilitate-workflow.html#cb77-9" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb77-10"><a href="functionality-to-facilitate-workflow.html#cb77-10" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb77-11"><a href="functionality-to-facilitate-workflow.html#cb77-11" tabindex="-1"></a>    ),</span>
+<span id="cb77-12"><a href="functionality-to-facilitate-workflow.html#cb77-12" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb77-13"><a href="functionality-to-facilitate-workflow.html#cb77-13" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-from-bookdown/skeleton/skeleton.Rmd&#39;</code></pre>
+<p>The sixth template shows how to create a package that uses <code>RcppArmadillo</code>:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="functionality-to-facilitate-workflow.html#cb79-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_rmarkdown_template</span>(</span>
+<span id="cb79-2"><a href="functionality-to-facilitate-workflow.html#cb79-2" tabindex="-1"></a>  <span class="at">template_name =</span> <span class="st">&quot;Template To Make an R Package With RcppArmadillo&quot;</span>,</span>
+<span id="cb79-3"><a href="functionality-to-facilitate-workflow.html#cb79-3" tabindex="-1"></a>  <span class="at">template_dir =</span> <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>,</span>
+<span id="cb79-4"><a href="functionality-to-facilitate-workflow.html#cb79-4" tabindex="-1"></a>  <span class="at">template_description =</span> <span class="st">&quot;Template for an Rmd file for writing an R package that makes use of RcppArmadillo while using literate programming.&quot;</span>,</span>
+<span id="cb79-5"><a href="functionality-to-facilitate-workflow.html#cb79-5" tabindex="-1"></a>  <span class="at">template_create_dir =</span> <span class="cn">FALSE</span></span>
+<span id="cb79-6"><a href="functionality-to-facilitate-workflow.html#cb79-6" tabindex="-1"></a>)</span>
+<span id="cb79-7"><a href="functionality-to-facilitate-workflow.html#cb79-7" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb79-8"><a href="functionality-to-facilitate-workflow.html#cb79-8" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb79-9"><a href="functionality-to-facilitate-workflow.html#cb79-9" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>, <span class="st">&quot;skeleton.Rmd&quot;</span></span>
+<span id="cb79-10"><a href="functionality-to-facilitate-workflow.html#cb79-10" tabindex="-1"></a>    ),</span>
+<span id="cb79-11"><a href="functionality-to-facilitate-workflow.html#cb79-11" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb79-12"><a href="functionality-to-facilitate-workflow.html#cb79-12" tabindex="-1"></a>    <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;templates&quot;</span>, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>, <span class="st">&quot;skeleton&quot;</span></span>
+<span id="cb79-13"><a href="functionality-to-facilitate-workflow.html#cb79-13" tabindex="-1"></a>    ),</span>
+<span id="cb79-14"><a href="functionality-to-facilitate-workflow.html#cb79-14" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb79-15"><a href="functionality-to-facilitate-workflow.html#cb79-15" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## ✔ Creating &#39;inst/rmarkdown/templates/make-an-r-package-with-armadillo/skeleton/&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-armadillo/template.yaml&#39;
+## ✔ Writing &#39;inst/rmarkdown/templates/make-an-r-package-with-armadillo/skeleton/skeleton.Rmd&#39;</code></pre>
+</div>
+<div id="draft-functions-for-working-from-template" class="section level3 hasAnchor" number="8.2.2">
+<h3><span class="header-section-number">8.2.2</span> Draft functions for working from template<a href="functionality-to-facilitate-workflow.html#draft-functions-for-working-from-template" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The syntax for working from template using <code>rmarkdown</code> is a bit cumbersome:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="functionality-to-facilitate-workflow.html#cb81-1" tabindex="-1"></a>rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(<span class="st">&quot;create-rhello.Rmd&quot;</span>, <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>, <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>)</span></code></pre></div>
+<p>We therefore define some <code>litr</code>-specific draft functions (thanks to Yihui Xie for suggesting this!).</p>
+<p>There is some reusable documentation in these functions, so we’ll define these reusable parts first and then reuse them later.</p>
+<p>The functions will all have the following parameters:</p>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="functionality-to-facilitate-workflow.html#cb82-1" tabindex="-1"></a><span class="do"><span id='params-for-draft'>###&quot;params-for-draft&quot;###</span></span></span>
+<span id="cb82-2"><a href="functionality-to-facilitate-workflow.html#cb82-2" tabindex="-1"></a><span class="co">#&#39; @param pkg_name Name of package to be created.</span></span>
+<span id="cb82-3"><a href="functionality-to-facilitate-workflow.html#cb82-3" tabindex="-1"></a><span class="co">#&#39; @param dir (Optional) Directory where .Rmd file should be created</span></span></code></pre></div>
+<p>And the effect of the functions are the same:</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="functionality-to-facilitate-workflow.html#cb83-1" tabindex="-1"></a><span class="do"><span id='explain-draft-rmd'>###&quot;explain-draft-rmd&quot;###</span></span></span>
+<span id="cb83-2"><a href="functionality-to-facilitate-workflow.html#cb83-2" tabindex="-1"></a><span class="co">#&#39; This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to</span></span>
+<span id="cb83-3"><a href="functionality-to-facilitate-workflow.html#cb83-3" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='rendering.html#render'>render</a>()`) will create an R package called `pkg_name`.</span></span></code></pre></div>
+<p>The heart of the functions will be to call <code>rmarkdown::draft()</code> on a template but then modify the template so that it has the package name in it rather than whatever the default was.</p>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="functionality-to-facilitate-workflow.html#cb84-1" tabindex="-1"></a><span class="co">#&#39; Internal function for creating a .Rmd file from template</span></span>
+<span id="cb84-2"><a href="functionality-to-facilitate-workflow.html#cb84-2" tabindex="-1"></a><span class="sc">&lt;</span><span class="er">&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb84-3"><a href="functionality-to-facilitate-workflow.html#cb84-3" tabindex="-1"></a><span class="co">#&#39; @param template_name Name of template</span></span>
+<span id="cb84-4"><a href="functionality-to-facilitate-workflow.html#cb84-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb84-5"><a href="functionality-to-facilitate-workflow.html#cb84-5" tabindex="-1"></a><span id='create_from_template'>create_from_template</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(pkg_name, dir, template_name) {</span>
+<span id="cb84-6"><a href="functionality-to-facilitate-workflow.html#cb84-6" tabindex="-1"></a>  filename <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-{pkg_name}.Rmd&quot;</span>))</span>
+<span id="cb84-7"><a href="functionality-to-facilitate-workflow.html#cb84-7" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(filename, <span class="at">template =</span> template_name, <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb84-8"><a href="functionality-to-facilitate-workflow.html#cb84-8" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-9"><a href="functionality-to-facilitate-workflow.html#cb84-9" tabindex="-1"></a>  rmd <span class="ot">&lt;-</span> <span class="fu">readLines</span>(filename)</span>
+<span id="cb84-10"><a href="functionality-to-facilitate-workflow.html#cb84-10" tabindex="-1"></a>  rmd <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(rmd, <span class="st">&#39;package_name: .+$&#39;</span>,</span>
+<span id="cb84-11"><a href="functionality-to-facilitate-workflow.html#cb84-11" tabindex="-1"></a>                              stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&#39;package_name: &quot;{pkg_name}&quot;&#39;</span>))</span>
+<span id="cb84-12"><a href="functionality-to-facilitate-workflow.html#cb84-12" tabindex="-1"></a>  <span class="fu">writeLines</span>(rmd, filename)</span>
+<span id="cb84-13"><a href="functionality-to-facilitate-workflow.html#cb84-13" tabindex="-1"></a>  <span class="fu">message</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;Created new file {filename}.&quot;</span>))</span>
+<span id="cb84-14"><a href="functionality-to-facilitate-workflow.html#cb84-14" tabindex="-1"></a>}</span></code></pre></div>
+<p>We are now ready to define the draft functions. We start with the simplest:</p>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="functionality-to-facilitate-workflow.html#cb85-1" tabindex="-1"></a><span class="co">#&#39; Create a new litr .Rmd document for creating an R package</span></span>
+<span id="cb85-2"><a href="functionality-to-facilitate-workflow.html#cb85-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb85-3"><a href="functionality-to-facilitate-workflow.html#cb85-3" tabindex="-1"></a><a href='functionality-to-facilitate-workflow.html#explain-draft-rmd'>&lt;&lt;explain-draft-rmd&gt;&gt;</a></span>
+<span id="cb85-4"><a href="functionality-to-facilitate-workflow.html#cb85-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb85-5"><a href="functionality-to-facilitate-workflow.html#cb85-5" tabindex="-1"></a><span class="co">#&#39; This is the most basic R package template, with one function and one test </span></span>
+<span id="cb85-6"><a href="functionality-to-facilitate-workflow.html#cb85-6" tabindex="-1"></a><span class="co">#&#39; function.</span></span>
+<span id="cb85-7"><a href="functionality-to-facilitate-workflow.html#cb85-7" tabindex="-1"></a><span class="er">&lt;&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb85-8"><a href="functionality-to-facilitate-workflow.html#cb85-8" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb85-9"><a href="functionality-to-facilitate-workflow.html#cb85-9" tabindex="-1"></a><span class="co">#&#39; @seealso \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}</span></span>
+<span id="cb85-10"><a href="functionality-to-facilitate-workflow.html#cb85-10" tabindex="-1"></a><span id='draft'>draft</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">pkg_name =</span> <span class="st">&quot;rhello&quot;</span>, <span class="at">dir =</span> <span class="st">&quot;.&quot;</span>) {</span>
+<span id="cb85-11"><a href="functionality-to-facilitate-workflow.html#cb85-11" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#create_from_template'>create_from_template</a>(pkg_name, dir, <span class="st">&quot;make-an-r-package&quot;</span>)</span>
+<span id="cb85-12"><a href="functionality-to-facilitate-workflow.html#cb85-12" tabindex="-1"></a>}</span></code></pre></div>
+<p>And now we define the draft function for creating an R package with a data set in it:</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="functionality-to-facilitate-workflow.html#cb86-1" tabindex="-1"></a><span class="co">#&#39; Create a new litr .Rmd document for creating an R package with a data set</span></span>
+<span id="cb86-2"><a href="functionality-to-facilitate-workflow.html#cb86-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb86-3"><a href="functionality-to-facilitate-workflow.html#cb86-3" tabindex="-1"></a><a href='functionality-to-facilitate-workflow.html#explain-draft-rmd'>&lt;&lt;explain-draft-rmd&gt;&gt;</a></span>
+<span id="cb86-4"><a href="functionality-to-facilitate-workflow.html#cb86-4" tabindex="-1"></a><span class="co">#&#39; This template shows how to make an R package with a data set in it.</span></span>
+<span id="cb86-5"><a href="functionality-to-facilitate-workflow.html#cb86-5" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb86-6"><a href="functionality-to-facilitate-workflow.html#cb86-6" tabindex="-1"></a><span class="er">&lt;&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb86-7"><a href="functionality-to-facilitate-workflow.html#cb86-7" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb86-8"><a href="functionality-to-facilitate-workflow.html#cb86-8" tabindex="-1"></a><span class="co">#&#39; @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_rcpp}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}</span></span>
+<span id="cb86-9"><a href="functionality-to-facilitate-workflow.html#cb86-9" tabindex="-1"></a><span id='draft_data'>draft_data</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">pkg_name =</span> <span class="st">&quot;rhasdata&quot;</span>, <span class="at">dir =</span> <span class="st">&quot;.&quot;</span>) {</span>
+<span id="cb86-10"><a href="functionality-to-facilitate-workflow.html#cb86-10" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#create_from_template'>create_from_template</a>(pkg_name, dir, <span class="st">&quot;make-an-r-package-with-data&quot;</span>)</span>
+<span id="cb86-11"><a href="functionality-to-facilitate-workflow.html#cb86-11" tabindex="-1"></a>}</span></code></pre></div>
+<p>And now we define the draft function for creating an R package that uses <code>Rcpp</code>:</p>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="functionality-to-facilitate-workflow.html#cb87-1" tabindex="-1"></a><span class="co">#&#39; Create a new litr .Rmd document for creating an R package that uses `Rcpp`</span></span>
+<span id="cb87-2"><a href="functionality-to-facilitate-workflow.html#cb87-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb87-3"><a href="functionality-to-facilitate-workflow.html#cb87-3" tabindex="-1"></a><a href='functionality-to-facilitate-workflow.html#explain-draft-rmd'>&lt;&lt;explain-draft-rmd&gt;&gt;</a></span>
+<span id="cb87-4"><a href="functionality-to-facilitate-workflow.html#cb87-4" tabindex="-1"></a><span class="co">#&#39; This template shows how to make an R package that uses `Rcpp`.</span></span>
+<span id="cb87-5"><a href="functionality-to-facilitate-workflow.html#cb87-5" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb87-6"><a href="functionality-to-facilitate-workflow.html#cb87-6" tabindex="-1"></a><span class="er">&lt;&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb87-7"><a href="functionality-to-facilitate-workflow.html#cb87-7" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb87-8"><a href="functionality-to-facilitate-workflow.html#cb87-8" tabindex="-1"></a><span class="co">#&#39; @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}</span></span>
+<span id="cb87-9"><a href="functionality-to-facilitate-workflow.html#cb87-9" tabindex="-1"></a><span id='draft_rcpp'>draft_rcpp</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">pkg_name =</span> <span class="st">&quot;withrcpp&quot;</span>, <span class="at">dir =</span> <span class="st">&quot;.&quot;</span>) {</span>
+<span id="cb87-10"><a href="functionality-to-facilitate-workflow.html#cb87-10" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#create_from_template'>create_from_template</a>(pkg_name, dir, <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>)</span>
+<span id="cb87-11"><a href="functionality-to-facilitate-workflow.html#cb87-11" tabindex="-1"></a>}</span></code></pre></div>
+<p>And now we define the draft function for creating an R package that has “extras” such as a README, vignette(s), a pkgdown site, and a hex sticker:</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="functionality-to-facilitate-workflow.html#cb88-1" tabindex="-1"></a><span class="co">#&#39; Create a new litr .Rmd document for creating an R package with extras</span></span>
+<span id="cb88-2"><a href="functionality-to-facilitate-workflow.html#cb88-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb88-3"><a href="functionality-to-facilitate-workflow.html#cb88-3" tabindex="-1"></a><a href='functionality-to-facilitate-workflow.html#explain-draft-rmd'>&lt;&lt;explain-draft-rmd&gt;&gt;</a></span>
+<span id="cb88-4"><a href="functionality-to-facilitate-workflow.html#cb88-4" tabindex="-1"></a><span class="co">#&#39; This template shows how to make an R package that has &quot;extras&quot; such as a</span></span>
+<span id="cb88-5"><a href="functionality-to-facilitate-workflow.html#cb88-5" tabindex="-1"></a><span class="co">#&#39; README, vignette(s), a pkgdown site, and a hex sticker.</span></span>
+<span id="cb88-6"><a href="functionality-to-facilitate-workflow.html#cb88-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb88-7"><a href="functionality-to-facilitate-workflow.html#cb88-7" tabindex="-1"></a><span class="er">&lt;&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb88-8"><a href="functionality-to-facilitate-workflow.html#cb88-8" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb88-9"><a href="functionality-to-facilitate-workflow.html#cb88-9" tabindex="-1"></a><span class="co">#&#39; @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_armadillo}}</span></span>
+<span id="cb88-10"><a href="functionality-to-facilitate-workflow.html#cb88-10" tabindex="-1"></a><span id='draft_extras'>draft_extras</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">pkg_name =</span> <span class="st">&quot;withpkgdown&quot;</span>, <span class="at">dir =</span> <span class="st">&quot;.&quot;</span>) {</span>
+<span id="cb88-11"><a href="functionality-to-facilitate-workflow.html#cb88-11" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#create_from_template'>create_from_template</a>(pkg_name, dir, <span class="st">&quot;make-an-r-package-with-extras&quot;</span>)</span>
+<span id="cb88-12"><a href="functionality-to-facilitate-workflow.html#cb88-12" tabindex="-1"></a>}</span></code></pre></div>
+<p>And now we define the draft function for creating an R package that uses <code>RcppArmadillo</code>:</p>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="functionality-to-facilitate-workflow.html#cb89-1" tabindex="-1"></a><span class="co">#&#39; Create a new litr .Rmd document for creating an R package that uses `RcppArmadillo`</span></span>
+<span id="cb89-2"><a href="functionality-to-facilitate-workflow.html#cb89-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb89-3"><a href="functionality-to-facilitate-workflow.html#cb89-3" tabindex="-1"></a><a href='functionality-to-facilitate-workflow.html#explain-draft-rmd'>&lt;&lt;explain-draft-rmd&gt;&gt;</a></span>
+<span id="cb89-4"><a href="functionality-to-facilitate-workflow.html#cb89-4" tabindex="-1"></a><span class="co">#&#39; This template shows how to make an R package that uses `RcppArmadillo`.</span></span>
+<span id="cb89-5"><a href="functionality-to-facilitate-workflow.html#cb89-5" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb89-6"><a href="functionality-to-facilitate-workflow.html#cb89-6" tabindex="-1"></a><span class="er">&lt;&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb89-7"><a href="functionality-to-facilitate-workflow.html#cb89-7" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb89-8"><a href="functionality-to-facilitate-workflow.html#cb89-8" tabindex="-1"></a><span class="co">#&#39; @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_extras}}</span></span>
+<span id="cb89-9"><a href="functionality-to-facilitate-workflow.html#cb89-9" tabindex="-1"></a><span id='draft_armadillo'>draft_armadillo</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">pkg_name =</span> <span class="st">&quot;witharmadillo&quot;</span>, <span class="at">dir =</span> <span class="st">&quot;.&quot;</span>) {</span>
+<span id="cb89-10"><a href="functionality-to-facilitate-workflow.html#cb89-10" tabindex="-1"></a>  <a href='functionality-to-facilitate-workflow.html#create_from_template'>create_from_template</a>(pkg_name, dir, <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>)</span>
+<span id="cb89-11"><a href="functionality-to-facilitate-workflow.html#cb89-11" tabindex="-1"></a>}</span></code></pre></div>
+<p>Finally, we define the draft function for creating an R package from <code>bookdown</code>. The code for this one is a bit different because it creates a directory with a number of .Rmd files.</p>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="functionality-to-facilitate-workflow.html#cb90-1" tabindex="-1"></a><span class="co">#&#39; Create a new litr .Rmd document for creating an R package from `bookdown`</span></span>
+<span id="cb90-2"><a href="functionality-to-facilitate-workflow.html#cb90-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb90-3"><a href="functionality-to-facilitate-workflow.html#cb90-3" tabindex="-1"></a><span class="co">#&#39; This template shows how to make an R package from `bookdown`. It creates a directory called `create-[pkg_name]` in `dir`.  Rendering the file `index.Rmd`</span></span>
+<span id="cb90-4"><a href="functionality-to-facilitate-workflow.html#cb90-4" tabindex="-1"></a><span class="co">#&#39; with `litr::<a href='rendering.html#render'>render</a>()` creates the bookdown and package.</span></span>
+<span id="cb90-5"><a href="functionality-to-facilitate-workflow.html#cb90-5" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb90-6"><a href="functionality-to-facilitate-workflow.html#cb90-6" tabindex="-1"></a><span class="sc">&lt;</span><span class="er">&lt;</span>params<span class="sc">-</span><span class="cf">for</span><span class="sc">-</span>draft<span class="sc">&gt;</span><span class="er">&gt;</span></span>
+<span id="cb90-7"><a href="functionality-to-facilitate-workflow.html#cb90-7" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb90-8"><a href="functionality-to-facilitate-workflow.html#cb90-8" tabindex="-1"></a><span class="co">#&#39; @seealso \code{\link{draft}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}</span></span>
+<span id="cb90-9"><a href="functionality-to-facilitate-workflow.html#cb90-9" tabindex="-1"></a><span id='draft_bookdown'>draft_bookdown</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">pkg_name =</span> <span class="st">&quot;frombookdown&quot;</span>, <span class="at">dir =</span> <span class="st">&quot;.&quot;</span>) {</span>
+<span id="cb90-10"><a href="functionality-to-facilitate-workflow.html#cb90-10" tabindex="-1"></a>  create_pkg <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;create-{pkg_name}&quot;</span>)</span>
+<span id="cb90-11"><a href="functionality-to-facilitate-workflow.html#cb90-11" tabindex="-1"></a>  dirname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="fu">file.path</span>(dir, create_pkg))</span>
+<span id="cb90-12"><a href="functionality-to-facilitate-workflow.html#cb90-12" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(dirname,</span>
+<span id="cb90-13"><a href="functionality-to-facilitate-workflow.html#cb90-13" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
+<span id="cb90-14"><a href="functionality-to-facilitate-workflow.html#cb90-14" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb90-15"><a href="functionality-to-facilitate-workflow.html#cb90-15" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb90-16"><a href="functionality-to-facilitate-workflow.html#cb90-16" tabindex="-1"></a>  <span class="co"># delete unneeded file:</span></span>
+<span id="cb90-17"><a href="functionality-to-facilitate-workflow.html#cb90-17" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dirname, <span class="fu">paste0</span>(create_pkg, <span class="st">&quot;.Rmd&quot;</span>)))</span>
+<span id="cb90-18"><a href="functionality-to-facilitate-workflow.html#cb90-18" tabindex="-1"></a>  index_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dirname, <span class="st">&quot;index.Rmd&quot;</span>)</span>
+<span id="cb90-19"><a href="functionality-to-facilitate-workflow.html#cb90-19" tabindex="-1"></a>  <span class="co"># adjust index.Rmd with name of package</span></span>
+<span id="cb90-20"><a href="functionality-to-facilitate-workflow.html#cb90-20" tabindex="-1"></a>  rmd <span class="ot">&lt;-</span> <span class="fu">readLines</span>(index_file)</span>
+<span id="cb90-21"><a href="functionality-to-facilitate-workflow.html#cb90-21" tabindex="-1"></a>  rmd <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(rmd, <span class="st">&#39;package_name: .+$&#39;</span>,</span>
+<span id="cb90-22"><a href="functionality-to-facilitate-workflow.html#cb90-22" tabindex="-1"></a>                              stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&#39;package_name: &quot;{pkg_name}&quot;&#39;</span>))</span>
+<span id="cb90-23"><a href="functionality-to-facilitate-workflow.html#cb90-23" tabindex="-1"></a>  <span class="fu">writeLines</span>(rmd, index_file)</span>
+<span id="cb90-24"><a href="functionality-to-facilitate-workflow.html#cb90-24" tabindex="-1"></a>  <span class="fu">message</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;Created new directory {dirname}&quot;</span>))</span>
+<span id="cb90-25"><a href="functionality-to-facilitate-workflow.html#cb90-25" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
 </div>
             </section>
 

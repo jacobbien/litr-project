@@ -14,13 +14,15 @@ html-output-format
 bookdown-output-format
 render
 functionality-to-facilitate-workflow
+load-all
+templates
+including-template-files-in-package
+draft-functions-for-working-from-template
 adding-extras-to-an-r-package
 adding-a-readme
 adding-a-hex-sticker
 adding-vignettes
 add-a-pkgdown-site
-combining-.r-files
-including-templates
 tests
 test-check-unedited
 testing-get_params_used

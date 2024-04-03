@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>7 Altering the rendering process | Creating the litr R package</title>
   <meta name="description" content="7 Altering the rendering process | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
 
   <meta property="og:title" content="7 Altering the rendering process | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -159,7 +159,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href='rendering.html#render'>render</a>()</code></a></li>
 </ul></li>
-<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a></li>
+<li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#load-all"><i class="fa fa-check"></i><b>8.1</b> Load all</a></li>
+<li class="chapter" data-level="8.2" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#templates"><i class="fa fa-check"></i><b>8.2</b> Templates</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#including-template-files-in-package"><i class="fa fa-check"></i><b>8.2.1</b> Including template files in package</a></li>
+<li class="chapter" data-level="8.2.2" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html#draft-functions-for-working-from-template"><i class="fa fa-check"></i><b>8.2.2</b> Draft functions for working from template</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
 <ul>
 <li class="chapter" data-level="9.1" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-readme"><i class="fa fa-check"></i><b>9.1</b> Adding a README</a></li>
@@ -167,25 +175,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="9.3" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-vignettes"><i class="fa fa-check"></i><b>9.3</b> Adding vignettes</a></li>
 <li class="chapter" data-level="9.4" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site"><i class="fa fa-check"></i><b>9.4</b> Add a pkgdown site</a></li>
 </ul></li>
-<li class="chapter" data-level="10" data-path="combining-.r-files.html"><a href="combining-.r-files.html"><i class="fa fa-check"></i><b>10</b> Combining .R files</a></li>
-<li class="chapter" data-level="11" data-path="including-templates.html"><a href="including-templates.html"><i class="fa fa-check"></i><b>11</b> Including templates</a></li>
-<li class="chapter" data-level="12" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
+<li class="chapter" data-level="10" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>10</b> Defining some tests</a>
 <ul>
-<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
-<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
-<li class="chapter" data-level="12.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>12.3</b> Testing chunk referencing</a></li>
-<li class="chapter" data-level="12.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>12.4</b> Testing different ways of rendering</a></li>
-<li class="chapter" data-level="12.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>12.5</b> Testing other templates</a></li>
+<li class="chapter" data-level="10.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>10.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="10.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>10.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
+<li class="chapter" data-level="10.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>10.3</b> Testing chunk referencing</a></li>
+<li class="chapter" data-level="10.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>10.4</b> Testing different ways of rendering</a></li>
+<li class="chapter" data-level="10.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>10.5</b> Testing other templates</a></li>
 </ul></li>
-<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
+<li class="chapter" data-level="11" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>11</b> Documenting the package and testing</a>
 <ul>
-<li class="chapter" data-level="13.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>13.1</b> Add examples folder with the output of knitting each example</a></li>
+<li class="chapter" data-level="11.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>11.1</b> Add examples folder with the output of knitting each example</a></li>
 </ul></li>
-<li class="chapter" data-level="14" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
+<li class="chapter" data-level="12" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>12</b> Including extras for <code>litr</code></a>
 <ul>
-<li class="chapter" data-level="14.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>14.1</b> README with hex sticker</a></li>
-<li class="chapter" data-level="14.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>14.2</b> Vignettes</a></li>
-<li class="chapter" data-level="14.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>14.3</b> A pkgdown site</a></li>
+<li class="chapter" data-level="12.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>12.1</b> README with hex sticker</a></li>
+<li class="chapter" data-level="12.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>12.2</b> Vignettes</a></li>
+<li class="chapter" data-level="12.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>12.3</b> A pkgdown site</a></li>
 </ul></li>
 </ul>
 
@@ -412,12 +418,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb43-17"><a href="rendering.html#cb43-17" tabindex="-1"></a>  <span class="co"># modify post_processor</span></span>
 <span id="cb43-18"><a href="rendering.html#cb43-18" tabindex="-1"></a>  new<span class="sc">$</span>post_processor <span class="ot">=</span> <span class="cf">function</span>(metadata, input_file, output_file, ...) {</span>
 <span id="cb43-19"><a href="rendering.html#cb43-19" tabindex="-1"></a>    out <span class="ot">&lt;-</span> old<span class="sc">$</span><a href='rendering.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)</span>
-<span id="cb43-20"><a href="rendering.html#cb43-20" tabindex="-1"></a>    html_files <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(out), <span class="at">regexp =</span> <span class="st">&quot;.html$&quot;</span>)</span>
+<span id="cb43-20"><a href="rendering.html#cb43-20" tabindex="-1"></a>    <span class="co"># html_files &lt;- fs::dir_ls(fs::path_dir(out), regexp = &quot;.html$&quot;)</span></span>
 <span id="cb43-21"><a href="rendering.html#cb43-21" tabindex="-1"></a>    <span class="co"># add hyperlinks within html output to make it easier to navigate:</span></span>
-<span id="cb43-22"><a href="rendering.html#cb43-22" tabindex="-1"></a>    <a href='rendering.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files, metadata<span class="sc">$</span>params<span class="sc">$</span>package_name)</span>
-<span id="cb43-23"><a href="rendering.html#cb43-23" tabindex="-1"></a>    <a href='rendering.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)</span>
+<span id="cb43-22"><a href="rendering.html#cb43-22" tabindex="-1"></a>    <a href='rendering.html#add_function_hyperlinks'>add_function_hyperlinks</a>(output_file, metadata<span class="sc">$</span>params<span class="sc">$</span>package_name)</span>
+<span id="cb43-23"><a href="rendering.html#cb43-23" tabindex="-1"></a>    <a href='rendering.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(output_file)</span>
 <span id="cb43-24"><a href="rendering.html#cb43-24" tabindex="-1"></a>    <span class="co"># replace ANSI sequences with HTML tag equivalents</span></span>
-<span id="cb43-25"><a href="rendering.html#cb43-25" tabindex="-1"></a>    <a href='rendering.html#replace_ansi_sequences'>replace_ansi_sequences</a>(html_files)</span>
+<span id="cb43-25"><a href="rendering.html#cb43-25" tabindex="-1"></a>    <a href='rendering.html#replace_ansi_sequences'>replace_ansi_sequences</a>(output_file)</span>
 <span id="cb43-26"><a href="rendering.html#cb43-26" tabindex="-1"></a>    out</span>
 <span id="cb43-27"><a href="rendering.html#cb43-27" tabindex="-1"></a>  }</span>
 <span id="cb43-28"><a href="rendering.html#cb43-28" tabindex="-1"></a>  new</span>
@@ -560,7 +566,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb45-61"><a href="rendering.html#cb45-61" tabindex="-1"></a>  txt[has_only_fn_name] <span class="ot">&lt;-</span> regular_refs</span>
 <span id="cb45-62"><a href="rendering.html#cb45-62" tabindex="-1"></a>  txt</span>
 <span id="cb45-63"><a href="rendering.html#cb45-63" tabindex="-1"></a>}</span></code></pre></div>
-<p>In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form <code>&lt;&lt;chunk-name&gt;&gt;</code> by wrapping comments of the form <code>###"chunk-name"###</code> in a <code>span</code> tag with <code>id="chunk-name"</code>.</p>
+<p>In addition to adding hyperlinks to function definitions, we also want to add hyperlinks for chunk references of the form <code>&lt;&lt;chunk-name&gt;&gt;</code> that link to user-defined chunk names that take the form <code>###chunk-name###</code>. We want these user-defined chunk names to stand out to readers and in their original form as code comments they might be harder to notice. To solve this issue, we modify the formatting of these chunks to add a border with the name of the chunk set into the border, mimicking the look of a <code>&lt;fieldset&gt;</code> tag. The additional formatting requires inserting additional HTML tags as well as css into the knitted HTML file so we use the <code>xml2</code> package to parse and manipulate the knitted HTML file.</p>
 <div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="rendering.html#cb46-1" tabindex="-1"></a><span class="co">#&#39; Add hyperlinks to embedded chunks</span></span>
 <span id="cb46-2"><a href="rendering.html#cb46-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
 <span id="cb46-3"><a href="rendering.html#cb46-3" tabindex="-1"></a><span class="co">#&#39; Finds chunks that are referenced in the html file(s) by looking for comments</span></span>
@@ -592,132 +598,174 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb46-29"><a href="rendering.html#cb46-29" tabindex="-1"></a>        pattern,</span>
 <span id="cb46-30"><a href="rendering.html#cb46-30" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;&lt;span id=&#39;{chunk_name}&#39;&gt;###&amp;quot;</span><span class="sc">\\</span><span class="st">1&amp;quot;###&lt;/span&gt;&quot;</span>)</span>
 <span id="cb46-31"><a href="rendering.html#cb46-31" tabindex="-1"></a>      )</span>
-<span id="cb46-32"><a href="rendering.html#cb46-32" tabindex="-1"></a>      <span class="co"># and keep track of it for later:</span></span>
-<span id="cb46-33"><a href="rendering.html#cb46-33" tabindex="-1"></a>      chunk_names <span class="ot">&lt;-</span> <span class="fu">c</span>(chunk_names, chunk_name)</span>
-<span id="cb46-34"><a href="rendering.html#cb46-34" tabindex="-1"></a>    }</span>
-<span id="cb46-35"><a href="rendering.html#cb46-35" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">chunk_names =</span> chunk_names, <span class="at">txt =</span> txt)</span>
-<span id="cb46-36"><a href="rendering.html#cb46-36" tabindex="-1"></a>  }</span>
-<span id="cb46-37"><a href="rendering.html#cb46-37" tabindex="-1"></a>  </span>
-<span id="cb46-38"><a href="rendering.html#cb46-38" tabindex="-1"></a>  cdefs <span class="ot">&lt;-</span> <span class="fu">lapply</span>(html_files, find_chunk_defs)</span>
-<span id="cb46-39"><a href="rendering.html#cb46-39" tabindex="-1"></a>  all_chunk_names <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(cdefs, <span class="cf">function</span>(lst) lst<span class="sc">$</span>chunk_names))</span>
-<span id="cb46-40"><a href="rendering.html#cb46-40" tabindex="-1"></a>  num_per_file <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(cdefs, <span class="cf">function</span>(lst) <span class="fu">length</span>(lst<span class="sc">$</span>chunk_names)))</span>
-<span id="cb46-41"><a href="rendering.html#cb46-41" tabindex="-1"></a>  where_defined <span class="ot">&lt;-</span> <span class="fu">rep</span>(fs<span class="sc">::</span><span class="fu">path_file</span>(html_files), <span class="at">times =</span> num_per_file)</span>
-<span id="cb46-42"><a href="rendering.html#cb46-42" tabindex="-1"></a>  </span>
-<span id="cb46-43"><a href="rendering.html#cb46-43" tabindex="-1"></a>  defined_chunks_pattern <span class="ot">&lt;-</span> <span class="fu">paste0</span>(reference_start, all_chunk_names, reference_end, </span>
-<span id="cb46-44"><a href="rendering.html#cb46-44" tabindex="-1"></a>                                   <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span>)</span>
-<span id="cb46-45"><a href="rendering.html#cb46-45" tabindex="-1"></a>  ref_start <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=&quot;sc&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;er&quot;&gt;&amp;lt;&lt;/span&gt;&#39;</span></span>
-<span id="cb46-46"><a href="rendering.html#cb46-46" tabindex="-1"></a>  ref_start_alt <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=</span><span class="sc">\&quot;</span><span class="st">er</span><span class="sc">\&quot;</span><span class="st">&gt;&amp;lt;&amp;lt;&lt;/span&gt;&#39;</span></span>
-<span id="cb46-47"><a href="rendering.html#cb46-47" tabindex="-1"></a>  ref_end <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=&quot;sc&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;er&quot;&gt;&amp;gt;&lt;/span&gt;&#39;</span></span>
-<span id="cb46-48"><a href="rendering.html#cb46-48" tabindex="-1"></a>  hyphen_with_extras <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=&quot;sc&quot;&gt;-&lt;/span&gt;&#39;</span></span>
-<span id="cb46-49"><a href="rendering.html#cb46-49" tabindex="-1"></a>  all_chunk_names2 <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(all_chunk_names, <span class="st">&quot;-&quot;</span>, hyphen_with_extras)</span>
-<span id="cb46-50"><a href="rendering.html#cb46-50" tabindex="-1"></a>  defined_chunks_pattern2 <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb46-51"><a href="rendering.html#cb46-51" tabindex="-1"></a>    ref_start, all_chunk_names2, ref_end, <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span></span>
-<span id="cb46-52"><a href="rendering.html#cb46-52" tabindex="-1"></a>    )</span>
-<span id="cb46-53"><a href="rendering.html#cb46-53" tabindex="-1"></a>  defined_chunks_pattern2_alt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb46-54"><a href="rendering.html#cb46-54" tabindex="-1"></a>    ref_start_alt, all_chunk_names2, ref_end, <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span></span>
-<span id="cb46-55"><a href="rendering.html#cb46-55" tabindex="-1"></a>    )</span>
-<span id="cb46-56"><a href="rendering.html#cb46-56" tabindex="-1"></a>  defined_chunks_pattern2 <span class="ot">&lt;-</span> <span class="fu">paste</span>(</span>
-<span id="cb46-57"><a href="rendering.html#cb46-57" tabindex="-1"></a>    defined_chunks_pattern2, defined_chunks_pattern2_alt, <span class="at">sep =</span> <span class="st">&quot;|&quot;</span></span>
-<span id="cb46-58"><a href="rendering.html#cb46-58" tabindex="-1"></a>    )</span>
-<span id="cb46-59"><a href="rendering.html#cb46-59" tabindex="-1"></a></span>
-<span id="cb46-60"><a href="rendering.html#cb46-60" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(html_files)) {</span>
-<span id="cb46-61"><a href="rendering.html#cb46-61" tabindex="-1"></a>    <span class="co"># whenever one of these named chunks is referenced, link to its definition</span></span>
-<span id="cb46-62"><a href="rendering.html#cb46-62" tabindex="-1"></a>    <span class="co"># using the format `file_where_chunk_is_defined.html#chunkname`</span></span>
-<span id="cb46-63"><a href="rendering.html#cb46-63" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(</span>
-<span id="cb46-64"><a href="rendering.html#cb46-64" tabindex="-1"></a>      cdefs[[i]]<span class="sc">$</span>txt,</span>
-<span id="cb46-65"><a href="rendering.html#cb46-65" tabindex="-1"></a>      defined_chunks_pattern,</span>
-<span id="cb46-66"><a href="rendering.html#cb46-66" tabindex="-1"></a>      <span class="cf">function</span>(x) {</span>
-<span id="cb46-67"><a href="rendering.html#cb46-67" tabindex="-1"></a>        cname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove_all</span>(</span>
-<span id="cb46-68"><a href="rendering.html#cb46-68" tabindex="-1"></a>          x,</span>
-<span id="cb46-69"><a href="rendering.html#cb46-69" tabindex="-1"></a>          <span class="fu">paste</span>(reference_start, reference_end, <span class="at">sep =</span> <span class="st">&quot;|&quot;</span>)</span>
-<span id="cb46-70"><a href="rendering.html#cb46-70" tabindex="-1"></a>        )</span>
-<span id="cb46-71"><a href="rendering.html#cb46-71" tabindex="-1"></a>        def_file <span class="ot">&lt;-</span> where_defined[all_chunk_names <span class="sc">==</span> cname]</span>
-<span id="cb46-72"><a href="rendering.html#cb46-72" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
-<span id="cb46-73"><a href="rendering.html#cb46-73" tabindex="-1"></a>          <span class="st">&quot;&lt;a href=&#39;{def_file}#{cname}&#39;&gt;{reference_start}{cname}{reference_end}&lt;/a&gt;&quot;</span></span>
-<span id="cb46-74"><a href="rendering.html#cb46-74" tabindex="-1"></a>          )</span>
-<span id="cb46-75"><a href="rendering.html#cb46-75" tabindex="-1"></a>      }</span>
-<span id="cb46-76"><a href="rendering.html#cb46-76" tabindex="-1"></a>    )</span>
-<span id="cb46-77"><a href="rendering.html#cb46-77" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(</span>
-<span id="cb46-78"><a href="rendering.html#cb46-78" tabindex="-1"></a>      txt,</span>
-<span id="cb46-79"><a href="rendering.html#cb46-79" tabindex="-1"></a>      defined_chunks_pattern2,</span>
-<span id="cb46-80"><a href="rendering.html#cb46-80" tabindex="-1"></a>      <span class="cf">function</span>(x) {</span>
-<span id="cb46-81"><a href="rendering.html#cb46-81" tabindex="-1"></a>        cname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove_all</span>(</span>
-<span id="cb46-82"><a href="rendering.html#cb46-82" tabindex="-1"></a>          x,</span>
-<span id="cb46-83"><a href="rendering.html#cb46-83" tabindex="-1"></a>          <span class="fu">paste</span>(ref_start, ref_start_alt, ref_end, <span class="at">sep =</span> <span class="st">&quot;|&quot;</span>)</span>
-<span id="cb46-84"><a href="rendering.html#cb46-84" tabindex="-1"></a>        )</span>
-<span id="cb46-85"><a href="rendering.html#cb46-85" tabindex="-1"></a>        def_file <span class="ot">&lt;-</span> where_defined[all_chunk_names2 <span class="sc">==</span> cname]</span>
-<span id="cb46-86"><a href="rendering.html#cb46-86" tabindex="-1"></a>        cname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(cname, hyphen_with_extras, <span class="st">&quot;-&quot;</span>)</span>
-<span id="cb46-87"><a href="rendering.html#cb46-87" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
-<span id="cb46-88"><a href="rendering.html#cb46-88" tabindex="-1"></a>          <span class="st">&quot;&lt;a href=&#39;{def_file}#{cname}&#39;&gt;{reference_start}{cname}{reference_end}&lt;/a&gt;&quot;</span></span>
-<span id="cb46-89"><a href="rendering.html#cb46-89" tabindex="-1"></a>          )</span>
-<span id="cb46-90"><a href="rendering.html#cb46-90" tabindex="-1"></a>      }</span>
-<span id="cb46-91"><a href="rendering.html#cb46-91" tabindex="-1"></a>    )</span>
-<span id="cb46-92"><a href="rendering.html#cb46-92" tabindex="-1"></a></span>
-<span id="cb46-93"><a href="rendering.html#cb46-93" tabindex="-1"></a>    <span class="fu">writeLines</span>(txt, <span class="at">con =</span> html_files[i])</span>
-<span id="cb46-94"><a href="rendering.html#cb46-94" tabindex="-1"></a>  }</span>
-<span id="cb46-95"><a href="rendering.html#cb46-95" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb46-32"><a href="rendering.html#cb46-32" tabindex="-1"></a>      <span class="co"># and keep track of it for later.</span></span>
+<span id="cb46-33"><a href="rendering.html#cb46-33" tabindex="-1"></a>      <span class="co"># we&#39;re using setNames here to make sure that we keep the name of file</span></span>
+<span id="cb46-34"><a href="rendering.html#cb46-34" tabindex="-1"></a>      <span class="co"># where the chunk name is defined </span></span>
+<span id="cb46-35"><a href="rendering.html#cb46-35" tabindex="-1"></a>      chunk_names <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">c</span>(chunk_names, chunk_name), <span class="fu">c</span>(<span class="fu">names</span>(chunk_names), html_file))</span>
+<span id="cb46-36"><a href="rendering.html#cb46-36" tabindex="-1"></a>    }</span>
+<span id="cb46-37"><a href="rendering.html#cb46-37" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">chunk_names =</span> chunk_names, <span class="at">txt =</span> txt)</span>
+<span id="cb46-38"><a href="rendering.html#cb46-38" tabindex="-1"></a>  }</span>
+<span id="cb46-39"><a href="rendering.html#cb46-39" tabindex="-1"></a>  </span>
+<span id="cb46-40"><a href="rendering.html#cb46-40" tabindex="-1"></a>  cdefs <span class="ot">&lt;-</span> <span class="fu">lapply</span>(html_files, find_chunk_defs)</span>
+<span id="cb46-41"><a href="rendering.html#cb46-41" tabindex="-1"></a>  all_chunk_names <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(cdefs, <span class="cf">function</span>(lst) lst<span class="sc">$</span>chunk_names))</span>
+<span id="cb46-42"><a href="rendering.html#cb46-42" tabindex="-1"></a>  num_per_file <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(cdefs, <span class="cf">function</span>(lst) <span class="fu">length</span>(lst<span class="sc">$</span>chunk_names)))</span>
+<span id="cb46-43"><a href="rendering.html#cb46-43" tabindex="-1"></a>  where_defined <span class="ot">&lt;-</span> <span class="fu">rep</span>(fs<span class="sc">::</span><span class="fu">path_file</span>(html_files), <span class="at">times =</span> num_per_file)</span>
+<span id="cb46-44"><a href="rendering.html#cb46-44" tabindex="-1"></a>  </span>
+<span id="cb46-45"><a href="rendering.html#cb46-45" tabindex="-1"></a>  defined_chunks_pattern <span class="ot">&lt;-</span> <span class="fu">paste0</span>(reference_start, all_chunk_names, reference_end, </span>
+<span id="cb46-46"><a href="rendering.html#cb46-46" tabindex="-1"></a>                                   <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span>)</span>
+<span id="cb46-47"><a href="rendering.html#cb46-47" tabindex="-1"></a>  ref_start <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=&quot;sc&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;er&quot;&gt;&amp;lt;&lt;/span&gt;&#39;</span></span>
+<span id="cb46-48"><a href="rendering.html#cb46-48" tabindex="-1"></a>  ref_start_alt <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=</span><span class="sc">\&quot;</span><span class="st">er</span><span class="sc">\&quot;</span><span class="st">&gt;&amp;lt;&amp;lt;&lt;/span&gt;&#39;</span></span>
+<span id="cb46-49"><a href="rendering.html#cb46-49" tabindex="-1"></a>  ref_end <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=&quot;sc&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;er&quot;&gt;&amp;gt;&lt;/span&gt;&#39;</span></span>
+<span id="cb46-50"><a href="rendering.html#cb46-50" tabindex="-1"></a>  hyphen_with_extras <span class="ot">&lt;-</span> <span class="st">&#39;&lt;span class=&quot;sc&quot;&gt;-&lt;/span&gt;&#39;</span></span>
+<span id="cb46-51"><a href="rendering.html#cb46-51" tabindex="-1"></a>  all_chunk_names2 <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(all_chunk_names, <span class="st">&quot;-&quot;</span>, hyphen_with_extras)</span>
+<span id="cb46-52"><a href="rendering.html#cb46-52" tabindex="-1"></a>  defined_chunks_pattern2 <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb46-53"><a href="rendering.html#cb46-53" tabindex="-1"></a>    ref_start, all_chunk_names2, ref_end, <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span></span>
+<span id="cb46-54"><a href="rendering.html#cb46-54" tabindex="-1"></a>    )</span>
+<span id="cb46-55"><a href="rendering.html#cb46-55" tabindex="-1"></a>  defined_chunks_pattern2_alt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb46-56"><a href="rendering.html#cb46-56" tabindex="-1"></a>    ref_start_alt, all_chunk_names2, ref_end, <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span></span>
+<span id="cb46-57"><a href="rendering.html#cb46-57" tabindex="-1"></a>    )</span>
+<span id="cb46-58"><a href="rendering.html#cb46-58" tabindex="-1"></a>  defined_chunks_pattern2 <span class="ot">&lt;-</span> <span class="fu">paste</span>(</span>
+<span id="cb46-59"><a href="rendering.html#cb46-59" tabindex="-1"></a>    defined_chunks_pattern2, defined_chunks_pattern2_alt, <span class="at">sep =</span> <span class="st">&quot;|&quot;</span></span>
+<span id="cb46-60"><a href="rendering.html#cb46-60" tabindex="-1"></a>    )</span>
+<span id="cb46-61"><a href="rendering.html#cb46-61" tabindex="-1"></a></span>
+<span id="cb46-62"><a href="rendering.html#cb46-62" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(html_files)) {</span>
+<span id="cb46-63"><a href="rendering.html#cb46-63" tabindex="-1"></a>    <span class="co"># whenever one of these named chunks is referenced, link to its definition</span></span>
+<span id="cb46-64"><a href="rendering.html#cb46-64" tabindex="-1"></a>    <span class="co"># using the format `file_where_chunk_is_defined.html#chunkname`</span></span>
+<span id="cb46-65"><a href="rendering.html#cb46-65" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(</span>
+<span id="cb46-66"><a href="rendering.html#cb46-66" tabindex="-1"></a>      cdefs[[i]]<span class="sc">$</span>txt,</span>
+<span id="cb46-67"><a href="rendering.html#cb46-67" tabindex="-1"></a>      defined_chunks_pattern,</span>
+<span id="cb46-68"><a href="rendering.html#cb46-68" tabindex="-1"></a>      <span class="cf">function</span>(x) {</span>
+<span id="cb46-69"><a href="rendering.html#cb46-69" tabindex="-1"></a>        cname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove_all</span>(</span>
+<span id="cb46-70"><a href="rendering.html#cb46-70" tabindex="-1"></a>          x,</span>
+<span id="cb46-71"><a href="rendering.html#cb46-71" tabindex="-1"></a>          <span class="fu">paste</span>(reference_start, reference_end, <span class="at">sep =</span> <span class="st">&quot;|&quot;</span>)</span>
+<span id="cb46-72"><a href="rendering.html#cb46-72" tabindex="-1"></a>        )</span>
+<span id="cb46-73"><a href="rendering.html#cb46-73" tabindex="-1"></a>        def_file <span class="ot">&lt;-</span> where_defined[all_chunk_names <span class="sc">==</span> cname]</span>
+<span id="cb46-74"><a href="rendering.html#cb46-74" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
+<span id="cb46-75"><a href="rendering.html#cb46-75" tabindex="-1"></a>          <span class="st">&quot;&lt;a href=&#39;{def_file}#{cname}&#39;&gt;{reference_start}{cname}{reference_end}&lt;/a&gt;&quot;</span></span>
+<span id="cb46-76"><a href="rendering.html#cb46-76" tabindex="-1"></a>          )</span>
+<span id="cb46-77"><a href="rendering.html#cb46-77" tabindex="-1"></a>      }</span>
+<span id="cb46-78"><a href="rendering.html#cb46-78" tabindex="-1"></a>    )</span>
+<span id="cb46-79"><a href="rendering.html#cb46-79" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(</span>
+<span id="cb46-80"><a href="rendering.html#cb46-80" tabindex="-1"></a>      txt,</span>
+<span id="cb46-81"><a href="rendering.html#cb46-81" tabindex="-1"></a>      defined_chunks_pattern2,</span>
+<span id="cb46-82"><a href="rendering.html#cb46-82" tabindex="-1"></a>      <span class="cf">function</span>(x) {</span>
+<span id="cb46-83"><a href="rendering.html#cb46-83" tabindex="-1"></a>        cname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove_all</span>(</span>
+<span id="cb46-84"><a href="rendering.html#cb46-84" tabindex="-1"></a>          x,</span>
+<span id="cb46-85"><a href="rendering.html#cb46-85" tabindex="-1"></a>          <span class="fu">paste</span>(ref_start, ref_start_alt, ref_end, <span class="at">sep =</span> <span class="st">&quot;|&quot;</span>)</span>
+<span id="cb46-86"><a href="rendering.html#cb46-86" tabindex="-1"></a>        )</span>
+<span id="cb46-87"><a href="rendering.html#cb46-87" tabindex="-1"></a>        def_file <span class="ot">&lt;-</span> where_defined[all_chunk_names2 <span class="sc">==</span> cname]</span>
+<span id="cb46-88"><a href="rendering.html#cb46-88" tabindex="-1"></a>        cname <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(cname, hyphen_with_extras, <span class="st">&quot;-&quot;</span>)</span>
+<span id="cb46-89"><a href="rendering.html#cb46-89" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_glue</span>(</span>
+<span id="cb46-90"><a href="rendering.html#cb46-90" tabindex="-1"></a>          <span class="st">&quot;&lt;a href=&#39;{def_file}#{cname}&#39;&gt;{reference_start}{cname}{reference_end}&lt;/a&gt;&quot;</span></span>
+<span id="cb46-91"><a href="rendering.html#cb46-91" tabindex="-1"></a>          )</span>
+<span id="cb46-92"><a href="rendering.html#cb46-92" tabindex="-1"></a>      }</span>
+<span id="cb46-93"><a href="rendering.html#cb46-93" tabindex="-1"></a>    )</span>
+<span id="cb46-94"><a href="rendering.html#cb46-94" tabindex="-1"></a></span>
+<span id="cb46-95"><a href="rendering.html#cb46-95" tabindex="-1"></a>    parsed_html <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">read_html</span>(<span class="fu">paste</span>(txt,<span class="at">collapse=</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))</span>
+<span id="cb46-96"><a href="rendering.html#cb46-96" tabindex="-1"></a>    <span class="co"># get all possible chunk names in this file.</span></span>
+<span id="cb46-97"><a href="rendering.html#cb46-97" tabindex="-1"></a>    chunk_names <span class="ot">&lt;-</span> all_chunk_names[<span class="fu">which</span>(<span class="fu">names</span>(all_chunk_names) <span class="sc">==</span> html_files[i])]</span>
+<span id="cb46-98"><a href="rendering.html#cb46-98" tabindex="-1"></a>    </span>
+<span id="cb46-99"><a href="rendering.html#cb46-99" tabindex="-1"></a>    <span class="cf">if</span>(<span class="fu">length</span>(chunk_names) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb46-100"><a href="rendering.html#cb46-100" tabindex="-1"></a>      <span class="cf">for</span>(j <span class="cf">in</span> <span class="fu">seq_along</span>(chunk_names)){</span>
+<span id="cb46-101"><a href="rendering.html#cb46-101" tabindex="-1"></a>        span_node <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">xml_find_first</span>(parsed_html, stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&#39;(.//span[@id=&quot;{chunk_names[j]}&quot;])&#39;</span>))</span>
+<span id="cb46-102"><a href="rendering.html#cb46-102" tabindex="-1"></a>        span_node_path <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_split</span>(xml2<span class="sc">::</span><span class="fu">xml_path</span>(span_node),<span class="st">&quot;/&quot;</span>)</span>
+<span id="cb46-103"><a href="rendering.html#cb46-103" tabindex="-1"></a>        </span>
+<span id="cb46-104"><a href="rendering.html#cb46-104" tabindex="-1"></a>        pre_path <span class="ot">&lt;-</span> <span class="fu">paste</span>(span_node_path[[<span class="dv">1</span>]][<span class="dv">1</span><span class="sc">:</span>(<span class="fu">max</span>(<span class="fu">which</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(span_node_path[[<span class="dv">1</span>]], <span class="st">&quot;pre&quot;</span>))))],<span class="at">collapse=</span><span class="st">&quot;/&quot;</span>)</span>
+<span id="cb46-105"><a href="rendering.html#cb46-105" tabindex="-1"></a>        <span class="cf">if</span>(<span class="fu">nchar</span>(pre_path) <span class="sc">==</span> <span class="dv">0</span>){</span>
+<span id="cb46-106"><a href="rendering.html#cb46-106" tabindex="-1"></a>          <span class="cf">next</span>()</span>
+<span id="cb46-107"><a href="rendering.html#cb46-107" tabindex="-1"></a>        }</span>
+<span id="cb46-108"><a href="rendering.html#cb46-108" tabindex="-1"></a>        pre_parent <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">xml_find_first</span>(parsed_html, pre_path)</span>
+<span id="cb46-109"><a href="rendering.html#cb46-109" tabindex="-1"></a>        <span class="cf">if</span>(<span class="fu">is.na</span>(pre_parent)){</span>
+<span id="cb46-110"><a href="rendering.html#cb46-110" tabindex="-1"></a>          <span class="cf">next</span>()</span>
+<span id="cb46-111"><a href="rendering.html#cb46-111" tabindex="-1"></a>        }</span>
+<span id="cb46-112"><a href="rendering.html#cb46-112" tabindex="-1"></a>        xml2<span class="sc">::</span><span class="fu">xml_add_parent</span>(pre_parent</span>
+<span id="cb46-113"><a href="rendering.html#cb46-113" tabindex="-1"></a>                             , xml2<span class="sc">::</span><span class="fu">read_xml</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&#39;&lt;fieldset id=&quot;{chunk_names[j]}&quot; class=&quot;chunkfield&quot;&gt; &lt;/fieldset&gt;&#39;</span>)))</span>
+<span id="cb46-114"><a href="rendering.html#cb46-114" tabindex="-1"></a>        xml2<span class="sc">::</span><span class="fu">xml_add_sibling</span>(pre_parent, xml2<span class="sc">::</span><span class="fu">read_xml</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&#39;&lt;legend class=&quot;chunklegend&quot;&gt;{chunk_names[j]}&lt;/legend&gt;&#39;</span>)), <span class="at">where=</span><span class="st">&quot;before&quot;</span>)</span>
+<span id="cb46-115"><a href="rendering.html#cb46-115" tabindex="-1"></a>        xml2<span class="sc">::</span><span class="fu">xml_remove</span>(span_node)</span>
+<span id="cb46-116"><a href="rendering.html#cb46-116" tabindex="-1"></a>        <span class="co"># remove the extra line break that is left over from removing the span</span></span>
+<span id="cb46-117"><a href="rendering.html#cb46-117" tabindex="-1"></a>        code_node <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">xml_child</span>(pre_parent)</span>
+<span id="cb46-118"><a href="rendering.html#cb46-118" tabindex="-1"></a>        changed_txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(<span class="fu">paste</span>(<span class="fu">as.character</span>(xml2<span class="sc">::</span><span class="fu">xml_contents</span>(code_node)),<span class="at">collapse=</span><span class="st">&quot;&quot;</span>), <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)</span>
+<span id="cb46-119"><a href="rendering.html#cb46-119" tabindex="-1"></a>        xml2<span class="sc">::</span><span class="fu">xml_replace</span>(code_node, xml2<span class="sc">::</span><span class="fu">read_xml</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&#39;&lt;code&gt;{changed_txt}&lt;/code&gt;&#39;</span>)))</span>
+<span id="cb46-120"><a href="rendering.html#cb46-120" tabindex="-1"></a>      }</span>
+<span id="cb46-121"><a href="rendering.html#cb46-121" tabindex="-1"></a>    }</span>
+<span id="cb46-122"><a href="rendering.html#cb46-122" tabindex="-1"></a>    <span class="co"># last thing is to insert an additional style node in the head with our CSS so we have a standard style whether we are using bookdown or Rmarkdown</span></span>
+<span id="cb46-123"><a href="rendering.html#cb46-123" tabindex="-1"></a>    css_string <span class="ot">&lt;-</span> <span class="st">&quot;fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}</span></span>
+<span id="cb46-124"><a href="rendering.html#cb46-124" tabindex="-1"></a><span class="st">    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}</span></span>
+<span id="cb46-125"><a href="rendering.html#cb46-125" tabindex="-1"></a><span class="st">    &quot;</span></span>
+<span id="cb46-126"><a href="rendering.html#cb46-126" tabindex="-1"></a>    head_node <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">xml_find_first</span>(parsed_html, <span class="st">&quot;.//head&quot;</span>)</span>
+<span id="cb46-127"><a href="rendering.html#cb46-127" tabindex="-1"></a>    xml2<span class="sc">::</span><span class="fu">xml_add_child</span>(head_node, xml2<span class="sc">::</span><span class="fu">read_xml</span>(stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;&lt;style type=&#39;text/css&#39;&gt;{css_string}&lt;/style&gt;&quot;</span>)))</span>
+<span id="cb46-128"><a href="rendering.html#cb46-128" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">write_html</span>(parsed_html, html_files[i])</span>
+<span id="cb46-129"><a href="rendering.html#cb46-129" tabindex="-1"></a>  }</span>
+<span id="cb46-130"><a href="rendering.html#cb46-130" tabindex="-1"></a>}</span></code></pre></div>
+<p>Since we rely on the <code>xml2</code> package to add in the extra label formatting, let’s import it:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="rendering.html#cb47-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;xml2&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;xml2&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `xml2::fun()`</code></pre>
 <p>Finally, we want to replace the ANSI escape sequences used by packages such as <code>testthat</code> and <code>devtools</code> with their HTML equivalents so the output matches what we see in the terminal.</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="rendering.html#cb47-1" tabindex="-1"></a><span class="co">#&#39; Replace ANSI escape sequences with their HTML equivalents</span></span>
-<span id="cb47-2"><a href="rendering.html#cb47-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb47-3"><a href="rendering.html#cb47-3" tabindex="-1"></a><span class="co">#&#39; Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package</span></span>
-<span id="cb47-4"><a href="rendering.html#cb47-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb47-5"><a href="rendering.html#cb47-5" tabindex="-1"></a><span class="co">#&#39; @param html_files Character vector of file names of html files that were created</span></span>
-<span id="cb47-6"><a href="rendering.html#cb47-6" tabindex="-1"></a><span class="co">#&#39; from Rmd files</span></span>
-<span id="cb47-7"><a href="rendering.html#cb47-7" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb47-8"><a href="rendering.html#cb47-8" tabindex="-1"></a><span id='replace_ansi_sequences'>replace_ansi_sequences</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(html_files) {</span>
-<span id="cb47-9"><a href="rendering.html#cb47-9" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(html_files)) {</span>
-<span id="cb47-10"><a href="rendering.html#cb47-10" tabindex="-1"></a>    file_lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(html_files[i])</span>
-<span id="cb47-11"><a href="rendering.html#cb47-11" tabindex="-1"></a>    <span class="co"># look for lines with escape sequences for URLs and remove the URL</span></span>
-<span id="cb47-12"><a href="rendering.html#cb47-12" tabindex="-1"></a>    <span class="co"># escape sequences before we convert to HTML</span></span>
-<span id="cb47-13"><a href="rendering.html#cb47-13" tabindex="-1"></a>    url_code_regex <span class="ot">&lt;-</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">033]8;;.*</span><span class="sc">\\</span><span class="st">a(.*?)</span><span class="sc">\\</span><span class="st">033]8;;</span><span class="sc">\\</span><span class="st">a&quot;</span></span>
-<span id="cb47-14"><a href="rendering.html#cb47-14" tabindex="-1"></a>    url_seq_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(file_lines, url_code_regex))</span>
-<span id="cb47-15"><a href="rendering.html#cb47-15" tabindex="-1"></a>    file_lines[url_seq_idx] <span class="ot">&lt;-</span> <span class="fu">sapply</span>(url_seq_idx, <span class="cf">function</span>(idx){</span>
-<span id="cb47-16"><a href="rendering.html#cb47-16" tabindex="-1"></a>      line <span class="ot">&lt;-</span> file_lines[idx]</span>
-<span id="cb47-17"><a href="rendering.html#cb47-17" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_replace</span>(line, url_code_regex, stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>))  </span>
-<span id="cb47-18"><a href="rendering.html#cb47-18" tabindex="-1"></a>    })</span>
-<span id="cb47-19"><a href="rendering.html#cb47-19" tabindex="-1"></a>    </span>
-<span id="cb47-20"><a href="rendering.html#cb47-20" tabindex="-1"></a>    txt <span class="ot">&lt;-</span></span>
-<span id="cb47-21"><a href="rendering.html#cb47-21" tabindex="-1"></a>      fansi<span class="sc">::</span><span class="fu">sgr_to_html</span>(<span class="at">x =</span> file_lines,</span>
-<span id="cb47-22"><a href="rendering.html#cb47-22" tabindex="-1"></a>                         <span class="at">warn =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb47-23"><a href="rendering.html#cb47-23" tabindex="-1"></a>                         <span class="at">term.cap =</span> <span class="st">&quot;256&quot;</span>)</span>
-<span id="cb47-24"><a href="rendering.html#cb47-24" tabindex="-1"></a>    <span class="fu">writeLines</span>(txt, <span class="at">con =</span> html_files[i])</span>
-<span id="cb47-25"><a href="rendering.html#cb47-25" tabindex="-1"></a>  }</span>
-<span id="cb47-26"><a href="rendering.html#cb47-26" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="rendering.html#cb49-1" tabindex="-1"></a><span class="co">#&#39; Replace ANSI escape sequences with their HTML equivalents</span></span>
+<span id="cb49-2"><a href="rendering.html#cb49-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb49-3"><a href="rendering.html#cb49-3" tabindex="-1"></a><span class="co">#&#39; Finds ANSI escape sequences and replaces them with HTML tags using the `fansi` package</span></span>
+<span id="cb49-4"><a href="rendering.html#cb49-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb49-5"><a href="rendering.html#cb49-5" tabindex="-1"></a><span class="co">#&#39; @param html_files Character vector of file names of html files that were created</span></span>
+<span id="cb49-6"><a href="rendering.html#cb49-6" tabindex="-1"></a><span class="co">#&#39; from Rmd files</span></span>
+<span id="cb49-7"><a href="rendering.html#cb49-7" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb49-8"><a href="rendering.html#cb49-8" tabindex="-1"></a><span id='replace_ansi_sequences'>replace_ansi_sequences</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(html_files) {</span>
+<span id="cb49-9"><a href="rendering.html#cb49-9" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(html_files)) {</span>
+<span id="cb49-10"><a href="rendering.html#cb49-10" tabindex="-1"></a>    file_lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(html_files[i])</span>
+<span id="cb49-11"><a href="rendering.html#cb49-11" tabindex="-1"></a>    <span class="co"># look for lines with escape sequences for URLs and remove the URL</span></span>
+<span id="cb49-12"><a href="rendering.html#cb49-12" tabindex="-1"></a>    <span class="co"># escape sequences before we convert to HTML</span></span>
+<span id="cb49-13"><a href="rendering.html#cb49-13" tabindex="-1"></a>    url_code_regex <span class="ot">&lt;-</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">033]8;;.*</span><span class="sc">\\</span><span class="st">a(.*?)</span><span class="sc">\\</span><span class="st">033]8;;</span><span class="sc">\\</span><span class="st">a&quot;</span></span>
+<span id="cb49-14"><a href="rendering.html#cb49-14" tabindex="-1"></a>    url_seq_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(file_lines, url_code_regex))</span>
+<span id="cb49-15"><a href="rendering.html#cb49-15" tabindex="-1"></a>    file_lines[url_seq_idx] <span class="ot">&lt;-</span> <span class="fu">sapply</span>(url_seq_idx, <span class="cf">function</span>(idx){</span>
+<span id="cb49-16"><a href="rendering.html#cb49-16" tabindex="-1"></a>      line <span class="ot">&lt;-</span> file_lines[idx]</span>
+<span id="cb49-17"><a href="rendering.html#cb49-17" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_replace</span>(line, url_code_regex, stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">1&quot;</span>))  </span>
+<span id="cb49-18"><a href="rendering.html#cb49-18" tabindex="-1"></a>    })</span>
+<span id="cb49-19"><a href="rendering.html#cb49-19" tabindex="-1"></a>    </span>
+<span id="cb49-20"><a href="rendering.html#cb49-20" tabindex="-1"></a>    txt <span class="ot">&lt;-</span></span>
+<span id="cb49-21"><a href="rendering.html#cb49-21" tabindex="-1"></a>      fansi<span class="sc">::</span><span class="fu">sgr_to_html</span>(<span class="at">x =</span> file_lines,</span>
+<span id="cb49-22"><a href="rendering.html#cb49-22" tabindex="-1"></a>                         <span class="at">warn =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb49-23"><a href="rendering.html#cb49-23" tabindex="-1"></a>                         <span class="at">term.cap =</span> <span class="st">&quot;256&quot;</span>)</span>
+<span id="cb49-24"><a href="rendering.html#cb49-24" tabindex="-1"></a>    <span class="fu">writeLines</span>(txt, <span class="at">con =</span> html_files[i])</span>
+<span id="cb49-25"><a href="rendering.html#cb49-25" tabindex="-1"></a>  }</span>
+<span id="cb49-26"><a href="rendering.html#cb49-26" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="bookdown-output-format" class="section level3 hasAnchor" number="7.1.3">
 <h3><span class="header-section-number">7.1.3</span> bookdown output format<a href="rendering.html#bookdown-output-format" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>It turns out that our modification to the <code>bookdown::gitbook()</code> format’s postprocessor is identical to the above. This suggests that we should probably reuse code more effectively. But for now I will leave it how it is:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="rendering.html#cb48-1" tabindex="-1"></a><span class="co">#&#39; litr version of `bookdown::gitbook()`</span></span>
-<span id="cb48-2"><a href="rendering.html#cb48-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb48-3"><a href="rendering.html#cb48-3" tabindex="-1"></a><span class="co">#&#39; This behaves like `bookdown::gitbook()` with a few differences:</span></span>
-<span id="cb48-4"><a href="rendering.html#cb48-4" tabindex="-1"></a><span class="co">#&#39; - It creates an R package.</span></span>
-<span id="cb48-5"><a href="rendering.html#cb48-5" tabindex="-1"></a><span class="co">#&#39; - It adds hyperlinks to function definitions whenever a function is used</span></span>
-<span id="cb48-6"><a href="rendering.html#cb48-6" tabindex="-1"></a><span class="co">#&#39; elsewhere in the document.</span></span>
-<span id="cb48-7"><a href="rendering.html#cb48-7" tabindex="-1"></a><span class="co">#&#39; - It does &quot;Knuth-style&quot; chunk referencing with hyperlinks.</span></span>
-<span id="cb48-8"><a href="rendering.html#cb48-8" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb48-9"><a href="rendering.html#cb48-9" tabindex="-1"></a><a href='rendering.html#param-minimal_eval'>&lt;&lt;param-minimal_eval&gt;&gt;</a></span>
-<span id="cb48-10"><a href="rendering.html#cb48-10" tabindex="-1"></a><span class="co">#&#39; @param ... Parameters to be passed to `bookdown::gitbook()` </span></span>
-<span id="cb48-11"><a href="rendering.html#cb48-11" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb48-12"><a href="rendering.html#cb48-12" tabindex="-1"></a><span id='litr_gitbook'>litr_gitbook</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">minimal_eval =</span> <span class="cn">FALSE</span>, ...) {</span>
-<span id="cb48-13"><a href="rendering.html#cb48-13" tabindex="-1"></a>  litr_gitbook_ <span class="ot">&lt;-</span> <a href='rendering.html#litrify_output_format'>litrify_output_format</a>(bookdown<span class="sc">::</span>gitbook,</span>
-<span id="cb48-14"><a href="rendering.html#cb48-14" tabindex="-1"></a>                                         <span class="at">minimal_eval =</span> minimal_eval)</span>
-<span id="cb48-15"><a href="rendering.html#cb48-15" tabindex="-1"></a>  old <span class="ot">&lt;-</span> <span class="fu">litr_gitbook_</span>(...)</span>
-<span id="cb48-16"><a href="rendering.html#cb48-16" tabindex="-1"></a>  new <span class="ot">&lt;-</span> old</span>
-<span id="cb48-17"><a href="rendering.html#cb48-17" tabindex="-1"></a>  <span class="co"># modify post_processor</span></span>
-<span id="cb48-18"><a href="rendering.html#cb48-18" tabindex="-1"></a>  new<span class="sc">$</span>post_processor <span class="ot">=</span> <span class="cf">function</span>(metadata, input_file, output_file, ...) {</span>
-<span id="cb48-19"><a href="rendering.html#cb48-19" tabindex="-1"></a>    out <span class="ot">&lt;-</span> old<span class="sc">$</span><a href='rendering.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)</span>
-<span id="cb48-20"><a href="rendering.html#cb48-20" tabindex="-1"></a>    html_files <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(fs<span class="sc">::</span><span class="fu">path_dir</span>(out), <span class="at">regexp =</span> <span class="st">&quot;.html$&quot;</span>)</span>
-<span id="cb48-21"><a href="rendering.html#cb48-21" tabindex="-1"></a>    <span class="co"># add hyperlinks within html output to make it easier to navigate:</span></span>
-<span id="cb48-22"><a href="rendering.html#cb48-22" tabindex="-1"></a>    <a href='rendering.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files, metadata<span class="sc">$</span>params<span class="sc">$</span>package_name)</span>
-<span id="cb48-23"><a href="rendering.html#cb48-23" tabindex="-1"></a>    <a href='rendering.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)</span>
-<span id="cb48-24"><a href="rendering.html#cb48-24" tabindex="-1"></a>    <span class="co"># replace ANSI sequences with HTML tag equivalents</span></span>
-<span id="cb48-25"><a href="rendering.html#cb48-25" tabindex="-1"></a>    <a href='rendering.html#replace_ansi_sequences'>replace_ansi_sequences</a>(html_files)</span>
-<span id="cb48-26"><a href="rendering.html#cb48-26" tabindex="-1"></a>    out</span>
-<span id="cb48-27"><a href="rendering.html#cb48-27" tabindex="-1"></a>  }</span>
-<span id="cb48-28"><a href="rendering.html#cb48-28" tabindex="-1"></a>  new</span>
-<span id="cb48-29"><a href="rendering.html#cb48-29" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="rendering.html#cb50-1" tabindex="-1"></a><span class="co">#&#39; litr version of `bookdown::gitbook()`</span></span>
+<span id="cb50-2"><a href="rendering.html#cb50-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb50-3"><a href="rendering.html#cb50-3" tabindex="-1"></a><span class="co">#&#39; This behaves like `bookdown::gitbook()` with a few differences:</span></span>
+<span id="cb50-4"><a href="rendering.html#cb50-4" tabindex="-1"></a><span class="co">#&#39; - It creates an R package.</span></span>
+<span id="cb50-5"><a href="rendering.html#cb50-5" tabindex="-1"></a><span class="co">#&#39; - It adds hyperlinks to function definitions whenever a function is used</span></span>
+<span id="cb50-6"><a href="rendering.html#cb50-6" tabindex="-1"></a><span class="co">#&#39; elsewhere in the document.</span></span>
+<span id="cb50-7"><a href="rendering.html#cb50-7" tabindex="-1"></a><span class="co">#&#39; - It does &quot;Knuth-style&quot; chunk referencing with hyperlinks.</span></span>
+<span id="cb50-8"><a href="rendering.html#cb50-8" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb50-9"><a href="rendering.html#cb50-9" tabindex="-1"></a><a href='rendering.html#param-minimal_eval'>&lt;&lt;param-minimal_eval&gt;&gt;</a></span>
+<span id="cb50-10"><a href="rendering.html#cb50-10" tabindex="-1"></a><span class="co">#&#39; @param ... Parameters to be passed to `bookdown::gitbook()` </span></span>
+<span id="cb50-11"><a href="rendering.html#cb50-11" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb50-12"><a href="rendering.html#cb50-12" tabindex="-1"></a><span id='litr_gitbook'>litr_gitbook</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">minimal_eval =</span> <span class="cn">FALSE</span>, ...) {</span>
+<span id="cb50-13"><a href="rendering.html#cb50-13" tabindex="-1"></a>  litr_gitbook_ <span class="ot">&lt;-</span> <a href='rendering.html#litrify_output_format'>litrify_output_format</a>(bookdown<span class="sc">::</span>gitbook,</span>
+<span id="cb50-14"><a href="rendering.html#cb50-14" tabindex="-1"></a>                                         <span class="at">minimal_eval =</span> minimal_eval)</span>
+<span id="cb50-15"><a href="rendering.html#cb50-15" tabindex="-1"></a>  old <span class="ot">&lt;-</span> <span class="fu">litr_gitbook_</span>(...)</span>
+<span id="cb50-16"><a href="rendering.html#cb50-16" tabindex="-1"></a>  new <span class="ot">&lt;-</span> old</span>
+<span id="cb50-17"><a href="rendering.html#cb50-17" tabindex="-1"></a>  <span class="co"># modify post_processor</span></span>
+<span id="cb50-18"><a href="rendering.html#cb50-18" tabindex="-1"></a>  new<span class="sc">$</span>post_processor <span class="ot">=</span> <span class="cf">function</span>(metadata, input_file, output_file, ...) {</span>
+<span id="cb50-19"><a href="rendering.html#cb50-19" tabindex="-1"></a>    out <span class="ot">&lt;-</span> old<span class="sc">$</span><a href='rendering.html#post_processor'>post_processor</a>(metadata, input_file, output_file, ...)</span>
+<span id="cb50-20"><a href="rendering.html#cb50-20" tabindex="-1"></a>    out_dir <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_dir</span>(out)</span>
+<span id="cb50-21"><a href="rendering.html#cb50-21" tabindex="-1"></a>    file_stems <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="fu">file.path</span>(out_dir, <span class="st">&quot;reference-keys.txt&quot;</span>))</span>
+<span id="cb50-22"><a href="rendering.html#cb50-22" tabindex="-1"></a>    html_files <span class="ot">&lt;-</span> <span class="fu">file.path</span>(out_dir, <span class="fu">paste0</span>(file_stems, <span class="st">&quot;.html&quot;</span>))</span>
+<span id="cb50-23"><a href="rendering.html#cb50-23" tabindex="-1"></a>    html_files <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">intersect</span>(<span class="fu">c</span>(out, html_files), fs<span class="sc">::</span><span class="fu">dir_ls</span>(out_dir)))</span>
+<span id="cb50-24"><a href="rendering.html#cb50-24" tabindex="-1"></a>    <span class="co"># add hyperlinks within html output to make it easier to navigate:</span></span>
+<span id="cb50-25"><a href="rendering.html#cb50-25" tabindex="-1"></a>    <a href='rendering.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_files, metadata<span class="sc">$</span>params<span class="sc">$</span>package_name)</span>
+<span id="cb50-26"><a href="rendering.html#cb50-26" tabindex="-1"></a>    <a href='rendering.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_files)</span>
+<span id="cb50-27"><a href="rendering.html#cb50-27" tabindex="-1"></a>    <span class="co"># replace ANSI sequences with HTML tag equivalents</span></span>
+<span id="cb50-28"><a href="rendering.html#cb50-28" tabindex="-1"></a>    <a href='rendering.html#replace_ansi_sequences'>replace_ansi_sequences</a>(html_files)</span>
+<span id="cb50-29"><a href="rendering.html#cb50-29" tabindex="-1"></a>    out</span>
+<span id="cb50-30"><a href="rendering.html#cb50-30" tabindex="-1"></a>  }</span>
+<span id="cb50-31"><a href="rendering.html#cb50-31" tabindex="-1"></a>  new</span>
+<span id="cb50-32"><a href="rendering.html#cb50-32" tabindex="-1"></a>}</span></code></pre></div>
 <p>To use this output format, one would use <code>bookdown::render_book()</code> instead of <code>rmarkdown::render()</code>. In particular:</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="rendering.html#cb49-1" tabindex="-1"></a>bookdown<span class="sc">::</span><span class="fu">render_book</span>(<span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_gitbook'>litr_gitbook</a>())</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="rendering.html#cb51-1" tabindex="-1"></a>bookdown<span class="sc">::</span><span class="fu">render_book</span>(<span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_gitbook'>litr_gitbook</a>())</span></code></pre></div>
 <p>The preamble in <code>index.Rmd</code> would look something like this:</p>
 <pre><code>---
 title: &quot;A `litr` Book&quot;
@@ -733,7 +781,7 @@ documentclass: book
 output: litr::litr_gitbook</code></pre>
 <p>This first line makes it so that in RStudio when you press “Knit”, it calls <code>litr::<a href='rendering.html#render'>render</a>()</code>, and the second line makes it so that it will use the special litr bookdown output format.</p>
 <p>Since the above function uses <code>bookdown</code>, we include it in our package:</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="rendering.html#cb52-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;bookdown&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="rendering.html#cb54-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;bookdown&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;bookdown&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `bookdown::fun()`</code></pre>
 </div>
@@ -746,218 +794,218 @@ output: litr::litr_gitbook</code></pre>
 <li><p>To render a .Rmd with a <code>litr</code> output format (including the <code><a href='rendering.html#litr_gitbook'>litr_gitbook</a>()</code> format).</p></li>
 </ol>
 <p>The second use case might seem unnecessary in that</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="rendering.html#cb54-1" tabindex="-1"></a>rmarkdown<span class="sc">::</span><a href='rendering.html#render'>render</a>(<span class="st">&quot;create-pkg.Rmd&quot;</span>, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>())</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="rendering.html#cb56-1" tabindex="-1"></a>rmarkdown<span class="sc">::</span><a href='rendering.html#render'>render</a>(<span class="st">&quot;create-pkg.Rmd&quot;</span>, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>())</span></code></pre></div>
 <p>or</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="rendering.html#cb55-1" tabindex="-1"></a>bookdown<span class="sc">::</span><span class="fu">render_book</span>(<span class="st">&quot;index.Rmd&quot;</span>, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_gitbook'>litr_gitbook</a>())</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="rendering.html#cb57-1" tabindex="-1"></a>bookdown<span class="sc">::</span><span class="fu">render_book</span>(<span class="st">&quot;index.Rmd&quot;</span>, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_gitbook'>litr_gitbook</a>())</span></code></pre></div>
 <p>would do what we want. However, a reason to still prefer <code>litr::<a href='rendering.html#render'>render</a>()</code> is that this function ensures the identical behavior to when one clicks the “Knit” in RStudio. It does this by opening a fresh R session (when <code>fresh_session=TRUE</code>, which is the default) in which <code>rmarkdown::render()</code> (or <code>bookdown::render_book()</code>) is called. This is based on <a href="https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html">the description in the Rmarkdown Cookbook</a>. Another reason to prefer <code>litr::<a href='rendering.html#render'>render</a>()</code> is that if there is an error in the rendering process, the special <a href="hash.html#hash">litr hash</a> will still be written to the DESCRIPTION file. This means that after fixing that error when one calls <code>litr::<a href='rendering.html#render'>render</a>()</code>, one will not get the error telling the user to delete the partially generated package directory. We accomplish this with the function <code>with_cleanup()</code> defined below.</p>
 <p>In the first use case, <code>litr::<a href='rendering.html#render'>render</a>()</code> is responsible for ensuring all the special <code>litr</code> things happen (like <code>setup()</code> being called before knitting, the litr-hash being written afterwards, and hyperlinking occurs). The details of what it does is very similar to what is described in the <a href="hash.html#output-format">output formats</a> section, especially the one on the <a href="rendering.html#html-output-format">html output format</a>.</p>
 <p>One thing that is different is that we need a function <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code>, defined at the end of this section, that gets the actual parameters that are used so that the location of the outputted package can be found.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="rendering.html#cb56-1" tabindex="-1"></a><span class="co">#&#39; Render R markdown file</span></span>
-<span id="cb56-2"><a href="rendering.html#cb56-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb56-3"><a href="rendering.html#cb56-3" tabindex="-1"></a><span class="co">#&#39; Wrapper to `rmarkdown::render()` that produces an R package as output in </span></span>
-<span id="cb56-4"><a href="rendering.html#cb56-4" tabindex="-1"></a><span class="co">#&#39; addition to the standard output document.  It does some post-processing on the </span></span>
-<span id="cb56-5"><a href="rendering.html#cb56-5" tabindex="-1"></a><span class="co">#&#39; .html file when that is the output.  In particular, when an .html file is among</span></span>
-<span id="cb56-6"><a href="rendering.html#cb56-6" tabindex="-1"></a><span class="co">#&#39; the outputs, it adds hyperlinks to functions defined within the file to make </span></span>
-<span id="cb56-7"><a href="rendering.html#cb56-7" tabindex="-1"></a><span class="co">#&#39; it easier for someone reading the code to see where different functions are</span></span>
-<span id="cb56-8"><a href="rendering.html#cb56-8" tabindex="-1"></a><span class="co">#&#39; defined.</span></span>
-<span id="cb56-9"><a href="rendering.html#cb56-9" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb56-10"><a href="rendering.html#cb56-10" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
-<span id="cb56-11"><a href="rendering.html#cb56-11" tabindex="-1"></a><a href='rendering.html#param-minimal_eval'>&lt;&lt;param-minimal_eval&gt;&gt;</a></span>
-<span id="cb56-12"><a href="rendering.html#cb56-12" tabindex="-1"></a><span class="co">#&#39; @param fresh_session Whether to call `rmarkdown::render` from a fresh R </span></span>
-<span id="cb56-13"><a href="rendering.html#cb56-13" tabindex="-1"></a><span class="co">#&#39; session. By default TRUE, so that it matches the behavior of pressing &quot;Knitr&quot;</span></span>
-<span id="cb56-14"><a href="rendering.html#cb56-14" tabindex="-1"></a><span class="co">#&#39; in RStudio.  However, for debugging it can be useful to set this to FALSE so </span></span>
-<span id="cb56-15"><a href="rendering.html#cb56-15" tabindex="-1"></a><span class="co">#&#39; that functions like `debug()` and `browser()` will work.</span></span>
-<span id="cb56-16"><a href="rendering.html#cb56-16" tabindex="-1"></a><span class="co">#&#39; @param ... Additional parameters to pass to `rmarkdown::render`</span></span>
-<span id="cb56-17"><a href="rendering.html#cb56-17" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb56-18"><a href="rendering.html#cb56-18" tabindex="-1"></a><span id='render'>render</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, minimal_eval, <span class="at">fresh_session =</span> <span class="cn">TRUE</span>, ...) {</span>
-<span id="cb56-19"><a href="rendering.html#cb56-19" tabindex="-1"></a>  <span class="co"># call rmarkdown::render in a new environment so it behaves the same as </span></span>
-<span id="cb56-20"><a href="rendering.html#cb56-20" tabindex="-1"></a>  <span class="co"># pressing the knit button in RStudio:</span></span>
-<span id="cb56-21"><a href="rendering.html#cb56-21" tabindex="-1"></a>  <span class="co"># https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html</span></span>
-<span id="cb56-22"><a href="rendering.html#cb56-22" tabindex="-1"></a>  args <span class="ot">&lt;-</span> <span class="fu">list</span>(...)</span>
-<span id="cb56-23"><a href="rendering.html#cb56-23" tabindex="-1"></a></span>
-<span id="cb56-24"><a href="rendering.html#cb56-24" tabindex="-1"></a>  <span class="co"># let&#39;s determine if the output format being used is a litr format.</span></span>
-<span id="cb56-25"><a href="rendering.html#cb56-25" tabindex="-1"></a>  <span class="co"># If it is, then we&#39;ll simply want to call rmarkdown::render() since the </span></span>
-<span id="cb56-26"><a href="rendering.html#cb56-26" tabindex="-1"></a>  <span class="co"># special litr behavior will be attained through the output format.</span></span>
-<span id="cb56-27"><a href="rendering.html#cb56-27" tabindex="-1"></a>  litr_format <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb56-28"><a href="rendering.html#cb56-28" tabindex="-1"></a>  bookdown_format <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb56-29"><a href="rendering.html#cb56-29" tabindex="-1"></a>  output_format_arg <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb56-30"><a href="rendering.html#cb56-30" tabindex="-1"></a>  <span class="cf">if</span> (<span class="st">&quot;output_format&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(args)) {</span>
-<span id="cb56-31"><a href="rendering.html#cb56-31" tabindex="-1"></a>    output_format_arg <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb56-32"><a href="rendering.html#cb56-32" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">&quot;litr_format&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(args<span class="sc">$</span>output_format)) {</span>
-<span id="cb56-33"><a href="rendering.html#cb56-33" tabindex="-1"></a>      litr_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb56-34"><a href="rendering.html#cb56-34" tabindex="-1"></a>    }</span>
-<span id="cb56-35"><a href="rendering.html#cb56-35" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">&quot;bookdown_output_format&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(args<span class="sc">$</span>output_format)) {</span>
-<span id="cb56-36"><a href="rendering.html#cb56-36" tabindex="-1"></a>      bookdown_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb56-37"><a href="rendering.html#cb56-37" tabindex="-1"></a>    }</span>
-<span id="cb56-38"><a href="rendering.html#cb56-38" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb56-39"><a href="rendering.html#cb56-39" tabindex="-1"></a>    frontmatter <span class="ot">&lt;-</span> rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(input)</span>
-<span id="cb56-40"><a href="rendering.html#cb56-40" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">&quot;output&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(frontmatter)) {</span>
-<span id="cb56-41"><a href="rendering.html#cb56-41" tabindex="-1"></a>      formats <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.list</span>(frontmatter<span class="sc">$</span>output),</span>
-<span id="cb56-42"><a href="rendering.html#cb56-42" tabindex="-1"></a>                        <span class="fu">names</span>(frontmatter<span class="sc">$</span>output),</span>
-<span id="cb56-43"><a href="rendering.html#cb56-43" tabindex="-1"></a>                        frontmatter<span class="sc">$</span>output)</span>
-<span id="cb56-44"><a href="rendering.html#cb56-44" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(formats, <span class="st">&quot;litr::&quot;</span>))) {</span>
-<span id="cb56-45"><a href="rendering.html#cb56-45" tabindex="-1"></a>        litr_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb56-46"><a href="rendering.html#cb56-46" tabindex="-1"></a>      }</span>
-<span id="cb56-47"><a href="rendering.html#cb56-47" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(formats, <span class="st">&quot;litr::litr_gitbook&quot;</span>))) {</span>
-<span id="cb56-48"><a href="rendering.html#cb56-48" tabindex="-1"></a>        bookdown_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb56-49"><a href="rendering.html#cb56-49" tabindex="-1"></a>      }</span>
-<span id="cb56-50"><a href="rendering.html#cb56-50" tabindex="-1"></a>    }</span>
-<span id="cb56-51"><a href="rendering.html#cb56-51" tabindex="-1"></a>  }</span>
-<span id="cb56-52"><a href="rendering.html#cb56-52" tabindex="-1"></a></span>
-<span id="cb56-53"><a href="rendering.html#cb56-53" tabindex="-1"></a>  <span class="co"># get package_directory</span></span>
-<span id="cb56-54"><a href="rendering.html#cb56-54" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(input, args<span class="sc">$</span>params)</span>
-<span id="cb56-55"><a href="rendering.html#cb56-55" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> <a href='rendering.html#get_package_directory'>get_package_directory</a>(</span>
-<span id="cb56-56"><a href="rendering.html#cb56-56" tabindex="-1"></a>    params<span class="sc">$</span>package_parent_dir,</span>
-<span id="cb56-57"><a href="rendering.html#cb56-57" tabindex="-1"></a>    params<span class="sc">$</span>package_name,</span>
-<span id="cb56-58"><a href="rendering.html#cb56-58" tabindex="-1"></a>    input</span>
-<span id="cb56-59"><a href="rendering.html#cb56-59" tabindex="-1"></a>    )</span>
-<span id="cb56-60"><a href="rendering.html#cb56-60" tabindex="-1"></a>  </span>
-<span id="cb56-61"><a href="rendering.html#cb56-61" tabindex="-1"></a>  <span class="co"># if minimal_eval was passed to render, add this to the output_options</span></span>
-<span id="cb56-62"><a href="rendering.html#cb56-62" tabindex="-1"></a>  <span class="co"># argument that will be passed to rmarkdown::render</span></span>
-<span id="cb56-63"><a href="rendering.html#cb56-63" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(args<span class="sc">$</span>output_options)) args<span class="sc">$</span>output_options <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb56-64"><a href="rendering.html#cb56-64" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">missing</span>(minimal_eval)) args<span class="sc">$</span>output_options<span class="sc">$</span>minimal_eval <span class="ot">&lt;-</span> minimal_eval</span>
-<span id="cb56-65"><a href="rendering.html#cb56-65" tabindex="-1"></a>  </span>
-<span id="cb56-66"><a href="rendering.html#cb56-66" tabindex="-1"></a>  <span class="co"># determine whether a new R session will be created when we run the rendering </span></span>
-<span id="cb56-67"><a href="rendering.html#cb56-67" tabindex="-1"></a>  <span class="co"># function of rmarkdown/bookdown</span></span>
-<span id="cb56-68"><a href="rendering.html#cb56-68" tabindex="-1"></a>  <span class="cf">if</span> (fresh_session)</span>
-<span id="cb56-69"><a href="rendering.html#cb56-69" tabindex="-1"></a>    run_function <span class="ot">&lt;-</span> xfun<span class="sc">::</span>Rscript_call</span>
-<span id="cb56-70"><a href="rendering.html#cb56-70" tabindex="-1"></a>  <span class="cf">else</span></span>
-<span id="cb56-71"><a href="rendering.html#cb56-71" tabindex="-1"></a>    run_function <span class="ot">&lt;-</span> do.call</span>
-<span id="cb56-72"><a href="rendering.html#cb56-72" tabindex="-1"></a>  </span>
-<span id="cb56-73"><a href="rendering.html#cb56-73" tabindex="-1"></a>  <span class="cf">if</span> (litr_format) {</span>
-<span id="cb56-74"><a href="rendering.html#cb56-74" tabindex="-1"></a>    <span class="co"># this uses a litr output format, so we don&#39;t need to do anything litr-specific</span></span>
-<span id="cb56-75"><a href="rendering.html#cb56-75" tabindex="-1"></a>    <span class="co"># here because it will happen through the output format</span></span>
-<span id="cb56-76"><a href="rendering.html#cb56-76" tabindex="-1"></a>    </span>
-<span id="cb56-77"><a href="rendering.html#cb56-77" tabindex="-1"></a>    <span class="cf">if</span> (output_format_arg <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">missing</span>(minimal_eval)) {</span>
-<span id="cb56-78"><a href="rendering.html#cb56-78" tabindex="-1"></a>      <span class="co"># the output format was passed through the output_format argument rather </span></span>
-<span id="cb56-79"><a href="rendering.html#cb56-79" tabindex="-1"></a>      <span class="co"># than through the metadata</span></span>
-<span id="cb56-80"><a href="rendering.html#cb56-80" tabindex="-1"></a>      <span class="cf">if</span> (minimal_eval) {</span>
-<span id="cb56-81"><a href="rendering.html#cb56-81" tabindex="-1"></a>        <span class="fu">stop</span>(<a href='generating-package.html#make_noticeable'>make_noticeable</a>(<span class="fu">paste</span>(</span>
-<span id="cb56-82"><a href="rendering.html#cb56-82" tabindex="-1"></a>          <span class="st">&quot;When passing a litr output format using the output_format argument,&quot;</span>,</span>
-<span id="cb56-83"><a href="rendering.html#cb56-83" tabindex="-1"></a>          <span class="st">&quot;you should not pass minimal_eval = TRUE directly to render.&quot;</span>,</span>
-<span id="cb56-84"><a href="rendering.html#cb56-84" tabindex="-1"></a>          <span class="st">&quot;Instead, pass it to the litr output format function.  For example,&quot;</span>,</span>
-<span id="cb56-85"><a href="rendering.html#cb56-85" tabindex="-1"></a>          <span class="st">&quot;litr::<a href='rendering.html#litr_html_document'>litr_html_document</a>(minimal_eval = TRUE).&quot;</span>,</span>
-<span id="cb56-86"><a href="rendering.html#cb56-86" tabindex="-1"></a>          <span class="at">collapse =</span> <span class="st">&quot; &quot;</span></span>
-<span id="cb56-87"><a href="rendering.html#cb56-87" tabindex="-1"></a>          )))</span>
-<span id="cb56-88"><a href="rendering.html#cb56-88" tabindex="-1"></a>      }</span>
-<span id="cb56-89"><a href="rendering.html#cb56-89" tabindex="-1"></a>    }</span>
-<span id="cb56-90"><a href="rendering.html#cb56-90" tabindex="-1"></a>    </span>
-<span id="cb56-91"><a href="rendering.html#cb56-91" tabindex="-1"></a>    <span class="cf">if</span> (bookdown_format) {</span>
-<span id="cb56-92"><a href="rendering.html#cb56-92" tabindex="-1"></a>      <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">is_file</span>(input)) input <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_dir</span>(input)</span>
-<span id="cb56-93"><a href="rendering.html#cb56-93" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">invisible</span>(<span class="fu">run_function</span>(<a href='rendering.html#with_cleanup'>with_cleanup</a>(bookdown<span class="sc">::</span>render_book,</span>
-<span id="cb56-94"><a href="rendering.html#cb56-94" tabindex="-1"></a>                                                 package_dir),</span>
-<span id="cb56-95"><a href="rendering.html#cb56-95" tabindex="-1"></a>                                    <span class="fu">c</span>(<span class="at">input =</span> input, args))))</span>
-<span id="cb56-96"><a href="rendering.html#cb56-96" tabindex="-1"></a>    }</span>
-<span id="cb56-97"><a href="rendering.html#cb56-97" tabindex="-1"></a>    <span class="cf">else</span></span>
-<span id="cb56-98"><a href="rendering.html#cb56-98" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">invisible</span>(<span class="fu">run_function</span>(<a href='rendering.html#with_cleanup'>with_cleanup</a>(rmarkdown<span class="sc">::</span>render,</span>
-<span id="cb56-99"><a href="rendering.html#cb56-99" tabindex="-1"></a>                                                 package_dir),</span>
-<span id="cb56-100"><a href="rendering.html#cb56-100" tabindex="-1"></a>                                    <span class="fu">c</span>(<span class="at">input =</span> input, args))))</span>
-<span id="cb56-101"><a href="rendering.html#cb56-101" tabindex="-1"></a>  }</span>
-<span id="cb56-102"><a href="rendering.html#cb56-102" tabindex="-1"></a>  </span>
-<span id="cb56-103"><a href="rendering.html#cb56-103" tabindex="-1"></a>  <span class="co"># the output format being used is not a litr-specific one, so we need to make</span></span>
-<span id="cb56-104"><a href="rendering.html#cb56-104" tabindex="-1"></a>  <span class="co"># sure that all the special litr things happen</span></span>
-<span id="cb56-105"><a href="rendering.html#cb56-105" tabindex="-1"></a>  args<span class="sc">$</span>package_dir <span class="ot">&lt;-</span> package_dir</span>
-<span id="cb56-106"><a href="rendering.html#cb56-106" tabindex="-1"></a></span>
-<span id="cb56-107"><a href="rendering.html#cb56-107" tabindex="-1"></a>  <span id='render_'>render_</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, package_dir, minimal_eval, ...) {</span>
-<span id="cb56-108"><a href="rendering.html#cb56-108" tabindex="-1"></a>    knitr_objects <span class="ot">&lt;-</span> litr<span class="sc">:::</span><a href='generating-package.html#setup'>setup</a>(package_dir, minimal_eval)</span>
-<span id="cb56-109"><a href="rendering.html#cb56-109" tabindex="-1"></a>    out <span class="ot">&lt;-</span> rmarkdown<span class="sc">::</span><a href='rendering.html#render'>render</a>(input, ...)</span>
-<span id="cb56-110"><a href="rendering.html#cb56-110" tabindex="-1"></a>    <a href='rendering.html#restore_knitr_objects'>restore_knitr_objects</a>(knitr_objects)</span>
-<span id="cb56-111"><a href="rendering.html#cb56-111" tabindex="-1"></a>    <span class="co"># remove .Rproj and .gitignore if usethis::create_package() added these</span></span>
-<span id="cb56-112"><a href="rendering.html#cb56-112" tabindex="-1"></a>    <a href='rendering.html#remove_rstudio_extras'>remove_rstudio_extras</a>(package_dir)</span>
-<span id="cb56-113"><a href="rendering.html#cb56-113" tabindex="-1"></a>    <span class="fu">return</span>(out)</span>
-<span id="cb56-114"><a href="rendering.html#cb56-114" tabindex="-1"></a>  }</span>
-<span id="cb56-115"><a href="rendering.html#cb56-115" tabindex="-1"></a></span>
-<span id="cb56-116"><a href="rendering.html#cb56-116" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">missing</span>(minimal_eval)) minimal_eval <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb56-117"><a href="rendering.html#cb56-117" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">run_function</span>(<a href='rendering.html#with_cleanup'>with_cleanup</a>(render_, package_dir),</span>
-<span id="cb56-118"><a href="rendering.html#cb56-118" tabindex="-1"></a>                      <span class="fu">c</span>(<span class="at">input =</span> input, <span class="at">minimal_eval =</span> minimal_eval, args))</span>
-<span id="cb56-119"><a href="rendering.html#cb56-119" tabindex="-1"></a></span>
-<span id="cb56-120"><a href="rendering.html#cb56-120" tabindex="-1"></a></span>
-<span id="cb56-121"><a href="rendering.html#cb56-121" tabindex="-1"></a>  <span class="co"># add hyperlinks within html output to make it easier to navigate:</span></span>
-<span id="cb56-122"><a href="rendering.html#cb56-122" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(out, <span class="st">&quot;html$&quot;</span>))) {</span>
-<span id="cb56-123"><a href="rendering.html#cb56-123" tabindex="-1"></a>    html_file <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(out, <span class="st">&quot;html$&quot;</span>)</span>
-<span id="cb56-124"><a href="rendering.html#cb56-124" tabindex="-1"></a>    <a href='rendering.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_file, params<span class="sc">$</span>package_name)</span>
-<span id="cb56-125"><a href="rendering.html#cb56-125" tabindex="-1"></a>    <a href='rendering.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_file)</span>
-<span id="cb56-126"><a href="rendering.html#cb56-126" tabindex="-1"></a>  }</span>
-<span id="cb56-127"><a href="rendering.html#cb56-127" tabindex="-1"></a>  </span>
-<span id="cb56-128"><a href="rendering.html#cb56-128" tabindex="-1"></a>  <span class="co"># add to DESCRIPTION file the version of litr used to create package:</span></span>
-<span id="cb56-129"><a href="rendering.html#cb56-129" tabindex="-1"></a>  <a href='rendering.html#write_version_to_description'>write_version_to_description</a>(package_dir)</span>
-<span id="cb56-130"><a href="rendering.html#cb56-130" tabindex="-1"></a>  </span>
-<span id="cb56-131"><a href="rendering.html#cb56-131" tabindex="-1"></a>  <span class="co"># add litr hash so we can tell later if package files were manually edited:</span></span>
-<span id="cb56-132"><a href="rendering.html#cb56-132" tabindex="-1"></a>  <a href='hash.html#write_hash_to_description'>write_hash_to_description</a>(package_dir)</span>
-<span id="cb56-133"><a href="rendering.html#cb56-133" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="rendering.html#cb58-1" tabindex="-1"></a><span class="co">#&#39; Render R markdown file</span></span>
+<span id="cb58-2"><a href="rendering.html#cb58-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb58-3"><a href="rendering.html#cb58-3" tabindex="-1"></a><span class="co">#&#39; Wrapper to `rmarkdown::render()` that produces an R package as output in </span></span>
+<span id="cb58-4"><a href="rendering.html#cb58-4" tabindex="-1"></a><span class="co">#&#39; addition to the standard output document.  It does some post-processing on the </span></span>
+<span id="cb58-5"><a href="rendering.html#cb58-5" tabindex="-1"></a><span class="co">#&#39; .html file when that is the output.  In particular, when an .html file is among</span></span>
+<span id="cb58-6"><a href="rendering.html#cb58-6" tabindex="-1"></a><span class="co">#&#39; the outputs, it adds hyperlinks to functions defined within the file to make </span></span>
+<span id="cb58-7"><a href="rendering.html#cb58-7" tabindex="-1"></a><span class="co">#&#39; it easier for someone reading the code to see where different functions are</span></span>
+<span id="cb58-8"><a href="rendering.html#cb58-8" tabindex="-1"></a><span class="co">#&#39; defined.</span></span>
+<span id="cb58-9"><a href="rendering.html#cb58-9" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb58-10"><a href="rendering.html#cb58-10" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
+<span id="cb58-11"><a href="rendering.html#cb58-11" tabindex="-1"></a><a href='rendering.html#param-minimal_eval'>&lt;&lt;param-minimal_eval&gt;&gt;</a></span>
+<span id="cb58-12"><a href="rendering.html#cb58-12" tabindex="-1"></a><span class="co">#&#39; @param fresh_session Whether to call `rmarkdown::render` from a fresh R </span></span>
+<span id="cb58-13"><a href="rendering.html#cb58-13" tabindex="-1"></a><span class="co">#&#39; session. By default TRUE, so that it matches the behavior of pressing &quot;Knitr&quot;</span></span>
+<span id="cb58-14"><a href="rendering.html#cb58-14" tabindex="-1"></a><span class="co">#&#39; in RStudio.  However, for debugging it can be useful to set this to FALSE so </span></span>
+<span id="cb58-15"><a href="rendering.html#cb58-15" tabindex="-1"></a><span class="co">#&#39; that functions like `debug()` and `browser()` will work.</span></span>
+<span id="cb58-16"><a href="rendering.html#cb58-16" tabindex="-1"></a><span class="co">#&#39; @param ... Additional parameters to pass to `rmarkdown::render`</span></span>
+<span id="cb58-17"><a href="rendering.html#cb58-17" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb58-18"><a href="rendering.html#cb58-18" tabindex="-1"></a><span id='render'>render</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, minimal_eval, <span class="at">fresh_session =</span> <span class="cn">TRUE</span>, ...) {</span>
+<span id="cb58-19"><a href="rendering.html#cb58-19" tabindex="-1"></a>  <span class="co"># call rmarkdown::render in a new environment so it behaves the same as </span></span>
+<span id="cb58-20"><a href="rendering.html#cb58-20" tabindex="-1"></a>  <span class="co"># pressing the knit button in RStudio:</span></span>
+<span id="cb58-21"><a href="rendering.html#cb58-21" tabindex="-1"></a>  <span class="co"># https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html</span></span>
+<span id="cb58-22"><a href="rendering.html#cb58-22" tabindex="-1"></a>  args <span class="ot">&lt;-</span> <span class="fu">list</span>(...)</span>
+<span id="cb58-23"><a href="rendering.html#cb58-23" tabindex="-1"></a></span>
+<span id="cb58-24"><a href="rendering.html#cb58-24" tabindex="-1"></a>  <span class="co"># let&#39;s determine if the output format being used is a litr format.</span></span>
+<span id="cb58-25"><a href="rendering.html#cb58-25" tabindex="-1"></a>  <span class="co"># If it is, then we&#39;ll simply want to call rmarkdown::render() since the </span></span>
+<span id="cb58-26"><a href="rendering.html#cb58-26" tabindex="-1"></a>  <span class="co"># special litr behavior will be attained through the output format.</span></span>
+<span id="cb58-27"><a href="rendering.html#cb58-27" tabindex="-1"></a>  litr_format <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb58-28"><a href="rendering.html#cb58-28" tabindex="-1"></a>  bookdown_format <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb58-29"><a href="rendering.html#cb58-29" tabindex="-1"></a>  output_format_arg <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb58-30"><a href="rendering.html#cb58-30" tabindex="-1"></a>  <span class="cf">if</span> (<span class="st">&quot;output_format&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(args)) {</span>
+<span id="cb58-31"><a href="rendering.html#cb58-31" tabindex="-1"></a>    output_format_arg <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb58-32"><a href="rendering.html#cb58-32" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">&quot;litr_format&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(args<span class="sc">$</span>output_format)) {</span>
+<span id="cb58-33"><a href="rendering.html#cb58-33" tabindex="-1"></a>      litr_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb58-34"><a href="rendering.html#cb58-34" tabindex="-1"></a>    }</span>
+<span id="cb58-35"><a href="rendering.html#cb58-35" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">&quot;bookdown_output_format&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(args<span class="sc">$</span>output_format)) {</span>
+<span id="cb58-36"><a href="rendering.html#cb58-36" tabindex="-1"></a>      bookdown_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb58-37"><a href="rendering.html#cb58-37" tabindex="-1"></a>    }</span>
+<span id="cb58-38"><a href="rendering.html#cb58-38" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb58-39"><a href="rendering.html#cb58-39" tabindex="-1"></a>    frontmatter <span class="ot">&lt;-</span> rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(input)</span>
+<span id="cb58-40"><a href="rendering.html#cb58-40" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">&quot;output&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(frontmatter)) {</span>
+<span id="cb58-41"><a href="rendering.html#cb58-41" tabindex="-1"></a>      formats <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.list</span>(frontmatter<span class="sc">$</span>output),</span>
+<span id="cb58-42"><a href="rendering.html#cb58-42" tabindex="-1"></a>                        <span class="fu">names</span>(frontmatter<span class="sc">$</span>output),</span>
+<span id="cb58-43"><a href="rendering.html#cb58-43" tabindex="-1"></a>                        frontmatter<span class="sc">$</span>output)</span>
+<span id="cb58-44"><a href="rendering.html#cb58-44" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(formats, <span class="st">&quot;litr::&quot;</span>))) {</span>
+<span id="cb58-45"><a href="rendering.html#cb58-45" tabindex="-1"></a>        litr_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb58-46"><a href="rendering.html#cb58-46" tabindex="-1"></a>      }</span>
+<span id="cb58-47"><a href="rendering.html#cb58-47" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(formats, <span class="st">&quot;litr::litr_gitbook&quot;</span>))) {</span>
+<span id="cb58-48"><a href="rendering.html#cb58-48" tabindex="-1"></a>        bookdown_format <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb58-49"><a href="rendering.html#cb58-49" tabindex="-1"></a>      }</span>
+<span id="cb58-50"><a href="rendering.html#cb58-50" tabindex="-1"></a>    }</span>
+<span id="cb58-51"><a href="rendering.html#cb58-51" tabindex="-1"></a>  }</span>
+<span id="cb58-52"><a href="rendering.html#cb58-52" tabindex="-1"></a></span>
+<span id="cb58-53"><a href="rendering.html#cb58-53" tabindex="-1"></a>  <span class="co"># get package_directory</span></span>
+<span id="cb58-54"><a href="rendering.html#cb58-54" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(input, args<span class="sc">$</span>params)</span>
+<span id="cb58-55"><a href="rendering.html#cb58-55" tabindex="-1"></a>  package_dir <span class="ot">&lt;-</span> <a href='rendering.html#get_package_directory'>get_package_directory</a>(</span>
+<span id="cb58-56"><a href="rendering.html#cb58-56" tabindex="-1"></a>    params<span class="sc">$</span>package_parent_dir,</span>
+<span id="cb58-57"><a href="rendering.html#cb58-57" tabindex="-1"></a>    params<span class="sc">$</span>package_name,</span>
+<span id="cb58-58"><a href="rendering.html#cb58-58" tabindex="-1"></a>    input</span>
+<span id="cb58-59"><a href="rendering.html#cb58-59" tabindex="-1"></a>    )</span>
+<span id="cb58-60"><a href="rendering.html#cb58-60" tabindex="-1"></a>  </span>
+<span id="cb58-61"><a href="rendering.html#cb58-61" tabindex="-1"></a>  <span class="co"># if minimal_eval was passed to render, add this to the output_options</span></span>
+<span id="cb58-62"><a href="rendering.html#cb58-62" tabindex="-1"></a>  <span class="co"># argument that will be passed to rmarkdown::render</span></span>
+<span id="cb58-63"><a href="rendering.html#cb58-63" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(args<span class="sc">$</span>output_options)) args<span class="sc">$</span>output_options <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb58-64"><a href="rendering.html#cb58-64" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">missing</span>(minimal_eval)) args<span class="sc">$</span>output_options<span class="sc">$</span>minimal_eval <span class="ot">&lt;-</span> minimal_eval</span>
+<span id="cb58-65"><a href="rendering.html#cb58-65" tabindex="-1"></a>  </span>
+<span id="cb58-66"><a href="rendering.html#cb58-66" tabindex="-1"></a>  <span class="co"># determine whether a new R session will be created when we run the rendering </span></span>
+<span id="cb58-67"><a href="rendering.html#cb58-67" tabindex="-1"></a>  <span class="co"># function of rmarkdown/bookdown</span></span>
+<span id="cb58-68"><a href="rendering.html#cb58-68" tabindex="-1"></a>  <span class="cf">if</span> (fresh_session)</span>
+<span id="cb58-69"><a href="rendering.html#cb58-69" tabindex="-1"></a>    run_function <span class="ot">&lt;-</span> xfun<span class="sc">::</span>Rscript_call</span>
+<span id="cb58-70"><a href="rendering.html#cb58-70" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb58-71"><a href="rendering.html#cb58-71" tabindex="-1"></a>    run_function <span class="ot">&lt;-</span> do.call</span>
+<span id="cb58-72"><a href="rendering.html#cb58-72" tabindex="-1"></a>  </span>
+<span id="cb58-73"><a href="rendering.html#cb58-73" tabindex="-1"></a>  <span class="cf">if</span> (litr_format) {</span>
+<span id="cb58-74"><a href="rendering.html#cb58-74" tabindex="-1"></a>    <span class="co"># this uses a litr output format, so we don&#39;t need to do anything litr-specific</span></span>
+<span id="cb58-75"><a href="rendering.html#cb58-75" tabindex="-1"></a>    <span class="co"># here because it will happen through the output format</span></span>
+<span id="cb58-76"><a href="rendering.html#cb58-76" tabindex="-1"></a>    </span>
+<span id="cb58-77"><a href="rendering.html#cb58-77" tabindex="-1"></a>    <span class="cf">if</span> (output_format_arg <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">missing</span>(minimal_eval)) {</span>
+<span id="cb58-78"><a href="rendering.html#cb58-78" tabindex="-1"></a>      <span class="co"># the output format was passed through the output_format argument rather </span></span>
+<span id="cb58-79"><a href="rendering.html#cb58-79" tabindex="-1"></a>      <span class="co"># than through the metadata</span></span>
+<span id="cb58-80"><a href="rendering.html#cb58-80" tabindex="-1"></a>      <span class="cf">if</span> (minimal_eval) {</span>
+<span id="cb58-81"><a href="rendering.html#cb58-81" tabindex="-1"></a>        <span class="fu">stop</span>(<a href='generating-package.html#make_noticeable'>make_noticeable</a>(<span class="fu">paste</span>(</span>
+<span id="cb58-82"><a href="rendering.html#cb58-82" tabindex="-1"></a>          <span class="st">&quot;When passing a litr output format using the output_format argument,&quot;</span>,</span>
+<span id="cb58-83"><a href="rendering.html#cb58-83" tabindex="-1"></a>          <span class="st">&quot;you should not pass minimal_eval = TRUE directly to render.&quot;</span>,</span>
+<span id="cb58-84"><a href="rendering.html#cb58-84" tabindex="-1"></a>          <span class="st">&quot;Instead, pass it to the litr output format function.  For example,&quot;</span>,</span>
+<span id="cb58-85"><a href="rendering.html#cb58-85" tabindex="-1"></a>          <span class="st">&quot;litr::<a href='rendering.html#litr_html_document'>litr_html_document</a>(minimal_eval = TRUE).&quot;</span>,</span>
+<span id="cb58-86"><a href="rendering.html#cb58-86" tabindex="-1"></a>          <span class="at">collapse =</span> <span class="st">&quot; &quot;</span></span>
+<span id="cb58-87"><a href="rendering.html#cb58-87" tabindex="-1"></a>          )))</span>
+<span id="cb58-88"><a href="rendering.html#cb58-88" tabindex="-1"></a>      }</span>
+<span id="cb58-89"><a href="rendering.html#cb58-89" tabindex="-1"></a>    }</span>
+<span id="cb58-90"><a href="rendering.html#cb58-90" tabindex="-1"></a>    </span>
+<span id="cb58-91"><a href="rendering.html#cb58-91" tabindex="-1"></a>    <span class="cf">if</span> (bookdown_format) {</span>
+<span id="cb58-92"><a href="rendering.html#cb58-92" tabindex="-1"></a>      <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">is_file</span>(input)) input <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_dir</span>(input)</span>
+<span id="cb58-93"><a href="rendering.html#cb58-93" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">invisible</span>(<span class="fu">run_function</span>(<a href='rendering.html#with_cleanup'>with_cleanup</a>(bookdown<span class="sc">::</span>render_book,</span>
+<span id="cb58-94"><a href="rendering.html#cb58-94" tabindex="-1"></a>                                                 package_dir),</span>
+<span id="cb58-95"><a href="rendering.html#cb58-95" tabindex="-1"></a>                                    <span class="fu">c</span>(<span class="at">input =</span> input, args))))</span>
+<span id="cb58-96"><a href="rendering.html#cb58-96" tabindex="-1"></a>    }</span>
+<span id="cb58-97"><a href="rendering.html#cb58-97" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb58-98"><a href="rendering.html#cb58-98" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">invisible</span>(<span class="fu">run_function</span>(<a href='rendering.html#with_cleanup'>with_cleanup</a>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb58-99"><a href="rendering.html#cb58-99" tabindex="-1"></a>                                                 package_dir),</span>
+<span id="cb58-100"><a href="rendering.html#cb58-100" tabindex="-1"></a>                                    <span class="fu">c</span>(<span class="at">input =</span> input, args))))</span>
+<span id="cb58-101"><a href="rendering.html#cb58-101" tabindex="-1"></a>  }</span>
+<span id="cb58-102"><a href="rendering.html#cb58-102" tabindex="-1"></a>  </span>
+<span id="cb58-103"><a href="rendering.html#cb58-103" tabindex="-1"></a>  <span class="co"># the output format being used is not a litr-specific one, so we need to make</span></span>
+<span id="cb58-104"><a href="rendering.html#cb58-104" tabindex="-1"></a>  <span class="co"># sure that all the special litr things happen</span></span>
+<span id="cb58-105"><a href="rendering.html#cb58-105" tabindex="-1"></a>  args<span class="sc">$</span>package_dir <span class="ot">&lt;-</span> package_dir</span>
+<span id="cb58-106"><a href="rendering.html#cb58-106" tabindex="-1"></a></span>
+<span id="cb58-107"><a href="rendering.html#cb58-107" tabindex="-1"></a>  <span id='render_'>render_</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, package_dir, minimal_eval, ...) {</span>
+<span id="cb58-108"><a href="rendering.html#cb58-108" tabindex="-1"></a>    knitr_objects <span class="ot">&lt;-</span> litr<span class="sc">:::</span><a href='generating-package.html#setup'>setup</a>(package_dir, minimal_eval)</span>
+<span id="cb58-109"><a href="rendering.html#cb58-109" tabindex="-1"></a>    out <span class="ot">&lt;-</span> rmarkdown<span class="sc">::</span><a href='rendering.html#render'>render</a>(input, ...)</span>
+<span id="cb58-110"><a href="rendering.html#cb58-110" tabindex="-1"></a>    <a href='rendering.html#restore_knitr_objects'>restore_knitr_objects</a>(knitr_objects)</span>
+<span id="cb58-111"><a href="rendering.html#cb58-111" tabindex="-1"></a>    <span class="co"># remove .Rproj and .gitignore if usethis::create_package() added these</span></span>
+<span id="cb58-112"><a href="rendering.html#cb58-112" tabindex="-1"></a>    <a href='rendering.html#remove_rstudio_extras'>remove_rstudio_extras</a>(package_dir)</span>
+<span id="cb58-113"><a href="rendering.html#cb58-113" tabindex="-1"></a>    <span class="fu">return</span>(out)</span>
+<span id="cb58-114"><a href="rendering.html#cb58-114" tabindex="-1"></a>  }</span>
+<span id="cb58-115"><a href="rendering.html#cb58-115" tabindex="-1"></a></span>
+<span id="cb58-116"><a href="rendering.html#cb58-116" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">missing</span>(minimal_eval)) minimal_eval <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb58-117"><a href="rendering.html#cb58-117" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">run_function</span>(<a href='rendering.html#with_cleanup'>with_cleanup</a>(render_, package_dir),</span>
+<span id="cb58-118"><a href="rendering.html#cb58-118" tabindex="-1"></a>                      <span class="fu">c</span>(<span class="at">input =</span> input, <span class="at">minimal_eval =</span> minimal_eval, args))</span>
+<span id="cb58-119"><a href="rendering.html#cb58-119" tabindex="-1"></a></span>
+<span id="cb58-120"><a href="rendering.html#cb58-120" tabindex="-1"></a></span>
+<span id="cb58-121"><a href="rendering.html#cb58-121" tabindex="-1"></a>  <span class="co"># add hyperlinks within html output to make it easier to navigate:</span></span>
+<span id="cb58-122"><a href="rendering.html#cb58-122" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(out, <span class="st">&quot;html$&quot;</span>))) {</span>
+<span id="cb58-123"><a href="rendering.html#cb58-123" tabindex="-1"></a>    html_file <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(out, <span class="st">&quot;html$&quot;</span>)</span>
+<span id="cb58-124"><a href="rendering.html#cb58-124" tabindex="-1"></a>    <a href='rendering.html#add_function_hyperlinks'>add_function_hyperlinks</a>(html_file, params<span class="sc">$</span>package_name)</span>
+<span id="cb58-125"><a href="rendering.html#cb58-125" tabindex="-1"></a>    <a href='rendering.html#add_chunk_label_hyperlinks'>add_chunk_label_hyperlinks</a>(html_file)</span>
+<span id="cb58-126"><a href="rendering.html#cb58-126" tabindex="-1"></a>  }</span>
+<span id="cb58-127"><a href="rendering.html#cb58-127" tabindex="-1"></a>  </span>
+<span id="cb58-128"><a href="rendering.html#cb58-128" tabindex="-1"></a>  <span class="co"># add to DESCRIPTION file the version of litr used to create package:</span></span>
+<span id="cb58-129"><a href="rendering.html#cb58-129" tabindex="-1"></a>  <a href='rendering.html#write_version_to_description'>write_version_to_description</a>(package_dir)</span>
+<span id="cb58-130"><a href="rendering.html#cb58-130" tabindex="-1"></a>  </span>
+<span id="cb58-131"><a href="rendering.html#cb58-131" tabindex="-1"></a>  <span class="co"># add litr hash so we can tell later if package files were manually edited:</span></span>
+<span id="cb58-132"><a href="rendering.html#cb58-132" tabindex="-1"></a>  <a href='hash.html#write_hash_to_description'>write_hash_to_description</a>(package_dir)</span>
+<span id="cb58-133"><a href="rendering.html#cb58-133" tabindex="-1"></a>}</span></code></pre></div>
 <p>We used the package <code>xfun</code>, so let’s import it:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="rendering.html#cb57-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;xfun&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="rendering.html#cb59-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;xfun&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;xfun&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `xfun::fun()`</code></pre>
 <p>When <code>litr::<a href='rendering.html#render'>render</a>()</code> encounters an error, it can leave the output directory partially modified. We want to make sure the <code>litr</code> hash still gets written to the DESCRIPTION file. Otherwise, the next time one calls <code>litr::<a href='rendering.html#render'>render</a>()</code> it does not allow this directory to be overwritten. We do this by using <code>withCallingHandlers()</code>. This function, explained <a href="http://adv-r.had.co.nz/Exceptions-Debugging.html">here</a>, is similar to <code>tryCatch()</code>, but with the advantage that it lets the function to continue to run normally, meaning that we will still get the error message as it would appear if we hadn’t done the condition handling.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="rendering.html#cb59-1" tabindex="-1"></a><span class="co">#&#39; Add litr hash to DESCRIPTION file if error encountered</span></span>
-<span id="cb59-2"><a href="rendering.html#cb59-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb59-3"><a href="rendering.html#cb59-3" tabindex="-1"></a><span class="co">#&#39; This creates a function that calls the passed function within the context of</span></span>
-<span id="cb59-4"><a href="rendering.html#cb59-4" tabindex="-1"></a><span class="co">#&#39; a try-catch.  If an error is encountered, the litr hash is still added to</span></span>
-<span id="cb59-5"><a href="rendering.html#cb59-5" tabindex="-1"></a><span class="co">#&#39; the DESCRIPTION file so that future calls to `litr::<a href='rendering.html#render'>render</a>()` will recognize</span></span>
-<span id="cb59-6"><a href="rendering.html#cb59-6" tabindex="-1"></a><span class="co">#&#39; that it can safely overwrite the package directory (i.e., no manual editing</span></span>
-<span id="cb59-7"><a href="rendering.html#cb59-7" tabindex="-1"></a><span class="co">#&#39; occurred).</span></span>
-<span id="cb59-8"><a href="rendering.html#cb59-8" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb59-9"><a href="rendering.html#cb59-9" tabindex="-1"></a><span class="co">#&#39; @param fun function being called</span></span>
-<span id="cb59-10"><a href="rendering.html#cb59-10" tabindex="-1"></a><span class="co">#&#39; @param package_dir directory where package is being written to</span></span>
-<span id="cb59-11"><a href="rendering.html#cb59-11" tabindex="-1"></a><span class="co">#&#39; @param ... arguments to be passed to `fun`</span></span>
-<span id="cb59-12"><a href="rendering.html#cb59-12" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb59-13"><a href="rendering.html#cb59-13" tabindex="-1"></a><span id='with_cleanup'>with_cleanup</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(fun, package_dir) {</span>
-<span id="cb59-14"><a href="rendering.html#cb59-14" tabindex="-1"></a>  <span class="fu">return</span>(<span class="cf">function</span>(...) {</span>
-<span id="cb59-15"><a href="rendering.html#cb59-15" tabindex="-1"></a>    <span class="fu">withCallingHandlers</span>(</span>
-<span id="cb59-16"><a href="rendering.html#cb59-16" tabindex="-1"></a>      <span class="fu">fun</span>(...),</span>
-<span id="cb59-17"><a href="rendering.html#cb59-17" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
-<span id="cb59-18"><a href="rendering.html#cb59-18" tabindex="-1"></a>        <span class="co"># add litr hash so we can tell later if package files were manually edited:</span></span>
-<span id="cb59-19"><a href="rendering.html#cb59-19" tabindex="-1"></a>        <a href='hash.html#write_hash_to_description'>write_hash_to_description</a>(package_dir)</span>
-<span id="cb59-20"><a href="rendering.html#cb59-20" tabindex="-1"></a>      })</span>
-<span id="cb59-21"><a href="rendering.html#cb59-21" tabindex="-1"></a>  })</span>
-<span id="cb59-22"><a href="rendering.html#cb59-22" tabindex="-1"></a>}</span></code></pre></div>
-<p>In <code><a href='generating-package.html#setup'>setup</a>()</code>, we modified the knitr objects (e.g., adding hooks, engines, etc.). We call the function <code><a href='rendering.html#restore_knitr_objects'>restore_knitr_objects</a>()</code> after we’re done, to put things back how they were:</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="rendering.html#cb60-1" tabindex="-1"></a><span class="co">#&#39; Return the knitr objects to their original state</span></span>
-<span id="cb60-2"><a href="rendering.html#cb60-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb60-3"><a href="rendering.html#cb60-3" tabindex="-1"></a><span class="co">#&#39; @param original_knitr_objects As returned by `<a href='generating-package.html#setup'>setup</a>()`</span></span>
-<span id="cb60-4"><a href="rendering.html#cb60-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb60-5"><a href="rendering.html#cb60-5" tabindex="-1"></a><span id='restore_knitr_objects'>restore_knitr_objects</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(original_knitr_objects) {</span>
-<span id="cb60-6"><a href="rendering.html#cb60-6" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>opts_knit)</span>
-<span id="cb60-7"><a href="rendering.html#cb60-7" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>knit_hooks)</span>
-<span id="cb60-8"><a href="rendering.html#cb60-8" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>opts_chunk)</span>
-<span id="cb60-9"><a href="rendering.html#cb60-9" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_hooks<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>opts_hooks)</span>
-<span id="cb60-10"><a href="rendering.html#cb60-10" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>knit_engines)</span>
-<span id="cb60-11"><a href="rendering.html#cb60-11" tabindex="-1"></a>}</span></code></pre></div>
-<p>Another thing we want to do at the end of the rendering process is to remove two files that might have been created by usethis: .Rproj and .gitignore. These are created by <code>usethis::create_package()</code> when <code>rstudio = TRUE</code>. We don’t want these files created since this would suggest to a user that the R package should be worked on from within it rather than from the generating .Rmd file.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="rendering.html#cb61-1" tabindex="-1"></a><span class="co">#&#39; Remove extra files added by usethis</span></span>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="rendering.html#cb61-1" tabindex="-1"></a><span class="co">#&#39; Add litr hash to DESCRIPTION file if error encountered</span></span>
 <span id="cb61-2"><a href="rendering.html#cb61-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb61-3"><a href="rendering.html#cb61-3" tabindex="-1"></a><span class="co">#&#39; Remove .Rproj and .gitignore files if they are in the package directory.</span></span>
-<span id="cb61-4"><a href="rendering.html#cb61-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb61-5"><a href="rendering.html#cb61-5" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
-<span id="cb61-6"><a href="rendering.html#cb61-6" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb61-7"><a href="rendering.html#cb61-7" tabindex="-1"></a><span id='remove_rstudio_extras'>remove_rstudio_extras</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
-<span id="cb61-8"><a href="rendering.html#cb61-8" tabindex="-1"></a>  extras <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(package_dir,</span>
-<span id="cb61-9"><a href="rendering.html#cb61-9" tabindex="-1"></a>                       <span class="at">all =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb61-10"><a href="rendering.html#cb61-10" tabindex="-1"></a>                       <span class="at">regexp =</span> <span class="st">&quot;[.]Rproj$|[.]gitignore$&quot;</span>)</span>
-<span id="cb61-11"><a href="rendering.html#cb61-11" tabindex="-1"></a>  rbuildignore <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;.Rbuildignore&quot;</span>)</span>
-<span id="cb61-12"><a href="rendering.html#cb61-12" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(rbuildignore)</span>
-<span id="cb61-13"><a href="rendering.html#cb61-13" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(txt, <span class="st">&quot;^.*Rproj.*$&quot;</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb61-14"><a href="rendering.html#cb61-14" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, <span class="at">con =</span> rbuildignore)</span>
-<span id="cb61-15"><a href="rendering.html#cb61-15" tabindex="-1"></a>  <span class="cf">for</span> (extra <span class="cf">in</span> extras) fs<span class="sc">::</span><span class="fu">file_delete</span>(extra)</span>
-<span id="cb61-16"><a href="rendering.html#cb61-16" tabindex="-1"></a>}</span></code></pre></div>
-<p>As described earlier, the function <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code> combines the parameters from the YAML but allows for those values to be overridden through arguments passed to <code><a href='rendering.html#render'>render</a>()</code>.</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="rendering.html#cb62-1" tabindex="-1"></a><span class="co">#&#39; Get parameter values used in rendering</span></span>
+<span id="cb61-3"><a href="rendering.html#cb61-3" tabindex="-1"></a><span class="co">#&#39; This creates a function that calls the passed function within the context of</span></span>
+<span id="cb61-4"><a href="rendering.html#cb61-4" tabindex="-1"></a><span class="co">#&#39; a try-catch.  If an error is encountered, the litr hash is still added to</span></span>
+<span id="cb61-5"><a href="rendering.html#cb61-5" tabindex="-1"></a><span class="co">#&#39; the DESCRIPTION file so that future calls to `litr::<a href='rendering.html#render'>render</a>()` will recognize</span></span>
+<span id="cb61-6"><a href="rendering.html#cb61-6" tabindex="-1"></a><span class="co">#&#39; that it can safely overwrite the package directory (i.e., no manual editing</span></span>
+<span id="cb61-7"><a href="rendering.html#cb61-7" tabindex="-1"></a><span class="co">#&#39; occurred).</span></span>
+<span id="cb61-8"><a href="rendering.html#cb61-8" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb61-9"><a href="rendering.html#cb61-9" tabindex="-1"></a><span class="co">#&#39; @param fun function being called</span></span>
+<span id="cb61-10"><a href="rendering.html#cb61-10" tabindex="-1"></a><span class="co">#&#39; @param package_dir directory where package is being written to</span></span>
+<span id="cb61-11"><a href="rendering.html#cb61-11" tabindex="-1"></a><span class="co">#&#39; @param ... arguments to be passed to `fun`</span></span>
+<span id="cb61-12"><a href="rendering.html#cb61-12" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb61-13"><a href="rendering.html#cb61-13" tabindex="-1"></a><span id='with_cleanup'>with_cleanup</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(fun, package_dir) {</span>
+<span id="cb61-14"><a href="rendering.html#cb61-14" tabindex="-1"></a>  <span class="fu">return</span>(<span class="cf">function</span>(...) {</span>
+<span id="cb61-15"><a href="rendering.html#cb61-15" tabindex="-1"></a>    <span class="fu">withCallingHandlers</span>(</span>
+<span id="cb61-16"><a href="rendering.html#cb61-16" tabindex="-1"></a>      <span class="fu">fun</span>(...),</span>
+<span id="cb61-17"><a href="rendering.html#cb61-17" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb61-18"><a href="rendering.html#cb61-18" tabindex="-1"></a>        <span class="co"># add litr hash so we can tell later if package files were manually edited:</span></span>
+<span id="cb61-19"><a href="rendering.html#cb61-19" tabindex="-1"></a>        <a href='hash.html#write_hash_to_description'>write_hash_to_description</a>(package_dir)</span>
+<span id="cb61-20"><a href="rendering.html#cb61-20" tabindex="-1"></a>      })</span>
+<span id="cb61-21"><a href="rendering.html#cb61-21" tabindex="-1"></a>  })</span>
+<span id="cb61-22"><a href="rendering.html#cb61-22" tabindex="-1"></a>}</span></code></pre></div>
+<p>In <code><a href='generating-package.html#setup'>setup</a>()</code>, we modified the knitr objects (e.g., adding hooks, engines, etc.). We call the function <code><a href='rendering.html#restore_knitr_objects'>restore_knitr_objects</a>()</code> after we’re done, to put things back how they were:</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="rendering.html#cb62-1" tabindex="-1"></a><span class="co">#&#39; Return the knitr objects to their original state</span></span>
 <span id="cb62-2"><a href="rendering.html#cb62-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb62-3"><a href="rendering.html#cb62-3" tabindex="-1"></a><span class="co">#&#39; When the `params` argument of `rmarkdown::render()` is explicitly used, this</span></span>
-<span id="cb62-4"><a href="rendering.html#cb62-4" tabindex="-1"></a><span class="co">#&#39; overrides the default that appears in `input`.</span></span>
-<span id="cb62-5"><a href="rendering.html#cb62-5" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
-<span id="cb62-6"><a href="rendering.html#cb62-6" tabindex="-1"></a><span class="co">#&#39; @param passed_params The list of parameters that were passed to `render`.</span></span>
-<span id="cb62-7"><a href="rendering.html#cb62-7" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb62-8"><a href="rendering.html#cb62-8" tabindex="-1"></a><span id='get_params_used'>get_params_used</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, passed_params) {</span>
-<span id="cb62-9"><a href="rendering.html#cb62-9" tabindex="-1"></a>  params <span class="ot">&lt;-</span> rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(input)<span class="sc">$</span>params</span>
-<span id="cb62-10"><a href="rendering.html#cb62-10" tabindex="-1"></a>  <span class="cf">for</span> (param <span class="cf">in</span> <span class="fu">names</span>(passed_params)) {</span>
-<span id="cb62-11"><a href="rendering.html#cb62-11" tabindex="-1"></a>    params[[param]] <span class="ot">&lt;-</span> passed_params[[param]]</span>
-<span id="cb62-12"><a href="rendering.html#cb62-12" tabindex="-1"></a>  }</span>
-<span id="cb62-13"><a href="rendering.html#cb62-13" tabindex="-1"></a>  params</span>
-<span id="cb62-14"><a href="rendering.html#cb62-14" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb62-3"><a href="rendering.html#cb62-3" tabindex="-1"></a><span class="co">#&#39; @param original_knitr_objects As returned by `<a href='generating-package.html#setup'>setup</a>()`</span></span>
+<span id="cb62-4"><a href="rendering.html#cb62-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb62-5"><a href="rendering.html#cb62-5" tabindex="-1"></a><span id='restore_knitr_objects'>restore_knitr_objects</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(original_knitr_objects) {</span>
+<span id="cb62-6"><a href="rendering.html#cb62-6" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>opts_knit)</span>
+<span id="cb62-7"><a href="rendering.html#cb62-7" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_hooks<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>knit_hooks)</span>
+<span id="cb62-8"><a href="rendering.html#cb62-8" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>opts_chunk)</span>
+<span id="cb62-9"><a href="rendering.html#cb62-9" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_hooks<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>opts_hooks)</span>
+<span id="cb62-10"><a href="rendering.html#cb62-10" tabindex="-1"></a>  knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">restore</span>(original_knitr_objects<span class="sc">$</span>knit_engines)</span>
+<span id="cb62-11"><a href="rendering.html#cb62-11" tabindex="-1"></a>}</span></code></pre></div>
+<p>Another thing we want to do at the end of the rendering process is to remove two files that might have been created by usethis: .Rproj and .gitignore. These are created by <code>usethis::create_package()</code> when <code>rstudio = TRUE</code>. We don’t want these files created since this would suggest to a user that the R package should be worked on from within it rather than from the generating .Rmd file.</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="rendering.html#cb63-1" tabindex="-1"></a><span class="co">#&#39; Remove extra files added by usethis</span></span>
+<span id="cb63-2"><a href="rendering.html#cb63-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb63-3"><a href="rendering.html#cb63-3" tabindex="-1"></a><span class="co">#&#39; Remove .Rproj and .gitignore files if they are in the package directory.</span></span>
+<span id="cb63-4"><a href="rendering.html#cb63-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb63-5"><a href="rendering.html#cb63-5" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
+<span id="cb63-6"><a href="rendering.html#cb63-6" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb63-7"><a href="rendering.html#cb63-7" tabindex="-1"></a><span id='remove_rstudio_extras'>remove_rstudio_extras</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
+<span id="cb63-8"><a href="rendering.html#cb63-8" tabindex="-1"></a>  extras <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(package_dir,</span>
+<span id="cb63-9"><a href="rendering.html#cb63-9" tabindex="-1"></a>                       <span class="at">all =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb63-10"><a href="rendering.html#cb63-10" tabindex="-1"></a>                       <span class="at">regexp =</span> <span class="st">&quot;[.]Rproj$|[.]gitignore$&quot;</span>)</span>
+<span id="cb63-11"><a href="rendering.html#cb63-11" tabindex="-1"></a>  rbuildignore <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;.Rbuildignore&quot;</span>)</span>
+<span id="cb63-12"><a href="rendering.html#cb63-12" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(rbuildignore)</span>
+<span id="cb63-13"><a href="rendering.html#cb63-13" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(txt, <span class="st">&quot;^.*Rproj.*$&quot;</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb63-14"><a href="rendering.html#cb63-14" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, <span class="at">con =</span> rbuildignore)</span>
+<span id="cb63-15"><a href="rendering.html#cb63-15" tabindex="-1"></a>  <span class="cf">for</span> (extra <span class="cf">in</span> extras) fs<span class="sc">::</span><span class="fu">file_delete</span>(extra)</span>
+<span id="cb63-16"><a href="rendering.html#cb63-16" tabindex="-1"></a>}</span></code></pre></div>
+<p>As described earlier, the function <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code> combines the parameters from the YAML but allows for those values to be overridden through arguments passed to <code><a href='rendering.html#render'>render</a>()</code>.</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="rendering.html#cb64-1" tabindex="-1"></a><span class="co">#&#39; Get parameter values used in rendering</span></span>
+<span id="cb64-2"><a href="rendering.html#cb64-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb64-3"><a href="rendering.html#cb64-3" tabindex="-1"></a><span class="co">#&#39; When the `params` argument of `rmarkdown::render()` is explicitly used, this</span></span>
+<span id="cb64-4"><a href="rendering.html#cb64-4" tabindex="-1"></a><span class="co">#&#39; overrides the default that appears in `input`.</span></span>
+<span id="cb64-5"><a href="rendering.html#cb64-5" tabindex="-1"></a><span class="co">#&#39; @param input The input file to be rendered (see `rmarkdown::render`)</span></span>
+<span id="cb64-6"><a href="rendering.html#cb64-6" tabindex="-1"></a><span class="co">#&#39; @param passed_params The list of parameters that were passed to `render`.</span></span>
+<span id="cb64-7"><a href="rendering.html#cb64-7" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb64-8"><a href="rendering.html#cb64-8" tabindex="-1"></a><span id='get_params_used'>get_params_used</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(input, passed_params) {</span>
+<span id="cb64-9"><a href="rendering.html#cb64-9" tabindex="-1"></a>  params <span class="ot">&lt;-</span> rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(input)<span class="sc">$</span>params</span>
+<span id="cb64-10"><a href="rendering.html#cb64-10" tabindex="-1"></a>  <span class="cf">for</span> (param <span class="cf">in</span> <span class="fu">names</span>(passed_params)) {</span>
+<span id="cb64-11"><a href="rendering.html#cb64-11" tabindex="-1"></a>    params[[param]] <span class="ot">&lt;-</span> passed_params[[param]]</span>
+<span id="cb64-12"><a href="rendering.html#cb64-12" tabindex="-1"></a>  }</span>
+<span id="cb64-13"><a href="rendering.html#cb64-13" tabindex="-1"></a>  params</span>
+<span id="cb64-14"><a href="rendering.html#cb64-14" tabindex="-1"></a>}</span></code></pre></div>
 <p>We used the package <code>rmarkdown</code>, so let’s import it:</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="rendering.html#cb63-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;rmarkdown&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="rendering.html#cb65-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;rmarkdown&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;rmarkdown&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `rmarkdown::fun()`</code></pre>
 </div>
