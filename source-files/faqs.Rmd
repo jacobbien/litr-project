@@ -21,7 +21,7 @@ A vignette serves a very different purpose from the .Rmd file you use in `litr`.
 
 ## For large packages, can I write my package across multiple .Rmd files?
 
-Yes!  You can use `bookdown` to define your R package across multiple .Rmd files.  This leads to a nice looking online book with multiple chapters.  When you render the book all .Rmd files are run in a single environment, so it behaves in the same way as if you had one enormous .Rmd file.  [Here](http://faculty.marshall.usc.edu/jacob-bien/frombookdown/_book/)'s an example.  The easiest way to get started is to work from the [template](package-templates.html) called `make-an-r-package-from-bookdown`.
+Yes!  You can use `bookdown` to define your R package across multiple .Rmd files.  This leads to a nice looking online book with multiple chapters.  When you render the book all .Rmd files are run in a single environment, so it behaves in the same way as if you had one enormous .Rmd file.  [Here](http://faculty.marshall.usc.edu/jacob-bien/frombookdown/_book/)'s an example.  The easiest way to get started is to work from [template](package-templates.html) using `litr::draft_bookdown()`.
 
 ## Can I include a README for my package?
 

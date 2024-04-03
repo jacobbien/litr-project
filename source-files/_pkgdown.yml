@@ -32,9 +32,21 @@ reference:
   desc: >
     These are the functions you'll use the most.
   contents:
+    - draft
     - render
     - document
     - load_all
+
+- title: Working from template
+  desc: >
+    These are functions for quickly creating different kinds of R packages.
+  contents:
+    - draft
+    - draft_bookdown
+    - draft_data
+    - draft_rcpp
+    - draft_extras
+    - draft_armadillo
 
 - title: Functions for adding "extras" to your package
   desc: >

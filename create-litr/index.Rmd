@@ -50,7 +50,7 @@ usethis::create_package(
   path = ".",
   fields = list(
     Package = params$package_name,
-    Version = "0.9.1",
+    Version = "0.9.2",
     Title = "Literate Programming for Writing R Packages",
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
@@ -75,12 +75,9 @@ Let's add some package-level documentation.  This is what will show up when some
 #' package development.
 #' 
 #' @examples
-#' # Make a file create-rhello.Rmd based on a template
 #' \dontrun{
-#' rmarkdown::draft("create-rhello.Rmd", 
-#'                  template = "make-an-r-package",
-#'                  package = "litr",
-#'                  edit = FALSE)
+#' # Make a file create-rhello.Rmd based on a template
+#' litr::draft("rhello")
 #' # Now call litr::render (or press Knit if in RStudio) to generate not just
 #' # create-rhello.html, but also an R package called `rhello`.
 #' litr::render("create-rhello.Rmd")
@@ -1682,6 +1679,8 @@ usethis::use_package("rmarkdown")
 
 # Functionality to facilitate workflow
 
+## Load all
+
 When someone is writing an R package with devtools, it is common to use `devtools::load_all()` to quickly try out the functions of an R package in the console.  We'd like to allow for a similar workflow using litr.  We define a litr function called `load_all()`, which will do the following:
 
 1. Litr-knit the .Rmd file with `minimal_eval=TRUE` to some temporary location (since the idea of `load_all()` is to leave the .html file alone) and then delete the .html file.
@@ -1756,6 +1755,298 @@ testthat::test_that('load_all() works', {
 })
 ```
 
+## Templates
+
+### Including template files in package
+
+We now add the .Rmd templates to the package.  We have the `skeleton.Rmd` for each template defined in `source-files`.  Note that paths are relative to the outputted package's location.
+
+The first template is the simplest imaginable package with a single function:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package",
+  template_dir = "make-an-r-package",
+  template_description = "Template for an Rmd file for writing an R package using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package", "skeleton.Rmd"
+    ), 
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package", "skeleton"
+    ), 
+  overwrite = TRUE
+)
+```
+
+The second template shows how to create a package with a dataset:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With a Dataset",
+  template_dir = "make-an-r-package-with-data",
+  template_description = "Template for an Rmd file for writing an R package with a dataset using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package-with-data", "skeleton.Rmd"
+    ), 
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-data", "skeleton"
+    ), 
+  overwrite = TRUE
+)
+```
+
+The third template shows how to create a package that uses `Rcpp`:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With Rcpp",
+  template_dir = "make-an-r-package-with-rcpp",
+  template_description = "Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package-with-rcpp", "skeleton.Rmd"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-rcpp", "skeleton"
+    ),
+  overwrite = TRUE
+)
+```
+
+The fourth template shows how to create a package with "extras" such as a README, a vignette, and a pkgdown site:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With a README, Vignette, and Pkgdown Site",
+  template_dir = "make-an-r-package-with-extras",
+  template_description = "Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package-with-extras", "skeleton.Rmd"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton"
+    ),
+  overwrite = TRUE
+)
+fs::dir_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package-with-extras", "source-files"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
+    "source-files"
+    ),
+  overwrite = TRUE
+)
+```
+
+The fifth template shows how to create a package from a bookdown site, i.e. instead of having just a single `create-pkg.Rmd`, we can have a series of .Rmd files that together create a bookdown:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package From a Bookdown",
+  template_dir = "make-an-r-package-from-bookdown",
+  template_description = "Template for a bookdown that defines an R package using literate programming.",
+  template_create_dir = TRUE
+)
+fs::dir_copy(
+  path = file.path("..", "source-files", "make-an-r-package-from-bookdown"),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-from-bookdown", "skeleton"
+    ),
+  overwrite = TRUE
+)
+```
+
+
+The sixth template shows how to create a package that uses `RcppArmadillo`:
+
+```{r}
+usethis::use_rmarkdown_template(
+  template_name = "Template To Make an R Package With RcppArmadillo",
+  template_dir = "make-an-r-package-with-armadillo",
+  template_description = "Template for an Rmd file for writing an R package that makes use of RcppArmadillo while using literate programming.",
+  template_create_dir = FALSE
+)
+fs::file_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package-with-armadillo", "skeleton.Rmd"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-armadillo", "skeleton"
+    ),
+  overwrite = TRUE
+)
+```
+
+### Draft functions for working from template
+
+The syntax for working from template using `rmarkdown` is a bit cumbersome:
+
+```{r, eval=FALSE}
+rmarkdown::draft("create-rhello.Rmd", template = "make-an-r-package", package = "litr")
+```
+
+We therefore define some `litr`-specific draft functions (thanks to Yihui Xie for suggesting this!).
+
+There is some reusable documentation in these functions, so we'll define these reusable parts first and then reuse them later.
+
+The functions will all have the following parameters:
+
+```{r params-for-draft}
+#' @param pkg_name Name of package to be created.
+#' @param dir (Optional) Directory where .Rmd file should be created
+```
+
+And the effect of the functions are the same:
+
+```{r explain-draft-rmd}
+#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
+#' `litr::render()`) will create an R package called `pkg_name`.
+```
+
+The heart of the functions will be to call `rmarkdown::draft()` on a template but then modify the template so that it has the package name in it rather than whatever the default was.
+
+```{r, send_to = "R/draft.R"}
+#' Internal function for creating a .Rmd file from template
+<<params-for-draft>>
+#' @param template_name Name of template
+#' @keywords internal
+create_from_template <- function(pkg_name, dir, template_name) {
+  filename <- stringr::str_glue(file.path(dir, "create-{pkg_name}.Rmd"))
+  rmarkdown::draft(filename, template = template_name, package = "litr",
+                   edit = FALSE)
+  rmd <- readLines(filename)
+  rmd <- stringr::str_replace(rmd, 'package_name: .+$',
+                              stringr::str_glue('package_name: "{pkg_name}"'))
+  writeLines(rmd, filename)
+  message(stringr::str_glue("Created new file {filename}."))
+}
+```
+
+We are now ready to define the draft functions.  We start with the simplest:
+
+```{r, send_to = "R/draft.R"}
+#' Create a new litr .Rmd document for creating an R package
+#' 
+<<explain-draft-rmd>>
+#' 
+#' This is the most basic R package template, with one function and one test 
+#' function.
+<<params-for-draft>>
+#' @export
+#' @seealso \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}
+draft <- function(pkg_name = "rhello", dir = ".") {
+  create_from_template(pkg_name, dir, "make-an-r-package")
+}
+```
+
+And now we define the draft function for creating an R package with a data set in it:
+
+```{r, send_to = "R/draft.R"}
+#' Create a new litr .Rmd document for creating an R package with a data set
+#' 
+<<explain-draft-rmd>>
+#' This template shows how to make an R package with a data set in it.
+#' 
+<<params-for-draft>>
+#' @export
+#' @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_rcpp}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}
+draft_data <- function(pkg_name = "rhasdata", dir = ".") {
+  create_from_template(pkg_name, dir, "make-an-r-package-with-data")
+}
+```
+
+And now we define the draft function for creating an R package that uses `Rcpp`:
+
+```{r, send_to = "R/draft.R"}
+#' Create a new litr .Rmd document for creating an R package that uses `Rcpp`
+#' 
+<<explain-draft-rmd>>
+#' This template shows how to make an R package that uses `Rcpp`.
+#' 
+<<params-for-draft>>
+#' @export
+#' @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}
+draft_rcpp <- function(pkg_name = "withrcpp", dir = ".") {
+  create_from_template(pkg_name, dir, "make-an-r-package-with-rcpp")
+}
+```
+
+And now we define the draft function for creating an R package that has "extras" such as a README, vignette(s), a pkgdown site, and a hex sticker:
+
+```{r, send_to = "R/draft.R"}
+#' Create a new litr .Rmd document for creating an R package with extras
+#' 
+<<explain-draft-rmd>>
+#' This template shows how to make an R package that has "extras" such as a
+#' README, vignette(s), a pkgdown site, and a hex sticker.
+#' 
+<<params-for-draft>>
+#' @export
+#' @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_armadillo}}
+draft_extras <- function(pkg_name = "withpkgdown", dir = ".") {
+  create_from_template(pkg_name, dir, "make-an-r-package-with-extras")
+}
+```
+
+And now we define the draft function for creating an R package that uses `RcppArmadillo`:
+
+```{r, send_to = "R/draft.R"}
+#' Create a new litr .Rmd document for creating an R package that uses `RcppArmadillo`
+#' 
+<<explain-draft-rmd>>
+#' This template shows how to make an R package that uses `RcppArmadillo`.
+#' 
+<<params-for-draft>>
+#' @export
+#' @seealso \code{\link{draft}} \code{\link{draft_bookdown}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_extras}}
+draft_armadillo <- function(pkg_name = "witharmadillo", dir = ".") {
+  create_from_template(pkg_name, dir, "make-an-r-package-with-armadillo")
+}
+```
+
+
+Finally, we define the draft function for creating an R package from `bookdown`.  The code for this one is a bit different because it creates a directory with a number of .Rmd files.
+
+```{r, send_to = "R/draft.R"}
+#' Create a new litr .Rmd document for creating an R package from `bookdown`
+#' 
+#' This template shows how to make an R package from `bookdown`. It creates a directory called `create-[pkg_name]` in `dir`.  Rendering the file `index.Rmd`
+#' with `litr::render()` creates the bookdown and package.
+#' 
+<<params-for-draft>>
+#' @export
+#' @seealso \code{\link{draft}} \code{\link{draft_data}} \code{\link{draft_rcpp}} \code{\link{draft_extras}} \code{\link{draft_armadillo}}
+draft_bookdown <- function(pkg_name = "frombookdown", dir = ".") {
+  create_pkg <- stringr::str_glue("create-{pkg_name}")
+  dirname <- stringr::str_glue(file.path(dir, create_pkg))
+  rmarkdown::draft(dirname,
+                   template = "make-an-r-package-from-bookdown",
+                   package = "litr",
+                   edit = FALSE)
+  # delete unneeded file:
+  fs::file_delete(file.path(dirname, paste0(create_pkg, ".Rmd")))
+  index_file <- file.path(dirname, "index.Rmd")
+  # adjust index.Rmd with name of package
+  rmd <- readLines(index_file)
+  rmd <- stringr::str_replace(rmd, 'package_name: .+$',
+                              stringr::str_glue('package_name: "{pkg_name}"'))
+  writeLines(rmd, index_file)
+  message(stringr::str_glue("Created new directory {dirname}"))
+}
+```
 
 # Adding extras to an R package
 
@@ -1886,138 +2177,6 @@ usethis::use_package("yaml")
 ```
 
 
-# Including templates
-
-We now add the .Rmd templates to the package.  We have the `skeleton.Rmd` defined in `source-files`.  Note that paths are relative to the outputted package's location.
-
-The first template is the simplest imaginable package with a single function:
-
-```{r}
-usethis::use_rmarkdown_template(
-  template_name = "Template To Make an R Package",
-  template_dir = "make-an-r-package",
-  template_description = "Template for an Rmd file for writing an R package using literate programming.",
-  template_create_dir = FALSE
-)
-fs::file_copy(
-  path = file.path(
-    "..", "source-files", "make-an-r-package", "skeleton.Rmd"
-    ), 
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package", "skeleton"
-    ), 
-  overwrite = TRUE
-)
-```
-
-The second template shows how to create a package with a dataset:
-
-```{r}
-usethis::use_rmarkdown_template(
-  template_name = "Template To Make an R Package With a Dataset",
-  template_dir = "make-an-r-package-with-data",
-  template_description = "Template for an Rmd file for writing an R package with a dataset using literate programming.",
-  template_create_dir = FALSE
-)
-fs::file_copy(
-  path = file.path(
-    "..", "source-files", "make-an-r-package-with-data", "skeleton.Rmd"
-    ), 
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package-with-data", "skeleton"
-    ), 
-  overwrite = TRUE
-)
-```
-
-The third template shows how to create a package that uses `Rcpp`:
-
-```{r}
-usethis::use_rmarkdown_template(
-  template_name = "Template To Make an R Package With Rcpp",
-  template_dir = "make-an-r-package-with-rcpp",
-  template_description = "Template for an Rmd file for writing an R package that makes use of Rcpp while using literate programming.",
-  template_create_dir = FALSE
-)
-fs::file_copy(
-  path = file.path(
-    "..", "source-files", "make-an-r-package-with-rcpp", "skeleton.Rmd"
-    ),
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package-with-rcpp", "skeleton"
-    ),
-  overwrite = TRUE
-)
-```
-
-The fourth template shows how to create a package with "extras" such as a README, a vignette, and a pkgdown site:
-
-```{r}
-usethis::use_rmarkdown_template(
-  template_name = "Template To Make an R Package With a README, Vignette, and Pkgdown Site",
-  template_dir = "make-an-r-package-with-extras",
-  template_description = "Template for an Rmd file for writing an R package that has a README, vignette, and pkgdown site while using literate programming.",
-  template_create_dir = FALSE
-)
-fs::file_copy(
-  path = file.path(
-    "..", "source-files", "make-an-r-package-with-extras", "skeleton.Rmd"
-    ),
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton"
-    ),
-  overwrite = TRUE
-)
-fs::dir_copy(
-  path = file.path(
-    "..", "source-files", "make-an-r-package-with-extras", "source-files"
-    ),
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package-with-extras", "skeleton",
-    "source-files"
-    ),
-  overwrite = TRUE
-)
-```
-
-The fifth template shows how to create a package from a bookdown site, i.e. instead of having just a single `create-pkg.Rmd`, we can have a series of .Rmd files that together create a bookdown:
-
-```{r}
-usethis::use_rmarkdown_template(
-  template_name = "Template To Make an R Package From a Bookdown",
-  template_dir = "make-an-r-package-from-bookdown",
-  template_description = "Template for a bookdown that defines an R package using literate programming.",
-  template_create_dir = TRUE
-)
-fs::dir_copy(
-  path = file.path("..", "source-files", "make-an-r-package-from-bookdown"),
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package-from-bookdown", "skeleton"
-    ),
-  overwrite = TRUE
-)
-```
-
-
-The sixth template shows how to create a package that uses `RcppArmadillo`:
-
-```{r}
-usethis::use_rmarkdown_template(
-  template_name = "Template To Make an R Package With RcppArmadillo",
-  template_dir = "make-an-r-package-with-armadillo",
-  template_description = "Template for an Rmd file for writing an R package that makes use of RcppArmadillo while using literate programming.",
-  template_create_dir = FALSE
-)
-fs::file_copy(
-  path = file.path(
-    "..", "source-files", "make-an-r-package-with-armadillo", "skeleton.Rmd"
-    ),
-  new_path = file.path(
-    "inst", "rmarkdown", "templates", "make-an-r-package-with-armadillo", "skeleton"
-    ),
-  overwrite = TRUE
-)
-```
 
 # Defining some tests {#tests}
 

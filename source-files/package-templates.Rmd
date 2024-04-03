@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Predefined `litr` templates make it easy to get started writing R packages of various kinds.  The following table shows the package templates available.  Click on the "Generated html" and "Generated R package" cells to see what each template produces.
+Predefined `litr` templates make it easy to get started writing R packages of various kinds.  The following table shows the `litr::draft*` functions that can be used to create a `litr` .Rmd file from template.  Click on the "Generated html" and "Generated R package" cells to see what each template produces.
 
 ```{r, eval=TRUE, include=FALSE}
 library(dplyr)
@@ -22,7 +22,7 @@ tbl <- tibble(
                "make-an-r-package-with-rcpp",
                "make-an-r-package-with-extras",
                "make-an-r-package-from-bookdown",
-                              "make-an-r-package-with-armadillo"),
+               "make-an-r-package-with-armadillo"),
   pkg_name = c("rhello", "rhasdata", "withrcpp", "withpkgdown", "frombookdown",
                "witharmadillo"),
   description = c("the most basic package: a function and a test",
@@ -30,8 +30,15 @@ tbl <- tibble(
                   "a package using `Rcpp`",
                   "a package with a README, vignette(s), a pkgdown site, and a hex sticker",
                   "a package defined in a bookdown",
-                  "a package using `RcppArmadillo`")) %>% 
+                  "a package using `RcppArmadillo`"),
+  draft = c("`draft()`",
+            "`draft_data()`",
+            "`draft_rcpp()`",
+            "`draft_extras()`",
+            "`draft_bookdown()`",
+            "`draft_armadillo()`")) %>% 
   transmute(
+    `Function` = draft,
     `Template name` = template,
     Description = description,
     `Rmd source file` = str_glue("[create-{pkg_name}.Rmd]({path}/{template}/create-{pkg_name}.Rmd)"),
@@ -52,32 +59,21 @@ tbl[ibookdown, "Generated html"] <- str_glue(
 tbl[ibookdown, "Generated R package"] <- str_glue(
   "[frombookdown/]({file})",
   file = paste0(path, "/make-an-r-package-from-bookdown/frombookdown"))
-knitr::kable(tbl)
+knitr::kable(tbl %>% select(-`Template name`))
 ```
 
-Once you've chosen a template, you can get started as follows:
+Once you've chosen a template, you can get started by calling the corresponding `litr::draft*` function from the table above.
+
+For example, for the most basic template, you would do the following:
 
 ```{r, eval=FALSE}
-rmarkdown::draft("create-[name-of-your-package].Rmd",
-                 template = "[name-of-template]",
-                 package = "litr")
-litr::render("create-[name-of-your-package].Rmd")
-```
-
-Here, `"[name-of-template]"` would be chosen from the first column of the table above.  For example, for the most basic template, you would do the following:
-
-```{r, eval=FALSE}
-rmarkdown::draft("create-rhello.Rmd",
-                 template = "make-an-r-package",
-                 package = "litr")
+litr::draft("rhello")
 litr::render("create-rhello.Rmd")
 ```
 
 And to make an R package that uses `Rcpp`, you would start with the following:
 
 ```{r, eval=FALSE}
-rmarkdown::draft("create-withrcpp.Rmd",
-                 template = "make-an-r-package-with-rcpp",
-                 package = "litr")
+litr::draft_rcpp("withrcpp")
 litr::render("create-withrcpp.Rmd")
 ```

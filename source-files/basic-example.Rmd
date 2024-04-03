@@ -11,25 +11,23 @@ vignette: >
 
 We walk through the basics of `litr` with a simple example.
 
-Suppose we want to create a package called `rleastsquares` that does least squares.  To do so, we will create a .Rmd file called something like `create-rleastsquares.Rmd`.  We recommend creating this from a template: 
+Suppose we want to create a package called `rleastsquares` that does least squares.  To do so, we will create a .Rmd file called `create-rleastsquares.Rmd` from a `litr` template:
 
 ```{r, eval=FALSE}
-rmarkdown::draft("create-rleastsquares.Rmd",
-                 template = "make-an-r-package",
-                 package = "litr")
+litr::draft("rleastsquares")
 ```
 
-When you work from template, you'll notice some special lines in the yaml:
+This generates `create-rleastsquares.Rmd`, and opening it you'll notice some special lines in the yaml:
 
 ```
 knit: litr::render
 output: litr::litr_html_document
 params:
-  package_name: "rhello" # <-- change this to your package name
+  package_name: "rleastsquares" # <-- change this to your package name
   package_parent_dir: "." # <-- relative to this file's location
 ```
 
-This is what will lead to an R package being created when you press "Knit".  We'll replace `"rhello"` with  `"rleastsquares"`.
+This is what will lead to an R package being created when you press "Knit".
 
 ## Package setup
 

@@ -52,7 +52,7 @@ Or for the latest development version, remove the `@*release` in the above.
 Using a template is the best way to get started:
 
 ```{r}
-rmarkdown::draft("create-rhello.Rmd", template = "make-an-r-package", package = "litr")
+litr::draft("rhello")
 ```
 
 This creates an R markdown file called [`create-rhello.Rmd`](https://github.com/jacobbien/litr-project/blob/main/examples/make-an-r-package/create-rhello.Rmd) that demonstrates the literate programming workflow for writing an R package.  In particular, when you knit `create-rhello.Rmd`, it creates a tiny example R package called [`rhello`](https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package/rhello) with one function and one test function.  To knit, you can either press "Knit" in RStudio or use the following command:
