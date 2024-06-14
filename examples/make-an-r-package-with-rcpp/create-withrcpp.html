@@ -430,11 +430,11 @@ this file.</p>
 ## ** libs
 ## using C++ compiler: ‘Apple clang version 14.0.0 (clang-1400.0.29.202)’
 ## using SDK: ‘’
-## clang++ -arch arm64 -std=gnu++17 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I'/Users/jacobbien/Library/R/arm64/4.3/library/Rcpp/include' -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c RcppExports.cpp -o RcppExports.o
-## clang++ -arch arm64 -std=gnu++17 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I'/Users/jacobbien/Library/R/arm64/4.3/library/Rcpp/include' -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -c code.cpp -o code.o
-## clang++ -arch arm64 -std=gnu++17 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+## clang++ -arch arm64 -std=gnu++17 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I'/Users/jacobbien/Library/R/arm64/4.4/library/Rcpp/include' -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0  -c RcppExports.cpp -o RcppExports.o
+## clang++ -arch arm64 -std=gnu++17 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I'/Users/jacobbien/Library/R/arm64/4.4/library/Rcpp/include' -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -UNDEBUG -Wall -pedantic -g -O0  -c code.cpp -o code.o
+## clang++ -arch arm64 -std=gnu++17 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o withrcpp.so RcppExports.o code.o -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
 ## ld: warning: -undefined dynamic_lookup may not work with chained fixups
-## installing to /private/var/folders/wk/ysb32prj0gqdt1q08l3cwxlm0000gp/T/Rtmpr8EQJ1/devtools_install_40397f17aed9/00LOCK-withrcpp/00new/withrcpp/libs
+## installing to /private/var/folders/wk/ysb32prj0gqdt1q08l3cwxlm0000gp/T/Rtmp0ZRfNP/devtools_install_12c1c665ce1b2/00LOCK-withrcpp/00new/withrcpp/libs
 ## ** checking absolute paths in shared objects and dynamic libraries
 ## * DONE (withrcpp)</code></pre>
 <pre><code>## Writing 'NAMESPACE'

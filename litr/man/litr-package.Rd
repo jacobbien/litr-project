@@ -11,12 +11,9 @@ functionality and .Rmd templates for a literate programming approach to R
 package development.
 }
 \examples{
-# Make a file create-rhello.Rmd based on a template
 \dontrun{
-rmarkdown::draft("create-rhello.Rmd", 
-                 template = "make-an-r-package",
-                 package = "litr",
-                 edit = FALSE)
+# Make a file create-rhello.Rmd based on a template
+litr::draft("rhello")
 # Now call litr::render (or press Knit if in RStudio) to generate not just
 # create-rhello.html, but also an R package called `rhello`.
 litr::render("create-rhello.Rmd")

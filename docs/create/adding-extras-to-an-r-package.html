@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>9 Adding extras to an R package | Creating the litr R package</title>
   <meta name="description" content="9 Adding extras to an R package | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.39 and GitBook 2.6.7" />
 
   <meta property="og:title" content="9 Adding extras to an R package | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -217,70 +217,70 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="adding-a-readme" class="section level2 hasAnchor" number="9.1">
 <h2><span class="header-section-number">9.1</span> Adding a README<a href="adding-extras-to-an-r-package.html#adding-a-readme" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We define a helper function that takes an externally defined README.Rmd and puts it into the package, creates a README.md, and makes sure that these will be added to the .Rbuildignore.</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="adding-extras-to-an-r-package.html#cb91-1" tabindex="-1"></a><span class="co">#&#39; Add README to package</span></span>
-<span id="cb91-2"><a href="adding-extras-to-an-r-package.html#cb91-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb91-3"><a href="adding-extras-to-an-r-package.html#cb91-3" tabindex="-1"></a><span class="co">#&#39; This function takes a README.Rmd file, copies it into the package, and then</span></span>
-<span id="cb91-4"><a href="adding-extras-to-an-r-package.html#cb91-4" tabindex="-1"></a><span class="co">#&#39; renders it to a README.md file.  It also adds these two files to the</span></span>
-<span id="cb91-5"><a href="adding-extras-to-an-r-package.html#cb91-5" tabindex="-1"></a><span class="co">#&#39; .Rbuildignore.</span></span>
-<span id="cb91-6"><a href="adding-extras-to-an-r-package.html#cb91-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb91-7"><a href="adding-extras-to-an-r-package.html#cb91-7" tabindex="-1"></a><span class="co">#&#39; @param rmd_file The path to a .Rmd file.</span></span>
-<span id="cb91-8"><a href="adding-extras-to-an-r-package.html#cb91-8" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb91-9"><a href="adding-extras-to-an-r-package.html#cb91-9" tabindex="-1"></a><span id='add_readme'>add_readme</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(rmd_file) {</span>
-<span id="cb91-10"><a href="adding-extras-to-an-r-package.html#cb91-10" tabindex="-1"></a>  usethis<span class="sc">::</span><span class="fu">use_readme_rmd</span>(<span class="at">open =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb91-11"><a href="adding-extras-to-an-r-package.html#cb91-11" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file, <span class="at">new_path =</span> <span class="st">&quot;README.Rmd&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb91-12"><a href="adding-extras-to-an-r-package.html#cb91-12" tabindex="-1"></a>  out <span class="ot">&lt;-</span> xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(</span>
-<span id="cb91-13"><a href="adding-extras-to-an-r-package.html#cb91-13" tabindex="-1"></a>    rmarkdown<span class="sc">::</span>render,</span>
-<span id="cb91-14"><a href="adding-extras-to-an-r-package.html#cb91-14" tabindex="-1"></a>    <span class="at">args =</span> <span class="fu">list</span>(</span>
-<span id="cb91-15"><a href="adding-extras-to-an-r-package.html#cb91-15" tabindex="-1"></a>      <span class="at">input =</span> <span class="st">&quot;README.Rmd&quot;</span>,</span>
-<span id="cb91-16"><a href="adding-extras-to-an-r-package.html#cb91-16" tabindex="-1"></a>      <span class="at">output_options =</span> <span class="fu">list</span>(<span class="at">html_preview =</span> <span class="st">&quot;false&quot;</span>)</span>
-<span id="cb91-17"><a href="adding-extras-to-an-r-package.html#cb91-17" tabindex="-1"></a>    )</span>
-<span id="cb91-18"><a href="adding-extras-to-an-r-package.html#cb91-18" tabindex="-1"></a>  )</span>
-<span id="cb91-19"><a href="adding-extras-to-an-r-package.html#cb91-19" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="adding-extras-to-an-r-package.html#cb97-1" tabindex="-1"></a><span class="co">#&#39; Add README to package</span></span>
+<span id="cb97-2"><a href="adding-extras-to-an-r-package.html#cb97-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb97-3"><a href="adding-extras-to-an-r-package.html#cb97-3" tabindex="-1"></a><span class="co">#&#39; This function takes a README.Rmd file, copies it into the package, and then</span></span>
+<span id="cb97-4"><a href="adding-extras-to-an-r-package.html#cb97-4" tabindex="-1"></a><span class="co">#&#39; renders it to a README.md file.  It also adds these two files to the</span></span>
+<span id="cb97-5"><a href="adding-extras-to-an-r-package.html#cb97-5" tabindex="-1"></a><span class="co">#&#39; .Rbuildignore.</span></span>
+<span id="cb97-6"><a href="adding-extras-to-an-r-package.html#cb97-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb97-7"><a href="adding-extras-to-an-r-package.html#cb97-7" tabindex="-1"></a><span class="co">#&#39; @param rmd_file The path to a .Rmd file.</span></span>
+<span id="cb97-8"><a href="adding-extras-to-an-r-package.html#cb97-8" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb97-9"><a href="adding-extras-to-an-r-package.html#cb97-9" tabindex="-1"></a><span id='add_readme'>add_readme</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(rmd_file) {</span>
+<span id="cb97-10"><a href="adding-extras-to-an-r-package.html#cb97-10" tabindex="-1"></a>  usethis<span class="sc">::</span><span class="fu">use_readme_rmd</span>(<span class="at">open =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb97-11"><a href="adding-extras-to-an-r-package.html#cb97-11" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file, <span class="at">new_path =</span> <span class="st">&quot;README.Rmd&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb97-12"><a href="adding-extras-to-an-r-package.html#cb97-12" tabindex="-1"></a>  out <span class="ot">&lt;-</span> xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(</span>
+<span id="cb97-13"><a href="adding-extras-to-an-r-package.html#cb97-13" tabindex="-1"></a>    rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb97-14"><a href="adding-extras-to-an-r-package.html#cb97-14" tabindex="-1"></a>    <span class="at">args =</span> <span class="fu">list</span>(</span>
+<span id="cb97-15"><a href="adding-extras-to-an-r-package.html#cb97-15" tabindex="-1"></a>      <span class="at">input =</span> <span class="st">&quot;README.Rmd&quot;</span>,</span>
+<span id="cb97-16"><a href="adding-extras-to-an-r-package.html#cb97-16" tabindex="-1"></a>      <span class="at">output_options =</span> <span class="fu">list</span>(<span class="at">html_preview =</span> <span class="st">&quot;false&quot;</span>)</span>
+<span id="cb97-17"><a href="adding-extras-to-an-r-package.html#cb97-17" tabindex="-1"></a>    )</span>
+<span id="cb97-18"><a href="adding-extras-to-an-r-package.html#cb97-18" tabindex="-1"></a>  )</span>
+<span id="cb97-19"><a href="adding-extras-to-an-r-package.html#cb97-19" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="adding-a-hex-sticker" class="section level2 hasAnchor" number="9.2">
 <h2><span class="header-section-number">9.2</span> Adding a hex sticker<a href="adding-extras-to-an-r-package.html#adding-a-hex-sticker" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We define a helper function that takes an externally defined hex sticker (.png file) and puts it into the package under <code>man/figures</code>. The suggestion for storing it in this directory came from <a href="https://pkgdown.r-lib.org/reference/build_home.html#images-and-figures">here</a>.</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="adding-extras-to-an-r-package.html#cb92-1" tabindex="-1"></a><span class="co">#&#39; Add a hex sticker to package</span></span>
-<span id="cb92-2"><a href="adding-extras-to-an-r-package.html#cb92-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb92-3"><a href="adding-extras-to-an-r-package.html#cb92-3" tabindex="-1"></a><span class="co">#&#39; In addition to calling this function, you should add to your README.Rmd something like this:</span></span>
-<span id="cb92-4"><a href="adding-extras-to-an-r-package.html#cb92-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb92-5"><a href="adding-extras-to-an-r-package.html#cb92-5" tabindex="-1"></a><span class="co">#&#39; `# your-title &lt;img src=&quot;man/figures/logo.png&quot; align=&quot;right&quot; height=&quot;139&quot; /&gt;`</span></span>
-<span id="cb92-6"><a href="adding-extras-to-an-r-package.html#cb92-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb92-7"><a href="adding-extras-to-an-r-package.html#cb92-7" tabindex="-1"></a><span class="co">#&#39; See [here](https://pkgdown.r-lib.org/reference/build_home.html#package-logo) </span></span>
-<span id="cb92-8"><a href="adding-extras-to-an-r-package.html#cb92-8" tabindex="-1"></a><span class="co">#&#39; for more.</span></span>
-<span id="cb92-9"><a href="adding-extras-to-an-r-package.html#cb92-9" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb92-10"><a href="adding-extras-to-an-r-package.html#cb92-10" tabindex="-1"></a><span class="co">#&#39; @param hex_png_file The .png file with your package&#39;s hex sticker</span></span>
-<span id="cb92-11"><a href="adding-extras-to-an-r-package.html#cb92-11" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb92-12"><a href="adding-extras-to-an-r-package.html#cb92-12" tabindex="-1"></a><span id='add_hex_sticker'>add_hex_sticker</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(hex_png_file) {</span>
-<span id="cb92-13"><a href="adding-extras-to-an-r-package.html#cb92-13" tabindex="-1"></a>  figures_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;man&quot;</span>, <span class="st">&quot;figures&quot;</span>)</span>
-<span id="cb92-14"><a href="adding-extras-to-an-r-package.html#cb92-14" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(figures_dir)</span>
-<span id="cb92-15"><a href="adding-extras-to-an-r-package.html#cb92-15" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="at">path =</span> hex_png_file, </span>
-<span id="cb92-16"><a href="adding-extras-to-an-r-package.html#cb92-16" tabindex="-1"></a>                <span class="at">new_path =</span> <span class="fu">file.path</span>(figures_dir, <span class="st">&quot;logo.png&quot;</span>), </span>
-<span id="cb92-17"><a href="adding-extras-to-an-r-package.html#cb92-17" tabindex="-1"></a>                <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb92-18"><a href="adding-extras-to-an-r-package.html#cb92-18" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="adding-extras-to-an-r-package.html#cb98-1" tabindex="-1"></a><span class="co">#&#39; Add a hex sticker to package</span></span>
+<span id="cb98-2"><a href="adding-extras-to-an-r-package.html#cb98-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb98-3"><a href="adding-extras-to-an-r-package.html#cb98-3" tabindex="-1"></a><span class="co">#&#39; In addition to calling this function, you should add to your README.Rmd something like this:</span></span>
+<span id="cb98-4"><a href="adding-extras-to-an-r-package.html#cb98-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb98-5"><a href="adding-extras-to-an-r-package.html#cb98-5" tabindex="-1"></a><span class="co">#&#39; `# your-title &lt;img src=&quot;man/figures/logo.png&quot; align=&quot;right&quot; height=&quot;139&quot; /&gt;`</span></span>
+<span id="cb98-6"><a href="adding-extras-to-an-r-package.html#cb98-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb98-7"><a href="adding-extras-to-an-r-package.html#cb98-7" tabindex="-1"></a><span class="co">#&#39; See [here](https://pkgdown.r-lib.org/reference/build_home.html#package-logo) </span></span>
+<span id="cb98-8"><a href="adding-extras-to-an-r-package.html#cb98-8" tabindex="-1"></a><span class="co">#&#39; for more.</span></span>
+<span id="cb98-9"><a href="adding-extras-to-an-r-package.html#cb98-9" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb98-10"><a href="adding-extras-to-an-r-package.html#cb98-10" tabindex="-1"></a><span class="co">#&#39; @param hex_png_file The .png file with your package&#39;s hex sticker</span></span>
+<span id="cb98-11"><a href="adding-extras-to-an-r-package.html#cb98-11" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb98-12"><a href="adding-extras-to-an-r-package.html#cb98-12" tabindex="-1"></a><span id='add_hex_sticker'>add_hex_sticker</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(hex_png_file) {</span>
+<span id="cb98-13"><a href="adding-extras-to-an-r-package.html#cb98-13" tabindex="-1"></a>  figures_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;man&quot;</span>, <span class="st">&quot;figures&quot;</span>)</span>
+<span id="cb98-14"><a href="adding-extras-to-an-r-package.html#cb98-14" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(figures_dir)</span>
+<span id="cb98-15"><a href="adding-extras-to-an-r-package.html#cb98-15" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="at">path =</span> hex_png_file, </span>
+<span id="cb98-16"><a href="adding-extras-to-an-r-package.html#cb98-16" tabindex="-1"></a>                <span class="at">new_path =</span> <span class="fu">file.path</span>(figures_dir, <span class="st">&quot;logo.png&quot;</span>), </span>
+<span id="cb98-17"><a href="adding-extras-to-an-r-package.html#cb98-17" tabindex="-1"></a>                <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb98-18"><a href="adding-extras-to-an-r-package.html#cb98-18" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="adding-vignettes" class="section level2 hasAnchor" number="9.3">
 <h2><span class="header-section-number">9.3</span> Adding vignettes<a href="adding-extras-to-an-r-package.html#adding-vignettes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We next define a helper function for adding vignettes to the package. This mimics <code>usethis::use_vignette()</code>. We couldn’t directly use that function because we want the project file to live outside of the package directory, which confuses <code>usethis</code>.</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="adding-extras-to-an-r-package.html#cb93-1" tabindex="-1"></a><span class="co">#&#39; Add one or more vignettes to package</span></span>
-<span id="cb93-2"><a href="adding-extras-to-an-r-package.html#cb93-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb93-3"><a href="adding-extras-to-an-r-package.html#cb93-3" tabindex="-1"></a><span class="co">#&#39; @param rmd_files A character vector of .Rmd files, each corresponding to </span></span>
-<span id="cb93-4"><a href="adding-extras-to-an-r-package.html#cb93-4" tabindex="-1"></a><span class="co">#&#39; a vignette</span></span>
-<span id="cb93-5"><a href="adding-extras-to-an-r-package.html#cb93-5" tabindex="-1"></a><span class="co">#&#39; @param other_files A character vector of any other files needed in the </span></span>
-<span id="cb93-6"><a href="adding-extras-to-an-r-package.html#cb93-6" tabindex="-1"></a><span class="co">#&#39; vignettes directory (.bib file, images, etc.)</span></span>
-<span id="cb93-7"><a href="adding-extras-to-an-r-package.html#cb93-7" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb93-8"><a href="adding-extras-to-an-r-package.html#cb93-8" tabindex="-1"></a><span id='add_vignettes'>add_vignettes</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(rmd_files, <span class="at">other_files =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb93-9"><a href="adding-extras-to-an-r-package.html#cb93-9" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="st">&quot;vignettes&quot;</span>)</span>
-<span id="cb93-10"><a href="adding-extras-to-an-r-package.html#cb93-10" tabindex="-1"></a>  <span class="cf">for</span> (fn <span class="cf">in</span> <span class="fu">c</span>(rmd_files, other_files)) fs<span class="sc">::</span><span class="fu">file_copy</span>(fn, <span class="st">&quot;vignettes&quot;</span>)</span>
-<span id="cb93-11"><a href="adding-extras-to-an-r-package.html#cb93-11" tabindex="-1"></a>  </span>
-<span id="cb93-12"><a href="adding-extras-to-an-r-package.html#cb93-12" tabindex="-1"></a>  <span class="co"># update DESCRIPTION file:</span></span>
-<span id="cb93-13"><a href="adding-extras-to-an-r-package.html#cb93-13" tabindex="-1"></a>  deps <span class="ot">&lt;-</span> desc<span class="sc">::</span><span class="fu">desc_get_deps</span>()<span class="sc">$</span>package</span>
-<span id="cb93-14"><a href="adding-extras-to-an-r-package.html#cb93-14" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>(<span class="st">&quot;knitr&quot;</span> <span class="sc">%in%</span> deps))</span>
-<span id="cb93-15"><a href="adding-extras-to-an-r-package.html#cb93-15" tabindex="-1"></a>    desc<span class="sc">::</span><span class="fu">desc_set_dep</span>(<span class="st">&quot;knitr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
-<span id="cb93-16"><a href="adding-extras-to-an-r-package.html#cb93-16" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>(<span class="st">&quot;rmarkdown&quot;</span> <span class="sc">%in%</span> deps))</span>
-<span id="cb93-17"><a href="adding-extras-to-an-r-package.html#cb93-17" tabindex="-1"></a>    desc<span class="sc">::</span><span class="fu">desc_set_dep</span>(<span class="st">&quot;rmarkdown&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
-<span id="cb93-18"><a href="adding-extras-to-an-r-package.html#cb93-18" tabindex="-1"></a>  out <span class="ot">&lt;-</span> desc<span class="sc">::</span><span class="fu">desc_set</span>(<span class="st">&quot;VignetteBuilder&quot;</span>, <span class="st">&quot;knitr&quot;</span>)</span>
-<span id="cb93-19"><a href="adding-extras-to-an-r-package.html#cb93-19" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="adding-extras-to-an-r-package.html#cb99-1" tabindex="-1"></a><span class="co">#&#39; Add one or more vignettes to package</span></span>
+<span id="cb99-2"><a href="adding-extras-to-an-r-package.html#cb99-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb99-3"><a href="adding-extras-to-an-r-package.html#cb99-3" tabindex="-1"></a><span class="co">#&#39; @param rmd_files A character vector of .Rmd files, each corresponding to </span></span>
+<span id="cb99-4"><a href="adding-extras-to-an-r-package.html#cb99-4" tabindex="-1"></a><span class="co">#&#39; a vignette</span></span>
+<span id="cb99-5"><a href="adding-extras-to-an-r-package.html#cb99-5" tabindex="-1"></a><span class="co">#&#39; @param other_files A character vector of any other files needed in the </span></span>
+<span id="cb99-6"><a href="adding-extras-to-an-r-package.html#cb99-6" tabindex="-1"></a><span class="co">#&#39; vignettes directory (.bib file, images, etc.)</span></span>
+<span id="cb99-7"><a href="adding-extras-to-an-r-package.html#cb99-7" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb99-8"><a href="adding-extras-to-an-r-package.html#cb99-8" tabindex="-1"></a><span id='add_vignettes'>add_vignettes</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(rmd_files, <span class="at">other_files =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb99-9"><a href="adding-extras-to-an-r-package.html#cb99-9" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="st">&quot;vignettes&quot;</span>)</span>
+<span id="cb99-10"><a href="adding-extras-to-an-r-package.html#cb99-10" tabindex="-1"></a>  <span class="cf">for</span> (fn <span class="cf">in</span> <span class="fu">c</span>(rmd_files, other_files)) fs<span class="sc">::</span><span class="fu">file_copy</span>(fn, <span class="st">&quot;vignettes&quot;</span>)</span>
+<span id="cb99-11"><a href="adding-extras-to-an-r-package.html#cb99-11" tabindex="-1"></a>  </span>
+<span id="cb99-12"><a href="adding-extras-to-an-r-package.html#cb99-12" tabindex="-1"></a>  <span class="co"># update DESCRIPTION file:</span></span>
+<span id="cb99-13"><a href="adding-extras-to-an-r-package.html#cb99-13" tabindex="-1"></a>  deps <span class="ot">&lt;-</span> desc<span class="sc">::</span><span class="fu">desc_get_deps</span>()<span class="sc">$</span>package</span>
+<span id="cb99-14"><a href="adding-extras-to-an-r-package.html#cb99-14" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>(<span class="st">&quot;knitr&quot;</span> <span class="sc">%in%</span> deps))</span>
+<span id="cb99-15"><a href="adding-extras-to-an-r-package.html#cb99-15" tabindex="-1"></a>    desc<span class="sc">::</span><span class="fu">desc_set_dep</span>(<span class="st">&quot;knitr&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
+<span id="cb99-16"><a href="adding-extras-to-an-r-package.html#cb99-16" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>(<span class="st">&quot;rmarkdown&quot;</span> <span class="sc">%in%</span> deps))</span>
+<span id="cb99-17"><a href="adding-extras-to-an-r-package.html#cb99-17" tabindex="-1"></a>    desc<span class="sc">::</span><span class="fu">desc_set_dep</span>(<span class="st">&quot;rmarkdown&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span>
+<span id="cb99-18"><a href="adding-extras-to-an-r-package.html#cb99-18" tabindex="-1"></a>  out <span class="ot">&lt;-</span> desc<span class="sc">::</span><span class="fu">desc_set</span>(<span class="st">&quot;VignetteBuilder&quot;</span>, <span class="st">&quot;knitr&quot;</span>)</span>
+<span id="cb99-19"><a href="adding-extras-to-an-r-package.html#cb99-19" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="add-a-pkgdown-site" class="section level2 hasAnchor" number="9.4">
 <h2><span class="header-section-number">9.4</span> Add a pkgdown site<a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -289,38 +289,38 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Avoid the parts to do with looking for projects</li>
 <li>Allow one to use a custom <code>_pkgdown.yml</code> that is stored outside of package</li>
 </ol>
-<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="adding-extras-to-an-r-package.html#cb94-1" tabindex="-1"></a><span class="co">#&#39; Add a pkgdown site</span></span>
-<span id="cb94-2"><a href="adding-extras-to-an-r-package.html#cb94-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb94-3"><a href="adding-extras-to-an-r-package.html#cb94-3" tabindex="-1"></a><span class="co">#&#39; This function creates a website for your package.  You can see it locally by</span></span>
-<span id="cb94-4"><a href="adding-extras-to-an-r-package.html#cb94-4" tabindex="-1"></a><span class="co">#&#39; opening `docs/index.html` in your package.  To get it online you can copy the</span></span>
-<span id="cb94-5"><a href="adding-extras-to-an-r-package.html#cb94-5" tabindex="-1"></a><span class="co">#&#39; `docs` directory to your website&#39;s server.</span></span>
-<span id="cb94-6"><a href="adding-extras-to-an-r-package.html#cb94-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb94-7"><a href="adding-extras-to-an-r-package.html#cb94-7" tabindex="-1"></a><span class="co">#&#39; Be sure that in the generating .Rmd file this is called *after*</span></span>
-<span id="cb94-8"><a href="adding-extras-to-an-r-package.html#cb94-8" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='document.html#document'>document</a>()` has been called.  To customize the site, you may pass a</span></span>
-<span id="cb94-9"><a href="adding-extras-to-an-r-package.html#cb94-9" tabindex="-1"></a><span class="co">#&#39; customized `_pkgdown.yml` file as described in [this `pkgdown` vignette](https://pkgdown.r-lib.org/articles/customise.html).</span></span>
-<span id="cb94-10"><a href="adding-extras-to-an-r-package.html#cb94-10" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb94-11"><a href="adding-extras-to-an-r-package.html#cb94-11" tabindex="-1"></a><span class="co">#&#39; @param config_path The _pkgdown.yml file that lives somewhere outside of your package.  If NULL, then a basic default will be used.</span></span>
-<span id="cb94-12"><a href="adding-extras-to-an-r-package.html#cb94-12" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
-<span id="cb94-13"><a href="adding-extras-to-an-r-package.html#cb94-13" tabindex="-1"></a><span id='add_pkgdown'>add_pkgdown</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">config_path =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb94-14"><a href="adding-extras-to-an-r-package.html#cb94-14" tabindex="-1"></a>  config_file <span class="ot">&lt;-</span> <span class="st">&quot;_pkgdown.yml&quot;</span></span>
-<span id="cb94-15"><a href="adding-extras-to-an-r-package.html#cb94-15" tabindex="-1"></a>  destdir <span class="ot">&lt;-</span> <span class="st">&quot;docs&quot;</span></span>
-<span id="cb94-16"><a href="adding-extras-to-an-r-package.html#cb94-16" tabindex="-1"></a>  usethis<span class="sc">::</span><span class="fu">use_build_ignore</span>(<span class="fu">c</span>(config_file, destdir, <span class="st">&quot;pkgdown&quot;</span>))</span>
-<span id="cb94-17"><a href="adding-extras-to-an-r-package.html#cb94-17" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(config_path)) {</span>
-<span id="cb94-18"><a href="adding-extras-to-an-r-package.html#cb94-18" tabindex="-1"></a>    <span class="co"># create a new config file (note it lives outside of package)</span></span>
-<span id="cb94-19"><a href="adding-extras-to-an-r-package.html#cb94-19" tabindex="-1"></a>    config <span class="ot">&lt;-</span> usethis<span class="sc">:::</span><span class="fu">pkgdown_config</span>(destdir)</span>
-<span id="cb94-20"><a href="adding-extras-to-an-r-package.html#cb94-20" tabindex="-1"></a>    usethis<span class="sc">::</span><span class="fu">write_over</span>(config_file, yaml<span class="sc">::</span><span class="fu">as.yaml</span>(config))</span>
-<span id="cb94-21"><a href="adding-extras-to-an-r-package.html#cb94-21" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb94-22"><a href="adding-extras-to-an-r-package.html#cb94-22" tabindex="-1"></a>    <span class="co"># copy the one that already exists:</span></span>
-<span id="cb94-23"><a href="adding-extras-to-an-r-package.html#cb94-23" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_copy</span>(config_path, config_file)  </span>
-<span id="cb94-24"><a href="adding-extras-to-an-r-package.html#cb94-24" tabindex="-1"></a>  }</span>
-<span id="cb94-25"><a href="adding-extras-to-an-r-package.html#cb94-25" tabindex="-1"></a>  pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span>
-<span id="cb94-26"><a href="adding-extras-to-an-r-package.html#cb94-26" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="adding-extras-to-an-r-package.html#cb100-1" tabindex="-1"></a><span class="co">#&#39; Add a pkgdown site</span></span>
+<span id="cb100-2"><a href="adding-extras-to-an-r-package.html#cb100-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb100-3"><a href="adding-extras-to-an-r-package.html#cb100-3" tabindex="-1"></a><span class="co">#&#39; This function creates a website for your package.  You can see it locally by</span></span>
+<span id="cb100-4"><a href="adding-extras-to-an-r-package.html#cb100-4" tabindex="-1"></a><span class="co">#&#39; opening `docs/index.html` in your package.  To get it online you can copy the</span></span>
+<span id="cb100-5"><a href="adding-extras-to-an-r-package.html#cb100-5" tabindex="-1"></a><span class="co">#&#39; `docs` directory to your website&#39;s server.</span></span>
+<span id="cb100-6"><a href="adding-extras-to-an-r-package.html#cb100-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb100-7"><a href="adding-extras-to-an-r-package.html#cb100-7" tabindex="-1"></a><span class="co">#&#39; Be sure that in the generating .Rmd file this is called *after*</span></span>
+<span id="cb100-8"><a href="adding-extras-to-an-r-package.html#cb100-8" tabindex="-1"></a><span class="co">#&#39; `litr::<a href='document.html#document'>document</a>()` has been called.  To customize the site, you may pass a</span></span>
+<span id="cb100-9"><a href="adding-extras-to-an-r-package.html#cb100-9" tabindex="-1"></a><span class="co">#&#39; customized `_pkgdown.yml` file as described in [this `pkgdown` vignette](https://pkgdown.r-lib.org/articles/customise.html).</span></span>
+<span id="cb100-10"><a href="adding-extras-to-an-r-package.html#cb100-10" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb100-11"><a href="adding-extras-to-an-r-package.html#cb100-11" tabindex="-1"></a><span class="co">#&#39; @param config_path The _pkgdown.yml file that lives somewhere outside of your package.  If NULL, then a basic default will be used.</span></span>
+<span id="cb100-12"><a href="adding-extras-to-an-r-package.html#cb100-12" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb100-13"><a href="adding-extras-to-an-r-package.html#cb100-13" tabindex="-1"></a><span id='add_pkgdown'>add_pkgdown</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">config_path =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb100-14"><a href="adding-extras-to-an-r-package.html#cb100-14" tabindex="-1"></a>  config_file <span class="ot">&lt;-</span> <span class="st">&quot;_pkgdown.yml&quot;</span></span>
+<span id="cb100-15"><a href="adding-extras-to-an-r-package.html#cb100-15" tabindex="-1"></a>  destdir <span class="ot">&lt;-</span> <span class="st">&quot;docs&quot;</span></span>
+<span id="cb100-16"><a href="adding-extras-to-an-r-package.html#cb100-16" tabindex="-1"></a>  usethis<span class="sc">::</span><span class="fu">use_build_ignore</span>(<span class="fu">c</span>(config_file, destdir, <span class="st">&quot;pkgdown&quot;</span>))</span>
+<span id="cb100-17"><a href="adding-extras-to-an-r-package.html#cb100-17" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(config_path)) {</span>
+<span id="cb100-18"><a href="adding-extras-to-an-r-package.html#cb100-18" tabindex="-1"></a>    <span class="co"># create a new config file (note it lives outside of package)</span></span>
+<span id="cb100-19"><a href="adding-extras-to-an-r-package.html#cb100-19" tabindex="-1"></a>    config <span class="ot">&lt;-</span> usethis<span class="sc">:::</span><span class="fu">pkgdown_config</span>(destdir)</span>
+<span id="cb100-20"><a href="adding-extras-to-an-r-package.html#cb100-20" tabindex="-1"></a>    usethis<span class="sc">::</span><span class="fu">write_over</span>(config_file, yaml<span class="sc">::</span><span class="fu">as.yaml</span>(config))</span>
+<span id="cb100-21"><a href="adding-extras-to-an-r-package.html#cb100-21" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb100-22"><a href="adding-extras-to-an-r-package.html#cb100-22" tabindex="-1"></a>    <span class="co"># copy the one that already exists:</span></span>
+<span id="cb100-23"><a href="adding-extras-to-an-r-package.html#cb100-23" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_copy</span>(config_path, config_file)  </span>
+<span id="cb100-24"><a href="adding-extras-to-an-r-package.html#cb100-24" tabindex="-1"></a>  }</span>
+<span id="cb100-25"><a href="adding-extras-to-an-r-package.html#cb100-25" tabindex="-1"></a>  pkgdown<span class="sc">::</span><span class="fu">build_site</span>()</span>
+<span id="cb100-26"><a href="adding-extras-to-an-r-package.html#cb100-26" tabindex="-1"></a>}</span></code></pre></div>
 <p>After this step, you can locally see the site by opening <code>docs/index.html</code> in the browser. You can then copy the <code>docs</code> directory to your website’s server and you’re done.</p>
 <p>Since the above function uses <code>pkgdown</code> and <code>yaml</code>, we include these in our package:</p>
-<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="adding-extras-to-an-r-package.html#cb95-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;pkgdown&quot;</span>)</span>
-<span id="cb95-2"><a href="adding-extras-to-an-r-package.html#cb95-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;yaml&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="adding-extras-to-an-r-package.html#cb101-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;pkgdown&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;pkgdown&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `pkgdown::fun()`</code></pre>
+<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="adding-extras-to-an-r-package.html#cb103-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;yaml&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;yaml&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `yaml::fun()`</code></pre>
 </div>

@@ -230,7 +230,7 @@ setup <- function(package_dir, minimal_eval) {
   # define document hook to handle chunk references:
   knitr::knit_hooks$set(document = function(x) {
     # get the indices of x corresponding to code chunks
-    chunk_start <- "^(\n```+[a-zA-Z0-9_]+\n)"
+    chunk_start <- "^(\n``` ?+[a-zA-Z0-9_]+\n)"
     idx_block <- stringr::str_which(x, chunk_start)
     original_code <- knitr::knit_code$get()
     # We first get indices of skipped chunks in original_code list
@@ -247,9 +247,9 @@ setup <- function(package_dir, minimal_eval) {
       # break code into multiple lines:
       chunk <- strsplit(x[idx_block[i]], "\n")[[1]]
       # get the fence used (in case it's more than three ticks):
-      i_start <- stringr::str_which(chunk, "^```+[a-zA-Z0-9_]+")
+      i_start <- stringr::str_which(chunk, "^```+ ?[a-zA-Z0-9_]+")
       fence <- stringr::str_replace(chunk[i_start[1]],
-                                    "^(```+)[a-zA-Z0-9_]+", "\\1")
+                                    "^(```+) ?[a-zA-Z0-9_]+", "\\1")
       i_fences <- stringr::str_which(chunk, paste0("^", fence))
       # there can be multiple code and output chunks strung together 
       # within a single x[i] if results are not held to end
@@ -284,7 +284,7 @@ setup <- function(package_dir, minimal_eval) {
         stringr::str_glue("The chunk reference <<{refs[is.na(ref_id)][1]}>> ",
         "is used, but there is no chunk with that label.", 
         sep = "\n"))))
-      }
+    }
     to_insert <- paste0('###"', adj_labels[ref_id], '"###\n')
     x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
                                                  chunk_start,

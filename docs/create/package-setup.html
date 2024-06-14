@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>3 Package setup | Creating the litr R package</title>
   <meta name="description" content="3 Package setup | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.39 and GitBook 2.6.7" />
 
   <meta property="og:title" content="3 Package setup | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -238,12 +238,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 #&#39; package development.
 #&#39; 
 #&#39; @examples
-#&#39; # Make a file create-rhello.Rmd based on a template
 #&#39; \dontrun{
-#&#39; rmarkdown::draft(&quot;create-rhello.Rmd&quot;, 
-#&#39;                  template = &quot;make-an-r-package&quot;,
-#&#39;                  package = &quot;litr&quot;,
-#&#39;                  edit = FALSE)
+#&#39; # Make a file create-rhello.Rmd based on a template
+#&#39; litr::<a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(&quot;rhello&quot;)
 #&#39; # Now call litr::render (or press Knit if in RStudio) to generate not just
 #&#39; # create-rhello.html, but also an R package called `rhello`.
 #&#39; litr::<a href='rendering.html#render'>render</a>(&quot;create-rhello.Rmd&quot;)

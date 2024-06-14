@@ -449,46 +449,53 @@ that we can have a link to it on our pkgdown site.</p>
 <p>Be sure that this next command appears after
 <code>litr::document()</code> has been called in this file.</p>
 <pre class="r"><code>litr::add_pkgdown("../source-files/_pkgdown.yml")</code></pre>
-<pre><code>## ✔ Adding '^_pkgdown\\.yml$', '^docs$', '^pkgdown$' to '.Rbuildignore'</code></pre>
-<pre><code>## -- Installing package into temporary library -----------------------------------
-## == Building pkgdown site =======================================================
-## Reading from: '/Users/jacobbien/Documents/GitHub/litr-project/examples/withpkgdown'
-## Writing to:   '/Users/jacobbien/Documents/GitHub/litr-project/examples/docs'
-## -- Initialising site -----------------------------------------------------------
-## Copying '../../../../../Library/R/arm64/4.3/library/pkgdown/BS5/assets/link.svg' to 'link.svg'
-## Copying '../../../../../Library/R/arm64/4.3/library/pkgdown/BS5/assets/pkgdown.js' to 'pkgdown.js'
-## -- Building favicons -----------------------------------------------------------
-## Building favicons with realfavicongenerator.net...
-## Copying 'pkgdown/favicon/apple-touch-icon-120x120.png' to 'apple-touch-icon-120x120.png'
-## Copying 'pkgdown/favicon/apple-touch-icon-152x152.png' to 'apple-touch-icon-152x152.png'
-## Copying 'pkgdown/favicon/apple-touch-icon-180x180.png' to 'apple-touch-icon-180x180.png'
-## Copying 'pkgdown/favicon/apple-touch-icon-60x60.png' to 'apple-touch-icon-60x60.png'
-## Copying 'pkgdown/favicon/apple-touch-icon-76x76.png' to 'apple-touch-icon-76x76.png'
-## Copying 'pkgdown/favicon/apple-touch-icon.png' to 'apple-touch-icon.png'
-## Copying 'pkgdown/favicon/favicon-16x16.png' to 'favicon-16x16.png'
-## Copying 'pkgdown/favicon/favicon-32x32.png' to 'favicon-32x32.png'
-## Copying 'pkgdown/favicon/favicon.ico' to 'favicon.ico'
-## Copying 'man/figures/logo.png' to 'logo.png'
-## -- Building home ---------------------------------------------------------------
-## Writing 'authors.html'
-## Reading 'LICENSE.md'
-## Writing 'LICENSE.html'
-## Writing 'LICENSE-text.html'
-## Copying 'man/figures/logo.png' to 'reference/figures/logo.png'
-## Writing '404.html'
-## -- Building function reference -------------------------------------------------
-## Writing 'reference/index.html'
-## Reading 'man/say_hello.Rd'
-## Writing 'reference/say_hello.html'
-## Reading 'man/say_hi.Rd'
-## Writing 'reference/say_hi.html'
-## -- Building articles -----------------------------------------------------------
-## Writing 'articles/index.html'
-## Reading 'vignettes/using-package.Rmd'
-## Writing 'articles/using-package.html'
-## Writing 'sitemap.xml'
-## -- Building search index -------------------------------------------------------
-## == DONE ========================================================================</code></pre>
+<pre><code>## ✔ Adding '^_pkgdown\\.yml$', '^docs$', '^pkgdown$' to '.Rbuildignore'
+## ── Installing package withpkgdown into temporary library ───────────────────────</code></pre>
+<pre><code>## ── Building pkgdown site for package withpkgdown ───────────────────────────────
+## Reading from:
+## /Users/jacobbien/Documents/GitHub/litr-project/examples/withpkgdown
+## Writing to: /Users/jacobbien/Documents/GitHub/litr-project/examples/docs
+## ── Initialising site ───────────────────────────────────────────────────────────
+## Copying ../../../../../Library/R/arm64/4.4/library/pkgdown/BS5/assets/link.svg
+## and ../../../../../Library/R/arm64/4.4/library/pkgdown/BS5/assets/pkgdown.js
+## to link.svg and pkgdown.js
+## ── Building favicons ───────────────────────────────────────────────────────────
+## ℹ Building favicons with &lt;https://realfavicongenerator.net&gt; ...
+## Copying pkgdown/favicon/apple-touch-icon-120x120.png,
+## pkgdown/favicon/apple-touch-icon-152x152.png,
+## pkgdown/favicon/apple-touch-icon-180x180.png,
+## pkgdown/favicon/apple-touch-icon-60x60.png,
+## pkgdown/favicon/apple-touch-icon-76x76.png,
+## pkgdown/favicon/apple-touch-icon.png, pkgdown/favicon/favicon-16x16.png,
+## pkgdown/favicon/favicon-32x32.png, and pkgdown/favicon/favicon.ico
+## to apple-touch-icon-120x120.png, apple-touch-icon-152x152.png,
+## apple-touch-icon-180x180.png, apple-touch-icon-60x60.png,
+## apple-touch-icon-76x76.png, apple-touch-icon.png, favicon-16x16.png,
+## favicon-32x32.png, and favicon.ico
+## Copying man/figures/logo.png
+## to logo.png
+## ── Building home ───────────────────────────────────────────────────────────────
+## Writing `authors.html`
+## Reading LICENSE.md
+## Writing `LICENSE.html`
+## Writing `LICENSE-text.html`
+## Copying man/figures/logo.png
+## to reference/figures/logo.png
+## Writing `404.html`
+## ── Building function reference ─────────────────────────────────────────────────
+## Writing `reference/index.html`
+## Reading man/say_hello.Rd
+## Writing `reference/say_hello.html`
+## Reading man/say_hi.Rd
+## Writing `reference/say_hi.html`
+## ── Building articles ───────────────────────────────────────────────────────────
+## Writing `articles/index.html`
+## Reading vignettes/using-package.Rmd
+## Writing `articles/using-package.html`
+## Writing sitemap.xml
+## ── Building search index ───────────────────────────────────────────────────────
+## ── Finished building pkgdown site for package withpkgdown ──────────────────────</code></pre>
+<pre><code>## ── Finished building pkgdown site for package withpkgdown ──────────────────────</code></pre>
 <p>You can call <code>add_pkgdown()</code> without the argument;
 however, here we are providing a customized _pkgdown.yml file. See <a href="https://pkgdown.r-lib.org/articles/customise.html">this
 <code>pkgdown</code> vignette</a> for how to customize your site. Here

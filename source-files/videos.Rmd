@@ -21,8 +21,6 @@ For those who prefer to learn from video, here are a sequence of videos for gett
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ZIxbXHEeAUM?si=OCmmiV17D8IfecG8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-4. Next video planned: **Using `litr` with `bookdown`.** If you are interested in this topic, for now you can look at [an example](https://gregfaletto.github.io/cssr-project/create/) where `litr` and `bookdown` are used together (full github repo [here](make-an-r-package-from-bookdown)).  To get started, you can run the following command in an R session:
+4. **Using `litr` with `bookdown`.** We show how `litr` can be used together with `bookdown` to present your R package as an online book.  This is particularly convenient for larger R packages where a single .html file. 
 
-```{r, eval=FALSE}
-litr::draft_bookdown("frombookdown")
-```
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wrML2B-Ycok?si=V9-Y4JATXA3V3zuZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>

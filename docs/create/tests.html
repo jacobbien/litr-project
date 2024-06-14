@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>10 Defining some tests | Creating the litr R package</title>
   <meta name="description" content="10 Defining some tests | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.39 and GitBook 2.6.7" />
 
   <meta property="og:title" content="10 Defining some tests | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -215,26 +215,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>When using <code>litr</code> to create packages that are not <code>litr</code>, one should be able to run tests along the way as we did above in testing the function <code>add_text_to_file()</code>. However, creating <code>litr</code> is a special case so we need to do something different for the tests that involve creating a .Rmd from template and then calling <code>litr::<a href='rendering.html#render'>render</a>()</code> on them (such as the tests in this section). In particular, we use <code>eval=FALSE</code> for these code blocks and then at the end of this document we will install the newly created version of <code>litr</code> and then call <code>devtools::test()</code>. Doing it this way is important for ensuring that the version of <code>litr</code> we are testing is the newest version, i.e. the version defined in this document.</p>
 <p>To understand the reason we are doing it this way, imagine what would happen if instead we left <code>eval=TRUE</code> in the test in the <a href="tests.html#test-check-unedited">next section</a>. When we use <code>rmarkdown::draft()</code> to create a .Rmd file from template, the file it will give us will be an old version (namely the installed version of <code>litr</code>’s template) rather than the latest version.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> Furthermore, consider what happens when we call <code>render()</code> in the test below. This will start the knitting process on <code>my-package.Rmd</code>. However, inside <code>my-package.Rmd</code>, we have <code>litr::<a href='generating-package.html#setup'>setup</a>()</code> and <code>litr::<a href='document.html#document'>document</a>()</code>. When these are called in the knitting process, it will be the versions of the functions from the currently installed <code>litr</code> rather than the versions defined in this document.</p>
 <p>Once we are done testing the new version of the package, we’d like to restore the state of <code>litr</code> to what it was previously. If we don’t do this, then this can lead to inadvertent circularity in which the next time we call <code>litr::<a href='rendering.html#render'>render</a>("create-litr.Rmd")</code>, we are using the version currently under development, which is bad because ultimately we need this version to be rendered by the previous version of <code>litr</code>. The following function implements this approach to testing <code>litr</code>:</p>
-<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="tests.html#cb98-1" tabindex="-1"></a><span class="co">#&#39; Run tests for `litr` itself</span></span>
-<span id="cb98-2"><a href="tests.html#cb98-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb98-3"><a href="tests.html#cb98-3" tabindex="-1"></a><span class="co">#&#39; Special function for testing `litr`.  The trick is to temporarily install</span></span>
-<span id="cb98-4"><a href="tests.html#cb98-4" tabindex="-1"></a><span class="co">#&#39; the new version of `litr`, run the test, and then put things back how it was</span></span>
-<span id="cb98-5"><a href="tests.html#cb98-5" tabindex="-1"></a><span class="co">#&#39; before.</span></span>
-<span id="cb98-6"><a href="tests.html#cb98-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb98-7"><a href="tests.html#cb98-7" tabindex="-1"></a><span class="co">#&#39; Typical values for `install_old` could be</span></span>
-<span id="cb98-8"><a href="tests.html#cb98-8" tabindex="-1"></a><span class="co">#&#39; - `function() devtools::install(&quot;[location of old version]&quot;)`</span></span>
-<span id="cb98-9"><a href="tests.html#cb98-9" tabindex="-1"></a><span class="co">#&#39; - `function() remotes::install_github(&quot;jacobbien/litr-project@*release&quot;, subdir = &quot;litr&quot;)`.</span></span>
-<span id="cb98-10"><a href="tests.html#cb98-10" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb98-11"><a href="tests.html#cb98-11" tabindex="-1"></a><span class="co">#&#39; @param install_old A function that when run will install the old version</span></span>
-<span id="cb98-12"><a href="tests.html#cb98-12" tabindex="-1"></a><span class="co">#&#39; @param location_of_new Path to the new package directory</span></span>
-<span id="cb98-13"><a href="tests.html#cb98-13" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb98-14"><a href="tests.html#cb98-14" tabindex="-1"></a><span id='test_litr'>test_litr</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(install_old, location_of_new) {</span>
-<span id="cb98-15"><a href="tests.html#cb98-15" tabindex="-1"></a>  devtools<span class="sc">::</span><span class="fu">unload</span>(params<span class="sc">$</span>package_name)</span>
-<span id="cb98-16"><a href="tests.html#cb98-16" tabindex="-1"></a>  devtools<span class="sc">::</span><span class="fu">install</span>(location_of_new)</span>
-<span id="cb98-17"><a href="tests.html#cb98-17" tabindex="-1"></a>  out <span class="ot">&lt;-</span> devtools<span class="sc">::</span><span class="fu">test</span>(location_of_new)</span>
-<span id="cb98-18"><a href="tests.html#cb98-18" tabindex="-1"></a>  <a href='documenting-the-package-and-testing.html#install_old'>install_old</a>()</span>
-<span id="cb98-19"><a href="tests.html#cb98-19" tabindex="-1"></a>  <span class="fu">return</span>(out)</span>
-<span id="cb98-20"><a href="tests.html#cb98-20" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="tests.html#cb105-1" tabindex="-1"></a><span class="co">#&#39; Run tests for `litr` itself</span></span>
+<span id="cb105-2"><a href="tests.html#cb105-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb105-3"><a href="tests.html#cb105-3" tabindex="-1"></a><span class="co">#&#39; Special function for testing `litr`.  The trick is to temporarily install</span></span>
+<span id="cb105-4"><a href="tests.html#cb105-4" tabindex="-1"></a><span class="co">#&#39; the new version of `litr`, run the test, and then put things back how it was</span></span>
+<span id="cb105-5"><a href="tests.html#cb105-5" tabindex="-1"></a><span class="co">#&#39; before.</span></span>
+<span id="cb105-6"><a href="tests.html#cb105-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb105-7"><a href="tests.html#cb105-7" tabindex="-1"></a><span class="co">#&#39; Typical values for `install_old` could be</span></span>
+<span id="cb105-8"><a href="tests.html#cb105-8" tabindex="-1"></a><span class="co">#&#39; - `function() devtools::install(&quot;[location of old version]&quot;)`</span></span>
+<span id="cb105-9"><a href="tests.html#cb105-9" tabindex="-1"></a><span class="co">#&#39; - `function() remotes::install_github(&quot;jacobbien/litr-project@*release&quot;, subdir = &quot;litr&quot;)`.</span></span>
+<span id="cb105-10"><a href="tests.html#cb105-10" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb105-11"><a href="tests.html#cb105-11" tabindex="-1"></a><span class="co">#&#39; @param install_old A function that when run will install the old version</span></span>
+<span id="cb105-12"><a href="tests.html#cb105-12" tabindex="-1"></a><span class="co">#&#39; @param location_of_new Path to the new package directory</span></span>
+<span id="cb105-13"><a href="tests.html#cb105-13" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb105-14"><a href="tests.html#cb105-14" tabindex="-1"></a><span id='test_litr'>test_litr</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(install_old, location_of_new) {</span>
+<span id="cb105-15"><a href="tests.html#cb105-15" tabindex="-1"></a>  devtools<span class="sc">::</span><span class="fu">unload</span>(params<span class="sc">$</span>package_name)</span>
+<span id="cb105-16"><a href="tests.html#cb105-16" tabindex="-1"></a>  devtools<span class="sc">::</span><span class="fu">install</span>(location_of_new)</span>
+<span id="cb105-17"><a href="tests.html#cb105-17" tabindex="-1"></a>  out <span class="ot">&lt;-</span> devtools<span class="sc">::</span><span class="fu">test</span>(location_of_new)</span>
+<span id="cb105-18"><a href="tests.html#cb105-18" tabindex="-1"></a>  <a href='documenting-the-package-and-testing.html#install_old'>install_old</a>()</span>
+<span id="cb105-19"><a href="tests.html#cb105-19" tabindex="-1"></a>  <span class="fu">return</span>(out)</span>
+<span id="cb105-20"><a href="tests.html#cb105-20" tabindex="-1"></a>}</span></code></pre></div>
 <p>Note: The call to <code>devtools::unload()</code> is to address an issue discussed <a href="https://github.com/jacobbien/litr-project/issues/30">here</a>.</p>
 <div id="test-check-unedited" class="section level2 hasAnchor" number="10.1">
 <h2><span class="header-section-number">10.1</span> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code><a href="tests.html#test-check-unedited" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -246,126 +246,126 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><p>Changing something in the DESCRIPTION file (but not on the special <code>litr</code> line)</p></li>
 <li><p>Changing the <code>litr</code> hash line itself</p></li>
 </ul>
-<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="tests.html#cb99-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;check_unedited works&quot;</span>, {</span>
-<span id="cb99-2"><a href="tests.html#cb99-2" tabindex="-1"></a>  <span class="co"># Including this next line seems to be necessary for R CMD check on the cmd line:</span></span>
-<span id="cb99-3"><a href="tests.html#cb99-3" tabindex="-1"></a>  <span class="co">#Sys.setenv(RSTUDIO_PANDOC = &quot;/Applications/RStudio.app/Contents/MacOS/pandoc&quot;)</span></span>
-<span id="cb99-4"><a href="tests.html#cb99-4" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb99-5"><a href="tests.html#cb99-5" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb99-6"><a href="tests.html#cb99-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;my-package.Rmd&quot;</span>)</span>
-<span id="cb99-7"><a href="tests.html#cb99-7" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb99-8"><a href="tests.html#cb99-8" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
-<span id="cb99-9"><a href="tests.html#cb99-9" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb99-10"><a href="tests.html#cb99-10" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb99-11"><a href="tests.html#cb99-11" tabindex="-1"></a>  <span class="co"># create R package (named &quot;rhello&quot;) from the Rmd template:</span></span>
-<span id="cb99-12"><a href="tests.html#cb99-12" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb99-13"><a href="tests.html#cb99-13" tabindex="-1"></a>  package_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;rhello&quot;</span>)</span>
-<span id="cb99-14"><a href="tests.html#cb99-14" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-15"><a href="tests.html#cb99-15" tabindex="-1"></a></span>
-<span id="cb99-16"><a href="tests.html#cb99-16" tabindex="-1"></a>  <span class="co"># what if a file has been added?</span></span>
-<span id="cb99-17"><a href="tests.html#cb99-17" tabindex="-1"></a>  added_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;say_hello2.R&quot;</span>)</span>
-<span id="cb99-18"><a href="tests.html#cb99-18" tabindex="-1"></a>  <span class="fu">writeLines</span>(<span class="st">&quot;# Added something here.&quot;</span>, added_file)</span>
-<span id="cb99-19"><a href="tests.html#cb99-19" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-20"><a href="tests.html#cb99-20" tabindex="-1"></a></span>
-<span id="cb99-21"><a href="tests.html#cb99-21" tabindex="-1"></a>  <span class="co"># what if we now remove it?</span></span>
-<span id="cb99-22"><a href="tests.html#cb99-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(added_file)</span>
-<span id="cb99-23"><a href="tests.html#cb99-23" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-24"><a href="tests.html#cb99-24" tabindex="-1"></a></span>
-<span id="cb99-25"><a href="tests.html#cb99-25" tabindex="-1"></a>  <span class="co"># what if a file is removed from package?</span></span>
-<span id="cb99-26"><a href="tests.html#cb99-26" tabindex="-1"></a>  rfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;say_hello.R&quot;</span>)</span>
-<span id="cb99-27"><a href="tests.html#cb99-27" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(rfile, dir)</span>
-<span id="cb99-28"><a href="tests.html#cb99-28" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-29"><a href="tests.html#cb99-29" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
-<span id="cb99-30"><a href="tests.html#cb99-30" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;say_hello.R&quot;</span>), <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>))</span>
-<span id="cb99-31"><a href="tests.html#cb99-31" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-32"><a href="tests.html#cb99-32" tabindex="-1"></a></span>
-<span id="cb99-33"><a href="tests.html#cb99-33" tabindex="-1"></a>  <span class="co"># what if something is changed in a file?</span></span>
-<span id="cb99-34"><a href="tests.html#cb99-34" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(rfile)</span>
-<span id="cb99-35"><a href="tests.html#cb99-35" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
-<span id="cb99-36"><a href="tests.html#cb99-36" tabindex="-1"></a>  txt_mod[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(txt[<span class="dv">3</span>], <span class="st">&quot; # added a comment!!&quot;</span>)</span>
-<span id="cb99-37"><a href="tests.html#cb99-37" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, rfile)</span>
-<span id="cb99-38"><a href="tests.html#cb99-38" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-39"><a href="tests.html#cb99-39" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
-<span id="cb99-40"><a href="tests.html#cb99-40" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, rfile)</span>
-<span id="cb99-41"><a href="tests.html#cb99-41" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-42"><a href="tests.html#cb99-42" tabindex="-1"></a></span>
-<span id="cb99-43"><a href="tests.html#cb99-43" tabindex="-1"></a>  <span class="co"># what if something is changed in the DESCRIPTION file?</span></span>
-<span id="cb99-44"><a href="tests.html#cb99-44" tabindex="-1"></a>  descfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
-<span id="cb99-45"><a href="tests.html#cb99-45" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(descfile)</span>
-<span id="cb99-46"><a href="tests.html#cb99-46" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
-<span id="cb99-47"><a href="tests.html#cb99-47" tabindex="-1"></a>  txt_mod[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;Package: newname&quot;</span></span>
-<span id="cb99-48"><a href="tests.html#cb99-48" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, descfile)</span>
-<span id="cb99-49"><a href="tests.html#cb99-49" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-50"><a href="tests.html#cb99-50" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
-<span id="cb99-51"><a href="tests.html#cb99-51" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, descfile)</span>
-<span id="cb99-52"><a href="tests.html#cb99-52" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-53"><a href="tests.html#cb99-53" tabindex="-1"></a></span>
-<span id="cb99-54"><a href="tests.html#cb99-54" tabindex="-1"></a>  <span class="co"># what if the special litr hash field is changed in the DESCRIPTION file?</span></span>
-<span id="cb99-55"><a href="tests.html#cb99-55" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(descfile)</span>
-<span id="cb99-56"><a href="tests.html#cb99-56" tabindex="-1"></a>  i_litr <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(txt, <a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>())</span>
-<span id="cb99-57"><a href="tests.html#cb99-57" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
-<span id="cb99-58"><a href="tests.html#cb99-58" tabindex="-1"></a>  txt_mod[i_litr] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(txt_mod[i_litr], <span class="st">&quot;a&quot;</span>)</span>
-<span id="cb99-59"><a href="tests.html#cb99-59" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, descfile)</span>
-<span id="cb99-60"><a href="tests.html#cb99-60" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-61"><a href="tests.html#cb99-61" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
-<span id="cb99-62"><a href="tests.html#cb99-62" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, descfile)</span>
-<span id="cb99-63"><a href="tests.html#cb99-63" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
-<span id="cb99-64"><a href="tests.html#cb99-64" tabindex="-1"></a></span>
-<span id="cb99-65"><a href="tests.html#cb99-65" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb99-66"><a href="tests.html#cb99-66" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="tests.html#cb106-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;check_unedited works&quot;</span>, {</span>
+<span id="cb106-2"><a href="tests.html#cb106-2" tabindex="-1"></a>  <span class="co"># Including this next line seems to be necessary for R CMD check on the cmd line:</span></span>
+<span id="cb106-3"><a href="tests.html#cb106-3" tabindex="-1"></a>  <span class="co">#Sys.setenv(RSTUDIO_PANDOC = &quot;/Applications/RStudio.app/Contents/MacOS/pandoc&quot;)</span></span>
+<span id="cb106-4"><a href="tests.html#cb106-4" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb106-5"><a href="tests.html#cb106-5" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb106-6"><a href="tests.html#cb106-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;my-package.Rmd&quot;</span>)</span>
+<span id="cb106-7"><a href="tests.html#cb106-7" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb106-8"><a href="tests.html#cb106-8" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
+<span id="cb106-9"><a href="tests.html#cb106-9" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb106-10"><a href="tests.html#cb106-10" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb106-11"><a href="tests.html#cb106-11" tabindex="-1"></a>  <span class="co"># create R package (named &quot;rhello&quot;) from the Rmd template:</span></span>
+<span id="cb106-12"><a href="tests.html#cb106-12" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb106-13"><a href="tests.html#cb106-13" tabindex="-1"></a>  package_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;rhello&quot;</span>)</span>
+<span id="cb106-14"><a href="tests.html#cb106-14" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-15"><a href="tests.html#cb106-15" tabindex="-1"></a></span>
+<span id="cb106-16"><a href="tests.html#cb106-16" tabindex="-1"></a>  <span class="co"># what if a file has been added?</span></span>
+<span id="cb106-17"><a href="tests.html#cb106-17" tabindex="-1"></a>  added_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;say_hello2.R&quot;</span>)</span>
+<span id="cb106-18"><a href="tests.html#cb106-18" tabindex="-1"></a>  <span class="fu">writeLines</span>(<span class="st">&quot;# Added something here.&quot;</span>, added_file)</span>
+<span id="cb106-19"><a href="tests.html#cb106-19" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-20"><a href="tests.html#cb106-20" tabindex="-1"></a></span>
+<span id="cb106-21"><a href="tests.html#cb106-21" tabindex="-1"></a>  <span class="co"># what if we now remove it?</span></span>
+<span id="cb106-22"><a href="tests.html#cb106-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(added_file)</span>
+<span id="cb106-23"><a href="tests.html#cb106-23" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-24"><a href="tests.html#cb106-24" tabindex="-1"></a></span>
+<span id="cb106-25"><a href="tests.html#cb106-25" tabindex="-1"></a>  <span class="co"># what if a file is removed from package?</span></span>
+<span id="cb106-26"><a href="tests.html#cb106-26" tabindex="-1"></a>  rfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;say_hello.R&quot;</span>)</span>
+<span id="cb106-27"><a href="tests.html#cb106-27" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(rfile, dir)</span>
+<span id="cb106-28"><a href="tests.html#cb106-28" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-29"><a href="tests.html#cb106-29" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb106-30"><a href="tests.html#cb106-30" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;say_hello.R&quot;</span>), <span class="fu">file.path</span>(package_path, <span class="st">&quot;R&quot;</span>))</span>
+<span id="cb106-31"><a href="tests.html#cb106-31" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-32"><a href="tests.html#cb106-32" tabindex="-1"></a></span>
+<span id="cb106-33"><a href="tests.html#cb106-33" tabindex="-1"></a>  <span class="co"># what if something is changed in a file?</span></span>
+<span id="cb106-34"><a href="tests.html#cb106-34" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(rfile)</span>
+<span id="cb106-35"><a href="tests.html#cb106-35" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
+<span id="cb106-36"><a href="tests.html#cb106-36" tabindex="-1"></a>  txt_mod[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(txt[<span class="dv">3</span>], <span class="st">&quot; # added a comment!!&quot;</span>)</span>
+<span id="cb106-37"><a href="tests.html#cb106-37" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, rfile)</span>
+<span id="cb106-38"><a href="tests.html#cb106-38" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-39"><a href="tests.html#cb106-39" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb106-40"><a href="tests.html#cb106-40" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, rfile)</span>
+<span id="cb106-41"><a href="tests.html#cb106-41" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-42"><a href="tests.html#cb106-42" tabindex="-1"></a></span>
+<span id="cb106-43"><a href="tests.html#cb106-43" tabindex="-1"></a>  <span class="co"># what if something is changed in the DESCRIPTION file?</span></span>
+<span id="cb106-44"><a href="tests.html#cb106-44" tabindex="-1"></a>  descfile <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_path, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
+<span id="cb106-45"><a href="tests.html#cb106-45" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(descfile)</span>
+<span id="cb106-46"><a href="tests.html#cb106-46" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
+<span id="cb106-47"><a href="tests.html#cb106-47" tabindex="-1"></a>  txt_mod[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;Package: newname&quot;</span></span>
+<span id="cb106-48"><a href="tests.html#cb106-48" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, descfile)</span>
+<span id="cb106-49"><a href="tests.html#cb106-49" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-50"><a href="tests.html#cb106-50" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb106-51"><a href="tests.html#cb106-51" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, descfile)</span>
+<span id="cb106-52"><a href="tests.html#cb106-52" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-53"><a href="tests.html#cb106-53" tabindex="-1"></a></span>
+<span id="cb106-54"><a href="tests.html#cb106-54" tabindex="-1"></a>  <span class="co"># what if the special litr hash field is changed in the DESCRIPTION file?</span></span>
+<span id="cb106-55"><a href="tests.html#cb106-55" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(descfile)</span>
+<span id="cb106-56"><a href="tests.html#cb106-56" tabindex="-1"></a>  i_litr <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(txt, <a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>())</span>
+<span id="cb106-57"><a href="tests.html#cb106-57" tabindex="-1"></a>  txt_mod <span class="ot">&lt;-</span> txt</span>
+<span id="cb106-58"><a href="tests.html#cb106-58" tabindex="-1"></a>  txt_mod[i_litr] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(txt_mod[i_litr], <span class="st">&quot;a&quot;</span>)</span>
+<span id="cb106-59"><a href="tests.html#cb106-59" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt_mod, descfile)</span>
+<span id="cb106-60"><a href="tests.html#cb106-60" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_false</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-61"><a href="tests.html#cb106-61" tabindex="-1"></a>  <span class="co"># now put it back</span></span>
+<span id="cb106-62"><a href="tests.html#cb106-62" tabindex="-1"></a>  <span class="fu">writeLines</span>(txt, descfile)</span>
+<span id="cb106-63"><a href="tests.html#cb106-63" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(<a href='hash.html#check_unedited'>check_unedited</a>(package_path))</span>
+<span id="cb106-64"><a href="tests.html#cb106-64" tabindex="-1"></a></span>
+<span id="cb106-65"><a href="tests.html#cb106-65" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb106-66"><a href="tests.html#cb106-66" tabindex="-1"></a>})</span></code></pre></div>
 </div>
 <div id="testing-get_params_used" class="section level2 hasAnchor" number="10.2">
 <h2><span class="header-section-number">10.2</span> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code><a href="tests.html#testing-get_params_used" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Let’s now test the <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code> function, making sure it behaves how we expect it to:</p>
-<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="tests.html#cb100-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;get_params_used works&quot;</span>, {</span>
-<span id="cb100-2"><a href="tests.html#cb100-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb100-3"><a href="tests.html#cb100-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb100-4"><a href="tests.html#cb100-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb100-5"><a href="tests.html#cb100-5" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;my-package.Rmd&quot;</span>)</span>
-<span id="cb100-6"><a href="tests.html#cb100-6" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file, <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>, <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb100-7"><a href="tests.html#cb100-7" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb100-8"><a href="tests.html#cb100-8" tabindex="-1"></a>  default_params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file, <span class="at">passed_params =</span> <span class="fu">list</span>())</span>
-<span id="cb100-9"><a href="tests.html#cb100-9" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
-<span id="cb100-10"><a href="tests.html#cb100-10" tabindex="-1"></a>    default_params,</span>
-<span id="cb100-11"><a href="tests.html#cb100-11" tabindex="-1"></a>    rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(rmd_file)<span class="sc">$</span>params</span>
-<span id="cb100-12"><a href="tests.html#cb100-12" tabindex="-1"></a>  )</span>
-<span id="cb100-13"><a href="tests.html#cb100-13" tabindex="-1"></a>  params1 <span class="ot">&lt;-</span> default_params</span>
-<span id="cb100-14"><a href="tests.html#cb100-14" tabindex="-1"></a>  params1<span class="sc">$</span>package_parent_dir <span class="ot">&lt;-</span> <span class="st">&quot;dir&quot;</span></span>
-<span id="cb100-15"><a href="tests.html#cb100-15" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
-<span id="cb100-16"><a href="tests.html#cb100-16" tabindex="-1"></a>    <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file, <span class="at">passed_params =</span> <span class="fu">list</span>(<span class="at">package_parent_dir =</span> <span class="st">&quot;dir&quot;</span>)),</span>
-<span id="cb100-17"><a href="tests.html#cb100-17" tabindex="-1"></a>    params1</span>
-<span id="cb100-18"><a href="tests.html#cb100-18" tabindex="-1"></a>  )</span>
-<span id="cb100-19"><a href="tests.html#cb100-19" tabindex="-1"></a>  params2 <span class="ot">&lt;-</span> default_params</span>
-<span id="cb100-20"><a href="tests.html#cb100-20" tabindex="-1"></a>  params2<span class="sc">$</span>package_name <span class="ot">&lt;-</span> <span class="st">&quot;pkg&quot;</span></span>
-<span id="cb100-21"><a href="tests.html#cb100-21" tabindex="-1"></a>  params2<span class="sc">$</span>package_parent_dir <span class="ot">&lt;-</span> <span class="st">&quot;dir&quot;</span></span>
-<span id="cb100-22"><a href="tests.html#cb100-22" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
-<span id="cb100-23"><a href="tests.html#cb100-23" tabindex="-1"></a>    <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file,</span>
-<span id="cb100-24"><a href="tests.html#cb100-24" tabindex="-1"></a>                    <span class="at">passed_params =</span> <span class="fu">list</span>(<span class="at">package_parent_dir =</span> <span class="st">&quot;dir&quot;</span>,</span>
-<span id="cb100-25"><a href="tests.html#cb100-25" tabindex="-1"></a>                                         <span class="at">package_name =</span> <span class="st">&quot;pkg&quot;</span>)),</span>
-<span id="cb100-26"><a href="tests.html#cb100-26" tabindex="-1"></a>    params2</span>
-<span id="cb100-27"><a href="tests.html#cb100-27" tabindex="-1"></a>  )</span>
-<span id="cb100-28"><a href="tests.html#cb100-28" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb100-29"><a href="tests.html#cb100-29" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="tests.html#cb107-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;get_params_used works&quot;</span>, {</span>
+<span id="cb107-2"><a href="tests.html#cb107-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb107-3"><a href="tests.html#cb107-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb107-4"><a href="tests.html#cb107-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb107-5"><a href="tests.html#cb107-5" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;my-package.Rmd&quot;</span>)</span>
+<span id="cb107-6"><a href="tests.html#cb107-6" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file, <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>, <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb107-7"><a href="tests.html#cb107-7" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb107-8"><a href="tests.html#cb107-8" tabindex="-1"></a>  default_params <span class="ot">&lt;-</span> <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file, <span class="at">passed_params =</span> <span class="fu">list</span>())</span>
+<span id="cb107-9"><a href="tests.html#cb107-9" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
+<span id="cb107-10"><a href="tests.html#cb107-10" tabindex="-1"></a>    default_params,</span>
+<span id="cb107-11"><a href="tests.html#cb107-11" tabindex="-1"></a>    rmarkdown<span class="sc">::</span><span class="fu">yaml_front_matter</span>(rmd_file)<span class="sc">$</span>params</span>
+<span id="cb107-12"><a href="tests.html#cb107-12" tabindex="-1"></a>  )</span>
+<span id="cb107-13"><a href="tests.html#cb107-13" tabindex="-1"></a>  params1 <span class="ot">&lt;-</span> default_params</span>
+<span id="cb107-14"><a href="tests.html#cb107-14" tabindex="-1"></a>  params1<span class="sc">$</span>package_parent_dir <span class="ot">&lt;-</span> <span class="st">&quot;dir&quot;</span></span>
+<span id="cb107-15"><a href="tests.html#cb107-15" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
+<span id="cb107-16"><a href="tests.html#cb107-16" tabindex="-1"></a>    <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file, <span class="at">passed_params =</span> <span class="fu">list</span>(<span class="at">package_parent_dir =</span> <span class="st">&quot;dir&quot;</span>)),</span>
+<span id="cb107-17"><a href="tests.html#cb107-17" tabindex="-1"></a>    params1</span>
+<span id="cb107-18"><a href="tests.html#cb107-18" tabindex="-1"></a>  )</span>
+<span id="cb107-19"><a href="tests.html#cb107-19" tabindex="-1"></a>  params2 <span class="ot">&lt;-</span> default_params</span>
+<span id="cb107-20"><a href="tests.html#cb107-20" tabindex="-1"></a>  params2<span class="sc">$</span>package_name <span class="ot">&lt;-</span> <span class="st">&quot;pkg&quot;</span></span>
+<span id="cb107-21"><a href="tests.html#cb107-21" tabindex="-1"></a>  params2<span class="sc">$</span>package_parent_dir <span class="ot">&lt;-</span> <span class="st">&quot;dir&quot;</span></span>
+<span id="cb107-22"><a href="tests.html#cb107-22" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(</span>
+<span id="cb107-23"><a href="tests.html#cb107-23" tabindex="-1"></a>    <a href='rendering.html#get_params_used'>get_params_used</a>(rmd_file,</span>
+<span id="cb107-24"><a href="tests.html#cb107-24" tabindex="-1"></a>                    <span class="at">passed_params =</span> <span class="fu">list</span>(<span class="at">package_parent_dir =</span> <span class="st">&quot;dir&quot;</span>,</span>
+<span id="cb107-25"><a href="tests.html#cb107-25" tabindex="-1"></a>                                         <span class="at">package_name =</span> <span class="st">&quot;pkg&quot;</span>)),</span>
+<span id="cb107-26"><a href="tests.html#cb107-26" tabindex="-1"></a>    params2</span>
+<span id="cb107-27"><a href="tests.html#cb107-27" tabindex="-1"></a>  )</span>
+<span id="cb107-28"><a href="tests.html#cb107-28" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb107-29"><a href="tests.html#cb107-29" tabindex="-1"></a>})</span></code></pre></div>
 </div>
 <div id="testing-chunk-referencing" class="section level2 hasAnchor" number="10.3">
 <h2><span class="header-section-number">10.3</span> Testing chunk referencing<a href="tests.html#testing-chunk-referencing" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Here we test the handling of chunk references (as implemented in the document output hook set within <code><a href='generating-package.html#setup'>setup</a>()</code>). In particular, we use a .Rmd that uses chunk references in several different ways. Within the .Rmd itself, we have tests that ensure that the code can still be run as expected.</p>
-<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="tests.html#cb101-1" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb101-2"><a href="tests.html#cb101-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb101-3"><a href="tests.html#cb101-3" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;test-example-files&quot;</span>, <span class="st">&quot;create-rknuth.Rmd&quot;</span></span>
-<span id="cb101-4"><a href="tests.html#cb101-4" tabindex="-1"></a>    ), </span>
-<span id="cb101-5"><a href="tests.html#cb101-5" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(<span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>), </span>
-<span id="cb101-6"><a href="tests.html#cb101-6" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb101-7"><a href="tests.html#cb101-7" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="tests.html#cb102-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Knuth-style references work&#39;</span>, {</span>
-<span id="cb102-2"><a href="tests.html#cb102-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb102-3"><a href="tests.html#cb102-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb102-4"><a href="tests.html#cb102-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb102-5"><a href="tests.html#cb102-5" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-rknuth.Rmd&#39;</span>)</span>
-<span id="cb102-6"><a href="tests.html#cb102-6" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="at">path =</span> testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-rknuth.Rmd&quot;</span>), <span class="at">new_path =</span> rmd_file)</span>
-<span id="cb102-7"><a href="tests.html#cb102-7" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb102-8"><a href="tests.html#cb102-8" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&#39;create-rknuth.html&#39;</span>)))</span>
-<span id="cb102-9"><a href="tests.html#cb102-9" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb102-10"><a href="tests.html#cb102-10" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="tests.html#cb108-1" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb108-2"><a href="tests.html#cb108-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb108-3"><a href="tests.html#cb108-3" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;test-example-files&quot;</span>, <span class="st">&quot;create-rknuth.Rmd&quot;</span></span>
+<span id="cb108-4"><a href="tests.html#cb108-4" tabindex="-1"></a>    ), </span>
+<span id="cb108-5"><a href="tests.html#cb108-5" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(<span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>), </span>
+<span id="cb108-6"><a href="tests.html#cb108-6" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb108-7"><a href="tests.html#cb108-7" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="tests.html#cb109-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Knuth-style references work&#39;</span>, {</span>
+<span id="cb109-2"><a href="tests.html#cb109-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb109-3"><a href="tests.html#cb109-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb109-4"><a href="tests.html#cb109-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb109-5"><a href="tests.html#cb109-5" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-rknuth.Rmd&#39;</span>)</span>
+<span id="cb109-6"><a href="tests.html#cb109-6" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(<span class="at">path =</span> testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-rknuth.Rmd&quot;</span>), <span class="at">new_path =</span> rmd_file)</span>
+<span id="cb109-7"><a href="tests.html#cb109-7" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb109-8"><a href="tests.html#cb109-8" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&#39;create-rknuth.html&#39;</span>)))</span>
+<span id="cb109-9"><a href="tests.html#cb109-9" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb109-10"><a href="tests.html#cb109-10" tabindex="-1"></a>})</span></code></pre></div>
 </div>
 <div id="testing-different-ways-of-rendering" class="section level2 hasAnchor" number="10.4">
 <h2><span class="header-section-number">10.4</span> Testing different ways of rendering<a href="tests.html#testing-different-ways-of-rendering" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -376,216 +376,216 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><p>Whether there is a litr output format being passed an argument to the render function.</p></li>
 </ol>
 <p>In this section, we will test that one gets the same result regardless of how rendering was invoked.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> We will use variations on a base .Rmd file whose preamble is simply the following:</p>
-<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="tests.html#cb103-1" tabindex="-1"></a><span class="sc">---</span></span>
-<span id="cb103-2"><a href="tests.html#cb103-2" tabindex="-1"></a>title<span class="sc">:</span> <span class="st">&#39;A Test&#39;</span></span>
-<span id="cb103-3"><a href="tests.html#cb103-3" tabindex="-1"></a>params<span class="sc">:</span></span>
-<span id="cb103-4"><a href="tests.html#cb103-4" tabindex="-1"></a>  package_name<span class="sc">:</span> <span class="st">&#39;pkg&#39;</span> <span class="co"># &lt;-- change this to your package name</span></span>
-<span id="cb103-5"><a href="tests.html#cb103-5" tabindex="-1"></a>  package_parent_dir<span class="sc">:</span> <span class="st">&#39;.&#39;</span> <span class="co"># &lt;-- relative to this file location</span></span>
-<span id="cb103-6"><a href="tests.html#cb103-6" tabindex="-1"></a><span class="sc">---</span></span></code></pre></div>
-<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="tests.html#cb104-1" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
-<span id="cb104-2"><a href="tests.html#cb104-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
-<span id="cb104-3"><a href="tests.html#cb104-3" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;test-example-files&quot;</span>, <span class="st">&quot;create-pkg.Rmd&quot;</span></span>
-<span id="cb104-4"><a href="tests.html#cb104-4" tabindex="-1"></a>    ), </span>
-<span id="cb104-5"><a href="tests.html#cb104-5" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(<span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>), </span>
-<span id="cb104-6"><a href="tests.html#cb104-6" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
-<span id="cb104-7"><a href="tests.html#cb104-7" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="tests.html#cb110-1" tabindex="-1"></a><span class="sc">---</span></span>
+<span id="cb110-2"><a href="tests.html#cb110-2" tabindex="-1"></a>title<span class="sc">:</span> <span class="st">&#39;A Test&#39;</span></span>
+<span id="cb110-3"><a href="tests.html#cb110-3" tabindex="-1"></a>params<span class="sc">:</span></span>
+<span id="cb110-4"><a href="tests.html#cb110-4" tabindex="-1"></a>  package_name<span class="sc">:</span> <span class="st">&#39;pkg&#39;</span> <span class="co"># &lt;-- change this to your package name</span></span>
+<span id="cb110-5"><a href="tests.html#cb110-5" tabindex="-1"></a>  package_parent_dir<span class="sc">:</span> <span class="st">&#39;.&#39;</span> <span class="co"># &lt;-- relative to this file location</span></span>
+<span id="cb110-6"><a href="tests.html#cb110-6" tabindex="-1"></a><span class="sc">---</span></span></code></pre></div>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="tests.html#cb111-1" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_copy</span>(</span>
+<span id="cb111-2"><a href="tests.html#cb111-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="fu">file.path</span>(</span>
+<span id="cb111-3"><a href="tests.html#cb111-3" tabindex="-1"></a>    <span class="st">&quot;..&quot;</span>, <span class="st">&quot;source-files&quot;</span>, <span class="st">&quot;test-example-files&quot;</span>, <span class="st">&quot;create-pkg.Rmd&quot;</span></span>
+<span id="cb111-4"><a href="tests.html#cb111-4" tabindex="-1"></a>    ), </span>
+<span id="cb111-5"><a href="tests.html#cb111-5" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">file.path</span>(<span class="st">&quot;tests&quot;</span>, <span class="st">&quot;testthat&quot;</span>), </span>
+<span id="cb111-6"><a href="tests.html#cb111-6" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb111-7"><a href="tests.html#cb111-7" tabindex="-1"></a>)</span></code></pre></div>
 <p>There are 7 cases to consider (<span class="math inline">\(2^3-1\)</span>, since we exclude the case where <code>rmarkdown::render()</code> is called and no argument or preamble would indicate that this should be a litr-knit).</p>
-<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="tests.html#cb105-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Rendering in all possible ways works&#39;</span>, {</span>
-<span id="cb105-2"><a href="tests.html#cb105-2" tabindex="-1"></a>  </span>
-<span id="cb105-3"><a href="tests.html#cb105-3" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
-<span id="cb105-4"><a href="tests.html#cb105-4" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb105-5"><a href="tests.html#cb105-5" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb105-6"><a href="tests.html#cb105-6" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb105-7"><a href="tests.html#cb105-7" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
-<span id="cb105-8"><a href="tests.html#cb105-8" tabindex="-1"></a>  rmd_file1 <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg1.Rmd&#39;</span>)</span>
-<span id="cb105-9"><a href="tests.html#cb105-9" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file1)</span>
-<span id="cb105-10"><a href="tests.html#cb105-10" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
-<span id="cb105-11"><a href="tests.html#cb105-11" tabindex="-1"></a>  rmd_file2 <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg2.Rmd&#39;</span>)</span>
-<span id="cb105-12"><a href="tests.html#cb105-12" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file2)</span>
-<span id="cb105-13"><a href="tests.html#cb105-13" tabindex="-1"></a>  litr<span class="sc">:::</span><a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(<span class="st">&quot;output: litr::litr_html_document&quot;</span>, rmd_file2, <span class="dv">3</span>)</span>
-<span id="cb105-14"><a href="tests.html#cb105-14" tabindex="-1"></a>  <span class="co"># files names</span></span>
-<span id="cb105-15"><a href="tests.html#cb105-15" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.Rmd&quot;</span>)  </span>
-<span id="cb105-16"><a href="tests.html#cb105-16" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
-<span id="cb105-17"><a href="tests.html#cb105-17" tabindex="-1"></a>  html_file_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>,<span class="st">&quot;create-pkg.html&quot;</span>)</span>
-<span id="cb105-18"><a href="tests.html#cb105-18" tabindex="-1"></a>  pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;pkg&quot;</span>)</span>
-<span id="cb105-19"><a href="tests.html#cb105-19" tabindex="-1"></a>  pkg_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;pkg&quot;</span>)</span>
-<span id="cb105-20"><a href="tests.html#cb105-20" tabindex="-1"></a>  <span id='check_outputs_are_same'>check_outputs_are_same</span> <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb105-21"><a href="tests.html#cb105-21" tabindex="-1"></a>    <span class="co"># html files should be the same:</span></span>
-<span id="cb105-22"><a href="tests.html#cb105-22" tabindex="-1"></a>    testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(html_file_a), <span class="fu">readLines</span>(html_file))</span>
-<span id="cb105-23"><a href="tests.html#cb105-23" tabindex="-1"></a>    <span class="co"># packages should be the same (relying here on litr-hash in DESCRIPTION):</span></span>
-<span id="cb105-24"><a href="tests.html#cb105-24" tabindex="-1"></a>    testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
-<span id="cb105-25"><a href="tests.html#cb105-25" tabindex="-1"></a>                           <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
-<span id="cb105-26"><a href="tests.html#cb105-26" tabindex="-1"></a>  }</span>
-<span id="cb105-27"><a href="tests.html#cb105-27" tabindex="-1"></a></span>
-<span id="cb105-28"><a href="tests.html#cb105-28" tabindex="-1"></a>  <span class="do">## Now test that all the cases give the same outputs:</span></span>
-<span id="cb105-29"><a href="tests.html#cb105-29" tabindex="-1"></a>  </span>
-<span id="cb105-30"><a href="tests.html#cb105-30" tabindex="-1"></a>  <span class="co"># Case 1: no preamble + litr::<a href='rendering.html#render'>render</a>()</span></span>
-<span id="cb105-31"><a href="tests.html#cb105-31" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-32"><a href="tests.html#cb105-32" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-33"><a href="tests.html#cb105-33" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))) fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
-<span id="cb105-34"><a href="tests.html#cb105-34" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
-<span id="cb105-35"><a href="tests.html#cb105-35" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(pkg, pkg_a)</span>
-<span id="cb105-36"><a href="tests.html#cb105-36" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(pkg)</span>
-<span id="cb105-37"><a href="tests.html#cb105-37" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(html_file, html_file_a)</span>
-<span id="cb105-38"><a href="tests.html#cb105-38" tabindex="-1"></a></span>
-<span id="cb105-39"><a href="tests.html#cb105-39" tabindex="-1"></a>  <span class="co"># Case 2: with preamble + litr::<a href='rendering.html#render'>render</a>()</span></span>
-<span id="cb105-40"><a href="tests.html#cb105-40" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-41"><a href="tests.html#cb105-41" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-42"><a href="tests.html#cb105-42" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
-<span id="cb105-43"><a href="tests.html#cb105-43" tabindex="-1"></a>  </span>
-<span id="cb105-44"><a href="tests.html#cb105-44" tabindex="-1"></a>  <span class="co"># Case 3: no preamble + litr::<a href='rendering.html#render'>render</a>() with output format argument</span></span>
-<span id="cb105-45"><a href="tests.html#cb105-45" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-46"><a href="tests.html#cb105-46" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
-<span id="cb105-47"><a href="tests.html#cb105-47" tabindex="-1"></a>         <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-48"><a href="tests.html#cb105-48" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
-<span id="cb105-49"><a href="tests.html#cb105-49" tabindex="-1"></a>  </span>
-<span id="cb105-50"><a href="tests.html#cb105-50" tabindex="-1"></a>  <span class="co"># Case 4: with preamble + litr::<a href='rendering.html#render'>render</a>() with output format argument</span></span>
-<span id="cb105-51"><a href="tests.html#cb105-51" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-52"><a href="tests.html#cb105-52" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
-<span id="cb105-53"><a href="tests.html#cb105-53" tabindex="-1"></a>         <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-54"><a href="tests.html#cb105-54" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
-<span id="cb105-55"><a href="tests.html#cb105-55" tabindex="-1"></a></span>
-<span id="cb105-56"><a href="tests.html#cb105-56" tabindex="-1"></a>  <span class="co"># Case 5: with preamble + rmarkdown::render()</span></span>
-<span id="cb105-57"><a href="tests.html#cb105-57" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-58"><a href="tests.html#cb105-58" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
-<span id="cb105-59"><a href="tests.html#cb105-59" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file, <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-60"><a href="tests.html#cb105-60" tabindex="-1"></a>                     )</span>
-<span id="cb105-61"><a href="tests.html#cb105-61" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
-<span id="cb105-62"><a href="tests.html#cb105-62" tabindex="-1"></a></span>
-<span id="cb105-63"><a href="tests.html#cb105-63" tabindex="-1"></a>  <span class="co"># Case 6: no preamble + rmarkdown::render() with output format argument</span></span>
-<span id="cb105-64"><a href="tests.html#cb105-64" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-65"><a href="tests.html#cb105-65" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
-<span id="cb105-66"><a href="tests.html#cb105-66" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file,</span>
-<span id="cb105-67"><a href="tests.html#cb105-67" tabindex="-1"></a>                          <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
-<span id="cb105-68"><a href="tests.html#cb105-68" tabindex="-1"></a>                          <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-69"><a href="tests.html#cb105-69" tabindex="-1"></a>                     )</span>
-<span id="cb105-70"><a href="tests.html#cb105-70" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
-<span id="cb105-71"><a href="tests.html#cb105-71" tabindex="-1"></a></span>
-<span id="cb105-72"><a href="tests.html#cb105-72" tabindex="-1"></a>  <span class="co"># Case 7: with preamble + rmarkdown::render() with output format argument</span></span>
-<span id="cb105-73"><a href="tests.html#cb105-73" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb105-74"><a href="tests.html#cb105-74" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
-<span id="cb105-75"><a href="tests.html#cb105-75" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file,</span>
-<span id="cb105-76"><a href="tests.html#cb105-76" tabindex="-1"></a>                          <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
-<span id="cb105-77"><a href="tests.html#cb105-77" tabindex="-1"></a>                          <span class="at">output_file =</span> html_file)</span>
-<span id="cb105-78"><a href="tests.html#cb105-78" tabindex="-1"></a>                     )</span>
-<span id="cb105-79"><a href="tests.html#cb105-79" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
-<span id="cb105-80"><a href="tests.html#cb105-80" tabindex="-1"></a>  </span>
-<span id="cb105-81"><a href="tests.html#cb105-81" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb105-82"><a href="tests.html#cb105-82" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="tests.html#cb112-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Rendering in all possible ways works&#39;</span>, {</span>
+<span id="cb112-2"><a href="tests.html#cb112-2" tabindex="-1"></a>  </span>
+<span id="cb112-3"><a href="tests.html#cb112-3" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
+<span id="cb112-4"><a href="tests.html#cb112-4" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb112-5"><a href="tests.html#cb112-5" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb112-6"><a href="tests.html#cb112-6" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb112-7"><a href="tests.html#cb112-7" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
+<span id="cb112-8"><a href="tests.html#cb112-8" tabindex="-1"></a>  rmd_file1 <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg1.Rmd&#39;</span>)</span>
+<span id="cb112-9"><a href="tests.html#cb112-9" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file1)</span>
+<span id="cb112-10"><a href="tests.html#cb112-10" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
+<span id="cb112-11"><a href="tests.html#cb112-11" tabindex="-1"></a>  rmd_file2 <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg2.Rmd&#39;</span>)</span>
+<span id="cb112-12"><a href="tests.html#cb112-12" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file2)</span>
+<span id="cb112-13"><a href="tests.html#cb112-13" tabindex="-1"></a>  litr<span class="sc">:::</span><a href='generating-package.html#add_text_to_file'>add_text_to_file</a>(<span class="st">&quot;output: litr::litr_html_document&quot;</span>, rmd_file2, <span class="dv">3</span>)</span>
+<span id="cb112-14"><a href="tests.html#cb112-14" tabindex="-1"></a>  <span class="co"># files names</span></span>
+<span id="cb112-15"><a href="tests.html#cb112-15" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.Rmd&quot;</span>)  </span>
+<span id="cb112-16"><a href="tests.html#cb112-16" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb112-17"><a href="tests.html#cb112-17" tabindex="-1"></a>  html_file_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>,<span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb112-18"><a href="tests.html#cb112-18" tabindex="-1"></a>  pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb112-19"><a href="tests.html#cb112-19" tabindex="-1"></a>  pkg_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb112-20"><a href="tests.html#cb112-20" tabindex="-1"></a>  <span id='check_outputs_are_same'>check_outputs_are_same</span> <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb112-21"><a href="tests.html#cb112-21" tabindex="-1"></a>    <span class="co"># html files should be the same:</span></span>
+<span id="cb112-22"><a href="tests.html#cb112-22" tabindex="-1"></a>    testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(html_file_a), <span class="fu">readLines</span>(html_file))</span>
+<span id="cb112-23"><a href="tests.html#cb112-23" tabindex="-1"></a>    <span class="co"># packages should be the same (relying here on litr-hash in DESCRIPTION):</span></span>
+<span id="cb112-24"><a href="tests.html#cb112-24" tabindex="-1"></a>    testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
+<span id="cb112-25"><a href="tests.html#cb112-25" tabindex="-1"></a>                           <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
+<span id="cb112-26"><a href="tests.html#cb112-26" tabindex="-1"></a>  }</span>
+<span id="cb112-27"><a href="tests.html#cb112-27" tabindex="-1"></a></span>
+<span id="cb112-28"><a href="tests.html#cb112-28" tabindex="-1"></a>  <span class="do">## Now test that all the cases give the same outputs:</span></span>
+<span id="cb112-29"><a href="tests.html#cb112-29" tabindex="-1"></a>  </span>
+<span id="cb112-30"><a href="tests.html#cb112-30" tabindex="-1"></a>  <span class="co"># Case 1: no preamble + litr::<a href='rendering.html#render'>render</a>()</span></span>
+<span id="cb112-31"><a href="tests.html#cb112-31" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-32"><a href="tests.html#cb112-32" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-33"><a href="tests.html#cb112-33" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))) fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb112-34"><a href="tests.html#cb112-34" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb112-35"><a href="tests.html#cb112-35" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(pkg, pkg_a)</span>
+<span id="cb112-36"><a href="tests.html#cb112-36" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(pkg)</span>
+<span id="cb112-37"><a href="tests.html#cb112-37" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_move</span>(html_file, html_file_a)</span>
+<span id="cb112-38"><a href="tests.html#cb112-38" tabindex="-1"></a></span>
+<span id="cb112-39"><a href="tests.html#cb112-39" tabindex="-1"></a>  <span class="co"># Case 2: with preamble + litr::<a href='rendering.html#render'>render</a>()</span></span>
+<span id="cb112-40"><a href="tests.html#cb112-40" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-41"><a href="tests.html#cb112-41" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-42"><a href="tests.html#cb112-42" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb112-43"><a href="tests.html#cb112-43" tabindex="-1"></a>  </span>
+<span id="cb112-44"><a href="tests.html#cb112-44" tabindex="-1"></a>  <span class="co"># Case 3: no preamble + litr::<a href='rendering.html#render'>render</a>() with output format argument</span></span>
+<span id="cb112-45"><a href="tests.html#cb112-45" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-46"><a href="tests.html#cb112-46" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb112-47"><a href="tests.html#cb112-47" tabindex="-1"></a>         <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-48"><a href="tests.html#cb112-48" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb112-49"><a href="tests.html#cb112-49" tabindex="-1"></a>  </span>
+<span id="cb112-50"><a href="tests.html#cb112-50" tabindex="-1"></a>  <span class="co"># Case 4: with preamble + litr::<a href='rendering.html#render'>render</a>() with output format argument</span></span>
+<span id="cb112-51"><a href="tests.html#cb112-51" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-52"><a href="tests.html#cb112-52" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb112-53"><a href="tests.html#cb112-53" tabindex="-1"></a>         <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-54"><a href="tests.html#cb112-54" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb112-55"><a href="tests.html#cb112-55" tabindex="-1"></a></span>
+<span id="cb112-56"><a href="tests.html#cb112-56" tabindex="-1"></a>  <span class="co"># Case 5: with preamble + rmarkdown::render()</span></span>
+<span id="cb112-57"><a href="tests.html#cb112-57" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-58"><a href="tests.html#cb112-58" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb112-59"><a href="tests.html#cb112-59" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file, <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-60"><a href="tests.html#cb112-60" tabindex="-1"></a>                     )</span>
+<span id="cb112-61"><a href="tests.html#cb112-61" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb112-62"><a href="tests.html#cb112-62" tabindex="-1"></a></span>
+<span id="cb112-63"><a href="tests.html#cb112-63" tabindex="-1"></a>  <span class="co"># Case 6: no preamble + rmarkdown::render() with output format argument</span></span>
+<span id="cb112-64"><a href="tests.html#cb112-64" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file1, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-65"><a href="tests.html#cb112-65" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb112-66"><a href="tests.html#cb112-66" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file,</span>
+<span id="cb112-67"><a href="tests.html#cb112-67" tabindex="-1"></a>                          <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb112-68"><a href="tests.html#cb112-68" tabindex="-1"></a>                          <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-69"><a href="tests.html#cb112-69" tabindex="-1"></a>                     )</span>
+<span id="cb112-70"><a href="tests.html#cb112-70" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb112-71"><a href="tests.html#cb112-71" tabindex="-1"></a></span>
+<span id="cb112-72"><a href="tests.html#cb112-72" tabindex="-1"></a>  <span class="co"># Case 7: with preamble + rmarkdown::render() with output format argument</span></span>
+<span id="cb112-73"><a href="tests.html#cb112-73" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(rmd_file2, rmd_file, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb112-74"><a href="tests.html#cb112-74" tabindex="-1"></a>  xfun<span class="sc">::</span><span class="fu">Rscript_call</span>(rmarkdown<span class="sc">::</span>render,</span>
+<span id="cb112-75"><a href="tests.html#cb112-75" tabindex="-1"></a>                     <span class="fu">list</span>(<span class="at">input =</span> rmd_file,</span>
+<span id="cb112-76"><a href="tests.html#cb112-76" tabindex="-1"></a>                          <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(),</span>
+<span id="cb112-77"><a href="tests.html#cb112-77" tabindex="-1"></a>                          <span class="at">output_file =</span> html_file)</span>
+<span id="cb112-78"><a href="tests.html#cb112-78" tabindex="-1"></a>                     )</span>
+<span id="cb112-79"><a href="tests.html#cb112-79" tabindex="-1"></a>  <a href='tests.html#check_outputs_are_same'>check_outputs_are_same</a>()</span>
+<span id="cb112-80"><a href="tests.html#cb112-80" tabindex="-1"></a>  </span>
+<span id="cb112-81"><a href="tests.html#cb112-81" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb112-82"><a href="tests.html#cb112-82" tabindex="-1"></a>})</span></code></pre></div>
 <p>Let’s also make sure that we get the same R package output when using <code>minimal_eval=TRUE</code> as <code>minimal_eval=TRUE</code>.</p>
-<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="tests.html#cb106-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Rendering with minimal_eval=TRUE works&#39;</span>, {</span>
-<span id="cb106-2"><a href="tests.html#cb106-2" tabindex="-1"></a>  </span>
-<span id="cb106-3"><a href="tests.html#cb106-3" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
-<span id="cb106-4"><a href="tests.html#cb106-4" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb106-5"><a href="tests.html#cb106-5" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb106-6"><a href="tests.html#cb106-6" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb106-7"><a href="tests.html#cb106-7" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
-<span id="cb106-8"><a href="tests.html#cb106-8" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
-<span id="cb106-9"><a href="tests.html#cb106-9" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
-<span id="cb106-10"><a href="tests.html#cb106-10" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
-<span id="cb106-11"><a href="tests.html#cb106-11" tabindex="-1"></a>  html_file_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>,<span class="st">&quot;create-pkg.html&quot;</span>)</span>
-<span id="cb106-12"><a href="tests.html#cb106-12" tabindex="-1"></a>  pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;pkg&quot;</span>)</span>
-<span id="cb106-13"><a href="tests.html#cb106-13" tabindex="-1"></a>  pkg_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;pkg&quot;</span>)</span>
-<span id="cb106-14"><a href="tests.html#cb106-14" tabindex="-1"></a></span>
-<span id="cb106-15"><a href="tests.html#cb106-15" tabindex="-1"></a>  <span class="do">## Now test that all the cases give the same outputs:</span></span>
-<span id="cb106-16"><a href="tests.html#cb106-16" tabindex="-1"></a>  </span>
-<span id="cb106-17"><a href="tests.html#cb106-17" tabindex="-1"></a>  <span class="co"># Case 1: minimal_eval = FALSE</span></span>
-<span id="cb106-18"><a href="tests.html#cb106-18" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file, <span class="at">minimal_eval =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb106-19"><a href="tests.html#cb106-19" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))) fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
-<span id="cb106-20"><a href="tests.html#cb106-20" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
-<span id="cb106-21"><a href="tests.html#cb106-21" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(pkg, pkg_a)</span>
-<span id="cb106-22"><a href="tests.html#cb106-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(pkg)</span>
-<span id="cb106-23"><a href="tests.html#cb106-23" tabindex="-1"></a></span>
-<span id="cb106-24"><a href="tests.html#cb106-24" tabindex="-1"></a>  <span class="co"># Case 2: minimal_eval = TRUE passed to render</span></span>
-<span id="cb106-25"><a href="tests.html#cb106-25" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb106-26"><a href="tests.html#cb106-26" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
-<span id="cb106-27"><a href="tests.html#cb106-27" tabindex="-1"></a>                         <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
-<span id="cb106-28"><a href="tests.html#cb106-28" tabindex="-1"></a></span>
-<span id="cb106-29"><a href="tests.html#cb106-29" tabindex="-1"></a>  <span class="co"># Case 3: minimal_eval = TRUE passed to output format</span></span>
-<span id="cb106-30"><a href="tests.html#cb106-30" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file,</span>
-<span id="cb106-31"><a href="tests.html#cb106-31" tabindex="-1"></a>         <span class="at">output_file =</span> html_file,</span>
-<span id="cb106-32"><a href="tests.html#cb106-32" tabindex="-1"></a>         <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(<span class="at">minimal_eval =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb106-33"><a href="tests.html#cb106-33" tabindex="-1"></a>         )</span>
-<span id="cb106-34"><a href="tests.html#cb106-34" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
-<span id="cb106-35"><a href="tests.html#cb106-35" tabindex="-1"></a>                         <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
-<span id="cb106-36"><a href="tests.html#cb106-36" tabindex="-1"></a></span>
-<span id="cb106-37"><a href="tests.html#cb106-37" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb106-38"><a href="tests.html#cb106-38" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="tests.html#cb113-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&#39;Rendering with minimal_eval=TRUE works&#39;</span>, {</span>
+<span id="cb113-2"><a href="tests.html#cb113-2" tabindex="-1"></a>  </span>
+<span id="cb113-3"><a href="tests.html#cb113-3" tabindex="-1"></a>  <span class="co"># setup files for tests:</span></span>
+<span id="cb113-4"><a href="tests.html#cb113-4" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb113-5"><a href="tests.html#cb113-5" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb113-6"><a href="tests.html#cb113-6" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb113-7"><a href="tests.html#cb113-7" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&#39;create-pkg.Rmd&#39;</span>)</span>
+<span id="cb113-8"><a href="tests.html#cb113-8" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_copy</span>(testthat<span class="sc">::</span><span class="fu">test_path</span>(<span class="st">&quot;create-pkg.Rmd&quot;</span>), rmd_file)</span>
+<span id="cb113-9"><a href="tests.html#cb113-9" tabindex="-1"></a>  <span class="co"># .Rmd without output format in preamble</span></span>
+<span id="cb113-10"><a href="tests.html#cb113-10" tabindex="-1"></a>  html_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb113-11"><a href="tests.html#cb113-11" tabindex="-1"></a>  html_file_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>,<span class="st">&quot;create-pkg.html&quot;</span>)</span>
+<span id="cb113-12"><a href="tests.html#cb113-12" tabindex="-1"></a>  pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb113-13"><a href="tests.html#cb113-13" tabindex="-1"></a>  pkg_a <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;pkg&quot;</span>)</span>
+<span id="cb113-14"><a href="tests.html#cb113-14" tabindex="-1"></a></span>
+<span id="cb113-15"><a href="tests.html#cb113-15" tabindex="-1"></a>  <span class="do">## Now test that all the cases give the same outputs:</span></span>
+<span id="cb113-16"><a href="tests.html#cb113-16" tabindex="-1"></a>  </span>
+<span id="cb113-17"><a href="tests.html#cb113-17" tabindex="-1"></a>  <span class="co"># Case 1: minimal_eval = FALSE</span></span>
+<span id="cb113-18"><a href="tests.html#cb113-18" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file, <span class="at">minimal_eval =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb113-19"><a href="tests.html#cb113-19" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))) fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb113-20"><a href="tests.html#cb113-20" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;a&quot;</span>))</span>
+<span id="cb113-21"><a href="tests.html#cb113-21" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_copy</span>(pkg, pkg_a)</span>
+<span id="cb113-22"><a href="tests.html#cb113-22" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(pkg)</span>
+<span id="cb113-23"><a href="tests.html#cb113-23" tabindex="-1"></a></span>
+<span id="cb113-24"><a href="tests.html#cb113-24" tabindex="-1"></a>  <span class="co"># Case 2: minimal_eval = TRUE passed to render</span></span>
+<span id="cb113-25"><a href="tests.html#cb113-25" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file, <span class="at">output_file =</span> html_file, <span class="at">minimal_eval =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb113-26"><a href="tests.html#cb113-26" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
+<span id="cb113-27"><a href="tests.html#cb113-27" tabindex="-1"></a>                         <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
+<span id="cb113-28"><a href="tests.html#cb113-28" tabindex="-1"></a></span>
+<span id="cb113-29"><a href="tests.html#cb113-29" tabindex="-1"></a>  <span class="co"># Case 3: minimal_eval = TRUE passed to output format</span></span>
+<span id="cb113-30"><a href="tests.html#cb113-30" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file,</span>
+<span id="cb113-31"><a href="tests.html#cb113-31" tabindex="-1"></a>         <span class="at">output_file =</span> html_file,</span>
+<span id="cb113-32"><a href="tests.html#cb113-32" tabindex="-1"></a>         <span class="at">output_format =</span> litr<span class="sc">::</span><a href='rendering.html#litr_html_document'>litr_html_document</a>(<span class="at">minimal_eval =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb113-33"><a href="tests.html#cb113-33" tabindex="-1"></a>         )</span>
+<span id="cb113-34"><a href="tests.html#cb113-34" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_equal</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">&quot;DESCRIPTION&quot;</span>)),</span>
+<span id="cb113-35"><a href="tests.html#cb113-35" tabindex="-1"></a>                         <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg_a, <span class="st">&quot;DESCRIPTION&quot;</span>)))</span>
+<span id="cb113-36"><a href="tests.html#cb113-36" tabindex="-1"></a></span>
+<span id="cb113-37"><a href="tests.html#cb113-37" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb113-38"><a href="tests.html#cb113-38" tabindex="-1"></a>})</span></code></pre></div>
 </div>
 <div id="testing-other-templates" class="section level2 hasAnchor" number="10.5">
 <h2><span class="header-section-number">10.5</span> Testing other templates<a href="tests.html#testing-other-templates" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Let’s now make sure that each template can be knit without error.</p>
-<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="tests.html#cb107-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;templates can be knit&quot;</span>, {</span>
-<span id="cb107-2"><a href="tests.html#cb107-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
-<span id="cb107-3"><a href="tests.html#cb107-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
-<span id="cb107-4"><a href="tests.html#cb107-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
-<span id="cb107-5"><a href="tests.html#cb107-5" tabindex="-1"></a>  </span>
-<span id="cb107-6"><a href="tests.html#cb107-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhello.Rmd&quot;</span>)</span>
-<span id="cb107-7"><a href="tests.html#cb107-7" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb107-8"><a href="tests.html#cb107-8" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
-<span id="cb107-9"><a href="tests.html#cb107-9" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb107-10"><a href="tests.html#cb107-10" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb107-11"><a href="tests.html#cb107-11" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb107-12"><a href="tests.html#cb107-12" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhello.html&quot;</span>)))</span>
-<span id="cb107-13"><a href="tests.html#cb107-13" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;rhello&quot;</span>)))</span>
-<span id="cb107-14"><a href="tests.html#cb107-14" tabindex="-1"></a></span>
-<span id="cb107-15"><a href="tests.html#cb107-15" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhasdata.Rmd&quot;</span>)</span>
-<span id="cb107-16"><a href="tests.html#cb107-16" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb107-17"><a href="tests.html#cb107-17" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-data&quot;</span>,</span>
-<span id="cb107-18"><a href="tests.html#cb107-18" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb107-19"><a href="tests.html#cb107-19" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb107-20"><a href="tests.html#cb107-20" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb107-21"><a href="tests.html#cb107-21" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhasdata.html&quot;</span>)))</span>
-<span id="cb107-22"><a href="tests.html#cb107-22" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;rhasdata&quot;</span>)))</span>
-<span id="cb107-23"><a href="tests.html#cb107-23" tabindex="-1"></a></span>
-<span id="cb107-24"><a href="tests.html#cb107-24" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-withrcpp.Rmd&quot;</span>)</span>
-<span id="cb107-25"><a href="tests.html#cb107-25" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb107-26"><a href="tests.html#cb107-26" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>,</span>
-<span id="cb107-27"><a href="tests.html#cb107-27" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb107-28"><a href="tests.html#cb107-28" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb107-29"><a href="tests.html#cb107-29" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb107-30"><a href="tests.html#cb107-30" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-withrcpp.html&quot;</span>)))</span>
-<span id="cb107-31"><a href="tests.html#cb107-31" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;withrcpp&quot;</span>)))</span>
-<span id="cb107-32"><a href="tests.html#cb107-32" tabindex="-1"></a></span>
-<span id="cb107-33"><a href="tests.html#cb107-33" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-witharmadillo.Rmd&quot;</span>)</span>
-<span id="cb107-34"><a href="tests.html#cb107-34" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb107-35"><a href="tests.html#cb107-35" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>,</span>
-<span id="cb107-36"><a href="tests.html#cb107-36" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb107-37"><a href="tests.html#cb107-37" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb107-38"><a href="tests.html#cb107-38" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb107-39"><a href="tests.html#cb107-39" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-witharmadillo.Rmd&quot;</span>)))</span>
-<span id="cb107-40"><a href="tests.html#cb107-40" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;witharmadillo&quot;</span>)))</span>
-<span id="cb107-41"><a href="tests.html#cb107-41" tabindex="-1"></a>    </span>
-<span id="cb107-42"><a href="tests.html#cb107-42" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-withpkgdown.Rmd&quot;</span>)</span>
-<span id="cb107-43"><a href="tests.html#cb107-43" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb107-44"><a href="tests.html#cb107-44" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-extras&quot;</span>,</span>
-<span id="cb107-45"><a href="tests.html#cb107-45" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb107-46"><a href="tests.html#cb107-46" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb107-47"><a href="tests.html#cb107-47" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
-<span id="cb107-48"><a href="tests.html#cb107-48" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-withpkgdown.html&quot;</span>)))</span>
-<span id="cb107-49"><a href="tests.html#cb107-49" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;withpkgdown&quot;</span>)))</span>
-<span id="cb107-50"><a href="tests.html#cb107-50" tabindex="-1"></a></span>
-<span id="cb107-51"><a href="tests.html#cb107-51" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown.Rmd&quot;</span>)</span>
-<span id="cb107-52"><a href="tests.html#cb107-52" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
-<span id="cb107-53"><a href="tests.html#cb107-53" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
-<span id="cb107-54"><a href="tests.html#cb107-54" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
-<span id="cb107-55"><a href="tests.html#cb107-55" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb107-56"><a href="tests.html#cb107-56" tabindex="-1"></a>  prev_dir <span class="ot">&lt;-</span> <span class="fu">getwd</span>()</span>
-<span id="cb107-57"><a href="tests.html#cb107-57" tabindex="-1"></a>  <span class="fu">setwd</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>))</span>
-<span id="cb107-58"><a href="tests.html#cb107-58" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="st">&quot;create-frombookdown.Rmd&quot;</span>)</span>
-<span id="cb107-59"><a href="tests.html#cb107-59" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(<span class="st">&quot;index.Rmd&quot;</span>)</span>
-<span id="cb107-60"><a href="tests.html#cb107-60" tabindex="-1"></a>  <span class="fu">setwd</span>(prev_dir)</span>
-<span id="cb107-61"><a href="tests.html#cb107-61" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(</span>
-<span id="cb107-62"><a href="tests.html#cb107-62" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>, <span class="st">&quot;_book&quot;</span>, <span class="st">&quot;index.html&quot;</span>))</span>
-<span id="cb107-63"><a href="tests.html#cb107-63" tabindex="-1"></a>    )</span>
-<span id="cb107-64"><a href="tests.html#cb107-64" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(</span>
-<span id="cb107-65"><a href="tests.html#cb107-65" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>, <span class="st">&quot;frombookdown&quot;</span>))</span>
-<span id="cb107-66"><a href="tests.html#cb107-66" tabindex="-1"></a>    )</span>
-<span id="cb107-67"><a href="tests.html#cb107-67" tabindex="-1"></a></span>
-<span id="cb107-68"><a href="tests.html#cb107-68" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
-<span id="cb107-69"><a href="tests.html#cb107-69" tabindex="-1"></a> })</span></code></pre></div>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="tests.html#cb114-1" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_that</span>(<span class="st">&quot;templates can be knit&quot;</span>, {</span>
+<span id="cb114-2"><a href="tests.html#cb114-2" tabindex="-1"></a>  dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
+<span id="cb114-3"><a href="tests.html#cb114-3" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(dir)) fs<span class="sc">::</span><span class="fu">file_delete</span>(dir)</span>
+<span id="cb114-4"><a href="tests.html#cb114-4" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_create</span>(dir)</span>
+<span id="cb114-5"><a href="tests.html#cb114-5" tabindex="-1"></a>  </span>
+<span id="cb114-6"><a href="tests.html#cb114-6" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhello.Rmd&quot;</span>)</span>
+<span id="cb114-7"><a href="tests.html#cb114-7" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb114-8"><a href="tests.html#cb114-8" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package&quot;</span>,</span>
+<span id="cb114-9"><a href="tests.html#cb114-9" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb114-10"><a href="tests.html#cb114-10" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb114-11"><a href="tests.html#cb114-11" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb114-12"><a href="tests.html#cb114-12" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhello.html&quot;</span>)))</span>
+<span id="cb114-13"><a href="tests.html#cb114-13" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;rhello&quot;</span>)))</span>
+<span id="cb114-14"><a href="tests.html#cb114-14" tabindex="-1"></a></span>
+<span id="cb114-15"><a href="tests.html#cb114-15" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhasdata.Rmd&quot;</span>)</span>
+<span id="cb114-16"><a href="tests.html#cb114-16" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb114-17"><a href="tests.html#cb114-17" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-data&quot;</span>,</span>
+<span id="cb114-18"><a href="tests.html#cb114-18" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb114-19"><a href="tests.html#cb114-19" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb114-20"><a href="tests.html#cb114-20" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb114-21"><a href="tests.html#cb114-21" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-rhasdata.html&quot;</span>)))</span>
+<span id="cb114-22"><a href="tests.html#cb114-22" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;rhasdata&quot;</span>)))</span>
+<span id="cb114-23"><a href="tests.html#cb114-23" tabindex="-1"></a></span>
+<span id="cb114-24"><a href="tests.html#cb114-24" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-withrcpp.Rmd&quot;</span>)</span>
+<span id="cb114-25"><a href="tests.html#cb114-25" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb114-26"><a href="tests.html#cb114-26" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-rcpp&quot;</span>,</span>
+<span id="cb114-27"><a href="tests.html#cb114-27" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb114-28"><a href="tests.html#cb114-28" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb114-29"><a href="tests.html#cb114-29" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb114-30"><a href="tests.html#cb114-30" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-withrcpp.html&quot;</span>)))</span>
+<span id="cb114-31"><a href="tests.html#cb114-31" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;withrcpp&quot;</span>)))</span>
+<span id="cb114-32"><a href="tests.html#cb114-32" tabindex="-1"></a></span>
+<span id="cb114-33"><a href="tests.html#cb114-33" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-witharmadillo.Rmd&quot;</span>)</span>
+<span id="cb114-34"><a href="tests.html#cb114-34" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb114-35"><a href="tests.html#cb114-35" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-armadillo&quot;</span>,</span>
+<span id="cb114-36"><a href="tests.html#cb114-36" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb114-37"><a href="tests.html#cb114-37" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb114-38"><a href="tests.html#cb114-38" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb114-39"><a href="tests.html#cb114-39" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-witharmadillo.Rmd&quot;</span>)))</span>
+<span id="cb114-40"><a href="tests.html#cb114-40" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;witharmadillo&quot;</span>)))</span>
+<span id="cb114-41"><a href="tests.html#cb114-41" tabindex="-1"></a>    </span>
+<span id="cb114-42"><a href="tests.html#cb114-42" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-withpkgdown.Rmd&quot;</span>)</span>
+<span id="cb114-43"><a href="tests.html#cb114-43" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb114-44"><a href="tests.html#cb114-44" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-with-extras&quot;</span>,</span>
+<span id="cb114-45"><a href="tests.html#cb114-45" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb114-46"><a href="tests.html#cb114-46" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb114-47"><a href="tests.html#cb114-47" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(rmd_file)</span>
+<span id="cb114-48"><a href="tests.html#cb114-48" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-withpkgdown.html&quot;</span>)))</span>
+<span id="cb114-49"><a href="tests.html#cb114-49" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;withpkgdown&quot;</span>)))</span>
+<span id="cb114-50"><a href="tests.html#cb114-50" tabindex="-1"></a></span>
+<span id="cb114-51"><a href="tests.html#cb114-51" tabindex="-1"></a>  rmd_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown.Rmd&quot;</span>)</span>
+<span id="cb114-52"><a href="tests.html#cb114-52" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><a href='functionality-to-facilitate-workflow.html#draft'>draft</a>(rmd_file,</span>
+<span id="cb114-53"><a href="tests.html#cb114-53" tabindex="-1"></a>                   <span class="at">template =</span> <span class="st">&quot;make-an-r-package-from-bookdown&quot;</span>,</span>
+<span id="cb114-54"><a href="tests.html#cb114-54" tabindex="-1"></a>                   <span class="at">package =</span> <span class="st">&quot;litr&quot;</span>,</span>
+<span id="cb114-55"><a href="tests.html#cb114-55" tabindex="-1"></a>                   <span class="at">edit =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb114-56"><a href="tests.html#cb114-56" tabindex="-1"></a>  prev_dir <span class="ot">&lt;-</span> <span class="fu">getwd</span>()</span>
+<span id="cb114-57"><a href="tests.html#cb114-57" tabindex="-1"></a>  <span class="fu">setwd</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>))</span>
+<span id="cb114-58"><a href="tests.html#cb114-58" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="st">&quot;create-frombookdown.Rmd&quot;</span>)</span>
+<span id="cb114-59"><a href="tests.html#cb114-59" tabindex="-1"></a>  <a href='rendering.html#render'>render</a>(<span class="st">&quot;index.Rmd&quot;</span>)</span>
+<span id="cb114-60"><a href="tests.html#cb114-60" tabindex="-1"></a>  <span class="fu">setwd</span>(prev_dir)</span>
+<span id="cb114-61"><a href="tests.html#cb114-61" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(</span>
+<span id="cb114-62"><a href="tests.html#cb114-62" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>, <span class="st">&quot;_book&quot;</span>, <span class="st">&quot;index.html&quot;</span>))</span>
+<span id="cb114-63"><a href="tests.html#cb114-63" tabindex="-1"></a>    )</span>
+<span id="cb114-64"><a href="tests.html#cb114-64" tabindex="-1"></a>  testthat<span class="sc">::</span><span class="fu">expect_true</span>(</span>
+<span id="cb114-65"><a href="tests.html#cb114-65" tabindex="-1"></a>    fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="fu">file.path</span>(dir, <span class="st">&quot;create-frombookdown&quot;</span>, <span class="st">&quot;frombookdown&quot;</span>))</span>
+<span id="cb114-66"><a href="tests.html#cb114-66" tabindex="-1"></a>    )</span>
+<span id="cb114-67"><a href="tests.html#cb114-67" tabindex="-1"></a></span>
+<span id="cb114-68"><a href="tests.html#cb114-68" tabindex="-1"></a>  fs<span class="sc">::</span><span class="fu">dir_delete</span>(dir)</span>
+<span id="cb114-69"><a href="tests.html#cb114-69" tabindex="-1"></a> })</span></code></pre></div>
 <p>Even though <code>litr</code> doesn’t directly use <code>Rcpp</code>, we’ll add it as a “Suggests” package since it would be required for running the above test.</p>
-<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="tests.html#cb108-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="tests.html#cb115-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;Rcpp&quot;</span>, <span class="at">type =</span> <span class="st">&quot;Suggests&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;Rcpp&#39; to Suggests field in DESCRIPTION
 ## • Use `requireNamespace(&quot;Rcpp&quot;, quietly = TRUE)` to test if package is installed
 ## • Then directly refer to functions with `Rcpp::fun()`</code></pre>

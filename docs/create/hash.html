@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>5 Not overwriting a manually edited R package | Creating the litr R package</title>
   <meta name="description" content="5 Not overwriting a manually edited R package | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.38 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.39 and GitBook 2.6.7" />
 
   <meta property="og:title" content="5 Not overwriting a manually edited R package | Creating the litr R package" />
   <meta property="og:type" content="book" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -214,81 +214,81 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">5</span> Not overwriting a manually edited R package<a href="hash.html#hash" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>As described in the previous section, the function <code>setup()</code> will only overwrite a directory if it is the unedited output from using <code>litr</code>. The basic idea is that the function <code>litr::<a href='rendering.html#render'>render</a>()</code> when creating a new package finishes by adding a hash to the DESCRIPTION file. (And likewise when <code>rmarkdown::render()</code> is used with a <code>litr</code> output format, as described <span id="output-format">here</span>.) This hash is a function of everything in the package, so if anything about the package changes (any file is modified, added, or removed) then the function <code>check_unedited()</code> will be able to detect that by recomputing the hash and seeing that it doesn’t match the hash in the DESCRIPTION file.</p>
 <p>Let’s start by defining the function <code><a href='hash.html#hash_package_directory'>hash_package_directory</a>()</code> that does the hashing. The hash is a function of everything in the outputted package <em>except for that special line in the DESCRIPTION file with the hash</em>. We use <code>tools::md5sum()</code> and <code>digest::digest()</code> to do the hashing.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="hash.html#cb21-1" tabindex="-1"></a><span class="co">#&#39; Hash package directory</span></span>
-<span id="cb21-2"><a href="hash.html#cb21-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb21-3"><a href="hash.html#cb21-3" tabindex="-1"></a><span class="co">#&#39; Gets an identifier that can be used to uniquely (whp) identify the current </span></span>
-<span id="cb21-4"><a href="hash.html#cb21-4" tabindex="-1"></a><span class="co">#&#39; state of the package. This is formed by ignoring the `LitrId` field of the</span></span>
-<span id="cb21-5"><a href="hash.html#cb21-5" tabindex="-1"></a><span class="co">#&#39; DESCRIPTION file, which is the location where the output of this function is </span></span>
-<span id="cb21-6"><a href="hash.html#cb21-6" tabindex="-1"></a><span class="co">#&#39; stored when `litr::render` generates the package.</span></span>
-<span id="cb21-7"><a href="hash.html#cb21-7" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb21-8"><a href="hash.html#cb21-8" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
-<span id="cb21-9"><a href="hash.html#cb21-9" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb21-10"><a href="hash.html#cb21-10" tabindex="-1"></a><span id='hash_package_directory'>hash_package_directory</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
-<span id="cb21-11"><a href="hash.html#cb21-11" tabindex="-1"></a>  pkg_files <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(package_dir, <span class="at">recurse =</span> <span class="cn">TRUE</span>, <span class="at">all =</span> <span class="cn">TRUE</span>, <span class="at">type =</span> <span class="st">&quot;file&quot;</span>)</span>
-<span id="cb21-12"><a href="hash.html#cb21-12" tabindex="-1"></a>  pkg_files <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(pkg_files, <span class="st">&quot;.DS_Store$&quot;</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb21-13"><a href="hash.html#cb21-13" tabindex="-1"></a>  pkg_files <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(pkg_files)</span>
-<span id="cb21-14"><a href="hash.html#cb21-14" tabindex="-1"></a>  descr_file <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="fu">file.path</span>(package_dir, <span class="st">&quot;DESCRIPTION&quot;</span>))</span>
-<span id="cb21-15"><a href="hash.html#cb21-15" tabindex="-1"></a>  i_descr <span class="ot">&lt;-</span> <span class="fu">which</span>(pkg_files <span class="sc">==</span> descr_file)</span>
-<span id="cb21-16"><a href="hash.html#cb21-16" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(i_descr) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">&quot;Cannot find DESCRIPTION file.&quot;</span>)</span>
-<span id="cb21-17"><a href="hash.html#cb21-17" tabindex="-1"></a>  txt_descr <span class="ot">&lt;-</span> <span class="fu">readLines</span>(pkg_files[i_descr])</span>
-<span id="cb21-18"><a href="hash.html#cb21-18" tabindex="-1"></a>  txt_descr_mod <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(</span>
-<span id="cb21-19"><a href="hash.html#cb21-19" tabindex="-1"></a>    txt_descr, </span>
-<span id="cb21-20"><a href="hash.html#cb21-20" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;{<a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>()}: .+$&quot;</span>),</span>
-<span id="cb21-21"><a href="hash.html#cb21-21" tabindex="-1"></a>    <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb21-22"><a href="hash.html#cb21-22" tabindex="-1"></a>  hashes <span class="ot">&lt;-</span> <span class="fu">as.character</span>(tools<span class="sc">::</span><span class="fu">md5sum</span>(pkg_files[<span class="sc">-</span>i_descr]))</span>
-<span id="cb21-23"><a href="hash.html#cb21-23" tabindex="-1"></a>  digest<span class="sc">::</span><span class="fu">digest</span>(<span class="fu">c</span>(hashes, <span class="fu">list</span>(txt_descr_mod)))</span>
-<span id="cb21-24"><a href="hash.html#cb21-24" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="hash.html#cb23-1" tabindex="-1"></a><span class="co">#&#39; Hash package directory</span></span>
+<span id="cb23-2"><a href="hash.html#cb23-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb23-3"><a href="hash.html#cb23-3" tabindex="-1"></a><span class="co">#&#39; Gets an identifier that can be used to uniquely (whp) identify the current </span></span>
+<span id="cb23-4"><a href="hash.html#cb23-4" tabindex="-1"></a><span class="co">#&#39; state of the package. This is formed by ignoring the `LitrId` field of the</span></span>
+<span id="cb23-5"><a href="hash.html#cb23-5" tabindex="-1"></a><span class="co">#&#39; DESCRIPTION file, which is the location where the output of this function is </span></span>
+<span id="cb23-6"><a href="hash.html#cb23-6" tabindex="-1"></a><span class="co">#&#39; stored when `litr::render` generates the package.</span></span>
+<span id="cb23-7"><a href="hash.html#cb23-7" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb23-8"><a href="hash.html#cb23-8" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
+<span id="cb23-9"><a href="hash.html#cb23-9" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb23-10"><a href="hash.html#cb23-10" tabindex="-1"></a><span id='hash_package_directory'>hash_package_directory</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
+<span id="cb23-11"><a href="hash.html#cb23-11" tabindex="-1"></a>  pkg_files <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(package_dir, <span class="at">recurse =</span> <span class="cn">TRUE</span>, <span class="at">all =</span> <span class="cn">TRUE</span>, <span class="at">type =</span> <span class="st">&quot;file&quot;</span>)</span>
+<span id="cb23-12"><a href="hash.html#cb23-12" tabindex="-1"></a>  pkg_files <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(pkg_files, <span class="st">&quot;.DS_Store$&quot;</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-13"><a href="hash.html#cb23-13" tabindex="-1"></a>  pkg_files <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(pkg_files)</span>
+<span id="cb23-14"><a href="hash.html#cb23-14" tabindex="-1"></a>  descr_file <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="fu">file.path</span>(package_dir, <span class="st">&quot;DESCRIPTION&quot;</span>))</span>
+<span id="cb23-15"><a href="hash.html#cb23-15" tabindex="-1"></a>  i_descr <span class="ot">&lt;-</span> <span class="fu">which</span>(pkg_files <span class="sc">==</span> descr_file)</span>
+<span id="cb23-16"><a href="hash.html#cb23-16" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(i_descr) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">&quot;Cannot find DESCRIPTION file.&quot;</span>)</span>
+<span id="cb23-17"><a href="hash.html#cb23-17" tabindex="-1"></a>  txt_descr <span class="ot">&lt;-</span> <span class="fu">readLines</span>(pkg_files[i_descr])</span>
+<span id="cb23-18"><a href="hash.html#cb23-18" tabindex="-1"></a>  txt_descr_mod <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(</span>
+<span id="cb23-19"><a href="hash.html#cb23-19" tabindex="-1"></a>    txt_descr, </span>
+<span id="cb23-20"><a href="hash.html#cb23-20" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;{<a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>()}: .+$&quot;</span>),</span>
+<span id="cb23-21"><a href="hash.html#cb23-21" tabindex="-1"></a>    <span class="at">negate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-22"><a href="hash.html#cb23-22" tabindex="-1"></a>  hashes <span class="ot">&lt;-</span> <span class="fu">as.character</span>(tools<span class="sc">::</span><span class="fu">md5sum</span>(pkg_files[<span class="sc">-</span>i_descr]))</span>
+<span id="cb23-23"><a href="hash.html#cb23-23" tabindex="-1"></a>  digest<span class="sc">::</span><span class="fu">digest</span>(<span class="fu">c</span>(hashes, <span class="fu">list</span>(txt_descr_mod)))</span>
+<span id="cb23-24"><a href="hash.html#cb23-24" tabindex="-1"></a>}</span></code></pre></div>
 <p>We used <code>digest</code>, so let’s import it:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="hash.html#cb22-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;digest&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="hash.html#cb24-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;digest&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;digest&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `digest::fun()`</code></pre>
 <p>We will store this hash in a special field within the DESCRIPTION file. Let’s call this field <code>LitrId</code>. However, in case we ever decide to change the name of this field, it’s better that we only define it in one place. So we do this with the following function:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="hash.html#cb24-1" tabindex="-1"></a><span class="co">#&#39; Generate litr hash field name for DESCRIPTION file</span></span>
-<span id="cb24-2"><a href="hash.html#cb24-2" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb24-3"><a href="hash.html#cb24-3" tabindex="-1"></a><span id='description_litr_hash_field_name'>description_litr_hash_field_name</span> <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="st">&quot;LitrId&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="hash.html#cb26-1" tabindex="-1"></a><span class="co">#&#39; Generate litr hash field name for DESCRIPTION file</span></span>
+<span id="cb26-2"><a href="hash.html#cb26-2" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb26-3"><a href="hash.html#cb26-3" tabindex="-1"></a><span id='description_litr_hash_field_name'>description_litr_hash_field_name</span> <span class="ot">&lt;-</span> <span class="cf">function</span>() <span class="fu">return</span>(<span class="st">&quot;LitrId&quot;</span>)</span></code></pre></div>
 <p>Ok, now let’s write the function that <code>litr::<a href='rendering.html#render'>render</a>()</code> will call that will take the generated R package and add a line that puts the hash in the DESCRIPTION file under that special <code>litr</code> field:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="hash.html#cb25-1" tabindex="-1"></a><span class="co">#&#39; Write the hash of the package to the DESCRIPTION file</span></span>
-<span id="cb25-2"><a href="hash.html#cb25-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb25-3"><a href="hash.html#cb25-3" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
-<span id="cb25-4"><a href="hash.html#cb25-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb25-5"><a href="hash.html#cb25-5" tabindex="-1"></a><span id='write_hash_to_description'>write_hash_to_description</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
-<span id="cb25-6"><a href="hash.html#cb25-6" tabindex="-1"></a>  desc_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
-<span id="cb25-7"><a href="hash.html#cb25-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(desc_file)) <span class="fu">file.create</span>(desc_file)</span>
-<span id="cb25-8"><a href="hash.html#cb25-8" tabindex="-1"></a>  hash <span class="ot">&lt;-</span> <a href='hash.html#hash_package_directory'>hash_package_directory</a>(package_dir)</span>
-<span id="cb25-9"><a href="hash.html#cb25-9" tabindex="-1"></a>  desc<span class="sc">::</span><span class="fu">desc_set</span>(<a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>(), hash, <span class="at">file =</span> desc_file)</span>
-<span id="cb25-10"><a href="hash.html#cb25-10" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="hash.html#cb27-1" tabindex="-1"></a><span class="co">#&#39; Write the hash of the package to the DESCRIPTION file</span></span>
+<span id="cb27-2"><a href="hash.html#cb27-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb27-3"><a href="hash.html#cb27-3" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
+<span id="cb27-4"><a href="hash.html#cb27-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb27-5"><a href="hash.html#cb27-5" tabindex="-1"></a><span id='write_hash_to_description'>write_hash_to_description</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
+<span id="cb27-6"><a href="hash.html#cb27-6" tabindex="-1"></a>  desc_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
+<span id="cb27-7"><a href="hash.html#cb27-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(desc_file)) <span class="fu">file.create</span>(desc_file)</span>
+<span id="cb27-8"><a href="hash.html#cb27-8" tabindex="-1"></a>  hash <span class="ot">&lt;-</span> <a href='hash.html#hash_package_directory'>hash_package_directory</a>(package_dir)</span>
+<span id="cb27-9"><a href="hash.html#cb27-9" tabindex="-1"></a>  desc<span class="sc">::</span><span class="fu">desc_set</span>(<a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>(), hash, <span class="at">file =</span> desc_file)</span>
+<span id="cb27-10"><a href="hash.html#cb27-10" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s include the <code>desc</code> package, which helps us manipulate DESCRIPTION files.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="hash.html#cb26-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;desc&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="hash.html#cb28-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;desc&quot;</span>)</span></code></pre></div>
 <pre><code>## ✔ Adding &#39;desc&#39; to Imports field in DESCRIPTION
 ## • Refer to functions with `desc::fun()`</code></pre>
 <p>And of course we’ll need a function that can read the value of that field as well:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="hash.html#cb28-1" tabindex="-1"></a><span class="co">#&#39; Get the hash of the package from the DESCRIPTION file</span></span>
-<span id="cb28-2"><a href="hash.html#cb28-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb28-3"><a href="hash.html#cb28-3" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
-<span id="cb28-4"><a href="hash.html#cb28-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb28-5"><a href="hash.html#cb28-5" tabindex="-1"></a><span id='read_hash_from_description'>read_hash_from_description</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
-<span id="cb28-6"><a href="hash.html#cb28-6" tabindex="-1"></a>  descr <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
-<span id="cb28-7"><a href="hash.html#cb28-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(descr)) <span class="fu">stop</span>(<span class="st">&quot;Cannot find DESCRIPTION file.&quot;</span>)</span>
-<span id="cb28-8"><a href="hash.html#cb28-8" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(</span>
-<span id="cb28-9"><a href="hash.html#cb28-9" tabindex="-1"></a>    <span class="fu">readLines</span>(descr), </span>
-<span id="cb28-10"><a href="hash.html#cb28-10" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;{<a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>()}: .+$&quot;</span>))</span>
-<span id="cb28-11"><a href="hash.html#cb28-11" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(txt) <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="fu">stop</span>(<span class="st">&quot;More than one hash found in DESCRIPTION.&quot;</span>)</span>
-<span id="cb28-12"><a href="hash.html#cb28-12" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(txt) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">&quot;No hash found in DESCRIPTION.&quot;</span>)</span>
-<span id="cb28-13"><a href="hash.html#cb28-13" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_extract</span>(txt, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">S+$&quot;</span>)</span>
-<span id="cb28-14"><a href="hash.html#cb28-14" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="hash.html#cb30-1" tabindex="-1"></a><span class="co">#&#39; Get the hash of the package from the DESCRIPTION file</span></span>
+<span id="cb30-2"><a href="hash.html#cb30-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb30-3"><a href="hash.html#cb30-3" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
+<span id="cb30-4"><a href="hash.html#cb30-4" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb30-5"><a href="hash.html#cb30-5" tabindex="-1"></a><span id='read_hash_from_description'>read_hash_from_description</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
+<span id="cb30-6"><a href="hash.html#cb30-6" tabindex="-1"></a>  descr <span class="ot">&lt;-</span> <span class="fu">file.path</span>(package_dir, <span class="st">&quot;DESCRIPTION&quot;</span>)</span>
+<span id="cb30-7"><a href="hash.html#cb30-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(descr)) <span class="fu">stop</span>(<span class="st">&quot;Cannot find DESCRIPTION file.&quot;</span>)</span>
+<span id="cb30-8"><a href="hash.html#cb30-8" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_subset</span>(</span>
+<span id="cb30-9"><a href="hash.html#cb30-9" tabindex="-1"></a>    <span class="fu">readLines</span>(descr), </span>
+<span id="cb30-10"><a href="hash.html#cb30-10" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">&quot;{<a href='hash.html#description_litr_hash_field_name'>description_litr_hash_field_name</a>()}: .+$&quot;</span>))</span>
+<span id="cb30-11"><a href="hash.html#cb30-11" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(txt) <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="fu">stop</span>(<span class="st">&quot;More than one hash found in DESCRIPTION.&quot;</span>)</span>
+<span id="cb30-12"><a href="hash.html#cb30-12" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(txt) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">&quot;No hash found in DESCRIPTION.&quot;</span>)</span>
+<span id="cb30-13"><a href="hash.html#cb30-13" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_extract</span>(txt, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">S+$&quot;</span>)</span>
+<span id="cb30-14"><a href="hash.html#cb30-14" tabindex="-1"></a>}</span></code></pre></div>
 <p>With all this hash functionality in place, the function <code><a href='hash.html#check_unedited'>check_unedited</a>()</code> is actually quite simple to define:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="hash.html#cb29-1" tabindex="-1"></a><span class="co">#&#39; Check if package directory is the unedited output of litr::<a href='rendering.html#render'>render</a>()</span></span>
-<span id="cb29-2"><a href="hash.html#cb29-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb29-3"><a href="hash.html#cb29-3" tabindex="-1"></a><span class="co">#&#39; Uses hash stored in a special `litr` field of DESCRIPTION file to check that </span></span>
-<span id="cb29-4"><a href="hash.html#cb29-4" tabindex="-1"></a><span class="co">#&#39; the current state of the R package directory is identical to its state at the</span></span>
-<span id="cb29-5"><a href="hash.html#cb29-5" tabindex="-1"></a><span class="co">#&#39; time that it was created by `litr::<a href='rendering.html#render'>render</a>()`.</span></span>
-<span id="cb29-6"><a href="hash.html#cb29-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb29-7"><a href="hash.html#cb29-7" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
-<span id="cb29-8"><a href="hash.html#cb29-8" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
-<span id="cb29-9"><a href="hash.html#cb29-9" tabindex="-1"></a><span id='check_unedited'>check_unedited</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
-<span id="cb29-10"><a href="hash.html#cb29-10" tabindex="-1"></a>  hash <span class="ot">&lt;-</span> <a href='hash.html#hash_package_directory'>hash_package_directory</a>(package_dir)</span>
-<span id="cb29-11"><a href="hash.html#cb29-11" tabindex="-1"></a>  hash <span class="sc">==</span> <a href='hash.html#read_hash_from_description'>read_hash_from_description</a>(package_dir)</span>
-<span id="cb29-12"><a href="hash.html#cb29-12" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="hash.html#cb31-1" tabindex="-1"></a><span class="co">#&#39; Check if package directory is the unedited output of litr::<a href='rendering.html#render'>render</a>()</span></span>
+<span id="cb31-2"><a href="hash.html#cb31-2" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb31-3"><a href="hash.html#cb31-3" tabindex="-1"></a><span class="co">#&#39; Uses hash stored in a special `litr` field of DESCRIPTION file to check that </span></span>
+<span id="cb31-4"><a href="hash.html#cb31-4" tabindex="-1"></a><span class="co">#&#39; the current state of the R package directory is identical to its state at the</span></span>
+<span id="cb31-5"><a href="hash.html#cb31-5" tabindex="-1"></a><span class="co">#&#39; time that it was created by `litr::<a href='rendering.html#render'>render</a>()`.</span></span>
+<span id="cb31-6"><a href="hash.html#cb31-6" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb31-7"><a href="hash.html#cb31-7" tabindex="-1"></a><span class="co">#&#39; @param package_dir Path to package</span></span>
+<span id="cb31-8"><a href="hash.html#cb31-8" tabindex="-1"></a><span class="co">#&#39; @keywords internal</span></span>
+<span id="cb31-9"><a href="hash.html#cb31-9" tabindex="-1"></a><span id='check_unedited'>check_unedited</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
+<span id="cb31-10"><a href="hash.html#cb31-10" tabindex="-1"></a>  hash <span class="ot">&lt;-</span> <a href='hash.html#hash_package_directory'>hash_package_directory</a>(package_dir)</span>
+<span id="cb31-11"><a href="hash.html#cb31-11" tabindex="-1"></a>  hash <span class="sc">==</span> <a href='hash.html#read_hash_from_description'>read_hash_from_description</a>(package_dir)</span>
+<span id="cb31-12"><a href="hash.html#cb31-12" tabindex="-1"></a>}</span></code></pre></div>
 <p>It simply computes the hash of the current package and checks whether that hash is the same as what was originally written to the DESCRIPTION file by <code>litr::<a href='rendering.html#render'>render</a>()</code>.</p>
 </div>
             </section>
