@@ -423,7 +423,10 @@ The way `knitr` handles this, the code chunk would no longer look like this but 
 #' state.
 #' 
 #' @param package_dir Directory where R package will be created
-<<param-minimal_eval>>
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @keywords internal
 setup <- function(package_dir, minimal_eval) {
   if (file.exists(package_dir)) {
@@ -479,7 +482,7 @@ setup <- function(package_dir, minimal_eval) {
   # define document hook to handle chunk references:
   knitr::knit_hooks$set(document = function(x) {
     # get the indices of x corresponding to code chunks
-    chunk_start <- "^(\n```+[a-zA-Z0-9_]+\n)"
+    chunk_start <- "^(\n``` ?+[a-zA-Z0-9_]+\n)"
     idx_block <- stringr::str_which(x, chunk_start)
     original_code <- knitr::knit_code$get()
     # We first get indices of skipped chunks in original_code list
@@ -496,9 +499,9 @@ setup <- function(package_dir, minimal_eval) {
       # break code into multiple lines:
       chunk <- strsplit(x[idx_block[i]], "\n")[[1]]
       # get the fence used (in case it's more than three ticks):
-      i_start <- stringr::str_which(chunk, "^```+[a-zA-Z0-9_]+")
+      i_start <- stringr::str_which(chunk, "^```+ ?[a-zA-Z0-9_]+")
       fence <- stringr::str_replace(chunk[i_start[1]],
-                                    "^(```+)[a-zA-Z0-9_]+", "\\1")
+                                    "^(```+) ?[a-zA-Z0-9_]+", "\\1")
       i_fences <- stringr::str_which(chunk, paste0("^", fence))
       # there can be multiple code and output chunks strung together 
       # within a single x[i] if results are not held to end
@@ -533,7 +536,7 @@ setup <- function(package_dir, minimal_eval) {
         stringr::str_glue("The chunk reference <<{refs[is.na(ref_id)][1]}>> ",
         "is used, but there is no chunk with that label.", 
         sep = "\n"))))
-      }
+    }
     to_insert <- paste0('###"', adj_labels[ref_id], '"###\n')
     x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
                                                  chunk_start,
@@ -774,15 +777,7 @@ Although these are presented as two separate approaches, we have written `litr::
 
 We encourage users to use `litr::render()`^[For example, we include the line `knit: litr::render` in the yaml of the templates for this reason.] rather than `rmarkdown::render()` since in `litr::render()` we're able to wrap the call to `rmarkdown::render()` in the function `with_cleanup()`.  This ensures that, if an error occurs during the knitting process, the special `litr` hash will still be created.  This is desirable since it means that the next time we try to litr-knit, we will not get an error about overwriting a manually edited package directory.
 
-When coding an R package with `litr`, sometimes there are code chunks that can take a while to evaluate (e.g., tests), which slows down the coding process.  We therefore provide an argument (to both `litr::render()` and the various litr output formats) that allows for "minimal eval" to occur.  The goal is to allow the R package to be updated completely but without any of the code chunks being evaluated, except those whose involving usethis or a call to `litr::document()`, since these commands lead to changes in the R package itself.  Here is the documentation associated with the `minimal_eval` parameter, which is an argument to a number of functions in this section:
-
-```{r param-minimal_eval}
-#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
-#' `usethis` commands will be evaluated.  This can be convenient in coding when 
-#' you just want to quickly update the R package without having to wait for long
-#' evaluations to occur.
-```
-
+When coding an R package with `litr`, sometimes there are code chunks that can take a while to evaluate (e.g., tests), which slows down the coding process.  We therefore provide an argument (to both `litr::render()` and the various litr output formats) that allows for "minimal eval" to occur.  The goal is to allow the R package to be updated completely but without any of the code chunks being evaluated, except those whose involving usethis or a call to `litr::document()`, since these commands lead to changes in the R package itself.
 
 ## Defining `litr` output formats {#output-format}
 
@@ -805,7 +800,10 @@ We present the function and then describe the details of the new `pre_knit()` an
 #' preexisting output format so that it will have the `litr` behavior (meaning that an R package will be created when `rmarkdown::render()` is called).
 #' 
 #' @param base_format a preexisting, non-litr output format such as `rmarkdown::html_document`
-<<param-minimal_eval>>
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @export
 litrify_output_format <- function(base_format = rmarkdown::html_document,
                                   minimal_eval = FALSE) {
@@ -953,7 +951,10 @@ Specifically, the `post_knit` function modifies the intermediate .knit.md file, 
 #' This behaves exactly like `rmarkdown::pdf_document()` except it creates an 
 #' R package.
 #' 
-<<param-minimal_eval>>
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
 #' @export
 litr_pdf_document <- function(minimal_eval = FALSE, ...) {
@@ -999,7 +1000,10 @@ For .html documents, we'd like to add a bit more in the postprocessing step.  In
 #' elsewhere in the document.
 #' - It does "Knuth-style" chunk referencing with hyperlinks.
 #' 
-<<param-minimal_eval>>
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Parameters to be passed to `rmarkdown::pdf_document()` 
 #' @export
 litr_html_document <- function(minimal_eval = FALSE, ...) {
@@ -1355,7 +1359,10 @@ It turns out that our modification to the `bookdown::gitbook()` format's postpro
 #' elsewhere in the document.
 #' - It does "Knuth-style" chunk referencing with hyperlinks.
 #' 
-<<param-minimal_eval>>
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param ... Parameters to be passed to `bookdown::gitbook()` 
 #' @export
 litr_gitbook <- function(minimal_eval = FALSE, ...) {
@@ -1455,7 +1462,10 @@ One thing that is different is that we need a function `get_params_used()`, defi
 #' defined.
 #' 
 #' @param input The input file to be rendered (see `rmarkdown::render`)
-<<param-minimal_eval>>
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
 #' @param fresh_session Whether to call `rmarkdown::render` from a fresh R 
 #' session. By default TRUE, so that it matches the behavior of pressing "Knitr"
 #' in RStudio.  However, for debugging it can be useful to set this to FALSE so 
@@ -1909,13 +1919,6 @@ The functions will all have the following parameters:
 #' @param dir (Optional) Directory where .Rmd file should be created
 ```
 
-And the effect of the functions are the same:
-
-```{r explain-draft-rmd}
-#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
-#' `litr::render()`) will create an R package called `pkg_name`.
-```
-
 The heart of the functions will be to call `rmarkdown::draft()` on a template but then modify the template so that it has the package name in it rather than whatever the default was.
 
 ```{r, send_to = "R/draft.R"}
@@ -1940,7 +1943,8 @@ We are now ready to define the draft functions.  We start with the simplest:
 ```{r, send_to = "R/draft.R"}
 #' Create a new litr .Rmd document for creating an R package
 #' 
-<<explain-draft-rmd>>
+#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
+#' `litr::render()`) will create an R package called `pkg_name`.
 #' 
 #' This is the most basic R package template, with one function and one test 
 #' function.
@@ -1957,7 +1961,8 @@ And now we define the draft function for creating an R package with a data set i
 ```{r, send_to = "R/draft.R"}
 #' Create a new litr .Rmd document for creating an R package with a data set
 #' 
-<<explain-draft-rmd>>
+#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
+#' `litr::render()`) will create an R package called `pkg_name`.
 #' This template shows how to make an R package with a data set in it.
 #' 
 <<params-for-draft>>
@@ -1973,7 +1978,8 @@ And now we define the draft function for creating an R package that uses `Rcpp`:
 ```{r, send_to = "R/draft.R"}
 #' Create a new litr .Rmd document for creating an R package that uses `Rcpp`
 #' 
-<<explain-draft-rmd>>
+#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
+#' `litr::render()`) will create an R package called `pkg_name`.
 #' This template shows how to make an R package that uses `Rcpp`.
 #' 
 <<params-for-draft>>
@@ -1989,7 +1995,8 @@ And now we define the draft function for creating an R package that has "extras"
 ```{r, send_to = "R/draft.R"}
 #' Create a new litr .Rmd document for creating an R package with extras
 #' 
-<<explain-draft-rmd>>
+#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
+#' `litr::render()`) will create an R package called `pkg_name`.
 #' This template shows how to make an R package that has "extras" such as a
 #' README, vignette(s), a pkgdown site, and a hex sticker.
 #' 
@@ -2006,7 +2013,8 @@ And now we define the draft function for creating an R package that uses `RcppAr
 ```{r, send_to = "R/draft.R"}
 #' Create a new litr .Rmd document for creating an R package that uses `RcppArmadillo`
 #' 
-<<explain-draft-rmd>>
+#' This creates `create-[pkg_name].Rmd` that when knitted (i.e., when passed to
+#' `litr::render()`) will create an R package called `pkg_name`.
 #' This template shows how to make an R package that uses `RcppArmadillo`.
 #' 
 <<params-for-draft>>
