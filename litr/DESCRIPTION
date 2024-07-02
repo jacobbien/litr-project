@@ -1,6 +1,10 @@
 Package: litr
 Title: Literate Programming for Writing R Packages
+<<<<<<< Updated upstream
 Version: 0.9.2
+=======
+Version: 0.9.3
+>>>>>>> Stashed changes
 Authors@R: c(
     person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre")),
     person("Patrick Vossler", role = "aut")
@@ -11,7 +15,11 @@ Description: Allows one to fully create an R package in a single .Rmd
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
+<<<<<<< Updated upstream
 RoxygenNote: 7.3.1
+=======
+RoxygenNote: 7.3.2
+>>>>>>> Stashed changes
 Imports: 
     bookdown,
     desc,
@@ -34,5 +42,10 @@ Suggests:
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
+<<<<<<< Updated upstream
 LitrVersionUsed: 0.9.2
 LitrId: f36130be1737733cdac81bfd0045fc80
+=======
+LitrVersionUsed: 0.9.3
+LitrId: ab78f87e7c711f2e0ff29784ce2e8fad
+>>>>>>> Stashed changes

@@ -6,6 +6,10 @@ articles:
   faqs: faqs.html
   package-templates: package-templates.html
   packages-in-the-wild: packages-in-the-wild.html
+<<<<<<< Updated upstream
   videos: videos.html
 last_built: 2024-06-14T00:11Z
+=======
+last_built: 2024-07-02T21:55Z
+>>>>>>> Stashed changes
 

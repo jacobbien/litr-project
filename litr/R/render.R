@@ -417,14 +417,14 @@ add_chunk_label_hyperlinks <- function(html_files,
   all_chunk_names2 <- stringr::str_replace_all(all_chunk_names, "-", hyphen_with_extras)
   defined_chunks_pattern2 <- paste0(
     ref_start, all_chunk_names2, ref_end, collapse = "|"
-    )
+  )
   defined_chunks_pattern2_alt <- paste0(
     ref_start_alt, all_chunk_names2, ref_end, collapse = "|"
-    )
+  )
   defined_chunks_pattern2 <- paste(
     defined_chunks_pattern2, defined_chunks_pattern2_alt, sep = "|"
-    )
-
+  )
+  
   for (i in seq_along(html_files)) {
     # whenever one of these named chunks is referenced, link to its definition
     # using the format `file_where_chunk_is_defined.html#chunkname`
@@ -439,7 +439,7 @@ add_chunk_label_hyperlinks <- function(html_files,
         def_file <- where_defined[all_chunk_names == cname]
         stringr::str_glue(
           "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
-          )
+        )
       }
     )
     txt <- stringr::str_replace_all(
@@ -454,20 +454,27 @@ add_chunk_label_hyperlinks <- function(html_files,
         cname <- stringr::str_replace_all(cname, hyphen_with_extras, "-")
         stringr::str_glue(
           "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
-          )
+        )
       }
     )
-
+    browser() 
     parsed_html <- xml2::read_html(paste(txt,collapse="\n"))
     # get all possible chunk names in this file.
     chunk_names <- all_chunk_names[which(names(all_chunk_names) == html_files[i])]
-    
     if(length(chunk_names) > 0){
       for(j in seq_along(chunk_names)){
+        # find the inner span node with the correct id
         span_node <- xml2::xml_find_first(parsed_html, stringr::str_glue('(.//span[@id="{chunk_names[j]}"])'))
         span_node_path <- stringr::str_split(xml2::xml_path(span_node),"/")
-        
+        # get the path for the pre tag which should be unaffected by the removal of the outer span
         pre_path <- paste(span_node_path[[1]][1:(max(which(stringr::str_detect(span_node_path[[1]], "pre"))))],collapse="/")
+        # get the path for the span that wraps around it
+        outer_span_path <- paste(span_node_path[[1]][1:min(which(stringr::str_detect(span_node_path[[1]], "span")))], collapse="/")
+        # find that node and remove it from the tree
+        outer_span_node <- xml2::xml_find_first(parsed_html, outer_span_path)
+        xml2::xml_remove(outer_span_node)
+        
+        
         if(nchar(pre_path) == 0){
           next()
         }
@@ -475,20 +482,21 @@ add_chunk_label_hyperlinks <- function(html_files,
         if(is.na(pre_parent)){
           next()
         }
-        xml2::xml_add_parent(pre_parent
-                             , xml2::read_xml(stringr::str_glue('<fieldset id="{chunk_names[j]}" class="chunkfield"> </fieldset>')))
+        
+        
+        xml2::xml_add_parent(pre_parent, xml2::read_xml(stringr::str_glue('<fieldset id="{chunk_names[j]}" class="chunkfield"> </fieldset>')))
         xml2::xml_add_sibling(pre_parent, xml2::read_xml(stringr::str_glue('<legend class="chunklegend">{chunk_names[j]}</legend>')), where="before")
-        xml2::xml_remove(span_node)
         # remove the extra line break that is left over from removing the span
         code_node <- xml2::xml_child(pre_parent)
-        changed_txt <- stringr::str_remove(paste(as.character(xml2::xml_contents(code_node)),collapse=""), '\n')
-        xml2::xml_replace(code_node, xml2::read_xml(stringr::str_glue('<code>{changed_txt}</code>')))
+        code_node_contents <- xml2::xml_contents(code_node)
+        if(xml2::xml_text(code_node_contents[[1]]) == "\n"){
+          xml2::xml_remove(code_node_contents[[1]])  
+        }
       }
     }
     # last thing is to insert an additional style node in the head with our CSS so we have a standard style whether we are using bookdown or Rmarkdown
     css_string <- "fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
-    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
-    "
+                   legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}"
     head_node <- xml2::xml_find_first(parsed_html, ".//head")
     xml2::xml_add_child(head_node, xml2::read_xml(stringr::str_glue("<style type='text/css'>{css_string}</style>")))
     txt <- xml2::write_html(parsed_html, html_files[i])

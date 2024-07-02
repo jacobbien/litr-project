@@ -1,5 +1,186 @@
 # Generated from _main.Rmd: do not edit by hand
 
+<<<<<<< Updated upstream
+=======
+#' Code for setup chunk
+#' 
+#' * Creates directory where package will be. (Deletes what is currently there as 
+#' long as it appears to have been created by litr and does not have any 
+#' subsequent manual edits.)
+#' * Sets the root directory to this directory
+#' * Sets up the main chunk hook `litr::send_to_package()` that sends code to the 
+#' R package directory.
+#' * In the case that `minimal_eval=TRUE`, sets up an options hook for `eval` so
+#'   chunks are only evaluated if there is a `usethis` or `litr::document()`
+#'   command
+#' * Deactivates an internal function of the `usethis` package
+#' * Redefines the document output hook to handle chunk references differently  
+#' * Sets up a [custom language engine](https://bookdown.org/yihui/rmarkdown-cookbook/custom-engine.html) called
+#' `package_doc` that creates a package documentation file and then inserts
+#' whatever the user puts in the chunk.
+#' 
+#' Returns the original state of the knitr objects that have been modified in 
+#' setup.  This allows us to return things to the previous state after we are
+#' finished.  This is relevant in the case where litr-knitting occurs in the 
+#' current session and we don't want to leave things in a permanently modified
+#' state.
+#' 
+#' @param package_dir Directory where R package will be created
+#' @param minimal_eval If `TRUE`, then only chunks with `litr::document()` or 
+#' `usethis` commands will be evaluated.  This can be convenient in coding when 
+#' you just want to quickly update the R package without having to wait for long
+#' evaluations to occur.
+#' @keywords internal
+setup <- function(package_dir, minimal_eval) {
+  if (file.exists(package_dir)) {
+    unedited <- tryCatch(check_unedited(package_dir),
+                         error = function(e) {
+                           # contents of package_dir does not resemble
+                           # a litr package
+                           return(FALSE)
+                         })
+    if (!unedited) {
+      stop(make_noticeable(paste(
+        stringr::str_glue("The directory {normalizePath(package_dir)}"),
+        "already exists and either was not created by litr or may have manual",
+        "edits. In either case, please rename that directory (or delete it)", 
+        "and then try again.", 
+        sep = "\n")))
+    }
+    unlink(package_dir, recursive = TRUE)
+  }
+  fs::dir_create(package_dir)
+  usethis:::proj_set_(usethis:::proj_path_prep(package_dir))
+
+  # let's keep a version of the knitr objects before modifying them:
+  original_knitr <- list(opts_knit = knitr::opts_knit$get(),
+                         knit_hooks = knitr::knit_hooks$get(),
+                         opts_chunk = knitr::opts_chunk$get(),
+                         opts_hooks = knitr::opts_hooks$get(),
+                         knit_engines = knitr::knit_engines$get()
+                         )
+  
+  knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
+  knitr::knit_hooks$set(send_to_package = send_to_package)
+  knitr::opts_chunk$set(send_to_package = TRUE)
+  if (minimal_eval) {
+    # only evaluate chunks that appear to include usethis commands or 
+    # a call to litr::document() but if someone has specifically set eval=FALSE
+    # in a particular chunk, do honor that
+    usethis_exports <- getNamespaceExports("usethis")
+    patterns <- paste(c("usethis::", usethis_exports, "litr::document\\("), collapse = "|")
+    knitr::opts_hooks$set(eval = function(options) {
+      if (options$eval)
+        options$eval <- any(stringr::str_detect(options$code, patterns))
+      return(options)
+    })
+  }
+  
+  
+  # change usethis:::challenge_nested_project so that it will not complain
+  # about creating a nested project (e.g. if this is called within a git 
+  # subdirectory)
+  utils::assignInNamespace("challenge_nested_project", function(...) NULL, ns = "usethis")
+
+  # define document hook to handle chunk references:
+  knitr::knit_hooks$set(document = function(x) {
+     # get the indices of x corresponding to code chunks
+    chunk_start <- "^(\\\n```(\\s+)?[a-zA-Z0-9_]+\\\n)"
+    idx_block <- stringr::str_which(x, chunk_start)
+    original_code <- knitr::knit_code$get()
+    # We first get indices of skipped chunks in original_code list
+    skipped_chunks <- which(sapply(original_code, function(x){
+      return(isFALSE(attr(x, "chunk_opts")$echo) || isFALSE(attr(x, "chunk_opts")$include))
+    }))
+
+    # Next we remove the indices of skipped chunks
+    original_code_idx_fixed <- setdiff(seq(length(original_code)), skipped_chunks)
+    
+    labels <- names(original_code)
+    # replace each x[i] that has code in it with the original code
+    for (i in seq_along(idx_block)) {
+      # break code into multiple lines:
+      chunk <- strsplit(x[idx_block[i]], "\n")[[1]]
+      # get the fence used (in case it's more than three ticks):
+      i_start <- stringr::str_which(chunk, "^```+(\\s+)?[a-zA-Z0-9_]+")
+      fence <- stringr::str_replace(chunk[i_start[1]],
+                                    "^(```+)(\\s+)?[a-zA-Z0-9_]+", "\\1")
+      i_fences <- stringr::str_which(chunk, paste0("^", fence))
+      # there can be multiple code and output chunks strung together 
+      # within a single x[i] if results are not held to end
+      i_all_code <- c()
+      for (j in seq_along(i_start)) {
+        # get the elements corresponding the j-th code chunk within chunk
+        i_code_end <- i_fences[which(i_fences == i_start[j]) + 1]
+        i_all_code <- c(i_all_code, i_start[j]:i_code_end)
+      }
+      i_all_code <- setdiff(i_all_code, i_start[1])
+      chunk_no_code <- chunk[-i_all_code]
+      chunk <- c(chunk_no_code[1:i_start[1]],
+                 original_code[original_code_idx_fixed[i]][[1]],
+                 # insert the original version, accounting for skipped chunks
+                 fence)
+      if (i_start[1] < length(chunk_no_code))
+        chunk <- c(chunk, chunk_no_code[(i_start[1] + 1):length(chunk_no_code)])
+        x[idx_block[i]] <- paste(chunk, collapse = "\n")
+    }
+    
+    # replace code chunks with the original code
+    # (so we'll still have <<label>> chunk references)
+    refs <- c() # labels that get referred to
+    for (label in labels) {
+      refs <- c(refs, find_labels(original_code[[label]])$chunk_ids)
+    }
+    refs <- unique(refs)
+    adj_labels <- labels[!labels %in% names(skipped_chunks)]
+    ref_id <- match(refs, adj_labels)
+    if (any(is.na(ref_id))) {
+      stop(make_noticeable(paste(
+        stringr::str_glue("The chunk reference <<{refs[is.na(ref_id)][1]}>> ",
+        "is used, but there is no chunk with that label.", 
+        sep = "\n"))))
+      }
+    to_insert <- paste0('###"', adj_labels[ref_id], '"###\n')
+    x[idx_block[ref_id]] <- stringr::str_replace(x[idx_block[ref_id]],
+                                                 chunk_start,
+                                                 paste0("\\1", to_insert))
+    x
+  })
+  
+  # setup package_doc engine
+  knitr::knit_engines$set(package_doc = function(options) {
+    # create package_doc
+    usethis::use_package_doc(open = FALSE)
+    
+    # insert the contents of the code chunk into the package_doc
+    pkgdoc <- file.path("R", paste0(fs::path_file(package_dir), "-package.R"))
+    add_text_to_file(options$code, filename = pkgdoc, location = 1)
+    
+    # now treat this as if it were standard R code with eval=FALSE
+    r_engine <- knitr::knit_engines$get("R")
+    options[["eval"]] <- FALSE
+    return(r_engine(options))
+  })
+  return(original_knitr)
+}
+
+#' Make error messages noticeable
+#' 
+#' Since litr error messages are amid a lot of output from knitting, we'd like 
+#' the litr ones to be eye-catching.
+#' 
+#' @param msg Error message
+#' @keywords internal
+make_noticeable <- function(msg) {
+  paste("",
+        "======",
+        "Please read your friendly litr error message here:",
+        paste("> ", msg),
+        "======",
+        sep = "\n")
+}
+
+>>>>>>> Stashed changes
 #' A knitr chunk hook for writing R code and tests
 #' 
 #' This chunk hook detects whether a chunk is defining a function or dataset

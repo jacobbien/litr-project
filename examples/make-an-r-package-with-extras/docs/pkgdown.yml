@@ -3,5 +3,9 @@ pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   using-package: using-package.html
+<<<<<<< Updated upstream
 last_built: 2024-06-14T00:10Z
+=======
+last_built: 2024-07-02T21:54Z
+>>>>>>> Stashed changes
 
