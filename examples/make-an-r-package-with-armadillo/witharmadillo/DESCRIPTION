@@ -7,11 +7,7 @@ Description: This package uses RcppArmadillo.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-<<<<<<< Updated upstream
-RoxygenNote: 7.3.1
-=======
 RoxygenNote: 7.3.2
->>>>>>> Stashed changes
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -20,10 +16,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-<<<<<<< Updated upstream
-LitrVersionUsed: 0.9.2
-LitrId: fda7f9fce3149c3710ad66aaecd34bca
-=======
 LitrVersionUsed: 0.9.3
-LitrId: 8fb5440ca026a2aaf01eda767c9c8272
->>>>>>> Stashed changes
+LitrId: b48957bc18f02dc93dcc5a81426a3677

@@ -457,7 +457,7 @@ add_chunk_label_hyperlinks <- function(html_files,
         )
       }
     )
-    browser() 
+    
     parsed_html <- xml2::read_html(paste(txt,collapse="\n"))
     # get all possible chunk names in this file.
     chunk_names <- all_chunk_names[which(names(all_chunk_names) == html_files[i])]
