@@ -24,3 +24,7 @@ For those who prefer to learn from video, here are a sequence of videos for gett
 4. **Using `litr` with `bookdown`.** We show how `litr` can be used together with `bookdown` to present your R package as an online book.  This is particularly convenient for larger R packages where a single .html file. 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/wrML2B-Ycok?si=V9-Y4JATXA3V3zuZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+5. **Hosting your rendered `litr` document on Github.** Once you have created a `litr` document, you will want to make it easy for others to read it (without having to download anything locally themselves).  We show how to do this with Github Pages for a `bookdown` document. The same process works for displaying a single .html file.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kEPxOl_AE-M?si=dlsG6nOeP7QDRkm4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>

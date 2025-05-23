@@ -1,62 +1,35 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
 <head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>10 Combining .R files | Creating the litr R package</title>
-  <meta name="description" content="10 Combining .R files | Creating the litr R package" />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="10 Combining .R files | Creating the litr R package" />
-  <meta property="og:type" content="book" />
-  
-  
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="10 Combining .R files | Creating the litr R package" />
-  
-  
-  
-
-<meta name="author" content="Jacob Bien" />
-
-
-<meta name="date" content="2022-05-27" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  
-  
-<link rel="prev" href="adding-extras-to-an-r-package.html"/>
-<link rel="next" href="including-templates.html"/>
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>10 Combining .R files | Creating the litr R package</title>
+<meta name="description" content="10 Combining .R files | Creating the litr R package">
+<meta name="generator" content="bookdown 0.40 and GitBook 2.6.7">
+<meta property="og:title" content="10 Combining .R files | Creating the litr R package">
+<meta property="og:type" content="book">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="10 Combining .R files | Creating the litr R package">
+<meta name="author" content="Jacob Bien">
+<meta name="date" content="2022-05-27">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="prev" href="adding-extras-to-an-r-package.html">
+<link rel="next" href="including-templates.html">
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script><link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet">
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script><style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -118,14 +91,14 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
-
 <style type="text/css">
   
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
-
+<style type="text/css">fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
+    </style>
 </head>
-
 <body>
 
 
@@ -133,64 +106,76 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
 
     <div class="book-summary">
-      <nav role="navigation">
-
-<ul class="summary">
+      <nav role="navigation"><ul class="summary">
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preamble</a></li>
 <li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a></li>
-<li class="chapter" data-level="3" data-path="package-setup.html"><a href="package-setup.html"><i class="fa fa-check"></i><b>3</b> Package setup</a>
+<li class="chapter" data-level="3" data-path="package-setup.html">
+<a href="package-setup.html"><i class="fa fa-check"></i><b>3</b> Package setup</a>
 <ul>
 <li class="chapter" data-level="3.1" data-path="package-setup.html"><a href="package-setup.html#a-note-on-circularity"><i class="fa fa-check"></i><b>3.1</b> A note on circularity</a></li>
-</ul></li>
-<li class="chapter" data-level="4" data-path="generating-package.html"><a href="generating-package.html"><i class="fa fa-check"></i><b>4</b> Generating the R package</a>
+</ul>
+</li>
+<li class="chapter" data-level="4" data-path="generating-package.html">
+<a href="generating-package.html"><i class="fa fa-check"></i><b>4</b> Generating the R package</a>
 <ul>
 <li class="chapter" data-level="4.1" data-path="generating-package.html"><a href="generating-package.html#sending-code-chunks-to-the-package"><i class="fa fa-check"></i><b>4.1</b> Sending code chunks to the package</a></li>
 <li class="chapter" data-level="4.2" data-path="generating-package.html"><a href="generating-package.html#setting-up-the-r-package-creation"><i class="fa fa-check"></i><b>4.2</b> Setting up the R package creation</a></li>
-</ul></li>
+</ul>
+</li>
 <li class="chapter" data-level="5" data-path="hash.html"><a href="hash.html"><i class="fa fa-check"></i><b>5</b> Not overwriting a manually edited R package</a></li>
 <li class="chapter" data-level="6" data-path="document.html"><a href="document.html"><i class="fa fa-check"></i><b>6</b> Wrapper to <code>devtools::document()</code></a></li>
-<li class="chapter" data-level="7" data-path="rendering.html"><a href="rendering.html"><i class="fa fa-check"></i><b>7</b> Altering the rendering process</a>
+<li class="chapter" data-level="7" data-path="rendering.html">
+<a href="rendering.html"><i class="fa fa-check"></i><b>7</b> Altering the rendering process</a>
 <ul>
-<li class="chapter" data-level="7.1" data-path="hash.html"><a href="hash.html#output-format"><i class="fa fa-check"></i><b>7.1</b> Defining <code>litr</code> output formats</a>
+<li class="chapter" data-level="7.1" data-path="hash.html">
+<a href="hash.html#output-format"><i class="fa fa-check"></i><b>7.1</b> Defining <code>litr</code> output formats</a>
 <ul>
 <li class="chapter" data-level="7.1.1" data-path="rendering.html"><a href="rendering.html#pdf-output-format"><i class="fa fa-check"></i><b>7.1.1</b> .pdf output format</a></li>
 <li class="chapter" data-level="7.1.2" data-path="rendering.html"><a href="rendering.html#html-output-format"><i class="fa fa-check"></i><b>7.1.2</b> .html output format</a></li>
 <li class="chapter" data-level="7.1.3" data-path="rendering.html"><a href="rendering.html#bookdown-output-format"><i class="fa fa-check"></i><b>7.1.3</b> bookdown output format</a></li>
-</ul></li>
-<li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href='rendering.html#render'>render</a>()</code></a></li>
-</ul></li>
+</ul>
+</li>
+<li class="chapter" data-level="7.2" data-path="rendering.html"><a href="rendering.html#render"><i class="fa fa-check"></i><b>7.2</b> Defining <code>litr::<a href="rendering.html#render">render</a>()</code></a></li>
+</ul>
+</li>
 <li class="chapter" data-level="8" data-path="functionality-to-facilitate-workflow.html"><a href="functionality-to-facilitate-workflow.html"><i class="fa fa-check"></i><b>8</b> Functionality to facilitate workflow</a></li>
-<li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
+<li class="chapter" data-level="9" data-path="adding-extras-to-an-r-package.html">
+<a href="adding-extras-to-an-r-package.html"><i class="fa fa-check"></i><b>9</b> Adding extras to an R package</a>
 <ul>
 <li class="chapter" data-level="9.1" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-readme"><i class="fa fa-check"></i><b>9.1</b> Adding a README</a></li>
 <li class="chapter" data-level="9.2" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-a-hex-sticker"><i class="fa fa-check"></i><b>9.2</b> Adding a hex sticker</a></li>
 <li class="chapter" data-level="9.3" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#adding-vignettes"><i class="fa fa-check"></i><b>9.3</b> Adding vignettes</a></li>
 <li class="chapter" data-level="9.4" data-path="adding-extras-to-an-r-package.html"><a href="adding-extras-to-an-r-package.html#add-a-pkgdown-site"><i class="fa fa-check"></i><b>9.4</b> Add a pkgdown site</a></li>
-</ul></li>
+</ul>
+</li>
 <li class="chapter" data-level="10" data-path="combining-.r-files.html"><a href="combining-.r-files.html"><i class="fa fa-check"></i><b>10</b> Combining .R files</a></li>
 <li class="chapter" data-level="11" data-path="including-templates.html"><a href="including-templates.html"><i class="fa fa-check"></i><b>11</b> Including templates</a></li>
-<li class="chapter" data-level="12" data-path="tests.html"><a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
+<li class="chapter" data-level="12" data-path="tests.html">
+<a href="tests.html"><i class="fa fa-check"></i><b>12</b> Defining some tests</a>
 <ul>
-<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href='hash.html#check_unedited'>check_unedited</a>()</code></a></li>
-<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href='rendering.html#get_params_used'>get_params_used</a>()</code></a></li>
+<li class="chapter" data-level="12.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>12.1</b> Testing <code><a href="hash.html#check_unedited">check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="12.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>12.2</b> Testing <code><a href="rendering.html#get_params_used">get_params_used</a>()</code></a></li>
 <li class="chapter" data-level="12.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>12.3</b> Testing chunk referencing</a></li>
 <li class="chapter" data-level="12.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>12.4</b> Testing different ways of rendering</a></li>
 <li class="chapter" data-level="12.5" data-path="tests.html"><a href="tests.html#testing-other-templates"><i class="fa fa-check"></i><b>12.5</b> Testing other templates</a></li>
-</ul></li>
-<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
+</ul>
+</li>
+<li class="chapter" data-level="13" data-path="documenting-the-package-and-testing.html">
+<a href="documenting-the-package-and-testing.html"><i class="fa fa-check"></i><b>13</b> Documenting the package and testing</a>
 <ul>
 <li class="chapter" data-level="13.1" data-path="documenting-the-package-and-testing.html"><a href="documenting-the-package-and-testing.html#add-examples-folder-with-the-output-of-knitting-each-example"><i class="fa fa-check"></i><b>13.1</b> Add examples folder with the output of knitting each example</a></li>
-</ul></li>
-<li class="chapter" data-level="14" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
+</ul>
+</li>
+<li class="chapter" data-level="14" data-path="including-extras-for-litr.html">
+<a href="including-extras-for-litr.html"><i class="fa fa-check"></i><b>14</b> Including extras for <code>litr</code></a>
 <ul>
 <li class="chapter" data-level="14.1" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#readme-with-hex-sticker"><i class="fa fa-check"></i><b>14.1</b> README with hex sticker</a></li>
 <li class="chapter" data-level="14.2" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#vignettes"><i class="fa fa-check"></i><b>14.2</b> Vignettes</a></li>
 <li class="chapter" data-level="14.3" data-path="including-extras-for-litr.html"><a href="including-extras-for-litr.html#a-pkgdown-site"><i class="fa fa-check"></i><b>14.3</b> A pkgdown site</a></li>
-</ul></li>
 </ul>
-
-      </nav>
-    </div>
+</li>
+</ul></nav>
+</div>
 
     <div class="book-body">
       <div class="body-inner">
@@ -203,84 +188,76 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <div class="page-wrapper" tabindex="-1" role="main">
           <div class="page-inner">
 
-            <section class="normal" id="section-">
-<div id="combining-.r-files" class="section level1 hasAnchor" number="10">
-<h1><span class="header-section-number">10</span> Combining .R files<a href="combining-.r-files.html#combining-.r-files" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+            <section class="normal" id="section-"><div id="combining-.r-files" class="section level1 hasAnchor" number="10">
+<h1>
+<span class="header-section-number">10</span> Combining .R files<a href="combining-.r-files.html#combining-.r-files" class="anchor-section" aria-label="Anchor link to header"></a>
+</h1>
 <p><strong>This section should eventually be removed but for now I’m doing this to convince myself that the package generated by this .Rmd file really matches the initial version created without the package.</strong></p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="combining-.r-files.html#cb74-1" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
-<span id="cb74-2"><a href="combining-.r-files.html#cb74-2" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
-<span id="cb74-3"><a href="combining-.r-files.html#cb74-3" tabindex="-1"></a>rfiles <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(<span class="st">&quot;R&quot;</span>)</span>
-<span id="cb74-4"><a href="combining-.r-files.html#cb74-4" tabindex="-1"></a>code <span class="ot">&lt;-</span> rfiles <span class="sc">%&gt;%</span> </span>
-<span id="cb74-5"><a href="combining-.r-files.html#cb74-5" tabindex="-1"></a>  <span class="fu">map</span>(readLines) <span class="sc">%&gt;%</span> </span>
-<span id="cb74-6"><a href="combining-.r-files.html#cb74-6" tabindex="-1"></a>  <span class="fu">set_names</span>(</span>
-<span id="cb74-7"><a href="combining-.r-files.html#cb74-7" tabindex="-1"></a>    rfiles <span class="sc">%&gt;%</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(<span class="st">&quot;^.*/&quot;</span>) <span class="sc">%&gt;%</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(<span class="st">&quot;.R$&quot;</span>)</span>
-<span id="cb74-8"><a href="combining-.r-files.html#cb74-8" tabindex="-1"></a>    )</span>
-<span id="cb74-9"><a href="combining-.r-files.html#cb74-9" tabindex="-1"></a>hash_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;hash_package_directory&quot;</span>,</span>
-<span id="cb74-10"><a href="combining-.r-files.html#cb74-10" tabindex="-1"></a>                    <span class="st">&quot;description_litr_hash_field_name&quot;</span>,</span>
-<span id="cb74-11"><a href="combining-.r-files.html#cb74-11" tabindex="-1"></a>                    <span class="st">&quot;write_hash_to_description&quot;</span>,</span>
-<span id="cb74-12"><a href="combining-.r-files.html#cb74-12" tabindex="-1"></a>                    <span class="st">&quot;read_hash_from_description&quot;</span>,</span>
-<span id="cb74-13"><a href="combining-.r-files.html#cb74-13" tabindex="-1"></a>                    <span class="st">&quot;check_unedited&quot;</span>)</span>
-<span id="cb74-14"><a href="combining-.r-files.html#cb74-14" tabindex="-1"></a>render_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;render&quot;</span>,</span>
-<span id="cb74-15"><a href="combining-.r-files.html#cb74-15" tabindex="-1"></a>                      <span class="st">&quot;with_cleanup&quot;</span>,</span>
-<span id="cb74-16"><a href="combining-.r-files.html#cb74-16" tabindex="-1"></a>                      <span class="st">&quot;litrify_output_format&quot;</span>,</span>
-<span id="cb74-17"><a href="combining-.r-files.html#cb74-17" tabindex="-1"></a>                      <span class="st">&quot;litr_pdf_document&quot;</span>,</span>
-<span id="cb74-18"><a href="combining-.r-files.html#cb74-18" tabindex="-1"></a>                      <span class="st">&quot;litr_html_document&quot;</span>,</span>
-<span id="cb74-19"><a href="combining-.r-files.html#cb74-19" tabindex="-1"></a>                      <span class="st">&quot;litr_gitbook&quot;</span>,</span>
-<span id="cb74-20"><a href="combining-.r-files.html#cb74-20" tabindex="-1"></a>                      <span class="st">&quot;replace_ansi_sequences&quot;</span>,</span>
-<span id="cb74-21"><a href="combining-.r-files.html#cb74-21" tabindex="-1"></a>                      <span class="st">&quot;add_function_hyperlinks&quot;</span>,</span>
-<span id="cb74-22"><a href="combining-.r-files.html#cb74-22" tabindex="-1"></a>                      <span class="st">&quot;insert_hrefs&quot;</span>,</span>
-<span id="cb74-23"><a href="combining-.r-files.html#cb74-23" tabindex="-1"></a>                      <span class="st">&quot;add_chunk_label_hyperlinks&quot;</span>,</span>
-<span id="cb74-24"><a href="combining-.r-files.html#cb74-24" tabindex="-1"></a>                      <span class="st">&quot;restore_knitr_objects&quot;</span>,</span>
-<span id="cb74-25"><a href="combining-.r-files.html#cb74-25" tabindex="-1"></a>                      <span class="st">&quot;remove_rstudio_extras&quot;</span>,</span>
-<span id="cb74-26"><a href="combining-.r-files.html#cb74-26" tabindex="-1"></a>                      <span class="st">&quot;get_params_used&quot;</span>,</span>
-<span id="cb74-27"><a href="combining-.r-files.html#cb74-27" tabindex="-1"></a>                      <span class="st">&quot;get_package_directory&quot;</span>,</span>
-<span id="cb74-28"><a href="combining-.r-files.html#cb74-28" tabindex="-1"></a>                      <span class="st">&quot;do_not_edit_message&quot;</span>,</span>
-<span id="cb74-29"><a href="combining-.r-files.html#cb74-29" tabindex="-1"></a>                      <span class="st">&quot;description_litr_version_field_name&quot;</span>,</span>
-<span id="cb74-30"><a href="combining-.r-files.html#cb74-30" tabindex="-1"></a>                      <span class="st">&quot;write_version_to_description&quot;</span>,</span>
-<span id="cb74-31"><a href="combining-.r-files.html#cb74-31" tabindex="-1"></a>                      <span class="st">&quot;document&quot;</span>,</span>
-<span id="cb74-32"><a href="combining-.r-files.html#cb74-32" tabindex="-1"></a>                      <span class="st">&quot;load_all&quot;</span>)</span>
-<span id="cb74-33"><a href="combining-.r-files.html#cb74-33" tabindex="-1"></a>setup_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;setup&quot;</span>,</span>
-<span id="cb74-34"><a href="combining-.r-files.html#cb74-34" tabindex="-1"></a>                     <span class="st">&quot;make_noticeable&quot;</span>,</span>
-<span id="cb74-35"><a href="combining-.r-files.html#cb74-35" tabindex="-1"></a>                     <span class="st">&quot;send_to_package&quot;</span>,</span>
-<span id="cb74-36"><a href="combining-.r-files.html#cb74-36" tabindex="-1"></a>                     <span class="st">&quot;add_text_to_file&quot;</span>,</span>
-<span id="cb74-37"><a href="combining-.r-files.html#cb74-37" tabindex="-1"></a>                     <span class="st">&quot;find_labels&quot;</span>)</span>
-<span id="cb74-38"><a href="combining-.r-files.html#cb74-38" tabindex="-1"></a>extras_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;add_readme&quot;</span>,</span>
-<span id="cb74-39"><a href="combining-.r-files.html#cb74-39" tabindex="-1"></a>                      <span class="st">&quot;add_hex_sticker&quot;</span>,</span>
-<span id="cb74-40"><a href="combining-.r-files.html#cb74-40" tabindex="-1"></a>                      <span class="st">&quot;add_vignettes&quot;</span>,</span>
-<span id="cb74-41"><a href="combining-.r-files.html#cb74-41" tabindex="-1"></a>                      <span class="st">&quot;add_pkgdown&quot;</span>)</span>
-<span id="cb74-42"><a href="combining-.r-files.html#cb74-42" tabindex="-1"></a><span id='remove_initial_lines'>remove_initial_lines</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(code_list) {</span>
-<span id="cb74-43"><a href="combining-.r-files.html#cb74-43" tabindex="-1"></a>  <span class="co"># drop first line of each list element except for the first list element</span></span>
-<span id="cb74-44"><a href="combining-.r-files.html#cb74-44" tabindex="-1"></a>  <span class="fu">c</span>(code_list[<span class="dv">1</span>], <span class="fu">map</span>(code_list[<span class="sc">-</span><span class="dv">1</span>], <span class="sc">~</span> .x[<span class="sc">-</span><span class="dv">1</span>]))</span>
-<span id="cb74-45"><a href="combining-.r-files.html#cb74-45" tabindex="-1"></a>}</span>
-<span id="cb74-46"><a href="combining-.r-files.html#cb74-46" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">setdiff</span>(rfiles, <span class="st">&quot;R/litr-package.R&quot;</span>))</span>
-<span id="cb74-47"><a href="combining-.r-files.html#cb74-47" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href='combining-.r-files.html#remove_initial_lines'>remove_initial_lines</a>(code[hash_functions])), <span class="st">&quot;R/hash.R&quot;</span>)</span>
-<span id="cb74-48"><a href="combining-.r-files.html#cb74-48" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href='combining-.r-files.html#remove_initial_lines'>remove_initial_lines</a>(code[render_functions])), <span class="st">&quot;R/render.R&quot;</span>)</span>
-<span id="cb74-49"><a href="combining-.r-files.html#cb74-49" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href='combining-.r-files.html#remove_initial_lines'>remove_initial_lines</a>(code[setup_functions])), <span class="st">&quot;R/setup.R&quot;</span>)</span>
-<span id="cb74-50"><a href="combining-.r-files.html#cb74-50" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href='combining-.r-files.html#remove_initial_lines'>remove_initial_lines</a>(code[extras_functions])), <span class="st">&quot;R/extras.R&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="combining-.r-files.html#cb79-1" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb79-2"><a href="combining-.r-files.html#cb79-2" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code></pre></div>
 <pre><code>## 
-## Attaching package: &#39;purrr&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:magrittr&#39;:
+## Attaching package: 'purrr'</code></pre>
+<pre><code>## The following object is masked from 'package:magrittr':
 ## 
 ##     set_names</code></pre>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="combining-.r-files.html#cb82-1" tabindex="-1"></a>rfiles <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(<span class="st">"R"</span>)</span>
+<span id="cb82-2"><a href="combining-.r-files.html#cb82-2" tabindex="-1"></a>code <span class="ot">&lt;-</span> rfiles <span class="sc">%&gt;%</span> </span>
+<span id="cb82-3"><a href="combining-.r-files.html#cb82-3" tabindex="-1"></a>  <span class="fu">map</span>(readLines) <span class="sc">%&gt;%</span> </span>
+<span id="cb82-4"><a href="combining-.r-files.html#cb82-4" tabindex="-1"></a>  <span class="fu">set_names</span>(</span>
+<span id="cb82-5"><a href="combining-.r-files.html#cb82-5" tabindex="-1"></a>    rfiles <span class="sc">%&gt;%</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(<span class="st">"^.*/"</span>) <span class="sc">%&gt;%</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(<span class="st">".R$"</span>)</span>
+<span id="cb82-6"><a href="combining-.r-files.html#cb82-6" tabindex="-1"></a>    )</span>
+<span id="cb82-7"><a href="combining-.r-files.html#cb82-7" tabindex="-1"></a>hash_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hash_package_directory"</span>,</span>
+<span id="cb82-8"><a href="combining-.r-files.html#cb82-8" tabindex="-1"></a>                    <span class="st">"description_litr_hash_field_name"</span>,</span>
+<span id="cb82-9"><a href="combining-.r-files.html#cb82-9" tabindex="-1"></a>                    <span class="st">"write_hash_to_description"</span>,</span>
+<span id="cb82-10"><a href="combining-.r-files.html#cb82-10" tabindex="-1"></a>                    <span class="st">"read_hash_from_description"</span>,</span>
+<span id="cb82-11"><a href="combining-.r-files.html#cb82-11" tabindex="-1"></a>                    <span class="st">"check_unedited"</span>)</span>
+<span id="cb82-12"><a href="combining-.r-files.html#cb82-12" tabindex="-1"></a>render_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"render"</span>,</span>
+<span id="cb82-13"><a href="combining-.r-files.html#cb82-13" tabindex="-1"></a>                      <span class="st">"with_cleanup"</span>,</span>
+<span id="cb82-14"><a href="combining-.r-files.html#cb82-14" tabindex="-1"></a>                      <span class="st">"litrify_output_format"</span>,</span>
+<span id="cb82-15"><a href="combining-.r-files.html#cb82-15" tabindex="-1"></a>                      <span class="st">"litr_pdf_document"</span>,</span>
+<span id="cb82-16"><a href="combining-.r-files.html#cb82-16" tabindex="-1"></a>                      <span class="st">"litr_html_document"</span>,</span>
+<span id="cb82-17"><a href="combining-.r-files.html#cb82-17" tabindex="-1"></a>                      <span class="st">"litr_gitbook"</span>,</span>
+<span id="cb82-18"><a href="combining-.r-files.html#cb82-18" tabindex="-1"></a>                      <span class="st">"replace_ansi_sequences"</span>,</span>
+<span id="cb82-19"><a href="combining-.r-files.html#cb82-19" tabindex="-1"></a>                      <span class="st">"add_function_hyperlinks"</span>,</span>
+<span id="cb82-20"><a href="combining-.r-files.html#cb82-20" tabindex="-1"></a>                      <span class="st">"insert_hrefs"</span>,</span>
+<span id="cb82-21"><a href="combining-.r-files.html#cb82-21" tabindex="-1"></a>                      <span class="st">"add_chunk_label_hyperlinks"</span>,</span>
+<span id="cb82-22"><a href="combining-.r-files.html#cb82-22" tabindex="-1"></a>                      <span class="st">"restore_knitr_objects"</span>,</span>
+<span id="cb82-23"><a href="combining-.r-files.html#cb82-23" tabindex="-1"></a>                      <span class="st">"remove_rstudio_extras"</span>,</span>
+<span id="cb82-24"><a href="combining-.r-files.html#cb82-24" tabindex="-1"></a>                      <span class="st">"get_params_used"</span>,</span>
+<span id="cb82-25"><a href="combining-.r-files.html#cb82-25" tabindex="-1"></a>                      <span class="st">"get_package_directory"</span>,</span>
+<span id="cb82-26"><a href="combining-.r-files.html#cb82-26" tabindex="-1"></a>                      <span class="st">"do_not_edit_message"</span>,</span>
+<span id="cb82-27"><a href="combining-.r-files.html#cb82-27" tabindex="-1"></a>                      <span class="st">"description_litr_version_field_name"</span>,</span>
+<span id="cb82-28"><a href="combining-.r-files.html#cb82-28" tabindex="-1"></a>                      <span class="st">"write_version_to_description"</span>,</span>
+<span id="cb82-29"><a href="combining-.r-files.html#cb82-29" tabindex="-1"></a>                      <span class="st">"document"</span>,</span>
+<span id="cb82-30"><a href="combining-.r-files.html#cb82-30" tabindex="-1"></a>                      <span class="st">"load_all"</span>)</span>
+<span id="cb82-31"><a href="combining-.r-files.html#cb82-31" tabindex="-1"></a>setup_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"setup"</span>,</span>
+<span id="cb82-32"><a href="combining-.r-files.html#cb82-32" tabindex="-1"></a>                     <span class="st">"make_noticeable"</span>,</span>
+<span id="cb82-33"><a href="combining-.r-files.html#cb82-33" tabindex="-1"></a>                     <span class="st">"send_to_package"</span>,</span>
+<span id="cb82-34"><a href="combining-.r-files.html#cb82-34" tabindex="-1"></a>                     <span class="st">"add_text_to_file"</span>,</span>
+<span id="cb82-35"><a href="combining-.r-files.html#cb82-35" tabindex="-1"></a>                     <span class="st">"find_labels"</span>)</span>
+<span id="cb82-36"><a href="combining-.r-files.html#cb82-36" tabindex="-1"></a>extras_functions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"add_readme"</span>,</span>
+<span id="cb82-37"><a href="combining-.r-files.html#cb82-37" tabindex="-1"></a>                      <span class="st">"add_hex_sticker"</span>,</span>
+<span id="cb82-38"><a href="combining-.r-files.html#cb82-38" tabindex="-1"></a>                      <span class="st">"add_vignettes"</span>,</span>
+<span id="cb82-39"><a href="combining-.r-files.html#cb82-39" tabindex="-1"></a>                      <span class="st">"add_pkgdown"</span>)</span>
+<span id="cb82-40"><a href="combining-.r-files.html#cb82-40" tabindex="-1"></a><span id="remove_initial_lines">remove_initial_lines</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(code_list) {</span>
+<span id="cb82-41"><a href="combining-.r-files.html#cb82-41" tabindex="-1"></a>  <span class="co"># drop first line of each list element except for the first list element</span></span>
+<span id="cb82-42"><a href="combining-.r-files.html#cb82-42" tabindex="-1"></a>  <span class="fu">c</span>(code_list[<span class="dv">1</span>], <span class="fu">map</span>(code_list[<span class="sc">-</span><span class="dv">1</span>], <span class="sc">~</span> .x[<span class="sc">-</span><span class="dv">1</span>]))</span>
+<span id="cb82-43"><a href="combining-.r-files.html#cb82-43" tabindex="-1"></a>}</span>
+<span id="cb82-44"><a href="combining-.r-files.html#cb82-44" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">file_delete</span>(<span class="fu">setdiff</span>(rfiles, <span class="st">"R/litr-package.R"</span>))</span>
+<span id="cb82-45"><a href="combining-.r-files.html#cb82-45" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href="combining-.r-files.html#remove_initial_lines">remove_initial_lines</a>(code[hash_functions])), <span class="st">"R/hash.R"</span>)</span>
+<span id="cb82-46"><a href="combining-.r-files.html#cb82-46" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href="combining-.r-files.html#remove_initial_lines">remove_initial_lines</a>(code[render_functions])), <span class="st">"R/render.R"</span>)</span>
+<span id="cb82-47"><a href="combining-.r-files.html#cb82-47" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href="combining-.r-files.html#remove_initial_lines">remove_initial_lines</a>(code[setup_functions])), <span class="st">"R/setup.R"</span>)</span>
+<span id="cb82-48"><a href="combining-.r-files.html#cb82-48" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">unlist</span>(<a href="combining-.r-files.html#remove_initial_lines">remove_initial_lines</a>(code[extras_functions])), <span class="st">"R/extras.R"</span>)</span></code></pre></div>
 </div>
             </section>
-
-          </div>
+</div>
         </div>
       </div>
 <a href="adding-extras-to-an-r-package.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 <a href="including-templates.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script><script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script><script src="libs/gitbook-2.6.7/js/plugin-search.js"></script><script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script><script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script><script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script><script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script><script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script><script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
@@ -321,10 +298,7 @@ gitbook.start({
 }
 });
 });
-</script>
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
+</script><!-- dynamically load mathjax for compatibility with self-contained --><script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -338,5 +312,4 @@ gitbook.start({
   })();
 </script>
 </body>
-
 </html>

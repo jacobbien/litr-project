@@ -410,10 +410,10 @@ level-one header at the top of the README:</p>
 <p>We add <code>README.Rmd</code> to the package and then generate the
 <code>README.md</code> based on it:</p>
 <pre class="r"><code>litr::add_readme("../source-files/README.Rmd")</code></pre>
-<pre><code>## ✔ Writing 'README.Rmd'
-## ✔ Adding '^README\\.Rmd$' to '.Rbuildignore'
-## ✔ Creating '.git/hooks/'
-## ✔ Writing '.git/hooks/pre-commit'</code></pre>
+<pre><code>## ✔ Writing 'README.Rmd'.</code></pre>
+<pre><code>## ✔ Adding "^README\\.Rmd$" to '.Rbuildignore'.</code></pre>
+<pre><code>## ✔ Creating '.git/hooks/'.</code></pre>
+<pre><code>## ✔ Writing '.git/hooks/pre-commit'.</code></pre>
 </div>
 <div id="add-a-vignette" class="section level3">
 <h3>Add a vignette</h3>
@@ -448,42 +448,77 @@ that we can have a link to it on our pkgdown site.</p>
 <p>Be sure that this next command appears after
 <code>litr::document()</code> has been called in this file.</p>
 <pre class="r"><code>litr::add_pkgdown("../source-files/_pkgdown.yml")</code></pre>
-<pre><code>## ✔ Adding '^_pkgdown\\.yml$', '^docs$', '^pkgdown$' to '.Rbuildignore'
-## ── Installing package withpkgdown into temporary library ───────────────────────</code></pre>
-<pre><code>## ── Building pkgdown site for package withpkgdown ───────────────────────────────
-## Reading from: /Users/vossler/litr-project/examples/withpkgdown
-## Writing to: /Users/vossler/litr-project/examples/docs
-## ── Initialising site ───────────────────────────────────────────────────────────
-## Copying
-## ../../../../../Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/pkgdown/BS5/assets/link.svg
-## and
-## ../../../../../Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/pkgdown/BS5/assets/pkgdown.js
-## to link.svg and pkgdown.js
+<pre><code>## ✔ Adding "^_pkgdown\\.yml$", "^docs$", and "^pkgdown$" to '.Rbuildignore'.</code></pre>
+<pre><code>## ── Installing package withpkgdown into temporary library ───────────────────────</code></pre>
+<pre><code>## ── Initialising site ───────────────────────────────────────────────────────────
+## Copying &lt;pkgdown&gt;/BS5/assets/katex-auto.js to katex-auto.js
+## Copying &lt;pkgdown&gt;/BS5/assets/lightswitch.js to lightswitch.js
+## Copying &lt;pkgdown&gt;/BS5/assets/link.svg to link.svg
+## Copying &lt;pkgdown&gt;/BS5/assets/pkgdown.js to pkgdown.js
+## Updating deps/bootstrap-5.3.1/bootstrap.bundle.min.js
+## Updating deps/bootstrap-5.3.1/bootstrap.bundle.min.js.map
+## Updating deps/bootstrap-5.3.1/bootstrap.min.css
+## Updating deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js
+## Updating deps/clipboard.js-2.0.11/clipboard.min.js
+## Updating deps/font-awesome-6.5.2/css/all.css
+## Updating deps/font-awesome-6.5.2/css/all.min.css
+## Updating deps/font-awesome-6.5.2/css/v4-shims.css
+## Updating deps/font-awesome-6.5.2/css/v4-shims.min.css
+## Updating deps/font-awesome-6.5.2/webfonts/fa-brands-400.ttf
+## Updating deps/font-awesome-6.5.2/webfonts/fa-brands-400.woff2
+## Updating deps/font-awesome-6.5.2/webfonts/fa-regular-400.ttf
+## Updating deps/font-awesome-6.5.2/webfonts/fa-regular-400.woff2
+## Updating deps/font-awesome-6.5.2/webfonts/fa-solid-900.ttf
+## Updating deps/font-awesome-6.5.2/webfonts/fa-solid-900.woff2
+## Updating deps/font-awesome-6.5.2/webfonts/fa-v4compatibility.ttf
+## Updating deps/font-awesome-6.5.2/webfonts/fa-v4compatibility.woff2
+## Updating deps/headroom-0.11.0/headroom.min.js
+## Updating deps/headroom-0.11.0/jQuery.headroom.min.js
+## Updating deps/jquery-3.6.0/jquery-3.6.0.js
+## Updating deps/jquery-3.6.0/jquery-3.6.0.min.js
+## Updating deps/jquery-3.6.0/jquery-3.6.0.min.map
+## Updating deps/search-1.0.0/autocomplete.jquery.min.js
+## Updating deps/search-1.0.0/fuse.min.js
+## Updating deps/search-1.0.0/mark.min.js
 ## ── Building favicons ───────────────────────────────────────────────────────────
-## ℹ Building favicons with &lt;https://realfavicongenerator.net&gt; ...
-## Copying pkgdown/favicon/apple-touch-icon-120x120.png,
-## pkgdown/favicon/apple-touch-icon-152x152.png,
-## pkgdown/favicon/apple-touch-icon-180x180.png,
-## pkgdown/favicon/apple-touch-icon-60x60.png,
-## pkgdown/favicon/apple-touch-icon-76x76.png,
-## pkgdown/favicon/apple-touch-icon.png, pkgdown/favicon/favicon-16x16.png,
-## pkgdown/favicon/favicon-32x32.png, and pkgdown/favicon/favicon.ico
-## to apple-touch-icon-120x120.png, apple-touch-icon-152x152.png,
-## apple-touch-icon-180x180.png, apple-touch-icon-60x60.png,
-## apple-touch-icon-76x76.png, apple-touch-icon.png, favicon-16x16.png,
-## favicon-32x32.png, and favicon.ico
-## Copying man/figures/logo.png
-## to logo.png
+## ℹ Building favicons with &lt;https://realfavicongenerator.net&gt;...
+## ✔ Added 'apple-touch-icon.png', 'favicon-96x96.png', 'favicon.ico',
+##   'favicon.svg', 'site.webmanifest', 'web-app-manifest-192x192.png', and
+##   'web-app-manifest-512x512.png'.
+## Copying pkgdown/favicon/apple-touch-icon.png to apple-touch-icon.png
+## Copying pkgdown/favicon/favicon-96x96.png to favicon-96x96.png
+## Copying pkgdown/favicon/favicon.ico to favicon.ico
+## Copying pkgdown/favicon/favicon.svg to favicon.svg
+## Copying pkgdown/favicon/site.webmanifest to site.webmanifest
+## Copying pkgdown/favicon/web-app-manifest-192x192.png to
+## web-app-manifest-192x192.png
+## Copying pkgdown/favicon/web-app-manifest-512x512.png to
+## web-app-manifest-512x512.png
+## Copying logo.png
+## ── Building pkgdown site for package withpkgdown ───────────────────────────────
+## Reading from:
+## /Users/jacobbien/Documents/GitHub/litr-project/examples/withpkgdown
+## Writing to: /Users/jacobbien/Documents/GitHub/litr-project/examples/docs
+## ── Sitrep ──────────────────────────────────────────────────────────────────────
+## ✖ URLs not ok.
+##   In _pkgdown.yml, url is missing.
+##   See details in `vignette(pkgdown::metadata)`.
+## ✔ Favicons ok.
+## ✔ Open graph metadata ok.
+## ✔ Articles metadata ok.
+## ✔ Reference metadata ok.
+## ── Initialising site ───────────────────────────────────────────────────────────
 ## ── Building home ───────────────────────────────────────────────────────────────
 ## Writing `authors.html`
 ## Reading LICENSE.md
 ## Writing `LICENSE.html`
 ## Writing `LICENSE-text.html`
-## Copying man/figures/logo.png
-## to reference/figures/logo.png
+## Reading README.md
+## Writing `index.html`
 ## Writing `404.html`
 ## ── Building function reference ─────────────────────────────────────────────────
 ## Writing `reference/index.html`
+## Copying man/figures/logo.png to reference/figures/logo.png
 ## Reading man/say_hello.Rd
 ## Writing `reference/say_hello.html`
 ## Reading man/say_hi.Rd
@@ -492,8 +527,10 @@ that we can have a link to it on our pkgdown site.</p>
 ## Writing `articles/index.html`
 ## Reading vignettes/using-package.Rmd
 ## Writing `articles/using-package.html`
-## Writing sitemap.xml
+## ── Building sitemap ────────────────────────────────────────────────────────────
+## Writing `sitemap.xml`
 ## ── Building search index ───────────────────────────────────────────────────────
+## ── Checking for problems ───────────────────────────────────────────────────────
 ## ── Finished building pkgdown site for package withpkgdown ──────────────────────</code></pre>
 <pre><code>## ── Finished building pkgdown site for package withpkgdown ──────────────────────</code></pre>
 <p>You can call <code>add_pkgdown()</code> without the argument;
