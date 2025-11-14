@@ -347,17 +347,22 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
   }  
   
   colon_prefix_function_pattern <- paste0(stringr::str_glue("{pkg_name}::"),all_function_names, "\\(", collapse = "|")
-  colon_prefix_refs <- stringr::str_replace_all(
-    txt[has_pkg_colon_prefix],
-    colon_prefix_function_pattern,
-    colon_pref_replace_fn
-  )
-  
-  regular_refs <- stringr::str_replace_all(
-    txt[has_only_fn_name],
-    function_pattern,
-    regular_replace_fn
-  )
+  colon_prefix_refs <- rep("", length(has_pkg_colon_prefix))
+  for (i in seq_along(has_pkg_colon_prefix)) {
+    colon_prefix_refs[i] <- stringr::str_replace_all(
+      txt[has_pkg_colon_prefix[i]],
+      colon_prefix_function_pattern,
+      colon_pref_replace_fn
+    )
+  }
+  regular_refs <- rep("", length(has_only_fn_name))
+  for (i in seq_along(has_only_fn_name)) {
+    regular_refs[i] <- stringr::str_replace_all(
+      txt[has_only_fn_name[i]],
+      function_pattern,
+      regular_replace_fn
+    )
+  }
   # now put back in the changed lines
   txt[has_pkg_colon_prefix] <- colon_prefix_refs
   txt[has_only_fn_name] <- regular_refs
