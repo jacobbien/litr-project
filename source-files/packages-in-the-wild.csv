@@ -1,0 +1,6 @@
+user,repo,branch,pkg_name,description,website,generated_html_website
+jacobbien,jsm2023-project,main,jsm2023,Navigate the JSM program from the comfort of an R console,https://jacobbien.github.io/jsm2023-project/,[create-jsm2023.html](https://jacobbien.github.io/jsm2023-project/create-jsm2023.html)
+jacobbien,jsm2022-project,main,jsm2022,Navigate the JSM program from the comfort of an R console,,
+jacobbien,rleastsquares-project,main,rleastsquares,Perform least squares (a package coded in a live demo),,
+ArkajyotiSaha,independencepvalue-project,main,independencepvalue,Test independence between groups of Gaussian variables,https://arkajyotisaha.github.io/independencepvalue-project/,
+gregfaletto,cssr-project,main,cssr,Cluster stability selection,https://gregfaletto.github.io/cssr-project/,[bookdown](https://gregfaletto.github.io/cssr-project/create/)

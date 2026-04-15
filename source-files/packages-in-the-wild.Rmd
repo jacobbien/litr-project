@@ -11,10 +11,11 @@ We plan for this section to expand over time.  Please let us know^[Email [Jacob]
 
 ```{r, eval=TRUE, include=FALSE}
 library(dplyr)
+library(readr)
 library(stringr)
 ```
 
-```{r, eval=TRUE, echo=FALSE, results='asis'}
+```{r, eval=TRUE, echo=FALSE, results='asis', message=FALSE}
 path <- "https://github.com/{user}/{repo}/blob/{branch}/"
 shorten <- function(pkgname, max_char = 13, extra = 5) {
   n <- nchar(pkgname)
@@ -26,43 +27,7 @@ shorten <- function(pkgname, max_char = 13, extra = 5) {
   return(pkgname)
 }
 
-tibble(
-  user = c("jacobbien",
-           "jacobbien",
-           "jacobbien",
-           "ArkajyotiSaha",
-           "gregfaletto"),
-  repo = c("jsm2023-project",
-           "jsm2022-project",
-           "rleastsquares-project",
-           "independencepvalue-project",
-           "cssr-project"),
-  branch = c("main",
-             "main",
-             "main",
-             "main",
-             "main"),
-  pkg_name = c("jsm2023",
-               "jsm2022",
-               "rleastsquares",
-               "independencepvalue",
-               "cssr"),
-  description = c(rep("Navigate the JSM program from the comfort of an R console", 2),
-                  "Perform least squares (a package coded in a live demo)",
-                  "Test independence between groups of Gaussian variables",
-                  "Cluster stability selection"),
-  website = c("https://jacobbien.github.io/jsm2023-project/",
-              "",
-              "",
-              "https://arkajyotisaha.github.io/independencepvalue-project/",
-              "https://gregfaletto.github.io/cssr-project/"),
-  generated_html_website = c("[create-jsm2023.html](https://jacobbien.github.io/jsm2023-project/create-jsm2023.html)",
-                             "",
-                             "",
-                             "",
-                             "[bookdown](https://gregfaletto.github.io/cssr-project/create/)"),
-    
-  ) %>% 
+read_csv("packages-in-the-wild.csv", na = character()) %>%
   transmute(
     `Package name` = if_else(
       nchar(website) == 0,
