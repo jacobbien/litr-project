@@ -322,47 +322,45 @@ insert_hrefs <- function(txt, function_pattern, where_defined,
   
   # define different replacement functions for colon prefix cases and regular cases
   colon_pref_replace_fn <- function(x){
-    if(remove_span){
-      fn_name <- stringr::str_remove(x, "</span>\\(")
-      fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
-    } else{
-      fn_name <- stringr::str_remove(x, "\\(")
-    }
-    fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
-    # implicitly assuming that a function is not redefined in another file
-    def_file <- where_defined[all_function_names == fn_name]
-    return(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
-    
+    vapply(x, function(xi) {
+      if(remove_span){
+        fn_name <- stringr::str_remove(xi, "</span>\\(")
+        fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
+      } else{
+        fn_name <- stringr::str_remove(xi, "\\(")
+      }
+      fn_name <- stringr::str_remove(fn_name, stringr::str_glue('{pkg_name}::'))
+      # implicitly assuming that a function is not redefined in another file
+      def_file <- where_defined[all_function_names == fn_name]
+      as.character(stringr::str_glue("{pkg_name}::<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
+    }, character(1))
   }
   regular_replace_fn <- function(x){
-    if(remove_span){
-      fn_name <- stringr::str_remove(x, '</span>\\(')
-      fn_name <- stringr::str_remove(fn_name, '<span class="fu">')  
-    } else {
-      fn_name <- stringr::str_remove(x, "\\(")
-    }
-    # implicitly assuming that a function is not redefined in another file
-    def_file <- where_defined[all_function_names == fn_name]
-    stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>(")
-  }  
+    vapply(x, function(xi) {
+      if(remove_span){
+        fn_name <- stringr::str_remove(xi, '</span>\\(')
+        fn_name <- stringr::str_remove(fn_name, '<span class="fu">')
+      } else {
+        fn_name <- stringr::str_remove(xi, "\\(")
+      }
+      # implicitly assuming that a function is not redefined in another file
+      def_file <- where_defined[all_function_names == fn_name]
+      as.character(stringr::str_glue("<a href='{def_file}#{fn_name}'>{fn_name}</a>("))
+    }, character(1))
+  }
   
   colon_prefix_function_pattern <- paste0(stringr::str_glue("{pkg_name}::"),all_function_names, "\\(", collapse = "|")
-  colon_prefix_refs <- rep("", length(has_pkg_colon_prefix))
-  for (i in seq_along(has_pkg_colon_prefix)) {
-    colon_prefix_refs[i] <- stringr::str_replace_all(
-      txt[has_pkg_colon_prefix[i]],
-      colon_prefix_function_pattern,
-      colon_pref_replace_fn
-    )
-  }
-  regular_refs <- rep("", length(has_only_fn_name))
-  for (i in seq_along(has_only_fn_name)) {
-    regular_refs[i] <- stringr::str_replace_all(
-      txt[has_only_fn_name[i]],
-      function_pattern,
-      regular_replace_fn
-    )
-  }
+  colon_prefix_refs <- stringr::str_replace_all(
+    txt[has_pkg_colon_prefix],
+    colon_prefix_function_pattern,
+    colon_pref_replace_fn
+  )
+  
+  regular_refs <- stringr::str_replace_all(
+    txt[has_only_fn_name],
+    function_pattern,
+    regular_replace_fn
+  )
   # now put back in the changed lines
   txt[has_pkg_colon_prefix] <- colon_prefix_refs
   txt[has_only_fn_name] <- regular_refs
@@ -437,29 +435,33 @@ add_chunk_label_hyperlinks <- function(html_files,
       cdefs[[i]]$txt,
       defined_chunks_pattern,
       function(x) {
-        cname <- stringr::str_remove_all(
-          x,
-          paste(reference_start, reference_end, sep = "|")
-        )
-        def_file <- where_defined[all_chunk_names == cname]
-        stringr::str_glue(
-          "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
-        )
+        vapply(x, function(xi) {
+          cname <- stringr::str_remove_all(
+            xi,
+            paste(reference_start, reference_end, sep = "|")
+          )
+          def_file <- where_defined[all_chunk_names == cname]
+          as.character(stringr::str_glue(
+            "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
+          ))
+        }, character(1))
       }
     )
     txt <- stringr::str_replace_all(
       txt,
       defined_chunks_pattern2,
       function(x) {
-        cname <- stringr::str_remove_all(
-          x,
-          paste(ref_start, ref_start_alt, ref_end, sep = "|")
-        )
-        def_file <- where_defined[all_chunk_names2 == cname]
-        cname <- stringr::str_replace_all(cname, hyphen_with_extras, "-")
-        stringr::str_glue(
-          "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
-        )
+        vapply(x, function(xi) {
+          cname <- stringr::str_remove_all(
+            xi,
+            paste(ref_start, ref_start_alt, ref_end, sep = "|")
+          )
+          def_file <- where_defined[all_chunk_names2 == cname]
+          cname <- stringr::str_replace_all(cname, hyphen_with_extras, "-")
+          as.character(stringr::str_glue(
+            "<a href='{def_file}#{cname}'>{reference_start}{cname}{reference_end}</a>"
+          ))
+        }, character(1))
       }
     )
     

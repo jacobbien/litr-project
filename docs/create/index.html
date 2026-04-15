@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Creating the litr R package</title>
 <meta name="description" content="Creating the litr R package">
-<meta name="generator" content="bookdown 0.43.2 and GitBook 2.6.7">
+<meta name="generator" content="bookdown 0.46 and GitBook 2.6.7">
 <meta property="og:title" content="Creating the litr R package">
 <meta property="og:type" content="book">
 <meta name="twitter:card" content="summary">
@@ -27,8 +27,9 @@
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet">
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet">
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script><style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -38,7 +39,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -95,8 +96,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
 <style type="text/css">fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
-    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
-    </style>
+                   legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}</style>
 </head>
 <body>
 
@@ -162,7 +162,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="10" data-path="tests.html">
 <a href="tests.html"><i class="fa fa-check"></i><b>10</b> Defining some tests</a>
 <ul>
-<li class="chapter" data-level="10.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>10.1</b> Testing <code><a href="hash.html#check_unedited">check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="10.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>10.1</b> Testing <code><a href="document.html#check_unedited">check_unedited</a>()</code></a></li>
 <li class="chapter" data-level="10.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>10.2</b> Testing <code><a href="rendering.html#get_params_used">get_params_used</a>()</code></a></li>
 <li class="chapter" data-level="10.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>10.3</b> Testing chunk referencing</a></li>
 <li class="chapter" data-level="10.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>10.4</b> Testing different ways of rendering</a></li>
@@ -208,7 +208,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </h1>
 <p>This document uses <a href="https://en.wikipedia.org/wiki/Literate_programming">literate programming</a> to define the <code>litr</code> R package. This means that all source code for <code>litr</code> is contained and presented in this document alongside explanation. The <code>litr</code> R package gets created as an output when one runs a piece of code that takes this document as input. To modify the <code>litr</code> package, one should modify the code in this document (and the explanation, as needed) and then regenerate the package. But what piece of code do we use to create an R package from this document?</p>
 <p>Well… it turns out that this is precisely what the <code>litr</code> package is for. But how can we use <code>litr</code> to create <code>litr</code>? We actually use version <span class="math inline">\(n-1\)</span> of <code>litr</code> to create version <span class="math inline">\(n\)</span>. When an R markdown file is rendered with <code>litr</code>, an R package is created in addition to the usual html/pdf/etc document. To learn more about <em>using</em> <code>litr</code>, please visit <a href="https://jacobbien.github.io/litr-project/">the litr website</a>. This document is not intended for people who wish to <em>use</em> <code>litr</code>. Rather, it is intended for people who want to <em>know how it works and (possibly) modify it</em>.</p>
-<p>This document used <code>litr</code> version 0.9.2 to define the current version of <code>litr</code>. In particular, it was generated by running the following command in an R console from the working directory containing <code>index.Rmd</code>:</p>
+<p>This document used <code>litr</code> version 0.9.3 to define the current version of <code>litr</code>. In particular, it was generated by running the following command in an R console from the working directory containing <code>index.Rmd</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" tabindex="-1"></a>litr<span class="sc">::</span><a href="rendering.html#render">render</a>(<span class="st">"index.Rmd"</span>)</span>
 <span id="cb1-2"><a href="index.html#cb1-2" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_copy</span>(<span class="st">"_book"</span>, <span class="st">"../docs/create"</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-3"><a href="index.html#cb1-3" tabindex="-1"></a>fs<span class="sc">::</span><span class="fu">dir_delete</span>(<span class="st">"_book"</span>)</span></code></pre></div>

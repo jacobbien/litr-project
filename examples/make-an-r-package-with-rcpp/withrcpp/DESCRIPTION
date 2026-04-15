@@ -7,7 +7,7 @@ Description: This package uses Rcpp.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 LinkingTo: 
     Rcpp
 Imports: 
@@ -16,4 +16,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 LitrVersionUsed: 0.9.3
-LitrId: 60aa4f185c1e54b6b72b5c0868087e24
+LitrId: 17fa2ea9428a3059e405c928ea1bfb96

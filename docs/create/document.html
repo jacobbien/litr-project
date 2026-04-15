@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>6 Wrapper to devtools::document() | Creating the litr R package</title>
 <meta name="description" content="6 Wrapper to devtools::document() | Creating the litr R package">
-<meta name="generator" content="bookdown 0.43.2 and GitBook 2.6.7">
+<meta name="generator" content="bookdown 0.46 and GitBook 2.6.7">
 <meta property="og:title" content="6 Wrapper to devtools::document() | Creating the litr R package">
 <meta property="og:type" content="book">
 <meta name="twitter:card" content="summary">
@@ -28,8 +28,9 @@
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet">
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet">
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script><style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -39,7 +40,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -96,8 +97,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
 <style type="text/css">fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
-    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
-    </style>
+                   legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}</style>
 </head>
 <body>
 
@@ -163,7 +163,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="10" data-path="tests.html">
 <a href="tests.html"><i class="fa fa-check"></i><b>10</b> Defining some tests</a>
 <ul>
-<li class="chapter" data-level="10.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>10.1</b> Testing <code><a href="hash.html#check_unedited">check_unedited</a>()</code></a></li>
+<li class="chapter" data-level="10.1" data-path="tests.html"><a href="tests.html#test-check-unedited"><i class="fa fa-check"></i><b>10.1</b> Testing <code><a href="document.html#check_unedited">check_unedited</a>()</code></a></li>
 <li class="chapter" data-level="10.2" data-path="tests.html"><a href="tests.html#testing-get_params_used"><i class="fa fa-check"></i><b>10.2</b> Testing <code><a href="rendering.html#get_params_used">get_params_used</a>()</code></a></li>
 <li class="chapter" data-level="10.3" data-path="tests.html"><a href="tests.html#testing-chunk-referencing"><i class="fa fa-check"></i><b>10.3</b> Testing chunk referencing</a></li>
 <li class="chapter" data-level="10.4" data-path="tests.html"><a href="tests.html#testing-different-ways-of-rendering"><i class="fa fa-check"></i><b>10.4</b> Testing different ways of rendering</a></li>
@@ -203,44 +203,55 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span class="header-section-number">6</span> Wrapper to <code>devtools::document()</code><a href="document.html#document" class="anchor-section" aria-label="Anchor link to header"></a>
 </h1>
 <p>This function is nearly identical to <code>devtools::document()</code> except that it changes the roxygen2 message that says “Please edit documentation in R/[…].R” to instead mention the generating .Rmd file. When <code>Rcpp</code> is used, it also makes sure that <code>#include &lt;RcppArmadillo.h&gt;</code> comes before <code>#include &lt;Rcpp.h&gt;</code>.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="document.html#cb38-1" tabindex="-1"></a><span class="co">#' Use roxygen to document a package from within a Rmd file</span></span>
-<span id="cb38-2"><a href="document.html#cb38-2" tabindex="-1"></a><span class="co">#' </span></span>
-<span id="cb38-3"><a href="document.html#cb38-3" tabindex="-1"></a><span class="co">#' This is a wrapper for the `devtools::document()` function, which in turn is a</span></span>
-<span id="cb38-4"><a href="document.html#cb38-4" tabindex="-1"></a><span class="co">#' wrapper for the `roxygen2::roxygenize()` function.  It is written assuming that</span></span>
-<span id="cb38-5"><a href="document.html#cb38-5" tabindex="-1"></a><span class="co">#' it is being called from within a generating Rmd file.  The purpose for `litr` </span></span>
-<span id="cb38-6"><a href="document.html#cb38-6" tabindex="-1"></a><span class="co">#' having this wrapper is two-fold.  First, it ensures that the first line</span></span>
-<span id="cb38-7"><a href="document.html#cb38-7" tabindex="-1"></a><span class="co">#' in the outputted `Rd` files should not say "Please edit documentation in </span></span>
-<span id="cb38-8"><a href="document.html#cb38-8" tabindex="-1"></a><span class="co">#' R/file.R" but instead should refer to the Rmd file that generates everything. </span></span>
-<span id="cb38-9"><a href="document.html#cb38-9" tabindex="-1"></a><span class="co">#' Second, in the case that Rcpp is being used, it makes some adjustments to ensure</span></span>
-<span id="cb38-10"><a href="document.html#cb38-10" tabindex="-1"></a><span class="co">#' that the compiling of the C++ code should be successful.</span></span>
-<span id="cb38-11"><a href="document.html#cb38-11" tabindex="-1"></a><span class="co">#' </span></span>
-<span id="cb38-12"><a href="document.html#cb38-12" tabindex="-1"></a><span class="co">#' @param ... Arguments to be passed to `devtools::document()`</span></span>
-<span id="cb38-13"><a href="document.html#cb38-13" tabindex="-1"></a><span class="co">#' @export</span></span>
-<span id="cb38-14"><a href="document.html#cb38-14" tabindex="-1"></a><span id="document">document</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(...) {</span>
-<span id="cb38-15"><a href="document.html#cb38-15" tabindex="-1"></a>  <span class="co"># prepare Rcpp code for compiling</span></span>
-<span id="cb38-16"><a href="document.html#cb38-16" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="st">"src/code.cpp"</span>)) {</span>
-<span id="cb38-17"><a href="document.html#cb38-17" tabindex="-1"></a>    <span class="co"># make sure that #include &lt;RcppArmadillo.h&gt; if it exists</span></span>
-<span id="cb38-18"><a href="document.html#cb38-18" tabindex="-1"></a>    <span class="co"># comes *before* (or instead of) &lt;Rcpp.h&gt;</span></span>
-<span id="cb38-19"><a href="document.html#cb38-19" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"src/code.cpp"</span>)</span>
-<span id="cb38-20"><a href="document.html#cb38-20" tabindex="-1"></a>    loc <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(txt, r<span class="st">"(#include &lt;RcppArmadillo.h&gt;)"</span>)</span>
-<span id="cb38-21"><a href="document.html#cb38-21" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(loc) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb38-22"><a href="document.html#cb38-22" tabindex="-1"></a>      include_arma_line <span class="ot">&lt;-</span> txt[loc[<span class="dv">1</span>]]</span>
-<span id="cb38-23"><a href="document.html#cb38-23" tabindex="-1"></a>      txt <span class="ot">&lt;-</span> <span class="fu">c</span>(include_arma_line, txt[<span class="sc">-</span>loc])</span>
-<span id="cb38-24"><a href="document.html#cb38-24" tabindex="-1"></a>      <span class="fu">writeLines</span>(txt, <span class="st">"src/code.cpp"</span>)</span>
-<span id="cb38-25"><a href="document.html#cb38-25" tabindex="-1"></a>    }</span>
-<span id="cb38-26"><a href="document.html#cb38-26" tabindex="-1"></a>  }</span>
-<span id="cb38-27"><a href="document.html#cb38-27" tabindex="-1"></a>  </span>
-<span id="cb38-28"><a href="document.html#cb38-28" tabindex="-1"></a>  devtools<span class="sc">::</span><a href="document.html#document">document</a>(...)</span>
-<span id="cb38-29"><a href="document.html#cb38-29" tabindex="-1"></a>  <span class="co"># remove the line of the following form in each man/*.Rd file:</span></span>
-<span id="cb38-30"><a href="document.html#cb38-30" tabindex="-1"></a>  pattern <span class="ot">&lt;-</span> <span class="st">"% Please edit documentation in .*$"</span></span>
-<span id="cb38-31"><a href="document.html#cb38-31" tabindex="-1"></a>  msg <span class="ot">&lt;-</span> <a href="generating-package.html#do_not_edit_message">do_not_edit_message</a>(knitr<span class="sc">::</span><span class="fu">current_input</span>(), <span class="at">type =</span> <span class="st">"man"</span>)</span>
-<span id="cb38-32"><a href="document.html#cb38-32" tabindex="-1"></a>  <span class="cf">for</span> (fname <span class="cf">in</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(<span class="st">"man"</span>)) {</span>
-<span id="cb38-33"><a href="document.html#cb38-33" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="fu">readLines</span>(fname), pattern, msg)</span>
-<span id="cb38-34"><a href="document.html#cb38-34" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">paste</span>(txt, <span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>), <span class="at">file =</span> fname)</span>
-<span id="cb38-35"><a href="document.html#cb38-35" tabindex="-1"></a>  }</span>
-<span id="cb38-36"><a href="document.html#cb38-36" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="document.html#cb36-1" tabindex="-1"></a><span class="co">#' Check if package directory is the unedited output of litr::<a href="rendering.html#render">render</a>()</span></span>
+<span id="cb36-2"><a href="document.html#cb36-2" tabindex="-1"></a><span class="co">#' </span></span>
+<span id="cb36-3"><a href="document.html#cb36-3" tabindex="-1"></a><span class="co">#' Uses hash stored in a special `litr` field of DESCRIPTION file to check that </span></span>
+<span id="cb36-4"><a href="document.html#cb36-4" tabindex="-1"></a><span class="co">#' the current state of the R package directory is identical to its state at the</span></span>
+<span id="cb36-5"><a href="document.html#cb36-5" tabindex="-1"></a><span class="co">#' time that it was created by `litr::<a href="rendering.html#render">render</a>()`.</span></span>
+<span id="cb36-6"><a href="document.html#cb36-6" tabindex="-1"></a><span class="co">#' </span></span>
+<span id="cb36-7"><a href="document.html#cb36-7" tabindex="-1"></a><span class="co">#' @param package_dir Path to package</span></span>
+<span id="cb36-8"><a href="document.html#cb36-8" tabindex="-1"></a><span class="co">#' @keywords internal</span></span>
+<span id="cb36-9"><a href="document.html#cb36-9" tabindex="-1"></a><span id="check_unedited">check_unedited</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(package_dir) {</span>
+<span id="cb36-10"><a href="document.html#cb36-10" tabindex="-1"></a>  hash <span class="ot">&lt;-</span> <a href="hash.html#hash_package_directory">hash_package_directory</a>(package_dir)</span>
+<span id="cb36-11"><a href="document.html#cb36-11" tabindex="-1"></a>  hash <span class="sc">==</span> <a href="hash.html#read_hash_from_description">read_hash_from_description</a>(package_dir)</span>
+<span id="cb36-12"><a href="document.html#cb36-12" tabindex="-1"></a>}</span></code></pre></div>
 <p>We used <code>devtools</code>, so let’s import it:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="document.html#cb39-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">"devtools"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="document.html#cb37-1" tabindex="-1"></a><span class="co">#' Use roxygen to document a package from within a Rmd file</span></span>
+<span id="cb37-2"><a href="document.html#cb37-2" tabindex="-1"></a><span class="co">#' </span></span>
+<span id="cb37-3"><a href="document.html#cb37-3" tabindex="-1"></a><span class="co">#' This is a wrapper for the `devtools::document()` function, which in turn is a</span></span>
+<span id="cb37-4"><a href="document.html#cb37-4" tabindex="-1"></a><span class="co">#' wrapper for the `roxygen2::roxygenize()` function.  It is written assuming that</span></span>
+<span id="cb37-5"><a href="document.html#cb37-5" tabindex="-1"></a><span class="co">#' it is being called from within a generating Rmd file.  The purpose for `litr` </span></span>
+<span id="cb37-6"><a href="document.html#cb37-6" tabindex="-1"></a><span class="co">#' having this wrapper is two-fold.  First, it ensures that the first line</span></span>
+<span id="cb37-7"><a href="document.html#cb37-7" tabindex="-1"></a><span class="co">#' in the outputted `Rd` files should not say "Please edit documentation in </span></span>
+<span id="cb37-8"><a href="document.html#cb37-8" tabindex="-1"></a><span class="co">#' R/file.R" but instead should refer to the Rmd file that generates everything. </span></span>
+<span id="cb37-9"><a href="document.html#cb37-9" tabindex="-1"></a><span class="co">#' Second, in the case that Rcpp is being used, it makes some adjustments to ensure</span></span>
+<span id="cb37-10"><a href="document.html#cb37-10" tabindex="-1"></a><span class="co">#' that the compiling of the C++ code should be successful.</span></span>
+<span id="cb37-11"><a href="document.html#cb37-11" tabindex="-1"></a><span class="co">#' </span></span>
+<span id="cb37-12"><a href="document.html#cb37-12" tabindex="-1"></a><span class="co">#' @param ... Arguments to be passed to `devtools::document()`</span></span>
+<span id="cb37-13"><a href="document.html#cb37-13" tabindex="-1"></a><span class="co">#' @export</span></span>
+<span id="cb37-14"><a href="document.html#cb37-14" tabindex="-1"></a><span id="document">document</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(...) {</span>
+<span id="cb37-15"><a href="document.html#cb37-15" tabindex="-1"></a>  <span class="co"># prepare Rcpp code for compiling</span></span>
+<span id="cb37-16"><a href="document.html#cb37-16" tabindex="-1"></a>  <span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="st">"src/code.cpp"</span>)) {</span>
+<span id="cb37-17"><a href="document.html#cb37-17" tabindex="-1"></a>    <span class="co"># make sure that #include &lt;RcppArmadillo.h&gt; if it exists</span></span>
+<span id="cb37-18"><a href="document.html#cb37-18" tabindex="-1"></a>    <span class="co"># comes *before* (or instead of) &lt;Rcpp.h&gt;</span></span>
+<span id="cb37-19"><a href="document.html#cb37-19" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"src/code.cpp"</span>)</span>
+<span id="cb37-20"><a href="document.html#cb37-20" tabindex="-1"></a>    loc <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_which</span>(txt, r<span class="st">"(#include &lt;RcppArmadillo.h&gt;)"</span>)</span>
+<span id="cb37-21"><a href="document.html#cb37-21" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(loc) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb37-22"><a href="document.html#cb37-22" tabindex="-1"></a>      include_arma_line <span class="ot">&lt;-</span> txt[loc[<span class="dv">1</span>]]</span>
+<span id="cb37-23"><a href="document.html#cb37-23" tabindex="-1"></a>      txt <span class="ot">&lt;-</span> <span class="fu">c</span>(include_arma_line, txt[<span class="sc">-</span>loc])</span>
+<span id="cb37-24"><a href="document.html#cb37-24" tabindex="-1"></a>      <span class="fu">writeLines</span>(txt, <span class="st">"src/code.cpp"</span>)</span>
+<span id="cb37-25"><a href="document.html#cb37-25" tabindex="-1"></a>    }</span>
+<span id="cb37-26"><a href="document.html#cb37-26" tabindex="-1"></a>  }</span>
+<span id="cb37-27"><a href="document.html#cb37-27" tabindex="-1"></a>  </span>
+<span id="cb37-28"><a href="document.html#cb37-28" tabindex="-1"></a>  devtools<span class="sc">::</span><a href="document.html#document">document</a>(...)</span>
+<span id="cb37-29"><a href="document.html#cb37-29" tabindex="-1"></a>  <span class="co"># remove the line of the following form in each man/*.Rd file:</span></span>
+<span id="cb37-30"><a href="document.html#cb37-30" tabindex="-1"></a>  pattern <span class="ot">&lt;-</span> <span class="st">"% Please edit documentation in .*$"</span></span>
+<span id="cb37-31"><a href="document.html#cb37-31" tabindex="-1"></a>  msg <span class="ot">&lt;-</span> <a href="generating-package.html#do_not_edit_message">do_not_edit_message</a>(knitr<span class="sc">::</span><span class="fu">current_input</span>(), <span class="at">type =</span> <span class="st">"man"</span>)</span>
+<span id="cb37-32"><a href="document.html#cb37-32" tabindex="-1"></a>  <span class="cf">for</span> (fname <span class="cf">in</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(<span class="st">"man"</span>)) {</span>
+<span id="cb37-33"><a href="document.html#cb37-33" tabindex="-1"></a>    txt <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="fu">readLines</span>(fname), pattern, msg)</span>
+<span id="cb37-34"><a href="document.html#cb37-34" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">paste</span>(txt, <span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>), <span class="at">file =</span> fname)</span>
+<span id="cb37-35"><a href="document.html#cb37-35" tabindex="-1"></a>  }</span>
+<span id="cb37-36"><a href="document.html#cb37-36" tabindex="-1"></a>}</span></code></pre></div>
 <pre><code>## ✔ Adding devtools to 'Imports' field in DESCRIPTION.</code></pre>
 <pre><code>## ☐ Refer to functions with `devtools::fun()`.</code></pre>
 </div>
