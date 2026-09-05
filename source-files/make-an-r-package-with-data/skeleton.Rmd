@@ -37,11 +37,19 @@ usethis::use_mit_license(copyright_holder = "F. Last")
 
 ## Now to the package itself
 
-### Create a dataset
+### Create a data set
 
-In this case, we'll create the data from scratch.  However, we can also download data from a different source here.
+We will start with an example in which our data is simply created by code (which might include code to download data from some site).
+
+The *R Packages (2e) book* [suggests](https://r-pkgs.org/data.html#sec-data-data-raw) including a `data-raw` directory in our R package to document any processing that might have occurred.  Of course, if you make this .Rmd file publicly available (which we recommend!), then this would be a documentation of all processing.  However, we show here how to put the data processing code in the package itself.  We start by creating the directory `data-raw`:
 
 ```{r}
+fs::dir_create("data-raw")
+```
+
+We send our processing to a code file called `create_mydata.R` in the directory we just created by using `send_to = "data-raw/create_mydata.R"`:
+
+```{r, send_to = "data-raw/create_mydata.R"}
 set.seed(123)
 n <- 100
 x <- rnorm(n)
@@ -61,7 +69,7 @@ Now, let's send this off to the package:
 usethis::use_data(mydata)
 ```
 
-And we'll need to document the dataset as well:
+And we'll need to document the data set as well:
 
 ```{r}
 #' A regression data set
@@ -73,6 +81,43 @@ And we'll need to document the dataset as well:
 #' }
 #' @source This data was simulated.  But usually we might cite a source here.
 "mydata"
+```
+
+### What if you have a local data file that you want to include?
+
+Suppose you have a file called `my-raw-data.csv` in the directory `source-files/` that you'd like to include in your package, perhaps after some processing.  Then you can copy that file into your R package's `data-raw/` directory:
+
+```{r}
+fs::file_copy("../source-files/my-raw-data.csv", "data-raw/")
+```
+
+Then you could document in `data-raw/` whatever manipulation you want before including this in the package:
+
+```{r, send_to = "data-raw/prep_ages.R"}
+ages <- readr::read_csv("data-raw/my-raw-data.csv")
+ages <- ages |> 
+  dplyr::transmute(id = dplyr::row_number(), age = ages)
+usethis::use_data(ages)
+```
+
+Finally, you would document the object as we did in the previous example:
+
+```{r}
+#' An ages data set
+#' 
+#' @format A data frame with ages of people.
+#' \describe{
+#' \item{id}{id of person}
+#' \item{age}{age of person}
+#' }
+#' @source This data came from `my-raw-data.csv`
+"ages"
+```
+
+As noted in the link to the book above, we might also want to add the `data-raw/` directory to `.Rbuildignore` so that it is not included in the bundled version of the package.  This can be accomplished as follows:
+
+```{r}
+cat("^data-raw$", file = ".Rbuildignore", append = TRUE, fill = TRUE)
 ```
 
 ## Documenting the package and building

@@ -1824,6 +1824,16 @@ fs::file_copy(
     ), 
   overwrite = TRUE
 )
+fs::dir_copy(
+  path = file.path(
+    "..", "source-files", "make-an-r-package-with-data", "source-files"
+    ),
+  new_path = file.path(
+    "inst", "rmarkdown", "templates", "make-an-r-package-with-data", "skeleton",
+    "source-files"
+    ),
+  overwrite = TRUE
+)
 ```
 
 The third template shows how to create a package that uses `Rcpp`:
@@ -2570,6 +2580,7 @@ testthat::test_that("templates can be knit", {
   render(rmd_file)
   testthat::expect_true(fs::file_exists(file.path(dir, "create-rhasdata.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "rhasdata")))
+  fs::dir_delete(file.path(dir, "source-files"))
 
   rmd_file <- file.path(dir, "create-withrcpp.Rmd")
   rmarkdown::draft(rmd_file,
