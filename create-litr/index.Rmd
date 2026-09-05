@@ -2650,9 +2650,16 @@ litr::document()
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 }
-xfun::Rscript_call(test_litr,
-                   list(install_old = install_old, location_of_new = "."))
+test_results <- xfun::Rscript_call(
+  test_litr,
+  list(install_old = install_old, location_of_new = ".")
+  )
 ```
+
+Since `devtools::test()` does not stop on failure, a failing test would otherwise
+be easy to miss in the middle of all this output.  We therefore hold onto
+`test_results` and reprint any failures at the [very end of this
+document](#test-failures).
 
 ## Add examples folder with the output of knitting each example
 
@@ -2787,3 +2794,45 @@ cat(readLines("../source-files/_pkgdown.yml"), sep = '\n')
 ```
 
 After this step, you can locally see the site by opening `docs/index.html` in the browser.  You can then copy the `docs` directory to your website's server and you're done.
+
+
+# Reporting any test failures {#test-failures}
+
+The tests were run [much earlier](#documenting-the-package-and-testing), and a
+lot has been printed since then.  So that a failure cannot go unnoticed, we
+finish by reprinting any test that did not pass.
+
+```{r}
+report_test_failures <- function(test_results) {
+  # each expectation records where it came from, which we report in the same
+  # `file:line:column` format that testthat itself uses:
+  where <- function(expectation, default) {
+    srcref <- expectation$srcref
+    if (!inherits(srcref, "srcref")) return(default)
+    filename <- fs::path_file(attr(srcref, "srcfile")$filename)
+    stringr::str_glue("{filename}:{srcref[1]}:{srcref[2]}")
+  }
+  num_failed <- 0
+  for (res in test_results) {
+    for (expectation in res$results) {
+      if (inherits(expectation, "expectation_failure")) type <- "Failure"
+      else if (inherits(expectation, "expectation_error")) type <- "Error"
+      else next
+      num_failed <- num_failed + 1
+      cat(stringr::str_glue(
+        "-- {type} ({where(expectation, res$file)}): {res$test} --"
+        ), "\n")
+      print(expectation)
+    }
+  }
+  if (num_failed == 0) {
+    cat("All tests passed.\n")
+    return(invisible(TRUE))
+  }
+  cat(make_noticeable(stringr::str_glue(
+    "{num_failed} test(s) did not pass.  See just above for the details."
+    )), "\n")
+  return(invisible(FALSE))
+}
+report_test_failures(test_results)
+```
