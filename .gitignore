@@ -3,3 +3,7 @@
 .RData
 .Ruserdata
 .DS_Store
+
+# bookdown build products for create-litr (the book itself is not tracked)
+create-litr/_book/
+create-litr/_main.Rmd

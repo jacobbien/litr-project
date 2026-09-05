@@ -92,6 +92,8 @@ Keeping track of the version of `litr` used is particularly important when using
 
 The code chunk in this section is for preventing this from happening.
 
+There is one situation in which this check has to be waived.  If a bug in `litr`'s own rendering machinery keeps the released version from rendering this document at all, then no released version can produce the next one.  What we actually need is not that the installed `litr` be the latest *release*, but that it already contain everything this document relies on; agreeing with the latest release is simply a convenient proxy for that.  Setting the environment variable `LITR_ALLOW_UNRELEASED` to `"true"` before calling `litr::render()` waives the check for one render.  That is appropriate when the installed version was built from an earlier commit of this document, which is still an earlier version building a later one and so is not circular.  It does, however, put the burden on you to be sure that version really does predate everything used here.
+
 For more on circularity, see the section on [testing litr](#tests).
 
 ```{r}
@@ -101,15 +103,26 @@ remote <- remotes::github_remote(
   subdir = "litr"
   )
 version_of_latest_release <- stringr::str_remove(remote$ref, "v")
-if (install_version_of_litr != version_of_latest_release)
+allow_unreleased <- identical(Sys.getenv("LITR_ALLOW_UNRELEASED"), "true")
+if (allow_unreleased) {
+  message(stringr::str_glue(
+    "LITR_ALLOW_UNRELEASED is set, so the check that you are using the version of litr",
+    " from the latest release (version {version_of_latest_release}) is being",
+    " skipped.\nThis document is being rendered by version",
+    " {install_version_of_litr}."
+  ))
+} else if (install_version_of_litr != version_of_latest_release) {
   stop(stringr::str_glue(
     "You should be using the version of litr from the latest release (version",
     " {version_of_latest_release}),\n but you are using version",
     " {install_version_of_litr}.\n",
     "You can install the release version of litr from GitHub by running the",
     " the following command:\n",
-    "remotes::install_github(repo='jacobbien/litr-project@*release', subdir = 'litr')"
+    "remotes::install_github(repo='jacobbien/litr-project@*release', subdir = 'litr')\n",
+    "If you are bootstrapping a fix to litr's own rendering machinery, set the",
+    " environment variable LITR_ALLOW_UNRELEASED to 'true' to waive this check."
   ))
+}
 ```
 
 
