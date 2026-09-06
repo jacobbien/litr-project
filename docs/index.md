@@ -39,6 +39,7 @@ You can install the latest release of `litr` on github with the
 following:
 
 ``` r
+
 remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 ```
 
@@ -50,6 +51,7 @@ above.
 Using a template is the best way to get started:
 
 ``` r
+
 litr::draft("rhello")
 ```
 
@@ -63,6 +65,7 @@ with one function and one test function. To knit, you can either press
 “Knit” in RStudio or use the following command:
 
 ``` r
+
 litr::render("create-rhello.Rmd")
 ```
 

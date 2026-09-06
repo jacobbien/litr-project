@@ -21,6 +21,7 @@ corresponding `litr::draft*` function from the table above.
 For example, for the most basic template, you would do the following:
 
 ``` r
+
 litr::draft("rhello")
 litr::render("create-rhello.Rmd")
 ```
@@ -29,6 +30,7 @@ And to make an R package that uses `Rcpp`, you would start with the
 following:
 
 ``` r
+
 litr::draft_rcpp("withrcpp")
 litr::render("create-withrcpp.Rmd")
 ```

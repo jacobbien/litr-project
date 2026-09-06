@@ -12,6 +12,7 @@ package’s website
 Put instructions here for how to install your package:
 
 ``` r
+
 # [change "jacobbien" to your github username]
 # remotes::install_github("jacobbien/withpkgdown-project", subdir = "withpkgdown")
 ```

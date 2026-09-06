@@ -27,6 +27,7 @@ litr::render("create-rhello.Rmd")
 
 Authors:
 \itemize{
+  \item Jacob Bien \email{jbien@usc.edu}
   \item Patrick Vossler
 }
 

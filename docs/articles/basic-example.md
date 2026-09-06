@@ -7,6 +7,7 @@ least squares. To do so, we will create a .Rmd file called
 `create-rleastsquares.Rmd` from a `litr` template:
 
 ``` r
+
 litr::draft("rleastsquares")
 ```
 
@@ -28,6 +29,7 @@ This is what will lead to an R package being created when you press
 > filling in the relevant information.
 
 ``` r
+
 usethis::create_package(
   path = ".",
   fields = list(
@@ -57,7 +59,6 @@ $`X\in\mathbb R^{n\times p}`$.
 We want to find the solution to the problem
 
 ``` math
-
 \min_{\beta\in\mathbb R^p}\|y-X\beta\|^2
 ```
 
@@ -65,13 +66,13 @@ We’ll assume that $`X`$ is full rank with $`n > p`$. We know that the
 solution is given by
 
 ``` math
-
 \hat\beta=(X^TX)^{-1}X^Ty.
 ```
 
 We’ll write a function that does exactly that!
 
 ``` r
+
 #' Get the OLS solution
 #' 
 #' @param y our response, which is an n-vector
@@ -91,6 +92,7 @@ do_least_squares <- function(y, X) {
 Now that we’ve defined `do_least_squares()`, let’s try it out!
 
 ``` r
+
 set.seed(123)
 n <- 100
 p <- 1
@@ -104,10 +106,12 @@ y <- x %*% beta_star + sigma * rnorm(n)
 > to the package.
 
 ``` r
+
 betahat <- do_least_squares(y, x)
 ```
 
 ``` r
+
 plot(x[, 2], y)
 abline(betahat[1], betahat[2], col = 2, lwd=2)
 ```
@@ -117,10 +121,12 @@ abline(betahat[1], betahat[2], col = 2, lwd=2)
 Let’s see how this compares to `lm`’s answer.
 
 ``` r
+
 fit_lm <- lm(y ~ x[, 2])
 ```
 
 ``` r
+
 fit_lm$coefficients
 ```
 
@@ -130,6 +136,7 @@ fit_lm$coefficients
 Compare that to…
 
 ``` r
+
 betahat
 ```
 
@@ -139,6 +146,7 @@ Ok, `do_least_squares()` appears to be working. Let’s define a formal
 unit test based on the example above.
 
 ``` r
+
 testthat::test_that("do_least_squares() works", {
   set.seed(123)
   n <- 100
@@ -185,6 +193,7 @@ own. For example, perhaps we want to use
 package:
 
 ``` r
+
 #' Get the OLS solution using lsfit()
 #' 
 #' @param y our response, which is an n-vector
@@ -200,6 +209,7 @@ And then we also update the DESCRIPTION file with this package
 dependence:
 
 ``` r
+
 usethis::use_package("stats")
 ```
 
@@ -233,5 +243,6 @@ At the end of a `litr` document, it is important to call
 `royxgen2` into traditional documentation files in our R package.
 
 ``` r
+
 litr::document() # <-- use instead of devtools::document()
 ```

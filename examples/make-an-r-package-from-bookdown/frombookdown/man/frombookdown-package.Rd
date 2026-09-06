@@ -11,5 +11,10 @@ This package uses \code{litr} to define an R package through writing a \code{boo
 \author{
 \strong{Maintainer}: First Last \email{you@gmail.com}
 
+Authors:
+\itemize{
+  \item First Last \email{you@gmail.com}
+}
+
 }
 \keyword{internal}

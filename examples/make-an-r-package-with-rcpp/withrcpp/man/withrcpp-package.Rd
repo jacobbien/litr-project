@@ -14,5 +14,10 @@ Here's an overview of the package.
 \author{
 \strong{Maintainer}: First Last \email{you@gmail.com}
 
+Authors:
+\itemize{
+  \item First Last \email{you@gmail.com}
+}
+
 }
 \keyword{internal}

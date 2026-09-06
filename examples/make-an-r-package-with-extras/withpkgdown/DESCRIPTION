@@ -8,11 +8,11 @@ Description: This package's purpose is to show how to have a README,
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.1.0
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras/withpkgdown
-LitrVersionUsed: 0.9.3
-LitrId: 6a9d73e290a301753558e2680548fa90
+LitrVersionUsed: 0.9.4
+LitrId: 067982284e765fbefd75494658fa2810

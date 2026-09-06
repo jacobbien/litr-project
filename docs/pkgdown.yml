@@ -1,5 +1,5 @@
-pandoc: 3.6.3
-pkgdown: 2.2.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   basic-example: basic-example.html
@@ -7,4 +7,4 @@ articles:
   package-templates: package-templates.html
   packages-in-the-wild: packages-in-the-wild.html
   videos: videos.html
-last_built: 2026-04-20T21:36Z
+last_built: 2026-09-05T18:55Z

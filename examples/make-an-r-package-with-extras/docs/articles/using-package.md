@@ -4,6 +4,7 @@ This vignette describes how to use this package. You start by loading
 the package.
 
 ``` r
+
 library(withpkgdown)
 ```
 
@@ -16,6 +17,7 @@ For example, to say hello to someone named Jacob, you’d do the
 following:
 
 ``` r
+
 say_hello("Jacob")
 ```
 
@@ -26,6 +28,7 @@ say_hello("Jacob")
 To say hi to someone, one would use the following:
 
 ``` r
+
 say_hi("Jacob")
 ```
 
@@ -36,6 +39,7 @@ say_hi("Jacob")
 You can control the punctuation by using the `exclamation` argument:
 
 ``` r
+
 say_hello("Jacob", exclamation=FALSE)
 ```
 

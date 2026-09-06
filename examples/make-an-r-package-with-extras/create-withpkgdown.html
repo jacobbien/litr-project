@@ -373,6 +373,7 @@ section</a>.</p>
 <p>This should happen before the pkgdown part.</p>
 <pre class="r"><code>litr::document()</code></pre>
 <pre><code>## ℹ Updating withpkgdown documentation
+## ℹ Setting Config/roxygen2/version to "8.1.0"
 ## ℹ Loading withpkgdown
 ## Writing 'NAMESPACE'
 ## Writing 'say_hello.Rd'
@@ -442,9 +443,9 @@ that we can have a link to it on our pkgdown site.</p>
 ##     rmarkdown
 ## VignetteBuilder:
 ##     knitr
+## Config/roxygen2/version: 8.1.0
 ## Encoding: UTF-8
-## Roxygen: list(markdown = TRUE)
-## RoxygenNote: 7.3.3</code></pre>
+## Roxygen: list(markdown = TRUE)</code></pre>
 <p>Be sure that this next command appears after
 <code>litr::document()</code> has been called in this file.</p>
 <pre class="r"><code>litr::add_pkgdown("../source-files/_pkgdown.yml")</code></pre>
@@ -455,9 +456,9 @@ that we can have a link to it on our pkgdown site.</p>
 ## Copying &lt;pkgdown&gt;/BS5/assets/lightswitch.js to lightswitch.js
 ## Copying &lt;pkgdown&gt;/BS5/assets/link.svg to link.svg
 ## Copying &lt;pkgdown&gt;/BS5/assets/pkgdown.js to pkgdown.js
-## Updating deps/bootstrap-5.3.1/bootstrap.bundle.min.js
-## Updating deps/bootstrap-5.3.1/bootstrap.bundle.min.js.map
-## Updating deps/bootstrap-5.3.1/bootstrap.min.css
+## Updating deps/bootstrap-5.3.8/bootstrap.bundle.min.js
+## Updating deps/bootstrap-5.3.8/bootstrap.bundle.min.js.map
+## Updating deps/bootstrap-5.3.8/bootstrap.min.css
 ## Updating deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js
 ## Updating deps/clipboard.js-2.0.11/clipboard.min.js
 ## Updating deps/font-awesome-6.5.2/css/all.css

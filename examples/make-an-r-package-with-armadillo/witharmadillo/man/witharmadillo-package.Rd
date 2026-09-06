@@ -11,5 +11,10 @@ This package uses RcppArmadillo.
 \author{
 \strong{Maintainer}: First Last \email{you@gmail.com}
 
+Authors:
+\itemize{
+  \item First Last \email{you@gmail.com}
+}
+
 }
 \keyword{internal}

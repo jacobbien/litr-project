@@ -14,6 +14,8 @@ R package development.
 
 Authors:
 
+- Jacob Bien <jbien@usc.edu>
+
 - Patrick Vossler
 
 ## Examples

@@ -324,6 +324,7 @@ testthat::test_that("templates can be knit", {
   render(rmd_file)
   testthat::expect_true(fs::file_exists(file.path(dir, "create-rhasdata.html")))
   testthat::expect_true(fs::file_exists(file.path(dir, "rhasdata")))
+  fs::dir_delete(file.path(dir, "source-files"))
 
   rmd_file <- file.path(dir, "create-withrcpp.Rmd")
   rmarkdown::draft(rmd_file,
