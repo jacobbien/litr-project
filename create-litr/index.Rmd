@@ -2566,81 +2566,34 @@ testthat::test_that('Rendering with minimal_eval=TRUE works', {
 ```
 
 
-## Testing other templates
+## Testing other templates {#testing-other-templates}
 
-Let's now make sure that each template can be knit without error.
+Let's now make sure that each template can be knit without error.  The knitting itself is done by `build_all_templates()`, which we define in the [next section](#examples-folder).  It takes the directory to build into.  When this document is being litr-rendered we point it at the examples folder that we publish, and otherwise it builds into a temporary directory that is cleaned up afterwards.  Either way the test does the same work, so running `devtools::test()` on the package on its own tests the templates fully.
 
 ```{r, eval=FALSE}
 testthat::test_that("templates can be knit", {
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
-  
-  rmd_file <- file.path(dir, "create-rhello.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-rhello.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "rhello")))
-
-  rmd_file <- file.path(dir, "create-rhasdata.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-data",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-rhasdata.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "rhasdata")))
-  fs::dir_delete(file.path(dir, "source-files"))
-
-  rmd_file <- file.path(dir, "create-withrcpp.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-rcpp",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
-
-  rmd_file <- file.path(dir, "create-witharmadillo.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-armadillo",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-witharmadillo.Rmd")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "witharmadillo")))
-    
-  rmd_file <- file.path(dir, "create-withpkgdown.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-extras",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-withpkgdown.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "withpkgdown")))
-
-  rmd_file <- file.path(dir, "create-frombookdown.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-from-bookdown",
-                   package = "litr",
-                   edit = FALSE)
-  prev_dir <- getwd()
-  setwd(file.path(dir, "create-frombookdown"))
-  fs::file_delete("create-frombookdown.Rmd")
-  render("index.Rmd")
-  setwd(prev_dir)
-  testthat::expect_true(
-    fs::file_exists(file.path(dir, "create-frombookdown", "_book", "index.html"))
+  example_dir <- Sys.getenv("LITR_EXAMPLES_DIR")
+  if (example_dir == "") example_dir <- withr::local_tempdir()
+  build_all_templates(example_dir)
+  # for each template, the generating document and the package it creates:
+  expected <- list(
+    "make-an-r-package" = c("create-rhello.html", "rhello"),
+    "make-an-r-package-with-data" = c("create-rhasdata.html", "rhasdata"),
+    "make-an-r-package-with-rcpp" = c("create-withrcpp.html", "withrcpp"),
+    "make-an-r-package-with-armadillo" = c("create-witharmadillo.html",
+                                           "witharmadillo"),
+    "make-an-r-package-with-extras" = c("create-withpkgdown.html",
+                                        "withpkgdown"),
+    "make-an-r-package-from-bookdown" = c(file.path("_book", "index.html"),
+                                          "frombookdown")
     )
-  testthat::expect_true(
-    fs::file_exists(file.path(dir, "create-frombookdown", "frombookdown"))
-    )
-
-  fs::dir_delete(dir)
- })
+  for (template in names(expected)) {
+    for (file in expected[[template]]) {
+      path <- file.path(example_dir, template, file)
+      testthat::expect_true(fs::file_exists(path), info = path)
+    }
+  }
+})
 ```
 
 Even though `litr` doesn't directly use `Rcpp` or `RcppArmadillo`, we add them as "Suggests" packages since the templates that the above test knits need them.
@@ -2657,37 +2610,24 @@ We finish by running commands that will document and test `litr`.
 
 **The formatting of the test output does not print out very neatly.**
 
-We download the latest release:
+## Building an example of every template {#examples-folder}
 
-```{r}
-litr::document()
-install_old <- function() {
-  remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
-}
-test_results <- xfun::Rscript_call(
-  test_litr,
-  list(install_old = install_old, location_of_new = ".")
-  )
-```
+The tests in the [previous section](#testing-other-templates) knit every one of our templates.  That is the slowest thing we do, and we'd like to keep the results to publish them as an examples folder on github (outside the `litr` R package).  So rather than knitting the templates once for testing and once for inclusion under examples, we define the function that does the knitting here, have the tests call it, and then tell it where to put what it produces.
 
-Since `devtools::test()` does not stop on failure, a failing test would otherwise
-be easy to miss in the middle of all this output.  We therefore hold onto
-`test_results` and reprint any failures at the [very end of this
-document](#test-failures).
+This is a helper for the tests rather than part of `litr` itself, so we send it to a `helper-` file, which `testthat` sources before running the tests:
 
-## Add examples folder with the output of knitting each example
-
-In this section, we will litr-knit each template and put the outputs in an examples directory that lives outside of the `litr` R package.  These examples are linked to in `README.Rmd`.
-
-```{r}
-build_all_templates <- function(install_old, location_of_new) {
-  devtools::install(location_of_new)
-
-  example_dir <- file.path("..", "examples")
+```{r, send_to = "tests/testthat/helper-templates.R"}
+build_all_templates <- function(example_dir) {
   if (fs::dir_exists(example_dir)) fs::dir_delete(example_dir)
   fs::dir_create(example_dir)
-  
-  templates <- fs::path_file(fs::dir_ls("inst/rmarkdown/templates"))
+  # we knit from within `example_dir` and move things around afterwards, so we
+  # want a path that does not depend on the working directory:
+  example_dir <- fs::path_abs(example_dir)
+
+  # the templates of the installed `litr`, which is what `draft()` reads:
+  templates <- fs::path_file(
+    fs::dir_ls(system.file("rmarkdown", "templates", package = "litr"))
+    )
   templates_bookdown <- stringr::str_subset(templates, "bookdown")
   templates_nonbookdown <- setdiff(templates, templates_bookdown)
   for (template in templates_nonbookdown) {
@@ -2696,7 +2636,7 @@ build_all_templates <- function(install_old, location_of_new) {
     pkg_name <- rmarkdown::yaml_front_matter(tmp_file)$params$package_name
     rmd_file <- file.path(example_dir, paste0("create-", pkg_name, ".Rmd"))
     fs::file_move(tmp_file, rmd_file)
-    render(rmd_file)
+    litr::render(rmd_file)
     # move to a template-specific directory:
     template_dir <- file.path(example_dir, template)
     fs::dir_create(template_dir)
@@ -2723,25 +2663,47 @@ build_all_templates <- function(install_old, location_of_new) {
                      template,
                      package = "litr",
                      edit = FALSE)
-    prev_dir <- getwd()
-    setwd(tmp_dir)
-    fs::file_delete("temp.Rmd")
-    render("index.Rmd")
+    withr::with_dir(tmp_dir, {
+      fs::file_delete("temp.Rmd")
+      litr::render("index.Rmd")
+    })
     # move to a template-specific directory:
-    setwd(prev_dir)
     fs::dir_copy(tmp_dir, file.path(example_dir, template))
     fs::dir_delete(tmp_dir)
   }
-
-  install_old()
+  invisible(example_dir)
 }
 ```
 
+We use `withr` above and in the test, so we add it to "Suggests":
+
 ```{r}
-xfun::Rscript_call(build_all_templates,
-                   list(install_old = install_old, location_of_new = "."))
+usethis::use_package("withr", type = "Suggests")
 ```
 
+## Running the tests {#running-the-tests}
+
+We download the latest release:
+
+```{r}
+litr::document()
+install_old <- function() {
+  remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
+}
+# the tests knit every template; tell them to build into the examples folder
+# that we publish rather than into a temporary directory (an environment
+# variable set here is inherited by the R session that runs the tests):
+Sys.setenv(LITR_EXAMPLES_DIR = fs::path_abs(file.path("..", "examples")))
+test_results <- xfun::Rscript_call(
+  test_litr,
+  list(install_old = install_old, location_of_new = ".")
+  )
+```
+
+Since `devtools::test()` does not stop on failure, a failing test would otherwise
+be easy to miss in the middle of all this output.  We therefore hold onto
+`test_results` and reprint any failures at the [very end of this
+document](#test-failures).
 
 # Including extras for `litr`
 
