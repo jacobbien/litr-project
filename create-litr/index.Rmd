@@ -2230,32 +2230,21 @@ When using `litr` to create packages that are not `litr`, one should be able to 
 
 To understand the reason we are doing it this way, imagine what would happen if instead we left `eval=TRUE` in the test in the [next section](#test-check-unedited).  When we use `rmarkdown::draft()` to create a .Rmd file from template, the file it will give us will be an old version (namely the installed version of `litr`'s template) rather than the latest version.^[If this were the only problem, we could get around this by using `pkgload::package_file()` to get the proper file; however, the next problem discussed was something that seemed quite hard to resolve.] Furthermore, consider what happens when we call `render()` in the test below.  This will start the knitting process on `my-package.Rmd`.  However, inside `my-package.Rmd`, we have `litr::setup()` and `litr::document()`.  When these are called in the knitting process, it will be the versions of the functions from the currently installed `litr` rather than the versions defined in this document.
 
-Once we are done testing the new version of the package, we'd like to restore the state of `litr` to what it was previously.  If we don't do this, then this can lead to inadvertent circularity in which the next time we call `litr::render("create-litr.Rmd")`, we are using the version currently under development, which is bad because ultimately we need this version to be rendered by the previous version of `litr`.  The following function implements this approach to testing `litr`: 
+Once we are done testing the new version of the package, we'd like to restore the state of `litr` to what it was previously.  If we don't do this, then this can lead to inadvertent circularity in which the next time we call `litr::render("create-litr.Rmd")`, we are using the version currently under development, which is bad because ultimately we need this version to be rendered by the previous version of `litr`.  The following function (which is only ever called from this document, not the package itself) implements this approach to testing `litr`: 
 
 ```{r}
-#' Run tests for `litr` itself
-#' 
-#' Special function for testing `litr`.  The trick is to temporarily install
-#' the new version of `litr`, run the test, and then put things back how it was
-#' before.
-#' 
-#' Typical values for `install_old` could be
-#' - `function() devtools::install("[location of old version]")`
-#' - `function() remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")`.
-#' 
-#' @param install_old A function that when run will install the old version
-#' @param location_of_new Path to the new package directory
-#' @keywords internal
 test_litr <- function(install_old, location_of_new) {
+  # `devtools::unload()` addresses an issue discussed in
+  # https://github.com/jacobbien/litr-project/issues/30
   devtools::unload(params$package_name)
   devtools::install(location_of_new)
+  # whatever happens next, we must not leave the new version installed, since
+  # that would make the next render of this document a circular one:
+  on.exit(install_old())
   out <- devtools::test(location_of_new)
-  install_old()
   return(out)
 }
 ```
-
-Note: The call to `devtools::unload()` is to address an issue discussed [here](https://github.com/jacobbien/litr-project/issues/30).
 
 ## Testing `check_unedited()` {#test-check-unedited}
 
