@@ -12,5 +12,5 @@ Depends:
     R (>= 3.5)
 LazyData: true
 Config/roxygen2/version: 8.1.0
-LitrVersionUsed: 0.9.4
-LitrId: 1865c9c838a3bcae13d3d1d21e4dfa28
+LitrVersionUsed: 0.9.5
+LitrId: 8052ad4bc7822b884608346f3a557bf9

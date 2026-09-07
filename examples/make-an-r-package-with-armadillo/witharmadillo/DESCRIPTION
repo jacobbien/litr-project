@@ -16,5 +16,5 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.0
-LitrVersionUsed: 0.9.4
-LitrId: 4728e487527c712eb3af26e81a26ec71
+LitrVersionUsed: 0.9.5
+LitrId: 88ff6f804db70be7d1fb4c661f11376c
