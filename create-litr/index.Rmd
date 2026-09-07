@@ -2643,10 +2643,11 @@ testthat::test_that("templates can be knit", {
  })
 ```
 
-Even though `litr` doesn't directly use `Rcpp`, we'll add it as a "Suggests" package since it would be required for running the above test.
+Even though `litr` doesn't directly use `Rcpp` or `RcppArmadillo`, we add them as "Suggests" packages since the templates that the above test knits need them.
 
 ```{r}
 usethis::use_package("Rcpp", type = "Suggests")
+usethis::use_package("RcppArmadillo", type = "Suggests")
 ```
 
 
