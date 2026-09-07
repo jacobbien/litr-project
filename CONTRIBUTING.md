@@ -10,6 +10,16 @@ Debugging issues with code run in `knitr` hooks can be tricky. We suggest the fo
 
 Repeat this process until you (hopefully) find a fix for the issue.
 
+## Rendering faster while you work
+
+Calling `litr::render("index.Rmd")` knits all the templates and builds the `pkgdown` site, so it can be slow. The following command skips everything except the chunks that actually change the R package (those calling `usethis` or `litr::document()`):
+
+```r
+litr::render("index.Rmd", minimal_eval = TRUE)
+```
+
+This updates `litr/` without running the tests, building the examples, or rebuilding the site, which is usually what you want until you are ready to check the whole thing. Do run a full render before committing though.
+
 ## Bootstrapping a fix to `litr`'s own rendering machinery
 
 `create-litr/index.Rmd` checks that the installed `litr` is the one from the latest release, so that we never use new functionality to build itself. But if the bug you fixed is in `litr`'s *rendering* machinery — something that runs while `litr::render()` is knitting `index.Rmd`, such as the post-processing that adds hyperlinks to the .html output — then the released version cannot render the document at all, and there is no way to produce the release except with the fix in hand.
