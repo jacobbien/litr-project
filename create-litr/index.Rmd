@@ -457,14 +457,20 @@ setup <- function(package_dir, minimal_eval) {
     unlink(package_dir, recursive = TRUE)
   }
   fs::dir_create(package_dir)
+
+  # `usethis` has a notion of an "active project", which we will point at the 
+  # package we are creating (and will later put back).
+  original_project <- usethis:::proj_get_()
   usethis:::proj_set_(usethis:::proj_path_prep(package_dir))
 
-  # let's keep a version of the knitr objects before modifying them:
-  original_knitr <- list(opts_knit = knitr::opts_knit$get(),
+  # let's keep a version of the knitr objects (and the usethis project) before
+  # modifying them:
+  original_state <- list(opts_knit = knitr::opts_knit$get(),
                          knit_hooks = knitr::knit_hooks$get(),
                          opts_chunk = knitr::opts_chunk$get(),
                          opts_hooks = knitr::opts_hooks$get(),
-                         knit_engines = knitr::knit_engines$get()
+                         knit_engines = knitr::knit_engines$get(),
+                         usethis_project = original_project
                          )
   
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
@@ -568,7 +574,7 @@ setup <- function(package_dir, minimal_eval) {
     options[["eval"]] <- FALSE
     return(r_engine(options))
   })
-  return(original_knitr)
+  return(original_state)
 }
 ```
 
@@ -822,7 +828,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
   function(...) {
     old <- base_format(...)
     new <- old
-    new$original_knitr_objects <- list()
+    new$original_state <- list()
     new$pre_knit <- function(...) {
       args <- list(...)
       input <- args$input
@@ -831,7 +837,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
         params$package_parent_dir$value,
         params$package_name$value,
         input)
-      new$original_knitr_objects <<- litr:::setup(package_dir, minimal_eval)
+      new$original_state <<- litr:::setup(package_dir, minimal_eval)
       if (!is.null(old$pre_knit)) old$pre_knit(...)
     }
 
@@ -869,8 +875,8 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
     new$on_exit <- function() {
       old$on_exit()
       
-      # restore knitr to its original state
-      restore_knitr_objects(new$original_knitr_objects)
+      # put knitr and usethis back how we found them
+      restore_state(new$original_state)
     }
     
     # mark this as a litr_format
@@ -1587,9 +1593,9 @@ render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, minimal_eval, ...) {
-    knitr_objects <- litr:::setup(package_dir, minimal_eval)
+    original_state <- litr:::setup(package_dir, minimal_eval)
     out <- rmarkdown::render(input, ...)
-    restore_knitr_objects(knitr_objects)
+    restore_state(original_state)
     # remove .Rproj and .gitignore if usethis::create_package() added these
     remove_rstudio_extras(package_dir)
     return(out)
@@ -1657,19 +1663,20 @@ with_cleanup <- function(fun, package_dir) {
 }
 ```
 
-In `setup()`, we modified the knitr objects (e.g., adding hooks, engines, etc.).  We call the function `restore_knitr_objects()` after we're done, to put things back how they were:
+In `setup()`, we modified the knitr objects (e.g., adding hooks, engines, etc.) and `usethis`'s active project.  We call the function `restore_state()` after we're done, to put things back how they were:
 
 ```{r, send_to = "R/render.R"}
-#' Return the knitr objects to their original state
+#' Return everything `setup()` changed to its original state
 #' 
-#' @param original_knitr_objects As returned by `setup()`
+#' @param original_state As returned by `setup()`
 #' @keywords internal
-restore_knitr_objects <- function(original_knitr_objects) {
-  knitr::opts_knit$restore(original_knitr_objects$opts_knit)
-  knitr::knit_hooks$restore(original_knitr_objects$knit_hooks)
-  knitr::opts_chunk$restore(original_knitr_objects$opts_chunk)
-  knitr::opts_hooks$restore(original_knitr_objects$opts_hooks)
-  knitr::knit_engines$restore(original_knitr_objects$knit_engines)
+restore_state <- function(original_state) {
+  knitr::opts_knit$restore(original_state$opts_knit)
+  knitr::knit_hooks$restore(original_state$knit_hooks)
+  knitr::opts_chunk$restore(original_state$opts_chunk)
+  knitr::opts_hooks$restore(original_state$opts_hooks)
+  knitr::knit_engines$restore(original_state$knit_engines)
+  usethis:::proj_set_(original_state$usethis_project)
 }
 ```
 
