@@ -5,7 +5,7 @@ date: "The Date"
 knit: litr::render
 output: litr::litr_html_document
 params:
-  package_name: "rhasdata" # <-- change this to your package name
+  package_name: "rhasdata"
   package_parent_dir: "." # <-- relative to this file's location
 ---
 
@@ -94,9 +94,8 @@ fs::file_copy("../source-files/my-raw-data.csv", "data-raw/")
 Then you could document in `data-raw/` whatever manipulation you want before including this in the package:
 
 ```{r, send_to = "data-raw/prep_ages.R"}
-ages <- readr::read_csv("data-raw/my-raw-data.csv")
-ages <- ages |> 
-  dplyr::transmute(id = dplyr::row_number(), age = ages)
+ages <- read.csv("data-raw/my-raw-data.csv")
+ages <- data.frame(id = seq_len(nrow(ages)), age = ages$ages)
 usethis::use_data(ages)
 ```
 

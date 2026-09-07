@@ -397,19 +397,11 @@ your R package’s <code>data-raw/</code> directory:</p>
 <pre class="r"><code>fs::file_copy("../source-files/my-raw-data.csv", "data-raw/")</code></pre>
 <p>Then you could document in <code>data-raw/</code> whatever
 manipulation you want before including this in the package:</p>
-<pre class="r"><code>ages &lt;- readr::read_csv("data-raw/my-raw-data.csv")
-ages &lt;- ages |&gt; 
-  dplyr::transmute(id = dplyr::row_number(), age = ages)
+<pre class="r"><code>ages &lt;- read.csv("data-raw/my-raw-data.csv")
+ages &lt;- data.frame(id = seq_len(nrow(ages)), age = ages$ages)
 usethis::use_data(ages)</code></pre>
-<pre><code>## Rows: 4 Columns: 1
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## dbl (1): ages
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## ✔ Saving "ages" to "data/ages.rda".
-## ☐ Document your data (see &lt;https://r-pkgs.org/data.html&gt;).</code></pre>
+<pre><code>## ✔ Saving "ages" to "data/ages.rda".</code></pre>
+<pre><code>## ☐ Document your data (see &lt;https://r-pkgs.org/data.html&gt;).</code></pre>
 <p>Finally, you would document the object as we did in the previous
 example:</p>
 <pre class="r"><code>#' An ages data set

@@ -195,14 +195,20 @@ setup <- function(package_dir, minimal_eval) {
     unlink(package_dir, recursive = TRUE)
   }
   fs::dir_create(package_dir)
+
+  # `usethis` has a notion of an "active project", which we will point at the 
+  # package we are creating (and will later put back).
+  original_project <- usethis:::proj_get_()
   usethis:::proj_set_(usethis:::proj_path_prep(package_dir))
 
-  # let's keep a version of the knitr objects before modifying them:
-  original_knitr <- list(opts_knit = knitr::opts_knit$get(),
+  # let's keep a version of the knitr objects (and the usethis project) before
+  # modifying them:
+  original_state <- list(opts_knit = knitr::opts_knit$get(),
                          knit_hooks = knitr::knit_hooks$get(),
                          opts_chunk = knitr::opts_chunk$get(),
                          opts_hooks = knitr::opts_hooks$get(),
-                         knit_engines = knitr::knit_engines$get()
+                         knit_engines = knitr::knit_engines$get(),
+                         usethis_project = original_project
                          )
   
   knitr::opts_knit$set(root.dir = package_dir) # sets wd of future chunks
@@ -306,7 +312,7 @@ setup <- function(package_dir, minimal_eval) {
     options[["eval"]] <- FALSE
     return(r_engine(options))
   })
-  return(original_knitr)
+  return(original_state)
 }
 
 #' Find a .Rmd chunk label in a code chunk

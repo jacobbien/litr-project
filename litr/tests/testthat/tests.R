@@ -1,8 +1,6 @@
 # Generated from _main.Rmd: do not edit by hand  
 testthat::test_that("add_text_to_file() works", {
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
+  dir <- withr::local_tempdir()
   
   # should throw error when file does not exist and req_exist is TRUE:
   myfile <- file.path(dir, "file.txt")
@@ -42,7 +40,6 @@ testthat::test_that("add_text_to_file() works", {
   add_text_to_file(moretxt4, myfile, 6)
   testthat::expect_equal(c(moretxt2, moretxt3, sometxt, moretxt, moretxt4),
                          readLines(myfile))
-  fs::dir_delete(dir)
 })
 
 testthat::test_that("get_package_directory() works", {
@@ -59,29 +56,21 @@ testthat::test_that("get_package_directory() works", {
 
 testthat::test_that('load_all() works', {
   # setup files for tests:
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
+  dir <- withr::local_tempdir()
   rmd_file <- file.path(dir, 'create-pkg.Rmd')
   fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
   html_file <- file.path(dir, "create-pkg.html")
 
   load_all(rmd_file)
   testthat::expect_equal(say_hello("Jacob"), "Hello Jacob!")
-  
-  fs::dir_delete(dir)
 })
 
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
   #Sys.setenv(RSTUDIO_PANDOC = "/Applications/RStudio.app/Contents/MacOS/pandoc")
-  dir <- tempfile()
-  fs::dir_create(dir)
-  rmd_file <- file.path(dir, "my-package.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package",
-                   package = "litr",
-                   edit = FALSE)
+  dir <- withr::local_tempdir()
+  draft(dir = dir)
+  rmd_file <- file.path(dir, "create-rhello.Rmd")
   # create R package (named "rhello") from the Rmd template:
   render(rmd_file)
   package_path <- file.path(dir, "rhello")
@@ -135,17 +124,12 @@ testthat::test_that("check_unedited works", {
   # now put it back
   writeLines(txt, descfile)
   testthat::expect_true(check_unedited(package_path))
-
-  fs::dir_delete(dir)
 })
 
 testthat::test_that("get_params_used works", {
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
-  rmd_file <- file.path(dir, "my-package.Rmd")
-  rmarkdown::draft(rmd_file, template = "make-an-r-package", package = "litr",
-                   edit = FALSE)
+  dir <- withr::local_tempdir()
+  draft(dir = dir)
+  rmd_file <- file.path(dir, "create-rhello.Rmd")
   default_params <- get_params_used(rmd_file, passed_params = list())
   testthat::expect_equal(
     default_params,
@@ -166,26 +150,20 @@ testthat::test_that("get_params_used works", {
                                          package_name = "pkg")),
     params2
   )
-  fs::dir_delete(dir)
 })
 
 testthat::test_that('Knuth-style references work', {
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
+  dir <- withr::local_tempdir()
   rmd_file <- file.path(dir, 'create-rknuth.Rmd')
   fs::file_copy(path = testthat::test_path("create-rknuth.Rmd"), new_path = rmd_file)
   render(rmd_file)
   testthat::expect_true(fs::file_exists(file.path(dir, 'create-rknuth.html')))
-  fs::dir_delete(dir)
 })
 
 testthat::test_that('Rendering in all possible ways works', {
   
   # setup files for tests:
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
+  dir <- withr::local_tempdir()
   # .Rmd without output format in preamble
   rmd_file1 <- file.path(dir, 'create-pkg1.Rmd')
   fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file1)
@@ -259,16 +237,12 @@ testthat::test_that('Rendering in all possible ways works', {
                           output_file = html_file)
                      )
   check_outputs_are_same()
-  
-  fs::dir_delete(dir)
 })
 
 testthat::test_that('Rendering with minimal_eval=TRUE works', {
   
   # setup files for tests:
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
+  dir <- withr::local_tempdir()
   rmd_file <- file.path(dir, 'create-pkg.Rmd')
   fs::file_copy(testthat::test_path("create-pkg.Rmd"), rmd_file)
   # .Rmd without output format in preamble
@@ -298,78 +272,29 @@ testthat::test_that('Rendering with minimal_eval=TRUE works', {
          )
   testthat::expect_equal(readLines(file.path(pkg, "DESCRIPTION")),
                          readLines(file.path(pkg_a, "DESCRIPTION")))
-
-  fs::dir_delete(dir)
 })
 
 testthat::test_that("templates can be knit", {
-  dir <- tempfile()
-  if (fs::file_exists(dir)) fs::file_delete(dir)
-  fs::dir_create(dir)
-  
-  rmd_file <- file.path(dir, "create-rhello.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-rhello.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "rhello")))
-
-  rmd_file <- file.path(dir, "create-rhasdata.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-data",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-rhasdata.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "rhasdata")))
-  fs::dir_delete(file.path(dir, "source-files"))
-
-  rmd_file <- file.path(dir, "create-withrcpp.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-rcpp",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-withrcpp.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "withrcpp")))
-
-  rmd_file <- file.path(dir, "create-witharmadillo.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-armadillo",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-witharmadillo.Rmd")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "witharmadillo")))
-    
-  rmd_file <- file.path(dir, "create-withpkgdown.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-with-extras",
-                   package = "litr",
-                   edit = FALSE)
-  render(rmd_file)
-  testthat::expect_true(fs::file_exists(file.path(dir, "create-withpkgdown.html")))
-  testthat::expect_true(fs::file_exists(file.path(dir, "withpkgdown")))
-
-  rmd_file <- file.path(dir, "create-frombookdown.Rmd")
-  rmarkdown::draft(rmd_file,
-                   template = "make-an-r-package-from-bookdown",
-                   package = "litr",
-                   edit = FALSE)
-  prev_dir <- getwd()
-  setwd(file.path(dir, "create-frombookdown"))
-  fs::file_delete("create-frombookdown.Rmd")
-  render("index.Rmd")
-  setwd(prev_dir)
-  testthat::expect_true(
-    fs::file_exists(file.path(dir, "create-frombookdown", "_book", "index.html"))
+  example_dir <- Sys.getenv("LITR_EXAMPLES_DIR")
+  if (example_dir == "") example_dir <- withr::local_tempdir()
+  build_all_templates(example_dir)
+  # for each template, the generating document and the package it creates:
+  expected <- list(
+    "make-an-r-package" = c("create-rhello.html", "rhello"),
+    "make-an-r-package-with-data" = c("create-rhasdata.html", "rhasdata"),
+    "make-an-r-package-with-rcpp" = c("create-withrcpp.html", "withrcpp"),
+    "make-an-r-package-with-armadillo" = c("create-witharmadillo.html",
+                                           "witharmadillo"),
+    "make-an-r-package-with-extras" = c("create-withpkgdown.html",
+                                        "withpkgdown"),
+    "make-an-r-package-from-bookdown" = c(file.path("_book", "index.html"),
+                                          "frombookdown")
     )
-  testthat::expect_true(
-    fs::file_exists(file.path(dir, "create-frombookdown", "frombookdown"))
-    )
-
-  fs::dir_delete(dir)
- })
+  for (template in names(expected)) {
+    for (file in expected[[template]]) {
+      path <- file.path(example_dir, template, file)
+      testthat::expect_true(fs::file_exists(path), info = path)
+    }
+  }
+})
 

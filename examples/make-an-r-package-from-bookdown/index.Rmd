@@ -6,7 +6,7 @@ site: bookdown::bookdown_site
 knit: litr::render
 output: litr::litr_gitbook
 params:
-  package_name: "frombookdown" # <-- change this to your package name
+  package_name: "frombookdown"
   package_parent_dir: "." # <-- relative to this file's location
 documentclass: book
 ---

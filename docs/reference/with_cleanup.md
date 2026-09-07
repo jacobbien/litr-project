@@ -5,6 +5,8 @@ context of a try-catch. If an error is encountered, the litr hash is
 still added to the DESCRIPTION file so that future calls to
 [`litr::render()`](render.md) will recognize that it can safely
 overwrite the package directory (i.e., no manual editing occurred).
+Adding the hash is a side effect: the original error carries on being
+raised, so care is taken that a problem in here cannot mask it.
 
 ## Usage
 

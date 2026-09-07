@@ -71,7 +71,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
   function(...) {
     old <- base_format(...)
     new <- old
-    new$original_knitr_objects <- list()
+    new$original_state <- list()
     new$pre_knit <- function(...) {
       args <- list(...)
       input <- args$input
@@ -80,7 +80,7 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
         params$package_parent_dir$value,
         params$package_name$value,
         input)
-      new$original_knitr_objects <<- litr:::setup(package_dir, minimal_eval)
+      new$original_state <<- litr:::setup(package_dir, minimal_eval)
       if (!is.null(old$pre_knit)) old$pre_knit(...)
     }
 
@@ -118,8 +118,8 @@ litrify_output_format <- function(base_format = rmarkdown::html_document,
     new$on_exit <- function() {
       old$on_exit()
       
-      # restore knitr to its original state
-      restore_knitr_objects(new$original_knitr_objects)
+      # put knitr and usethis back how we found them
+      restore_state(new$original_state)
     }
     
     # mark this as a litr_format
@@ -683,9 +683,9 @@ render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
   args$package_dir <- package_dir
 
   render_ <- function(input, package_dir, minimal_eval, ...) {
-    knitr_objects <- litr:::setup(package_dir, minimal_eval)
+    original_state <- litr:::setup(package_dir, minimal_eval)
     out <- rmarkdown::render(input, ...)
-    restore_knitr_objects(knitr_objects)
+    restore_state(original_state)
     # remove .Rproj and .gitignore if usethis::create_package() added these
     remove_rstudio_extras(package_dir)
     return(out)
@@ -716,33 +716,43 @@ render <- function(input, minimal_eval, fresh_session = TRUE, ...) {
 #' a try-catch.  If an error is encountered, the litr hash is still added to
 #' the DESCRIPTION file so that future calls to `litr::render()` will recognize
 #' that it can safely overwrite the package directory (i.e., no manual editing
-#' occurred).
+#' occurred).  Adding the hash is a side effect: the original error carries on
+#' being raised, so care is taken that a problem in here cannot mask it.
 #' 
 #' @param fun function being called
 #' @param package_dir directory where package is being written to
 #' @param ... arguments to be passed to `fun`
 #' @keywords internal
 with_cleanup <- function(fun, package_dir) {
+  # We resolve the path now, while we still know what it is relative to.  By the
+  # time an error occurs the working directory will likely have moved, since
+  # `knitr` sets it to the package directory while evaluating chunks.
+  package_dir <- fs::path_abs(package_dir)
   return(function(...) {
     withCallingHandlers(
       fun(...),
       error = function(e) {
-        # add litr hash so we can tell later if package files were manually edited:
-        write_hash_to_description(package_dir)
+        # add litr hash so we can tell later if package files were manually edited.
+        # We check whether package directory didn't get created. If it didn't,
+        # there's nothing to add and we don't want to create a new error since
+        # the user needs to see the current error we're handling.
+        if (fs::dir_exists(package_dir))
+          try(write_hash_to_description(package_dir), silent = TRUE)
       })
   })
 }
 
-#' Return the knitr objects to their original state
+#' Return everything `setup()` changed to its original state
 #' 
-#' @param original_knitr_objects As returned by `setup()`
+#' @param original_state As returned by `setup()`
 #' @keywords internal
-restore_knitr_objects <- function(original_knitr_objects) {
-  knitr::opts_knit$restore(original_knitr_objects$opts_knit)
-  knitr::knit_hooks$restore(original_knitr_objects$knit_hooks)
-  knitr::opts_chunk$restore(original_knitr_objects$opts_chunk)
-  knitr::opts_hooks$restore(original_knitr_objects$opts_hooks)
-  knitr::knit_engines$restore(original_knitr_objects$knit_engines)
+restore_state <- function(original_state) {
+  knitr::opts_knit$restore(original_state$opts_knit)
+  knitr::knit_hooks$restore(original_state$knit_hooks)
+  knitr::opts_chunk$restore(original_state$opts_chunk)
+  knitr::opts_hooks$restore(original_state$opts_hooks)
+  knitr::knit_engines$restore(original_state$knit_engines)
+  usethis:::proj_set_(original_state$usethis_project)
 }
 
 #' Remove extra files added by usethis
@@ -790,11 +800,10 @@ get_params_used <- function(input, passed_params) {
 #' @param ... Additional parameters to be passed to `devtools::load_all()`
 #' @export
 load_all <- function(input, output_dir = NULL, ...) {
-  no_output <- is.null(output_dir)
-  if (no_output) {
-    output_dir <- tempfile()
-    if (fs::file_exists(output_dir)) fs::file_delete(output_dir)
-    fs::dir_create(output_dir)
+  if (is.null(output_dir)) {
+    # create a directory to do the work that `withr` will delete when `load_all`
+    # exits, even if the `render()` call fails.
+    output_dir <- withr::local_tempdir()
   }
   
   # let's copy over everything from input directory to output directory
@@ -819,7 +828,6 @@ load_all <- function(input, output_dir = NULL, ...) {
   
   new_package_dir <- file.path(fs::path_dir(input), params$package_name)
   fs::dir_copy(package_dir, new_package_dir, overwrite = TRUE)
-  if (no_output) fs::dir_delete(output_dir)
   
   devtools::load_all(new_package_dir)
 }

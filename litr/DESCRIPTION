@@ -23,16 +23,18 @@ Imports:
     rmarkdown,
     stringr,
     usethis,
+    withr,
     xfun,
     xml2,
     yaml
 Suggests: 
     dplyr,
     Rcpp,
+    RcppArmadillo,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.0
 VignetteBuilder: knitr
 URL: https://github.com/jacobbien/litr-project/tree/main/litr
 LitrVersionUsed: 0.9.4
-LitrId: 110f6c6db81b7aa9fb0baf13ea3cd4ab
+LitrId: 426db3cf843e8ff0565b57bc7be9bf78
