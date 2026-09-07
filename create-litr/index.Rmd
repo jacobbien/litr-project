@@ -1752,11 +1752,10 @@ When someone is writing an R package with devtools, it is common to use `devtool
 #' @param ... Additional parameters to be passed to `devtools::load_all()`
 #' @export
 load_all <- function(input, output_dir = NULL, ...) {
-  no_output <- is.null(output_dir)
-  if (no_output) {
-    output_dir <- tempfile()
-    if (fs::file_exists(output_dir)) fs::file_delete(output_dir)
-    fs::dir_create(output_dir)
+  if (is.null(output_dir)) {
+    # create a directory to do the work that `withr` will delete when `load_all`
+    # exits, even if the `render()` call fails.
+    output_dir <- withr::local_tempdir()
   }
   
   # let's copy over everything from input directory to output directory
@@ -1781,10 +1780,15 @@ load_all <- function(input, output_dir = NULL, ...) {
   
   new_package_dir <- file.path(fs::path_dir(input), params$package_name)
   fs::dir_copy(package_dir, new_package_dir, overwrite = TRUE)
-  if (no_output) fs::dir_delete(output_dir)
   
   devtools::load_all(new_package_dir)
 }
+```
+
+Since `load_all()` uses `withr`, we import it:
+
+```{r}
+usethis::use_package("withr")
 ```
 
 Let's test that this works.  In particular, we'll call `load_all()` and then try to use one of the functions from the package.
@@ -2654,12 +2658,6 @@ build_all_templates <- function(example_dir) {
   }
   invisible(example_dir)
 }
-```
-
-We use `withr` above and in the test, so we add it to "Suggests":
-
-```{r}
-usethis::use_package("withr", type = "Suggests")
 ```
 
 ## Running the tests {#running-the-tests}
