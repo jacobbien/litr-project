@@ -50,7 +50,7 @@ usethis::create_package(
   path = ".",
   fields = list(
     Package = params$package_name,
-    Version = "0.9.4",
+    Version = "0.9.5",
     Title = "Literate Programming for Writing R Packages",
     Description = "Allows one to fully create an R package in a single .Rmd 
     file.  Includes functionality and .Rmd templates for a literate programming
@@ -2588,8 +2588,6 @@ usethis::use_package("RcppArmadillo", type = "Suggests")
 # Documenting the package and testing
 
 We finish by running commands that will document and test `litr`.
-
-**The formatting of the test output does not print out very neatly.**
 
 ## Building an example of every template {#examples-folder}
 
