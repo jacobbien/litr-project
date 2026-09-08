@@ -2670,10 +2670,15 @@ build_all_templates <- function(example_dir) {
 
 ## Running the tests {#running-the-tests}
 
-We download the latest release:
+First we document the package:
 
 ```{r}
 litr::document()
+```
+
+Now we download the latest release and run the tests against the new version (we do this in a code chunk separate from `litr::document()` so that the tests will not be run when rendering with `minimal_eval=TRUE`):
+
+```{r}
 install_old <- function() {
   remotes::install_github("jacobbien/litr-project@*release", subdir = "litr")
 }
