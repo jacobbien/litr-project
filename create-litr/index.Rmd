@@ -625,9 +625,19 @@ usethis::use_package("knitr")
 
 # Not overwriting a manually edited R package {#hash}
 
-As described in the previous section, the function `setup()` will only overwrite a directory if it is the unedited output from using `litr`.  The basic idea is that the function `litr::render()` when creating a new package finishes by adding a hash to the DESCRIPTION file.  (And likewise when `rmarkdown::render()` is used with a `litr` output format, as described [here]{#output-format}.) This hash is a function of everything in the package, so if anything about the package changes (any file is modified, added, or removed) then the function `check_unedited()` will be able to detect that by recomputing the hash and seeing that it doesn't match the hash in the DESCRIPTION file.
+As described in the previous section, the function `setup()` will only overwrite a directory if it is the unedited output from using `litr`.  The basic idea is that the function `litr::render()` when creating a new package finishes by adding a hash to the DESCRIPTION file.  (And likewise when `rmarkdown::render()` is used with a `litr` output format, as described [here]{#output-format}.) This hash is a function of everything in the package apart from a few files that git never commits (described below), so if anything else about the package changes (any file is modified, added, or removed) then the function `check_unedited()` will be able to detect that by recomputing the hash and seeing that it doesn't match the hash in the DESCRIPTION file.
 
-Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash*.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
+Let's start by defining the function `hash_package_directory()` that does the hashing.  The hash is a function of everything in the outputted package *except for that special line in the DESCRIPTION file with the hash* and a few files that git never commits.  We use `tools::md5sum()` and `digest::digest()` to do the hashing.
+
+The files we skip are ones that a render creates but that are never committed to git.  If the hash counted them, then the hash stored in a committed DESCRIPTION file would include files that a fresh clone of the repository doesn't have, and `litr::render()` would refuse to overwrite the package in every fresh clone.  There are two kinds of such files:
+
+- Files in `.git/hooks/` at the top level of the package.  When the project is inside a git repository, `usethis::use_readme_rmd()` (which `add_readme()` calls) writes a pre-commit hook to `.git/hooks/pre-commit` within the package, and git never commits anything inside a `.git` directory.
+
+- Compiled objects in `src/`, i.e., files ending in `.o`, `.so`, or `.dll`.  A package with C++ code gets compiled during the render, and the `src/.gitignore` file that `usethis` writes ignores these files.
+
+Notice that we skip only `.git/hooks/` and not all of `.git/`.  If the package directory were itself a git repository, then skipping all of `.git/` would mean that `check_unedited()` could still pass after a commit, and `setup()` would then delete the directory, repository and all.  Also, we match these patterns against paths relative to the package directory.  That way, it doesn't matter where the package itself lives (e.g., in a directory called `src`), and a `.git` directory deeper inside the package is not affected.  (We also skip the `.DS_Store` files that macOS creates.)
+
+Older versions of `litr` did not skip the hooks or the compiled objects.  Setting `skip_uncommitted = FALSE` gives the hash those versions computed, which we will need when we get to `check_unedited()` below.
 
 ```{r, send_to = "R/hash.R"}
 #' Hash package directory
@@ -638,10 +648,23 @@ Let's start by defining the function `hash_package_directory()` that does the ha
 #' stored when `litr::render` generates the package.
 #' 
 #' @param package_dir Path to package
+#' @param skip_uncommitted If `TRUE`, then files that git never commits are
+#' skipped: files in `.git/hooks/` at the top level of the package and
+#' compiled objects (`.o`, `.so`, `.dll`) in `src/`.  If `FALSE`, then these
+#' files are included, which gives the hash computed by older versions of
+#' `litr`.
 #' @keywords internal
-hash_package_directory <- function(package_dir) {
+hash_package_directory <- function(package_dir, skip_uncommitted = TRUE) {
   pkg_files <- fs::dir_ls(package_dir, recurse = TRUE, all = TRUE, type = "file")
   pkg_files <- stringr::str_subset(pkg_files, ".DS_Store$", negate = TRUE)
+  if (skip_uncommitted) {
+    # match against paths relative to package_dir so that only a .git/hooks
+    # directory at the top level of the package is skipped:
+    rel_paths <- fs::path_rel(pkg_files, start = package_dir)
+    pkg_files <- pkg_files[!stringr::str_detect(
+      rel_paths,
+      "^\\.git/hooks/|^src/.*\\.(o|so|dll)$")]
+  }
   pkg_files <- normalizePath(pkg_files)
   descr_file <- normalizePath(file.path(package_dir, "DESCRIPTION"))
   i_descr <- which(pkg_files == descr_file)
@@ -710,24 +733,108 @@ read_hash_from_description <- function(package_dir) {
 }
 ```
 
-With all this hash functionality in place, the function `check_unedited()` is actually quite simple to define:
+With all this hash functionality in place, the function `check_unedited()` is actually quite simple to define.  There is one wrinkle.  A package created by an older version of `litr` has a hash in its DESCRIPTION file that was computed without skipping the hooks and compiled objects described above.  We don't want an upgrade of `litr` to make it refuse to overwrite a package that it would have overwritten before, so we accept a stored hash that matches either the current way of computing the hash or the older one (and we only compute the older one when the current one doesn't match).  Accepting the older hash as well doesn't weaken the check: the older hash counts more files, so matching it is at least as strict, and a change to any file that isn't skipped changes both hashes.
 
 ```{r, send_to = "R/hash.R"}
 #' Check if package directory is the unedited output of litr::render()
 #' 
 #' Uses hash stored in a special `litr` field of DESCRIPTION file to check that 
 #' the current state of the R package directory is identical to its state at the
-#' time that it was created by `litr::render()`.
+#' time that it was created by `litr::render()`.  A hash computed by an older
+#' version of `litr`, which did not skip any files that git never commits, is
+#' also accepted.
 #' 
 #' @param package_dir Path to package
 #' @keywords internal
 check_unedited <- function(package_dir) {
-  hash <- hash_package_directory(package_dir)
-  hash == read_hash_from_description(package_dir)
+  hash <- read_hash_from_description(package_dir)
+  hash == hash_package_directory(package_dir) ||
+    hash == hash_package_directory(package_dir, skip_uncommitted = FALSE)
 }
 ```
 
-It simply computes the hash of the current package and checks whether that hash is the same as what was originally written to the DESCRIPTION file by `litr::render()`.
+It computes the hash of the current package and checks whether that hash is the same as what was originally written to the DESCRIPTION file by `litr::render()`.
+
+Let's test the hashing on a small package directory that we make by hand, so that no render is needed.  (We test `check_unedited()` on a rendered package [later](#test-check-unedited).)  The stored hash is written in the same way that `write_hash_to_description()` writes it, either in the current way or in the way of older versions of `litr`.
+
+```{r}
+testthat::test_that("hash skips files that git never commits", {
+  pkg <- withr::local_tempdir()
+  writeLines(c("Package: mypkg", "Version: 0.0.1"),
+             file.path(pkg, "DESCRIPTION"))
+  fs::dir_create(file.path(pkg, c("R", "src")))
+  writeLines("f <- function() 1", file.path(pkg, "R", "f.R"))
+  writeLines("PKG_CXXFLAGS = -O2", file.path(pkg, "src", "Makevars"))
+  # writes the stored hash the way that write_hash_to_description() does:
+  store_hash <- function(skip_uncommitted) {
+    hash <- hash_package_directory(pkg, skip_uncommitted = skip_uncommitted)
+    desc::desc_set(description_litr_hash_field_name(), hash,
+                   file = file.path(pkg, "DESCRIPTION"))
+  }
+  hook <- file.path(pkg, ".git", "hooks", "pre-commit")
+  objects <- file.path(pkg, "src", c("code.o", "code.so", "code.dll"))
+  add_uncommitted <- function() {
+    fs::dir_create(fs::path_dir(hook))
+    writeLines("#!/bin/sh", hook)
+    for (object in objects) writeLines("compiled code", object)
+  }
+  remove_uncommitted <- function() {
+    fs::dir_delete(file.path(pkg, ".git"))
+    fs::file_delete(objects)
+  }
+  # a file at path (relative to pkg) should change the hash:
+  expect_hash_changed_by <- function(path) {
+    hash <- hash_package_directory(pkg)
+    fs::dir_create(fs::path_dir(file.path(pkg, path)))
+    writeLines("something", file.path(pkg, path))
+    testthat::expect_false(hash_package_directory(pkg) == hash, info = path)
+    fs::file_delete(file.path(pkg, path))
+    testthat::expect_equal(hash_package_directory(pkg), hash, info = path)
+  }
+
+  # a hook and compiled objects don't change the hash:
+  hash <- hash_package_directory(pkg)
+  add_uncommitted()
+  testthat::expect_equal(hash_package_directory(pkg), hash)
+  testthat::expect_false(
+    hash_package_directory(pkg, skip_uncommitted = FALSE) == hash)
+  remove_uncommitted()
+
+  # but other files, including other ones in .git/ and src/, do:
+  expect_hash_changed_by(file.path(".git", "HEAD"))
+  expect_hash_changed_by(file.path(".github", "workflows", "check.yaml"))
+  expect_hash_changed_by(file.path("src", "code.cpp"))
+  expect_hash_changed_by(file.path("src", "code.old"))
+  expect_hash_changed_by(file.path("src", "info"))
+  expect_hash_changed_by(file.path("inst", "libs", "code.so"))
+  expect_hash_changed_by(file.path("R", ".git", "hooks", "pre-commit"))
+
+  # a hash stored by an older litr passes when the hook and objects are there
+  # (as they are in the place it was rendered) but not when they are missing
+  # (as in a fresh clone):
+  add_uncommitted()
+  store_hash(skip_uncommitted = FALSE)
+  testthat::expect_true(check_unedited(pkg))
+  remove_uncommitted()
+  testthat::expect_false(check_unedited(pkg))
+
+  # a hash stored by this litr passes whether or not they are there:
+  store_hash(skip_uncommitted = TRUE)
+  testthat::expect_true(check_unedited(pkg))
+  add_uncommitted()
+  testthat::expect_true(check_unedited(pkg))
+
+  # and either way, a manual edit is caught:
+  rfile <- file.path(pkg, "R", "f.R")
+  for (skip_uncommitted in c(FALSE, TRUE)) {
+    store_hash(skip_uncommitted = skip_uncommitted)
+    testthat::expect_true(check_unedited(pkg))
+    writeLines("f <- function() 2", rfile)
+    testthat::expect_false(check_unedited(pkg))
+    writeLines("f <- function() 1", rfile)
+  }
+})
+```
 
 
 # Wrapper to `devtools::document()` {#document}
@@ -2273,6 +2380,8 @@ For our tests, we create a temporary directory (which we delete at the end).  In
 
 - Changing the `litr` hash line itself
 
+We also check that adding a file that git never commits, such as a pre-commit hook in the package's `.git/hooks/`, does *not* make `check_unedited()` return `FALSE`.
+
 ```{r, eval=FALSE}
 testthat::test_that("check_unedited works", {
   # Including this next line seems to be necessary for R CMD check on the cmd line:
@@ -2292,6 +2401,14 @@ testthat::test_that("check_unedited works", {
 
   # what if we now remove it?
   fs::file_delete(added_file)
+  testthat::expect_true(check_unedited(package_path))
+
+  # what if a file that git never commits is added?
+  hook <- file.path(package_path, ".git", "hooks", "pre-commit")
+  fs::dir_create(fs::path_dir(hook))
+  writeLines("#!/bin/sh", hook)
+  testthat::expect_true(check_unedited(package_path))
+  fs::dir_delete(file.path(package_path, ".git"))
   testthat::expect_true(check_unedited(package_path))
 
   # what if a file is removed from package?
